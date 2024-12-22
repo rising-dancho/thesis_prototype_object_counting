@@ -31,7 +31,7 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 - python must also be installed on your machine (tick the `PATH` checkbox before installing python)
 - create the `virtual environment`, activate the virtual environment using the `Command Prompt` (make sure you are in the `Scripts` directory where `activate.bat` is located)
 - `cd` back to `backend` folder where the  `requirements.txt` is located and then run the command to install the packages
-- once you're done with the instructions above, make sure you are in the `backend` folder and your `XAMPP` is running. And then run this code in the `Command Prompt`:
+- once you're done with the instructions above, make sure you are in the `backend` folder then run this code in the `Command Prompt`:
   `python app.py`
 - finally, install `Postman` so that you can test the `/process-image` route
 
