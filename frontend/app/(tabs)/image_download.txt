@@ -1,0 +1,93 @@
+const pickAndUploadImage = async () => {
+    try {
+      // Step 1: Launch image picker
+      let result = await ImagePicker.launchImageLibraryAsync({
+        allowsEditing: true,
+        quality: 1,
+      });
+
+      // Step 2: Check if an image was selected
+      if (!result.canceled) {
+        const selectedAsset = result.assets[0];
+
+        // // Step 3: Set the selected image state
+        // setSelectedImage(selectedAsset.uri);
+        // setShowAppOptions(true);
+
+        // Step 4: Create FormData for upload
+        const formData = new FormData();
+
+        if (Platform.OS === 'web') {
+          // For web, fetch the file and convert it into a Blob
+          const response = await fetch(selectedAsset.uri);
+          const blob = await response.blob();
+          formData.append(
+            'image',
+            blob,
+            selectedAsset.fileName || 'uploaded-image.jpg'
+          );
+        } else {
+          // For React Native, use a compatible format
+          formData.append('image', {
+            uri: selectedAsset.uri,
+            name: selectedAsset.fileName || 'uploaded-image.jpg',
+            type: selectedAsset.type || 'image/jpeg',
+          } as any); // Use 'as any' to bypass strict type checks for React Native
+        }
+
+        // Step 5: Upload image to the server
+        await axios
+          .post('http://127.0.0.1:5000/process-image', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          })
+          .then((response) => {
+            const { object_count, message, processed_image } = response.data;
+
+            alert('Object Count: ' + response.data.object_count);
+            console.log(message);
+            console.log('Server Response:', response.data);
+            console.log(processed_image);
+
+            // // Step 3: Set the selected image state
+            setSelectedImage(processed_image);
+            setShowAppOptions(true);
+
+            // Create a Blob from the base64 image
+            const byteCharacters = atob(processed_image); // Decode base64 string
+            const byteArrays = [];
+
+            // Convert byte characters into a byte array
+            for (
+              let offset = 0;
+              offset < byteCharacters.length;
+              offset += 1024
+            ) {
+              const slice = byteCharacters.slice(offset, offset + 1024);
+              const byteNumbers = new Array(slice.length);
+              for (let i = 0; i < slice.length; i++) {
+                byteNumbers[i] = slice.charCodeAt(i);
+              }
+              byteArrays.push(new Uint8Array(byteNumbers));
+            }
+
+            // Create a Blob from the byte array
+            const blob = new Blob(byteArrays, { type: 'image/png' });
+
+            // Create a temporary link to download the image
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob); // Create URL for the Blob
+            link.download = 'processed_image.png'; // Specify the filename
+            link.click(); // Programmatically click the link to trigger the download
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
+      } else {
+        alert('You did not select any image');
+      }
+    } catch (error: any) {
+      console.error(
+        'Error picking or uploading image:',
+        error.response?.data || error.message
+      );
+    }

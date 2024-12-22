@@ -61,9 +61,9 @@ export default function Index() {
       if (!result.canceled) {
         const selectedAsset = result.assets[0];
 
-        // Step 3: Set the selected image state
-        setSelectedImage(selectedAsset.uri);
-        setShowAppOptions(true);
+        // // Step 3: Set the selected image state
+        // setSelectedImage(selectedAsset.uri);
+        // setShowAppOptions(true);
 
         // Step 4: Create FormData for upload
         const formData = new FormData();
@@ -87,43 +87,20 @@ export default function Index() {
         }
 
         // Step 5: Upload image to the server
-        const response = await axios
+        await axios
           .post('http://127.0.0.1:5000/process-image', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
           })
           .then((response) => {
             const { object_count, message, processed_image } = response.data;
 
-            alert('Object Count: ' + response.data.object_count);
+            // Update the selectedImage state with the base64 string (prepended with the appropriate data URL prefix)
+            setSelectedImage(`data:image/png;base64,${processed_image}`);
+            setShowAppOptions(true);
+
+            alert('Object Count: ' + object_count);
             console.log(message);
             console.log('Server Response:', response.data);
-
-            // Create a Blob from the base64 image
-            const byteCharacters = atob(processed_image); // Decode base64 string
-            const byteArrays = [];
-
-            // Convert byte characters into a byte array
-            for (
-              let offset = 0;
-              offset < byteCharacters.length;
-              offset += 1024
-            ) {
-              const slice = byteCharacters.slice(offset, offset + 1024);
-              const byteNumbers = new Array(slice.length);
-              for (let i = 0; i < slice.length; i++) {
-                byteNumbers[i] = slice.charCodeAt(i);
-              }
-              byteArrays.push(new Uint8Array(byteNumbers));
-            }
-
-            // Create a Blob from the byte array
-            const blob = new Blob(byteArrays, { type: 'image/png' });
-
-            // Create a temporary link to download the image
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob); // Create URL for the Blob
-            link.download = 'processed_image.png'; // Specify the filename
-            link.click(); // Programmatically click the link to trigger the download
           })
           .catch((error) => {
             console.error('Error:', error);
