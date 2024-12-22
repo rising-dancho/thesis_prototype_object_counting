@@ -1,0 +1,103 @@
+from flask import Flask, jsonify, request
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
+from bson.objectid import ObjectId
+import datetime
+from flask_cors import CORS
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+app = Flask(__name__)
+CORS(app)
+
+# MongoDB connection URI
+uri = os.getenv("MONGO_URI")
+client = MongoClient(uri, server_api=ServerApi("1"))
+db = client.flask_database  # MongoDB database
+todos = db.todos  # MongoDB collection
+
+
+@app.route("/", methods=["GET"])
+def home():
+    return jsonify({"message": "Welcome to the Flask API with MongoDB!"})
+
+
+@app.route("/get", methods=["GET"])
+def get_articles():
+    all_todos = list(todos.find())
+    for todo in all_todos:
+        todo["_id"] = str(todo["_id"])
+    return jsonify(all_todos)
+
+
+@app.route("/get/<id>", methods=["GET"])
+def get_single_article(id):
+    try:
+        todo = todos.find_one({"_id": ObjectId(id)})
+        if todo:
+            todo["_id"] = str(todo["_id"])
+            return jsonify(todo)
+        else:
+            return jsonify({"error": "Todo not found"}), 404
+    except Exception as e:
+        return jsonify({"error": "Invalid ID format"}), 400
+
+
+@app.route("/add", methods=["POST"])
+def add_article():
+    try:
+        title = request.json.get("title")
+        body = request.json.get("body")
+
+        if not title or not body:
+            return jsonify({"error": "Title and body are required"}), 400
+
+        new_todo = {"title": title, "body": body, "date": datetime.datetime.now()}
+
+        result = todos.insert_one(new_todo)
+        new_todo["_id"] = str(result.inserted_id)
+        return jsonify(new_todo)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/update/<id>", methods=["PUT"])
+def update_article(id):
+    try:
+        title = request.json.get("title")
+        body = request.json.get("body")
+
+        if not title or not body:
+            return jsonify({"error": "Title and body are required"}), 400
+
+        updated_todo = todos.find_one_and_update(
+            {"_id": ObjectId(id)},
+            {"$set": {"title": title, "body": body}},
+            return_document=True,
+        )
+
+        if updated_todo:
+            updated_todo["_id"] = str(updated_todo["_id"])
+            return jsonify(updated_todo)
+        else:
+            return jsonify({"error": "Todo not found"}), 404
+    except Exception as e:
+        return jsonify({"error": "Invalid ID format"}), 400
+
+
+@app.route("/delete/<id>", methods=["DELETE"])
+def delete_article(id):
+    try:
+        result = todos.delete_one({"_id": ObjectId(id)})
+        if result.deleted_count > 0:
+            return jsonify({"msg": "Delete Successful!"})
+        else:
+            return jsonify({"error": "Todo not found"}), 404
+    except Exception as e:
+        return jsonify({"error": "Invalid ID format"}), 400
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", debug=True)
