@@ -6,7 +6,7 @@ import { captureRef } from 'react-native-view-shot';
 import { type ImageSource } from 'expo-image';
 import domtoimage from 'dom-to-image';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 
 // components
 import Button from '@/components/Button';
@@ -60,10 +60,6 @@ export default function Index() {
       // Step 2: Check if an image was selected
       if (!result.canceled) {
         const selectedAsset = result.assets[0];
-
-        // // Step 3: Set the selected image state
-        // setSelectedImage(selectedAsset.uri);
-        // setShowAppOptions(true);
 
         // Step 4: Create FormData for upload
         const formData = new FormData();
