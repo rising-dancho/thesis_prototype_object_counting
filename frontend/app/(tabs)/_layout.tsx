@@ -35,7 +35,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="about"
         options={{
-          headerTitle: 'About',
+          headerTitle: 'Object Counting Prototype',
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
               name={
