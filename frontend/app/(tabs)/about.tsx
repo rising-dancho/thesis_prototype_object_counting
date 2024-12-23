@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, Platform, Text } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { captureRef } from 'react-native-view-shot';
+import axios from 'axios';
 import * as MediaLibrary from 'expo-media-library';
 import Slider from '@react-native-community/slider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -31,7 +32,7 @@ export default function AboutScreen() {
     }
   }, [status, requestPermission]);
 
-  const pickImageAsync = async () => {
+  const pickAndUploadImage = async () => {
     try {
       let result = await ImagePicker.launchImageLibraryAsync({
         allowsEditing: true,
@@ -39,9 +40,44 @@ export default function AboutScreen() {
       });
 
       if (!result.canceled) {
-        setSelectedImage(result.assets[0].uri);
-        // alert(result.assets[0].uri);
-        console.log(result);
+        const selectedAsset = result.assets[0];
+
+        const formData = new FormData();
+        if (Platform.OS === 'web') {
+          const response = await fetch(selectedAsset.uri);
+          const blob = await response.blob();
+          formData.append(
+            'image',
+            blob,
+            selectedAsset.fileName || 'uploaded-image.jpg'
+          );
+        } else {
+          formData.append('image', {
+            uri: selectedAsset.uri,
+            name: selectedAsset.fileName || 'uploaded-image.jpg',
+            type: selectedAsset.type || 'image/jpeg',
+          } as any);
+        }
+
+        // Send the image and slider values to the server
+        await axios
+          .post('http://127.0.0.1:5000/manual-image-processing', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+            params: {
+              minThreshold,
+              maxThreshold,
+            },
+          })
+          .then((response) => {
+            const { object_count, message, processed_image } = response.data;
+            setSelectedImage(`data:image/png;base64,${processed_image}`);
+            setShowAppOptions(true);
+            alert('Object Count: ' + object_count);
+            console.log(message);
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
       } else {
         alert('You did not select any image');
       }
@@ -92,7 +128,7 @@ export default function AboutScreen() {
           <Button
             theme="primary"
             label="Choose a photo"
-            onPress={pickImageAsync}
+            onPress={pickAndUploadImage}
           />
         </View>
       )}

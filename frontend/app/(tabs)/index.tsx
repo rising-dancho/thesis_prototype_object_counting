@@ -84,7 +84,7 @@ export default function Index() {
 
         // Step 5: Upload image to the server
         await axios
-          .post('http://127.0.0.1:5000/process-image', formData, {
+          .post('http://127.0.0.1:5000/image-processing', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
           })
           .then((response) => {

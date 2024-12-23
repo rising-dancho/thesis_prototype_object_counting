@@ -22,7 +22,7 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@app.route("/manual-process-image", methods=["POST"])
+@app.route("/manual-image-processing", methods=["POST"])
 def manual_process_image():
     if "file" not in request.files:
         return jsonify({"error": "No file part"}), 400
@@ -71,7 +71,7 @@ def manual_process_image():
 
 
 # Object detection and counting endpoint
-@app.route("/process-image", methods=["POST"])
+@app.route("/image-processing", methods=["POST"])
 def automatic_process_image():
     try:
         # Check if a file was uploaded
@@ -79,9 +79,7 @@ def automatic_process_image():
             return jsonify({"error": "No file uploaded"}), 400
 
         file = request.files["image"]
-        print(
-            f"Received file: {file.filename}"
-        )  # Log the filename to ensure it's being received
+        print(f"Received file: {file.filename}")
 
         # Read the uploaded image
         npimg = np.frombuffer(file.read(), np.uint8)
@@ -115,27 +113,43 @@ def automatic_process_image():
 
         # Step 6: Find contours
         cnts = cv2.findContours(
-            last_image.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+            last_image.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
         )
         cnts = imutils.grab_contours(cnts)
 
-        # Step 7: Draw contours and label the objects
+        # Step 7: Draw bounding rectangles, count objects, and add number labels
         object_count = 0
-        for i, c in enumerate(cnts):
-            ((x, y), radius) = cv2.minEnclosingCircle(c)
-            if radius > 15:  # Filter out small contours based on radius
+        for i, cnt in enumerate(cnts):
+            if cv2.contourArea(cnt) > 200:  # Filter out small contours based on area
                 object_count += 1
-                # Draw the contour and the label
+                x1, y1, w, h = cv2.boundingRect(cnt)
+                cv2.rectangle(img, (x1, y1), (x1 + w, y1 + h), (0, 255, 0), 3)
+
+                # Calculate the centroid of the bounding box
+                cx = x1 + w // 2
+                cy = y1 + h // 2
+
+                # Add a label with the object's count inside the box
                 cv2.putText(
                     img,
-                    f"#{object_count}",
-                    (int(x) - 45, int(y) + 20),
+                    f"{object_count}",
+                    (cx - 10, cy + 10),  # Center the label
                     cv2.FONT_HERSHEY_SIMPLEX,
-                    1,
-                    (255, 0, 0),
-                    2,
+                    2,  # Font scale
+                    (255, 0, 0),  # Color (blue)
+                    3,  # Thickness
                 )
-                cv2.drawContours(img, [c], -1, (0, 255, 0), 2)
+
+        # Add text label for the total object count (outside the loop)
+        cv2.putText(
+            img,
+            f"Total Objects: {object_count}",
+            (50, 50),  # Position of the label
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1,  # Font scale
+            (0, 0, 0),  # Color (red)
+            3,  # Thickness
+        )
 
         # Convert processed image (BGR) to RGB for sending in the response
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
