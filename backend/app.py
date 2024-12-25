@@ -135,9 +135,9 @@ def automatic_process_image():
                     f"{object_count}",
                     (cx - 10, cy + 10),  # Center the label
                     cv2.FONT_HERSHEY_SIMPLEX,
-                    2,  # Font scale
+                    1,  # Font scale
                     (255, 0, 0),  # Color (blue)
-                    3,  # Thickness
+                    2,  # Thickness
                 )
 
         # Add text label for the total object count (outside the loop)
@@ -148,7 +148,7 @@ def automatic_process_image():
             cv2.FONT_HERSHEY_SIMPLEX,
             1,  # Font scale
             (0, 0, 0),  # Color (red)
-            3,  # Thickness
+            2,  # Thickness
         )
 
         # Convert processed image (BGR) to RGB for sending in the response

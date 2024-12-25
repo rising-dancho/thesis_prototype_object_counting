@@ -20,10 +20,14 @@ const PlaceholderImage = require('@/assets/images/background-image.png');
 export default function Index() {
   // hooks
   const [status, requestPermission] = MediaLibrary.usePermissions();
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(
+    undefined
+  );
   const [showAppOptions, setShowAppOptions] = useState<boolean>(false);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const [pickedEmoji, setPickedEmoji] = useState<ImageSource | undefined>(undefined);
+  const [pickedEmoji, setPickedEmoji] = useState<ImageSource | undefined>(
+    undefined
+  );
   const imageRef = useRef<View>(null);
 
   // methods
@@ -131,13 +135,13 @@ export default function Index() {
     } else {
       try {
         const dataUrl = await domtoimage.toJpeg(imageRef.current, {
-          quality: 0.95,
-          width: 320,
-          height: 440,
+          quality: 1,
+          width: 520,
+          height: 640,
         });
 
         let link = document.createElement('a');
-        link.download = 'sticker-smash.jpeg';
+        link.download = 'processed-image.jpeg';
         link.href = dataUrl;
         link.click();
       } catch (e) {
