@@ -3,11 +3,14 @@ import imutils
 import numpy as np
 import matplotlib.pyplot as plt
 from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file
 import io
+import os
 import os
 from PIL import Image
 from flask_cors import CORS
 import base64
+from werkzeug.utils import secure_filename
 from werkzeug.utils import secure_filename
 
 # Initialize Flask app
@@ -70,7 +73,65 @@ def manual_process_image():
     return jsonify({"error": "Invalid file format"}), 400
 
 
+# Allow only specific file types
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
+
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.route("/manual-image-processing", methods=["POST"])
+def manual_process_image():
+    if "file" not in request.files:
+        return jsonify({"error": "No file part"}), 400
+
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify({"error": "No selected file"}), 400
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        filepath = os.path.join("uploads", filename)
+        file.save(filepath)
+
+        # Read the image using OpenCV
+        image = cv2.imread(filepath)
+        if image is None:
+            return jsonify({"error": "Could not read image"}), 400
+
+        # Get the threshold values from the request
+        min_threshold = int(
+            request.form.get("minThreshold", 100)
+        )  # Default 100 if not provided
+        max_threshold = int(
+            request.form.get("maxThreshold", 200)
+        )  # Default 200 if not provided
+
+        # Convert image to grayscale
+        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+        # Perform edge detection with the thresholds from the frontend
+        edges = cv2.Canny(gray_image, min_threshold, max_threshold)
+
+        # Save the processed image
+        output_filepath = os.path.join("uploads", "processed_" + filename)
+        cv2.imwrite(output_filepath, edges)
+
+        # Return the processed image
+        return send_file(
+            output_filepath,
+            mimetype="image/jpeg",
+            as_attachment=True,
+            download_name="processed_image.jpg",
+        )
+
+    return jsonify({"error": "Invalid file format"}), 400
+
+
 # Object detection and counting endpoint
+@app.route("/image-processing", methods=["POST"])
+def automatic_process_image():
 @app.route("/image-processing", methods=["POST"])
 def automatic_process_image():
     try:
@@ -79,6 +140,7 @@ def automatic_process_image():
             return jsonify({"error": "No file uploaded"}), 400
 
         file = request.files["image"]
+        print(f"Received file: {file.filename}")
         print(f"Received file: {file.filename}")
 
         # Read the uploaded image
@@ -99,6 +161,9 @@ def automatic_process_image():
         _, image_thresh = cv2.threshold(
             image_blur_gray, 240, 255, cv2.THRESH_BINARY_INV
         )
+        _, image_thresh = cv2.threshold(
+            image_blur_gray, 240, 255, cv2.THRESH_BINARY_INV
+        )
 
         # Step 4: Apply morphological operation to remove noise
         kernel = np.ones((3, 3), np.uint8)
@@ -109,16 +174,25 @@ def automatic_process_image():
         _, last_image = cv2.threshold(
             dist_transform, 0.3 * dist_transform.max(), 255, 0
         )
+        _, last_image = cv2.threshold(
+            dist_transform, 0.3 * dist_transform.max(), 255, 0
+        )
         last_image = np.uint8(last_image)
 
         # Step 6: Find contours
         cnts = cv2.findContours(
             last_image.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
         )
+        cnts = cv2.findContours(
+            last_image.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
+        )
         cnts = imutils.grab_contours(cnts)
 
         # Step 7: Draw bounding rectangles, count objects, and add number labels
+        # Step 7: Draw bounding rectangles, count objects, and add number labels
         object_count = 0
+        for i, cnt in enumerate(cnts):
+            if cv2.contourArea(cnt) > 200:  # Filter out small contours based on area
         for i, cnt in enumerate(cnts):
             if cv2.contourArea(cnt) > 200:  # Filter out small contours based on area
                 object_count += 1
@@ -130,8 +204,18 @@ def automatic_process_image():
                 cy = y1 + h // 2
 
                 # Add a label with the object's count inside the box
+                x1, y1, w, h = cv2.boundingRect(cnt)
+                cv2.rectangle(img, (x1, y1), (x1 + w, y1 + h), (0, 255, 0), 3)
+
+                # Calculate the centroid of the bounding box
+                cx = x1 + w // 2
+                cy = y1 + h // 2
+
+                # Add a label with the object's count inside the box
                 cv2.putText(
                     img,
+                    f"{object_count}",
+                    (cx - 10, cy + 10),  # Center the label
                     f"{object_count}",
                     (cx - 10, cy + 10),  # Center the label
                     cv2.FONT_HERSHEY_SIMPLEX,
@@ -172,6 +256,16 @@ def automatic_process_image():
             ),
             200,
         )
+        return (
+            jsonify(
+                {
+                    "object_count": object_count,
+                    "message": "Image processed successfully!",
+                    "processed_image": img_base64,
+                }
+            ),
+            200,
+        )
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -183,6 +277,9 @@ def index():
 
 
 if __name__ == "__main__":
+    if not os.path.exists("uploads"):
+        os.makedirs("uploads")
+
     if not os.path.exists("uploads"):
         os.makedirs("uploads")
 

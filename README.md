@@ -25,7 +25,7 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 - thesis object counting protype. it has the opencv backend route that takes in the image of the user and processes that to count the object in the provided image.
 - the response would be the number of the objects counted within the image and also the appropriate number tags and the corresponding bounding boxes
 
-![processed_image (1)](https://github.com/user-attachments/assets/d290c9b3-b782-4af4-8404-ee4340077bde)
+![sticker-smash (5)](https://github.com/user-attachments/assets/6cda695f-a697-4bb7-ac89-6b6cda28e768)
 
 ### in order to run or test this:
 - python must also be installed on your machine (tick the `PATH` checkbox before installing python)
@@ -90,5 +90,9 @@ Thumbs.db
 ```
 pip freeze > requirements.txt
 ```
+
+
+
+https://github.com/user-attachments/assets/456a4556-a73a-41df-ace6-baad09fa48f3
 
 

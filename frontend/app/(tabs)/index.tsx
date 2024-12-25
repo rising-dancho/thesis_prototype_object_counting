@@ -20,14 +20,10 @@ const PlaceholderImage = require('@/assets/images/background-image.png');
 export default function Index() {
   // hooks
   const [status, requestPermission] = MediaLibrary.usePermissions();
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(
-    undefined
-  );
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
   const [showAppOptions, setShowAppOptions] = useState<boolean>(false);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const [pickedEmoji, setPickedEmoji] = useState<ImageSource | undefined>(
-    undefined
-  );
+  const [pickedEmoji, setPickedEmoji] = useState<ImageSource | undefined>(undefined);
   const imageRef = useRef<View>(null);
 
   // methods
