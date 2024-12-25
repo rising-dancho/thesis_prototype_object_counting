@@ -23,9 +23,10 @@ export default function TabsLayout() {
         name="index"
         options={{
           headerTitle: 'Object Counting Prototype',
+          tabBarLabel: 'Automatic',
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
-              name={focused ? 'home' : 'home-outline'}
+              name={focused ? 'flash' : 'flash-outline'}
               color={color}
               size={24}
             />
@@ -36,10 +37,11 @@ export default function TabsLayout() {
         name="about"
         options={{
           headerTitle: 'Object Counting Prototype',
+          tabBarLabel: 'Manual',
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
               name={
-                focused ? 'information-circle' : 'information-circle-outline'
+                focused ? 'hammer' : 'hammer-outline'
               }
               color={color}
               size={24}
