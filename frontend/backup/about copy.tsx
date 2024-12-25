@@ -17,9 +17,7 @@ const PlaceholderImage = require('@/assets/images/background-image.png');
 
 export default function AboutScreen() {
   const [status, requestPermission] = MediaLibrary.usePermissions();
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(
-    undefined
-  );
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
   const [minThreshold, setMinThreshold] = useState(100);
   const [maxThreshold, setMaxThreshold] = useState(200);
   const [showAppOptions, setShowAppOptions] = useState(false);
@@ -46,11 +44,7 @@ export default function AboutScreen() {
         if (Platform.OS === 'web') {
           const response = await fetch(selectedAsset.uri);
           const blob = await response.blob();
-          formData.append(
-            'image',
-            blob,
-            selectedAsset.fileName || 'uploaded-image.jpg'
-          );
+          formData.append('image', blob, selectedAsset.fileName || 'uploaded-image.jpg');
         } else {
           formData.append('image', {
             uri: selectedAsset.uri,
@@ -61,12 +55,12 @@ export default function AboutScreen() {
 
         // Send the image and slider values to the server
         await axios
-          .post('http://127.0.0.1:5000/manual-image-processing', formData, {
+          .post('http://127.0.0.1:5000/process-image', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
             params: {
               minThreshold,
               maxThreshold,
-            },
+            }
           })
           .then((response) => {
             const { object_count, message, processed_image } = response.data;
@@ -125,11 +119,7 @@ export default function AboutScreen() {
         </View>
       ) : (
         <View style={styles.footerContainer}>
-          <Button
-            theme="primary"
-            label="Choose a photo"
-            onPress={pickAndUploadImage}
-          />
+          <Button theme="primary" label="Choose a photo" onPress={pickAndUploadImage} />
         </View>
       )}
 
