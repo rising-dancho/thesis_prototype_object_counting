@@ -95,7 +95,7 @@ def automatic_process_image():
         # Add text label for the total object count (outside the loop)
         cv2.putText(
             img,
-            f"Total: {object_count}",
+            f"Total Count: {object_count}",
             (50, 50),  # Position of the label
             cv2.FONT_HERSHEY_SIMPLEX,
             1,  # Font scale
