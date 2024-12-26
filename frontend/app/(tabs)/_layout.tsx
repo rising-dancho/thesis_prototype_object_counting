@@ -6,15 +6,16 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#ffd33d',
+        tabBarActiveTintColor: '#6F5BA7',
+        tabBarInactiveTintColor: '#25292e', // Customize inactive color here
         headerStyle: {
-          backgroundColor: '#25292e',
+          backgroundColor: '#F3ECF8',
         },
-        headerShadowVisible: false,
-        headerTintColor: '#fff',
+        headerShadowVisible: true,
+        headerTintColor: '#25292e',
         tabBarStyle: {
-          backgroundColor: '#25292e',
-          borderTopColor: '#3b3e43', // Change the border color here
+          backgroundColor: '#F3ECF8',
+          borderTopColor: '#dbd4df', // Change the border color here
           borderTopWidth: 1, // Adjust border width if needed
         },
       }}
@@ -40,9 +41,7 @@ export default function TabsLayout() {
           tabBarLabel: 'About',
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
-              name={
-                focused ? 'alert-circle' : 'alert-circle-outline'
-              }
+              name={focused ? 'alert-circle' : 'alert-circle-outline'}
               color={color}
               size={24}
             />

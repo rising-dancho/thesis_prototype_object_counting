@@ -15,7 +15,7 @@ export default function Button({ label, theme, onPress }: Props) {
           <FontAwesome
             name="picture-o"
             size={18}
-            color="#25292e"
+            color="#21025C"
             style={styles.buttonIcon}
           />
           <Text style={[styles.buttonLabel, { color: '#25292e' }]}>
@@ -56,12 +56,12 @@ const styles = StyleSheet.create({
     paddingRight: 8,
   },
   buttonLabel: {
-    color: '#fff',
+    color: '#25292e',
     fontSize: 16,
   },
   primary: {
     borderWidth: 4,
-    borderColor: '#ffd33d',
+    borderColor: '#6F5BA7',
     borderRadius: 18,
   },
   white: { backgroundColor: '#fff' },

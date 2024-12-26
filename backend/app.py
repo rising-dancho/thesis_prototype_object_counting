@@ -87,9 +87,9 @@ def automatic_process_image():
                     f"{object_count}",
                     (cx - 10, cy + 10),  # Center the label
                     cv2.FONT_HERSHEY_SIMPLEX,
-                    1,  # Font scale
-                    (255, 0, 0),  # Color (blue)
-                    2,  # Thickness
+                    1.25,  # Font scale
+                    (155, 25, 25),  # Color (blue)
+                    3,  # Thickness
                 )
 
         # Add text label for the total object count (outside the loop)

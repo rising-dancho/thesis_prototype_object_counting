@@ -3,28 +3,30 @@ import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useState, useRef } from 'react';
 import * as MediaLibrary from 'expo-media-library';
 import { captureRef } from 'react-native-view-shot';
-import { type ImageSource } from 'expo-image';
 import domtoimage from 'dom-to-image';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import axios from 'axios';
+
+// react native paper
+import { TextInput } from 'react-native-paper';
 
 // components
 import Button from '@/components/Button';
 import CircleButton from '@/components/CircleButton';
 import ImageViewer from '@/components/ImageViewer';
 import IconButton from '@/components/IconButton';
-import EmojiSticker from '@/components/EmojiSticker';
 
 const PlaceholderImage = require('@/assets/images/background-image.png');
 
 export default function Index() {
   // hooks
   const [status, requestPermission] = MediaLibrary.usePermissions();
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(
+    undefined
+  );
   const [showAppOptions, setShowAppOptions] = useState<boolean>(false);
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const [pickedEmoji, setPickedEmoji] = useState<ImageSource | undefined>(undefined);
   const imageRef = useRef<View>(null);
+  const [title, setTitle] = useState<string>('');
 
   // methods
   useEffect(() => {
@@ -150,15 +152,20 @@ export default function Index() {
     <GestureHandlerRootView style={styles.container}>
       <View style={styles.imageContainer}>
         <View ref={imageRef} collapsable={false}>
-          <ImageViewer imgSource={selectedImage || PlaceholderImage} />
-          {pickedEmoji && (
-            <EmojiSticker imageSize={40} stickerSource={pickedEmoji} />
-          )}
+          <ImageViewer
+            imgSource={selectedImage || PlaceholderImage}
+            text={title}
+          />
         </View>
       </View>
-
       {showAppOptions ? (
-        <View style={styles.footerContainer}>
+        <View style={styles.buttonContainer}>
+          <TextInput
+            label="Title"
+            value={title}
+            mode="outlined"
+            onChangeText={(text) => setTitle(text)}
+          />
           <View style={styles.optionsRow}>
             <IconButton icon="refresh" label="Reset" onPress={onReset} />
             <CircleButton onPress={processImage} />
@@ -170,7 +177,7 @@ export default function Index() {
           </View>
         </View>
       ) : (
-        <View style={styles.footerContainer}>
+        <View style={styles.buttonContainer}>
           <Button
             theme="primary"
             label="Choose a photo"
@@ -189,17 +196,20 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#25292e',
+    backgroundColor: '#FEFBFE',
     alignItems: 'center',
   },
   imageContainer: {
     flex: 1,
+    flexDirection: 'column',
+    margin: 30,
   },
-  footerContainer: {
+  buttonContainer: {
     flex: 1 / 3,
     alignItems: 'center',
   },
   optionsRow: {
+    flex: 2,
     alignItems: 'center',
     flexDirection: 'row',
   },

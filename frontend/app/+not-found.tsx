@@ -9,9 +9,9 @@ export default function NotFoundScreen() {
         options={{
           title: 'Oops! Not found',
           headerStyle: {
-            backgroundColor: '#25292e',
+            backgroundColor: '#F3ECF8',
           },
-          headerTintColor: '#fff',
+          headerTintColor: '#25292e',
           headerShadowVisible: false,
         }}
       />
@@ -27,7 +27,7 @@ export default function NotFoundScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#25292e',
+    backgroundColor: '#F3ECF8',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -35,6 +35,6 @@ const styles = StyleSheet.create({
   button: {
     fontSize: 20,
     textDecorationLine: 'underline',
-    color: '#fff',
+    color: '#25292e',
   },
 });
