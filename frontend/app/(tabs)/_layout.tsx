@@ -6,16 +6,17 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#6F5BA7',
+        tabBarActiveTintColor: '#50AB5E',
         tabBarInactiveTintColor: '#25292e', // Customize inactive color here
         headerStyle: {
-          backgroundColor: '#F3ECF8',
+          backgroundColor: '#ebf6ed',
         },
         headerShadowVisible: true,
-        headerTintColor: '#25292e',
+        headerTintColor: '#50AB5E',
+
         tabBarStyle: {
-          backgroundColor: '#F3ECF8',
-          borderTopColor: '#dbd4df', // Change the border color here
+          backgroundColor: '#ebf6ed',
+          borderTopColor: '#cee8d2', // Change the border color here
           borderTopWidth: 1, // Adjust border width if needed
         },
       }}
@@ -27,7 +28,7 @@ export default function TabsLayout() {
           tabBarLabel: 'Count',
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
-              name={focused ? 'trending-up' : 'trending-up-outline'}
+              name={focused ? 'sparkles' : 'sparkles-outline'}
               color={color}
               size={24}
             />

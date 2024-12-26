@@ -9,7 +9,7 @@ export default function CircleButton({ onPress }: Props) {
   return (
     <View style={styles.circleButtonContainer}>
       <Pressable style={styles.circleButton} onPress={onPress}>
-        <MaterialIcons name="add" size={38} color="#21025C" />
+        <MaterialIcons name="add" size={38} color="#123117" />
       </Pressable>
     </View>
   );
@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
     height: 84,
     marginHorizontal: 60,
     borderWidth: 4,
-    borderColor: '#21025C',
+    borderColor: '#3DA24D',
     borderRadius: 42,
     padding: 3,
   },
@@ -30,6 +30,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 42,
-    backgroundColor: '#DDD0F4',
+    backgroundColor: '#9DD0A5',
   },
 });

@@ -165,6 +165,14 @@ export default function Index() {
             value={title}
             mode="outlined"
             onChangeText={(text) => setTitle(text)}
+            theme={{
+              colors: {
+                primary: '#3DA24D', // Outline color when focused
+                background: '#ffffff', // Input background
+                text: '#000000', // Text color
+                placeholder: '#aaaaaa', // Placeholder color
+              },
+            }}
           />
           <View style={styles.optionsRow}>
             <IconButton icon="refresh" label="Reset" onPress={onReset} />
@@ -196,7 +204,7 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FEFBFE',
+    backgroundColor: '#F4F4F5',
     alignItems: 'center',
   },
   imageContainer: {
