@@ -22,11 +22,11 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          headerTitle: 'Object Counting Prototype',
-          tabBarLabel: 'Automatic',
+          headerTitle: 'Prototype',
+          tabBarLabel: 'Count',
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
-              name={focused ? 'flash' : 'flash-outline'}
+              name={focused ? 'image' : 'image-outline'}
               color={color}
               size={24}
             />
@@ -36,12 +36,12 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="about"
         options={{
-          headerTitle: 'Object Counting Prototype',
-          tabBarLabel: 'Manual',
+          headerTitle: 'Prototype',
+          tabBarLabel: 'About',
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
               name={
-                focused ? 'hammer' : 'hammer-outline'
+                focused ? 'alert-circle' : 'alert-circle-outline'
               }
               color={color}
               size={24}

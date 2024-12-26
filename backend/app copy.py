@@ -22,6 +22,54 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+@app.route("/manual-image-processing", methods=["POST"])
+def manual_process_image():
+    if "file" not in request.files:
+        return jsonify({"error": "No file part"}), 400
+
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify({"error": "No selected file"}), 400
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        filepath = os.path.join("uploads", filename)
+        file.save(filepath)
+
+        # Read the image using OpenCV
+        image = cv2.imread(filepath)
+        if image is None:
+            return jsonify({"error": "Could not read image"}), 400
+
+        # Get the threshold values from the request
+        min_threshold = int(
+            request.form.get("minThreshold", 100)
+        )  # Default 100 if not provided
+        max_threshold = int(
+            request.form.get("maxThreshold", 200)
+        )  # Default 200 if not provided
+
+        # Convert image to grayscale
+        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+        # Perform edge detection with the thresholds from the frontend
+        edges = cv2.Canny(gray_image, min_threshold, max_threshold)
+
+        # Save the processed image
+        output_filepath = os.path.join("uploads", "processed_" + filename)
+        cv2.imwrite(output_filepath, edges)
+
+        # Return the processed image
+        return send_file(
+            output_filepath,
+            mimetype="image/jpeg",
+            as_attachment=True,
+            download_name="processed_image.jpg",
+        )
+
+    return jsonify({"error": "Invalid file format"}), 400
+
+
 # Object detection and counting endpoint
 @app.route("/image-processing", methods=["POST"])
 def automatic_process_image():
