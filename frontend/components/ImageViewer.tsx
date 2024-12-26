@@ -26,6 +26,8 @@ const styles = StyleSheet.create({
     width: 520,
     height: 640,
     backgroundColor: '#fff',
+    padding: '20%',
+  
   },
   text: {
     position: 'absolute',

@@ -151,7 +151,7 @@ export default function Index() {
   return (
     <GestureHandlerRootView style={styles.container}>
       <View style={styles.imageContainer}>
-        <View ref={imageRef} collapsable={false}>
+        <View ref={imageRef} collapsable={false} style={{ padding: 3 }}>
           <ImageViewer
             imgSource={selectedImage || PlaceholderImage}
             text={title}
@@ -202,7 +202,8 @@ const styles = StyleSheet.create({
   imageContainer: {
     flex: 1,
     flexDirection: 'column',
-    margin: 30,
+    margin: 20,
+    overflow: 'hidden',
   },
   buttonContainer: {
     flex: 1 / 3,

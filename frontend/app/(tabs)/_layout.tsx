@@ -27,7 +27,7 @@ export default function TabsLayout() {
           tabBarLabel: 'Count',
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
-              name={focused ? 'image' : 'image-outline'}
+              name={focused ? 'trending-up' : 'trending-up-outline'}
               color={color}
               size={24}
             />

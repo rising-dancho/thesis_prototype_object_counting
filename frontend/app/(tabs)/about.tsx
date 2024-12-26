@@ -5,7 +5,7 @@ import { Text } from 'react-native-paper';
 export default function AboutScreen() {
   return (
     <View style={styles.container}>
-      <Text variant="titleLarge" >About the Application</Text>
+      <Text variant="titleLarge" >About</Text>
       <Text variant="bodyMedium">
         This application is a cross-platform Image Processing and Object
         Detection App designed with React Native and Expo for the frontend and
