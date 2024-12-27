@@ -14,12 +14,12 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 CORS(app)
 
-# Allow only specific file types
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
+# # Allow only specific file types
+# ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
 
-def allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+# def allowed_file(filename):
+#     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 # Object detection and counting endpoint
@@ -91,17 +91,6 @@ def automatic_process_image():
                     (185, 25, 25),  # Color (blue)
                     3,  # Thickness
                 )
-
-        # # Add text label for the total object count (outside the loop)
-        # cv2.putText(
-        #     img,
-        #     f"Total Count: {object_count}",
-        #     (50, 50),  # Position of the label
-        #     cv2.FONT_HERSHEY_SIMPLEX,
-        #     1,  # Font scale
-        #     (0, 0, 0),  # Color (red)
-        #     2,  # Thickness
-        # )
 
         # Convert processed image (BGR) to RGB for sending in the response
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)

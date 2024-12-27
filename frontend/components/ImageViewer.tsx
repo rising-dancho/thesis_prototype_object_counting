@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
   },
   text: {
     position: 'absolute',
-    top: '10%', // Distance from the top of the image
+    top: '2%', // Distance from the top of the image
     alignSelf: 'center',
     color: 'black', // Ensure text is visible against the image
     fontWeight: 'bold', // Make the text stand out
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
   },
   count: {
     position: 'absolute',
-    top: '10%', // Distance from the top of the image
+    top: '2%', // Distance from the top of the image
     right: '2%',
     alignSelf: 'flex-end',
     color: 'black', // Ensure text is visible against the image
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
   },
   timestamp: {
     position: 'absolute',
-    bottom: '10%', // Distance from the top of the image
+    bottom: '2%', // Distance from the top of the image
     right: '2%',
     alignSelf: 'flex-end',
     color: 'black', // Ensure text is visible against the image
