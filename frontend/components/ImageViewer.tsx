@@ -6,15 +6,27 @@ import React from 'react';
 export default function ImageViewer({
   imgSource,
   text,
+  count,
+  timestamp,
+  clicked,
 }: {
   imgSource: ImageSource;
   text: any;
+  count: any;
+  timestamp: any;
+  clicked: any;
 }) {
   return (
     <View>
       <Image source={imgSource} style={styles.image} contentFit="contain" />
       <Text variant="labelLarge" style={styles.text}>
-        {text}
+        {text || ''}
+      </Text>
+      <Text variant="labelLarge" style={styles.count}>
+        {clicked && `Count: ${count}`}
+      </Text>
+      <Text variant="labelLarge" style={styles.timestamp}>
+        {timestamp}
       </Text>
     </View>
   );
@@ -30,11 +42,33 @@ const styles = StyleSheet.create({
   },
   text: {
     position: 'absolute',
-    bottom: '10%', // Distance from the top of the image
+    top: '10%', // Distance from the top of the image
     alignSelf: 'center',
-    color: 'white', // Ensure text is visible against the image
+    color: 'black', // Ensure text is visible against the image
     fontWeight: 'bold', // Make the text stand out
-    backgroundColor: '#000000', // Optional background for readability
+    // backgroundColor: '#000000', // Optional background for readability
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 5,
+  },
+  count: {
+    position: 'absolute',
+    top: '10%', // Distance from the top of the image
+    alignSelf: 'flex-end',
+    color: 'black', // Ensure text is visible against the image
+    fontWeight: 'bold', // Make the text stand out
+    // backgroundColor: '#000000', // Optional background for readability
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 5,
+  },
+  timestamp: {
+    position: 'absolute',
+    bottom: '10%', // Distance from the top of the image
+    alignSelf: 'flex-end',
+    color: 'black', // Ensure text is visible against the image
+    fontWeight: 'bold', // Make the text stand out
+    // backgroundColor: '#000000', // Optional background for readability
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 5,

@@ -27,6 +27,9 @@ export default function Index() {
   const [showAppOptions, setShowAppOptions] = useState<boolean>(false);
   const imageRef = useRef<View>(null);
   const [title, setTitle] = useState<string>('');
+  const [count, setCount] = useState<string>('');
+  const [timestamp, setTimestamp] = useState<string>('');
+  const [isCountClicked, setIsCountClicked] = useState(false);
 
   // methods
   useEffect(() => {
@@ -62,6 +65,10 @@ export default function Index() {
 
   const onReset = () => {
     setShowAppOptions(false);
+    setTitle('');
+    setCount('');
+    setTimestamp('');
+    setSelectedImage(undefined);
   };
 
   const processImage = async () => {
@@ -71,6 +78,11 @@ export default function Index() {
         alert('Please select an image first.');
         return;
       }
+
+      getTimestamp();
+
+      // Indicate that the CircleButton has been clicked
+      setIsCountClicked(true);
 
       // Create FormData for upload
       const formData = new FormData();
@@ -99,6 +111,7 @@ export default function Index() {
 
           // Update the selectedImage state with the base64 string (prepended with the appropriate data URL prefix)
           setSelectedImage(`data:image/png;base64,${processed_image}`);
+          setCount(object_count);
           setShowAppOptions(true);
 
           console.log(message);
@@ -148,6 +161,21 @@ export default function Index() {
     }
   };
 
+  const getTimestamp = () => {
+    const date = new Date();
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    let result = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+    return setTimestamp(result);
+  };
+
   return (
     <GestureHandlerRootView style={styles.container}>
       <View style={styles.imageContainer}>
@@ -155,6 +183,9 @@ export default function Index() {
           <ImageViewer
             imgSource={selectedImage || PlaceholderImage}
             text={title}
+            count={count}
+            timestamp={timestamp}
+            clicked={isCountClicked}
           />
         </View>
       </View>
