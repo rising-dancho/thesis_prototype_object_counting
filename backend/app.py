@@ -88,7 +88,7 @@ def automatic_process_image():
                     (cx - 10, cy + 10),  # Center the label
                     cv2.FONT_HERSHEY_SIMPLEX,
                     1.25,  # Font scale
-                    (155, 25, 25),  # Color (blue)
+                    (185, 25, 25),  # Color (blue)
                     3,  # Thickness
                 )
 

@@ -23,7 +23,7 @@ export default function ImageViewer({
         {text || ''}
       </Text>
       <Text variant="labelLarge" style={styles.count}>
-        {clicked && `Count: ${count}`}
+        {clicked && `Total Count: ${count}`}
       </Text>
       <Text variant="labelLarge" style={styles.timestamp}>
         {timestamp}
@@ -54,6 +54,7 @@ const styles = StyleSheet.create({
   count: {
     position: 'absolute',
     top: '10%', // Distance from the top of the image
+    right: '2%',
     alignSelf: 'flex-end',
     color: 'black', // Ensure text is visible against the image
     fontWeight: 'bold', // Make the text stand out
@@ -65,6 +66,7 @@ const styles = StyleSheet.create({
   timestamp: {
     position: 'absolute',
     bottom: '10%', // Distance from the top of the image
+    right: '2%',
     alignSelf: 'flex-end',
     color: 'black', // Ensure text is visible against the image
     fontWeight: 'bold', // Make the text stand out
