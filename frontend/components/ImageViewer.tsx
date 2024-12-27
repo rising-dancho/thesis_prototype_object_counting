@@ -43,6 +43,7 @@ const styles = StyleSheet.create({
   text: {
     position: 'absolute',
     top: '2%', // Distance from the top of the image
+    left: '2%',
     alignSelf: 'center',
     color: 'black', // Ensure text is visible against the image
     fontWeight: 'bold', // Make the text stand out
