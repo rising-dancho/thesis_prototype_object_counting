@@ -42,8 +42,8 @@ const styles = StyleSheet.create({
   },
   text: {
     position: 'absolute',
-    top: '2%', // Distance from the top of the image
-    left: '2%',
+    top: '1%', // Distance from the top of the image
+    left: '1%',
     alignSelf: 'center',
     color: 'black', // Ensure text is visible against the image
     fontWeight: 'bold', // Make the text stand out
@@ -54,8 +54,8 @@ const styles = StyleSheet.create({
   },
   count: {
     position: 'absolute',
-    top: '2%', // Distance from the top of the image
-    right: '2%',
+    top: '1%', // Distance from the top of the image
+    right: '1%',
     alignSelf: 'flex-end',
     color: 'black', // Ensure text is visible against the image
     fontWeight: 'bold', // Make the text stand out
@@ -66,8 +66,8 @@ const styles = StyleSheet.create({
   },
   timestamp: {
     position: 'absolute',
-    bottom: '2%', // Distance from the top of the image
-    right: '2%',
+    bottom: '1%', // Distance from the top of the image
+    right: '1%',
     alignSelf: 'flex-end',
     color: 'black', // Ensure text is visible against the image
     fontWeight: 'bold', // Make the text stand out
