@@ -4,9 +4,7 @@ import { Svg, Rect } from 'react-native-svg'; // Import the SVG components
 
 const BoundingBoxExample = () => {
   const [boxes, setBoxes] = useState([]); // Holds the bounding boxes
-  const [image, setImage] = useState(
-    'https://upload.wikimedia.org/wikipedia/commons/a/a6/Pink_lady_and_cross_section.jpg'
-  ); // Replace with actual image URL
+  const [image, setImage] = useState('https://your-image-url.jpg'); // Replace with actual image URL
 
   const addBox = (x, y, width, height) => {
     setBoxes([
@@ -15,14 +13,12 @@ const BoundingBoxExample = () => {
     ]);
   };
 
-
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Image with Bounding Boxes</Text>
 
       {/* Image to draw bounding boxes on */}
-      <Image source={image} style={styles.image} />
+      <Image source={{ uri: image }} style={styles.image} />
 
       {/* SVG component to draw the boxes */}
       <Svg height="100%" width="100%" style={styles.svg}>
@@ -41,7 +37,7 @@ const BoundingBoxExample = () => {
       </Svg>
 
       {/* Example of adding a box */}
-      <Button title="Add Box" onPress={() => addBox(415, 678, 199, 192)} />
+      <Button title="Add Box" onPress={() => addBox(50, 50, 100, 100)} />
     </View>
   );
 };

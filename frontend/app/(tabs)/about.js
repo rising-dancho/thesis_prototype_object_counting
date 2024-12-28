@@ -10,11 +10,20 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
+import { Svg, Rect } from 'react-native-svg';
 
 const ImageUpload = () => {
   const [image, setImage] = useState(null);
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
+  const [boxes, setBoxes] = useState([]); // Holds the bounding boxes
+
+  const addBox = (x, y, width, height) => {
+    setBoxes([
+      ...boxes,
+      { x, y, width, height }, // Add new box to the array
+    ]);
+  };
 
   const selectImage = async () => {
     try {
@@ -95,6 +104,20 @@ const ImageUpload = () => {
             }}
             style={styles.processedImage}
           />
+          <Svg height="100%" width="100%" style={styles.svg}>
+            {boxes.map((box, index) => (
+              <Rect
+                key={index}
+                x={box.x}
+                y={box.y}
+                width={box.width}
+                height={box.height}
+                stroke="blue"
+                fill="transparent"
+                strokeWidth="2"
+              />
+            ))}
+          </Svg>
           <Text style={styles.objectCount}>
             Object Count: {response.object_count}
           </Text>
@@ -103,7 +126,8 @@ const ImageUpload = () => {
             data={response.bounding_boxes}
             renderItem={({ item }) => (
               <Text>
-                X: {item.x}, Y: {item.y}, Width: {item.width}, Height: {item.height}
+                X: {item.x}, Y: {item.y}, Width: {item.width}, Height:{' '}
+                {item.height}
               </Text>
             )}
             keyExtractor={(item, index) => index.toString()}
