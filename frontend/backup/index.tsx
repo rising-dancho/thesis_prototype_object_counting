@@ -27,11 +27,7 @@ export default function Index() {
 
   // navigation
   const [showAppOptions, setShowAppOptions] = useState<boolean>(false);
-
-  // navigation pagination
-  const [currentPage, setCurrentPage] = useState<
-    'choosePhoto' | 'showAppOptions' | 'showEditPage'
-  >('choosePhoto');
+  const [showNextPage, setShowNextPage] = useState<boolean>(false);
 
   // ui
   const imageRef = useRef<View>(null);
@@ -68,12 +64,12 @@ export default function Index() {
     const selectedAsset = await selectImage();
     if (selectedAsset) {
       setSelectedImage(selectedAsset);
-      setCurrentPage('showAppOptions');
+      setShowAppOptions(true);
     }
   };
 
   const onReset = () => {
-    setCurrentPage('choosePhoto');
+    setShowAppOptions(false);
     setTitle('');
     setCount('');
     setTimestamp('');
@@ -172,7 +168,8 @@ export default function Index() {
   };
 
   const onNextPage = () => {
-    setCurrentPage('choosePhoto');
+    alert(`next page ${showNextPage}`);
+    setShowNextPage(true);
   };
 
   const getTimestamp = () => {
@@ -209,36 +206,7 @@ export default function Index() {
           />
         </View>
       </View>
-
-      {currentPage === 'choosePhoto' && (
-        <View style={styles.buttonContainer}>
-          <Button
-            theme="primary"
-            label="Choose a photo"
-            onPress={pickImageAsync}
-          />
-          {/* <Button
-            label="Use this photo"
-            onPress={() => currentPage('showAppOptions')}
-          /> */}
-        </View>
-      )}
-
-      {currentPage === 'showAppOptions' && (
-        <View style={styles.buttonContainer}>
-          <View style={styles.optionsRow}>
-            <IconButton icon="refresh" label="Reset" onPress={onReset} />
-            <CircleButton onPress={processImage} />
-            <IconButton
-              icon="arrow-forward"
-              label="Next"
-              onPress={() => setCurrentPage('showEditPage')}
-            />
-          </View>
-        </View>
-      )}
-
-      {currentPage === 'showEditPage' && (
+      {showAppOptions ? (
         <View style={styles.buttonContainer}>
           <TextInput
             label="Title"
@@ -254,19 +222,27 @@ export default function Index() {
               },
             }}
           />
-          <View style={styles.buttonGap}>
+          <View style={styles.optionsRow}>
+            <IconButton icon="refresh" label="Reset" onPress={onReset} />
+            <CircleButton onPress={processImage} />
             <IconButton
-              icon="arrow-back"
-              label="Back"
-              onPress={() => setCurrentPage('showAppOptions')}
-            />
-
-            <IconButton
-              icon="save-alt"
-              label="Save"
-              onPress={onSaveImageAsync}
+              icon="arrow-forward"
+              label="Next"
+              onPress={onNextPage}
             />
           </View>
+        </View>
+      ) : (
+        <View style={styles.buttonContainer}>
+          <Button
+            theme="primary"
+            label="Choose a photo"
+            onPress={pickImageAsync}
+          />
+          <Button
+            label="Use this photo"
+            onPress={() => setShowAppOptions(true)}
+          />
         </View>
       )}
     </GestureHandlerRootView>
@@ -284,14 +260,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     margin: 20,
     overflow: 'hidden',
-  },
-  buttonGap: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between', // Evenly spaces the buttons
-    alignItems: 'center',
-    width: '100%', // Ensures full width of the parent container
-    paddingHorizontal: 16, // Optional: Add some padding on both sides
   },
   buttonContainer: {
     flex: 1 / 3,
