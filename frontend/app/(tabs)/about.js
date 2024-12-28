@@ -17,6 +17,7 @@ const ImageUpload = () => {
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
   const [boxes, setBoxes] = useState([]); // Holds the bounding boxes
+  const [imageDimensions, setImageDimensions] = useState(null); // Holds image dimensions
 
   const addBox = (x, y, width, height) => {
     setBoxes([
@@ -35,7 +36,9 @@ const ImageUpload = () => {
 
       if (!result.canceled) {
         const selectedAsset = result.assets[0].uri;
+        const { width, height } = result.assets[0];
         setImage(selectedAsset);
+        setImageDimensions({ width, height });
         setError(null);
       } else {
         setError('You did not select any image.');
@@ -74,11 +77,35 @@ const ImageUpload = () => {
         }
       );
       setResponse(res.data);
+      console.log(res.data.bounding_boxes); // box coordinates
+
+      // Call addBox for each bounding box in the response
+      res.data.bounding_boxes.forEach((box) => {
+        setBoxes((prevBoxes) => [
+          ...prevBoxes,
+          { x: box[0], y: box[1], width: box[2], height: box[3] }, // Add each box
+        ]);
+      });
+
       setError(null);
     } catch (err) {
       setError('Error uploading image: ' + err.message);
       setResponse(null);
     }
+  };
+
+  // Scale the bounding box coordinates relative to the image size
+  const scaleBoxCoordinates = (box) => {
+    if (imageDimensions) {
+      const { width: imgWidth, height: imgHeight } = imageDimensions;
+      return {
+        x: (box.x / imgWidth) * 100, // Scale x to percentage of image width
+        y: (box.y / imgHeight) * 100, // Scale y to percentage of image height
+        width: (box.width / imgWidth) * 100, // Scale width to percentage of image width
+        height: (box.height / imgHeight) * 100, // Scale height to percentage of image height
+      };
+    }
+    return box;
   };
 
   return (
@@ -98,26 +125,38 @@ const ImageUpload = () => {
       {response && (
         <View>
           <Text style={styles.subtitle}>Processed Image:</Text>
+
           <Image
             source={{
               uri: `data:image/png;base64,${response.processed_image}`,
             }}
             style={styles.processedImage}
           />
-          <Svg height="100%" width="100%" style={styles.svg}>
-            {boxes.map((box, index) => (
-              <Rect
-                key={index}
-                x={box.x}
-                y={box.y}
-                width={box.width}
-                height={box.height}
-                stroke="blue"
-                fill="transparent"
-                strokeWidth="2"
-              />
-            ))}
-          </Svg>
+          {/* SVG component to draw the boxes */}
+          {imageDimensions && (
+            <Svg
+              height={imageDimensions.height}
+              width={imageDimensions.width}
+              style={styles.svg}
+            >
+              {boxes.map((box, index) => {
+                const scaledBox = scaleBoxCoordinates(box);
+                return (
+                  <Rect
+                    key={index}
+                    x={scaledBox.x}
+                    y={scaledBox.y}
+                    width={scaledBox.width}
+                    height={scaledBox.height}
+                    stroke="blue"
+                    fill="transparent"
+                    strokeWidth="2"
+                  />
+                );
+              })}
+            </Svg>
+          )}
+
           <Text style={styles.objectCount}>
             Object Count: {response.object_count}
           </Text>
@@ -126,8 +165,7 @@ const ImageUpload = () => {
             data={response.bounding_boxes}
             renderItem={({ item }) => (
               <Text>
-                X: {item.x}, Y: {item.y}, Width: {item.width}, Height:{' '}
-                {item.height}
+                X: {item[0]}, Y: {item[1]}, Width: {item[2]}, Height: {item[3]}
               </Text>
             )}
             keyExtractor={(item, index) => index.toString()}
@@ -162,8 +200,10 @@ const styles = StyleSheet.create({
   processedImage: {
     width: 300,
     height: 300,
-    marginTop: 20,
+    position: 'absolute',
+    marginTop: 10,
   },
+
   objectCount: {
     fontSize: 18,
     marginTop: 10,
@@ -175,6 +215,12 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 20,
     marginTop: 20,
+  },
+  svg: {
+    position: 'absolute', // Overlay the SVG (bounding boxes) on top of the image
+    top: 0,
+    left: 0,
+    zIndex: 99999,
   },
 });
 

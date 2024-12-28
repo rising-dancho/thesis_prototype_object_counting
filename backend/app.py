@@ -13,6 +13,7 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 CORS(app)
 
+
 # Object detection and counting endpoint
 @app.route("/image-processing", methods=["POST"])
 def automatic_process_image():
@@ -68,7 +69,7 @@ def automatic_process_image():
             if cv2.contourArea(cnt) > 200:  # Filter out small contours based on area
                 object_count += 1
                 x1, y1, w, h = cv2.boundingRect(cnt)
-                bounding_boxes.append({"x": x1, "y": y1, "width": w, "height": h})
+                bounding_boxes.append([x1, y1, w, h])
 
                 # Add a label with the object's count inside the box
                 cx = x1 + w // 2
@@ -94,14 +95,17 @@ def automatic_process_image():
         img_base64 = base64.b64encode(img_io.read()).decode("utf-8")
 
         # Return JSON response with object count, bounding boxes, and base64 image
-        return jsonify(
-            {
-                "object_count": object_count,
-                "message": "Image processed successfully!",
-                "processed_image": img_base64,
-                "bounding_boxes": bounding_boxes,
-            }
-        ), 200
+        return (
+            jsonify(
+                {
+                    "object_count": object_count,
+                    "message": "Image processed successfully!",
+                    "processed_image": img_base64,
+                    "bounding_boxes": bounding_boxes,
+                }
+            ),
+            200,
+        )
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
