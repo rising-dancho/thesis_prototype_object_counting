@@ -20,6 +20,13 @@ const ImageUpload = () => {
   const [boxes, setBoxes] = useState([]); // Holds the bounding boxes
   const [imageDimensions, setImageDimensions] = useState(null); // Holds image dimensions
 
+  const addBox = (x, y, width, height) => {
+    setBoxes([
+      ...boxes,
+      { x, y, width, height }, // Add new box to the array
+    ]);
+  };
+
   const selectImage = async () => {
     try {
       let result = await ImagePicker.launchImageLibraryAsync({
@@ -96,10 +103,10 @@ const ImageUpload = () => {
     if (imageDimensions) {
       const { width: imgWidth, height: imgHeight } = imageDimensions;
       return {
-        x: (box.x / imgWidth) * imageDimensions.width, // Adjust to image's displayed width
-        y: (box.y / imgHeight) * imageDimensions.height, // Adjust to image's displayed height
-        width: (box.width / imgWidth) * imageDimensions.width, // Adjust to image's displayed width
-        height: (box.height / imgHeight) * imageDimensions.height, // Adjust to image's displayed height
+        x: (box.x / imgWidth) * 100, // Scale x to percentage of image width
+        y: (box.y / imgHeight) * 100, // Scale y to percentage of image height
+        width: (box.width / imgWidth) * 100, // Scale width to percentage of image width
+        height: (box.height / imgHeight) * 100, // Scale height to percentage of image height
       };
     }
     return box;
@@ -123,15 +130,22 @@ const ImageUpload = () => {
         <View>
           <Text style={styles.subtitle}>Processed Image:</Text>
 
-          <View style={styles.imageContainer}>
+          <View style={styles.container}>
             <Image
               source={{
                 uri: `data:image/png;base64,${response.processed_image}`,
               }}
               style={{
-                width: imageDimensions?.width,
-                height: imageDimensions?.height,
-                resizeMode: 'contain', // Ensures image is contained within bounds
+                width: response.image_dimensions.width,
+                height: response.image_dimensions.height,
+                position: 'absolute',
+                marginTop: 6,
+                marginLeft: 6,
+              }}
+            />
+            <Image
+              source={{
+                uri: `data:image/png;base64,${response.processed_image}`,
               }}
             />
             {/* SVG component to draw the boxes */}
@@ -201,10 +215,6 @@ const styles = StyleSheet.create({
     height: 200,
     marginTop: 10,
   },
-  imageContainer: {
-    position: 'relative',
-    marginTop: 20,
-  },
   objectCount: {
     fontSize: 18,
     marginTop: 10,
@@ -218,7 +228,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   svg: {
-    position: 'absolute',
+    position: 'absolute', // Overlay the SVG (bounding boxes) on top of the image
     top: 0,
     left: 0,
     zIndex: 999,
