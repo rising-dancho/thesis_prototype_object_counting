@@ -4,7 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from flask import Flask, request, jsonify, send_file
 import io
-import os
 from PIL import Image
 from flask_cors import CORS
 import base64
@@ -13,14 +12,6 @@ from werkzeug.utils import secure_filename
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app)
-
-# # Allow only specific file types
-# ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
-
-
-# def allowed_file(filename):
-#     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
 
 # Object detection and counting endpoint
 @app.route("/image-processing", methods=["POST"])
@@ -69,19 +60,19 @@ def automatic_process_image():
         )
         cnts = imutils.grab_contours(cnts)
 
-        # Step 7: Draw bounding rectangles, count objects, and add number labels
+        # Step 7: Collect bounding box data and count objects
         object_count = 0
+        bounding_boxes = []
+
         for i, cnt in enumerate(cnts):
             if cv2.contourArea(cnt) > 200:  # Filter out small contours based on area
                 object_count += 1
                 x1, y1, w, h = cv2.boundingRect(cnt)
-                cv2.rectangle(img, (x1, y1), (x1 + w, y1 + h), (0, 255, 0), 3)
-
-                # Calculate the centroid of the bounding box
-                cx = x1 + w // 2
-                cy = y1 + h // 2
+                bounding_boxes.append({"x": x1, "y": y1, "width": w, "height": h})
 
                 # Add a label with the object's count inside the box
+                cx = x1 + w // 2
+                cy = y1 + h // 2
                 cv2.putText(
                     img,
                     f"{object_count}",
@@ -102,17 +93,15 @@ def automatic_process_image():
         img_io.seek(0)
         img_base64 = base64.b64encode(img_io.read()).decode("utf-8")
 
-        # Return JSON response with object count and base64 image
-        return (
-            jsonify(
-                {
-                    "object_count": object_count,
-                    "message": "Image processed successfully!",
-                    "processed_image": img_base64,
-                }
-            ),
-            200,
-        )
+        # Return JSON response with object count, bounding boxes, and base64 image
+        return jsonify(
+            {
+                "object_count": object_count,
+                "message": "Image processed successfully!",
+                "processed_image": img_base64,
+                "bounding_boxes": bounding_boxes,
+            }
+        ), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -125,4 +114,3 @@ def index():
 
 if __name__ == "__main__":
     app.run(debug=True)
-

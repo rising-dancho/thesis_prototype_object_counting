@@ -4,7 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from flask import Flask, request, jsonify, send_file
 import io
-import os
 from PIL import Image
 from flask_cors import CORS
 import base64
@@ -13,62 +12,6 @@ from werkzeug.utils import secure_filename
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app)
-
-# Allow only specific file types
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
-
-
-def allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-@app.route("/manual-image-processing", methods=["POST"])
-def manual_process_image():
-    if "file" not in request.files:
-        return jsonify({"error": "No file part"}), 400
-
-    file = request.files["file"]
-    if file.filename == "":
-        return jsonify({"error": "No selected file"}), 400
-
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        filepath = os.path.join("uploads", filename)
-        file.save(filepath)
-
-        # Read the image using OpenCV
-        image = cv2.imread(filepath)
-        if image is None:
-            return jsonify({"error": "Could not read image"}), 400
-
-        # Get the threshold values from the request
-        min_threshold = int(
-            request.form.get("minThreshold", 100)
-        )  # Default 100 if not provided
-        max_threshold = int(
-            request.form.get("maxThreshold", 200)
-        )  # Default 200 if not provided
-
-        # Convert image to grayscale
-        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-        # Perform edge detection with the thresholds from the frontend
-        edges = cv2.Canny(gray_image, min_threshold, max_threshold)
-
-        # Save the processed image
-        output_filepath = os.path.join("uploads", "processed_" + filename)
-        cv2.imwrite(output_filepath, edges)
-
-        # Return the processed image
-        return send_file(
-            output_filepath,
-            mimetype="image/jpeg",
-            as_attachment=True,
-            download_name="processed_image.jpg",
-        )
-
-    return jsonify({"error": "Invalid file format"}), 400
-
 
 # Object detection and counting endpoint
 @app.route("/image-processing", methods=["POST"])
@@ -117,39 +60,28 @@ def automatic_process_image():
         )
         cnts = imutils.grab_contours(cnts)
 
-        # Step 7: Draw bounding rectangles, count objects, and add number labels
+        # Step 7: Collect bounding box data and count objects
         object_count = 0
+        bounding_boxes = []
+
         for i, cnt in enumerate(cnts):
             if cv2.contourArea(cnt) > 200:  # Filter out small contours based on area
                 object_count += 1
                 x1, y1, w, h = cv2.boundingRect(cnt)
-                cv2.rectangle(img, (x1, y1), (x1 + w, y1 + h), (0, 255, 0), 3)
-
-                # Calculate the centroid of the bounding box
-                cx = x1 + w // 2
-                cy = y1 + h // 2
+                bounding_boxes.append({"x": x1, "y": y1, "width": w, "height": h})
 
                 # Add a label with the object's count inside the box
+                cx = x1 + w // 2
+                cy = y1 + h // 2
                 cv2.putText(
                     img,
                     f"{object_count}",
                     (cx - 10, cy + 10),  # Center the label
                     cv2.FONT_HERSHEY_SIMPLEX,
-                    1,  # Font scale
-                    (255, 0, 0),  # Color (blue)
-                    2,  # Thickness
+                    1.25,  # Font scale
+                    (185, 25, 25),  # Color (blue)
+                    3,  # Thickness
                 )
-
-        # Add text label for the total object count (outside the loop)
-        cv2.putText(
-            img,
-            f"Total Objects: {object_count}",
-            (50, 50),  # Position of the label
-            cv2.FONT_HERSHEY_SIMPLEX,
-            1,  # Font scale
-            (0, 0, 0),  # Color (red)
-            2,  # Thickness
-        )
 
         # Convert processed image (BGR) to RGB for sending in the response
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -161,17 +93,15 @@ def automatic_process_image():
         img_io.seek(0)
         img_base64 = base64.b64encode(img_io.read()).decode("utf-8")
 
-        # Return JSON response with object count and base64 image
-        return (
-            jsonify(
-                {
-                    "object_count": object_count,
-                    "message": "Image processed successfully!",
-                    "processed_image": img_base64,
-                }
-            ),
-            200,
-        )
+        # Return JSON response with object count, bounding boxes, and base64 image
+        return jsonify(
+            {
+                "object_count": object_count,
+                "message": "Image processed successfully!",
+                "processed_image": img_base64,
+                "bounding_boxes": bounding_boxes,
+            }
+        ), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -183,7 +113,4 @@ def index():
 
 
 if __name__ == "__main__":
-    if not os.path.exists("uploads"):
-        os.makedirs("uploads")
-
     app.run(debug=True)

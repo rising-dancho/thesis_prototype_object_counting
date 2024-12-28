@@ -27,7 +27,7 @@ export default function Index() {
   );
 
   // navigation
-  // const [showAppOptions, setShowAppOptions] = useState<boolean>(false);
+  const [showAppOptions, setShowAppOptions] = useState<boolean>(false);
 
   // navigation pagination
   const [currentPage, setCurrentPage] = useState<
@@ -123,7 +123,7 @@ export default function Index() {
           // Update the selectedImage state with the base64 string (prepended with the appropriate data URL prefix)
           setSelectedImage(`data:image/png;base64,${processed_image}`);
           setCount(object_count);
-          // setShowAppOptions(true);
+          setShowAppOptions(true);
 
           console.log(message);
           console.log('Server Response:', response.data);
@@ -242,10 +242,9 @@ export default function Index() {
       {currentPage === 'showEditPage' && (
         <View style={styles.buttonContainer}>
           <TextInput
-            label="File name"
+            label="Add File Name"
             value={title}
             mode="outlined"
-            placeholder='Type in your file name..'
             onChangeText={(text) => setTitle(text)}
             theme={{
               colors: {
@@ -263,21 +262,17 @@ export default function Index() {
               onPress={() => setCurrentPage('showAppOptions')}
             />
             <IconButton icon="add" label="Add" onPress={() => alert('Add')} />
-            {/* Custom Pressable Icon */}
-
-            <Pressable
-              style={styles.iconButton}
+            <IconButton
+              icon="remove"
+              label="Remove"
               onPress={() => alert('Remove')}
-            >
-              <Ionicons name="close" size={24} color="#25292e" />
-              <Text style={styles.iconButtonLabel}>Remove</Text>
-            </Pressable>
-
+            />
+            {/* Custom Pressable Icon */}
             <Pressable style={styles.iconButton} onPress={() => alert('Move')}>
-              <Ionicons name="move" size={24} color="#25292e" />
+              <Ionicons name="move" size={22} color="#25292e" />
               <Text style={styles.iconButtonLabel}>Move</Text>
             </Pressable>
-            {/* ----- */}
+
             <IconButton
               icon="save-alt"
               label="Save"
@@ -299,7 +294,6 @@ const styles = StyleSheet.create({
   iconButton: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 20,
   },
   iconButtonLabel: {
     color: '#25292e',
