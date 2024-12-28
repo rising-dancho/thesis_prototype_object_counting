@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
   iconButton: {
     justifyContent: 'center',
     alignItems: 'center',
-    
+    marginHorizontal: 20, // Add margin around individual buttons
   },
   iconButtonLabel: {
     color: '#25292e',

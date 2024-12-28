@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   timestamp: {
     position: 'absolute',
     bottom: '1%', // Distance from the top of the image
-    right: '1%',
+    left: '1%',
     alignSelf: 'flex-end',
     color: 'black', // Ensure text is visible against the image
     fontWeight: 'bold', // Make the text stand out

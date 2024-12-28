@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
   circleButtonContainer: {
     width: 84,
     height: 84,
-    marginHorizontal: 60,
+    marginHorizontal: 40,
     borderWidth: 4,
     borderColor: '#3DA24D',
     borderRadius: 42,

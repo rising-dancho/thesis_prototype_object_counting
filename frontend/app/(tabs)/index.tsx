@@ -1,4 +1,4 @@
-import { View, StyleSheet, Platform } from 'react-native';
+import { View, StyleSheet, Platform, Pressable, Text } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useState, useRef } from 'react';
 import * as MediaLibrary from 'expo-media-library';
@@ -6,6 +6,7 @@ import { captureRef } from 'react-native-view-shot';
 import domtoimage from 'dom-to-image';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import axios from 'axios';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 // react native paper
 import { TextInput } from 'react-native-paper';
@@ -241,7 +242,7 @@ export default function Index() {
       {currentPage === 'showEditPage' && (
         <View style={styles.buttonContainer}>
           <TextInput
-            label="Title"
+            label="Add File Name"
             value={title}
             mode="outlined"
             onChangeText={(text) => setTitle(text)}
@@ -260,6 +261,17 @@ export default function Index() {
               label="Back"
               onPress={() => setCurrentPage('showAppOptions')}
             />
+            <IconButton icon="add" label="Add" onPress={() => alert('Add')} />
+            <IconButton
+              icon="remove"
+              label="Remove"
+              onPress={() => alert('Remove')}
+            />
+            {/* Custom Pressable Icon */}
+            <Pressable style={styles.iconButton} onPress={() => alert('Move')}>
+              <Ionicons name="move" size={22} color="#25292e" />
+              <Text style={styles.iconButtonLabel}>Move</Text>
+            </Pressable>
 
             <IconButton
               icon="save-alt"
@@ -279,6 +291,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#F4F4F5',
     alignItems: 'center',
   },
+  iconButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconButtonLabel: {
+    color: '#25292e',
+    marginTop: 12,
+  },
   imageContainer: {
     flex: 1,
     flexDirection: 'column',
@@ -288,10 +308,11 @@ const styles = StyleSheet.create({
   buttonGap: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-between', // Evenly spaces the buttons
+    justifyContent: 'space-evenly', // Evenly spaces the buttons
     alignItems: 'center',
     width: '100%', // Ensures full width of the parent container
-    paddingHorizontal: 16, // Optional: Add some padding on both sides
+    paddingHorizontal: 20, // Optional: Add some padding on both sides
+    marginVertical: 10, // Add vertical margin to give buttons breathing room
   },
   buttonContainer: {
     flex: 1 / 3,
