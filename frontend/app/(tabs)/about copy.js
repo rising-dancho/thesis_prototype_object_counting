@@ -9,6 +9,8 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
+// react-native-svg
+import Svg, { Rect } from 'react-native-svg';
 
 const ImageWithBoundingBoxes = ({ image, initialBoxes }) => {
   const [boxes, setBoxes] = useState(initialBoxes || []);

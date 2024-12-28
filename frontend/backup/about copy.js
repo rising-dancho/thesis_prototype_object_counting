@@ -2,114 +2,91 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  Button,
   Image,
+  Button,
   FlatList,
   StyleSheet,
-  Platform,
+  TextInput,
+  TouchableOpacity,
 } from 'react-native';
-import axios from 'axios';
-import * as ImagePicker from 'expo-image-picker';
 
-const ImageUpload = () => {
-  const [image, setImage] = useState(null);
-  const [response, setResponse] = useState(null);
-  const [error, setError] = useState(null);
+const ImageWithBoundingBoxes = ({ image, initialBoxes }) => {
+  const [boxes, setBoxes] = useState(initialBoxes || []);
+  const [newBox, setNewBox] = useState({ x: '', y: '', width: '', height: '' });
 
-  const selectImage = async () => {
-    try {
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        quality: 1,
-      });
-
-      if (!result.canceled) {
-        const selectedAsset = result.assets[0].uri;
-        setImage(selectedAsset);
-        setError(null);
-      } else {
-        setError('You did not select any image.');
-      }
-    } catch (err) {
-      setError('Error selecting image: ' + err.message);
+  // Add a new bounding box
+  const addBox = () => {
+    if (
+      newBox.x !== '' &&
+      newBox.y !== '' &&
+      newBox.width !== '' &&
+      newBox.height !== ''
+    ) {
+      setBoxes([...boxes, newBox]);
+      setNewBox({ x: '', y: '', width: '', height: '' });
     }
   };
 
-  const handleSubmit = async () => {
-    if (!image) {
-      setError('No image selected');
-      return;
-    }
-
-    const formData = new FormData();
-
-    if (Platform.OS === 'web') {
-      const response = await fetch(image);
-      const blob = await response.blob();
-      formData.append('image', blob, 'uploaded-image.jpg');
-    } else {
-      formData.append('image', {
-        uri: image,
-        type: 'image/jpeg',
-        name: 'uploaded-image.jpg',
-      });
-    }
-
-    try {
-      const res = await axios.post(
-        'http://localhost:5000/image-processing',
-        formData,
-        {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        }
-      );
-      setResponse(res.data);
-      setError(null);
-    } catch (err) {
-      setError('Error uploading image: ' + err.message);
-      setResponse(null);
-    }
+  // Remove a bounding box
+  const removeBox = (index) => {
+    const updatedBoxes = boxes.filter((_, i) => i !== index);
+    setBoxes(updatedBoxes);
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Upload Image for Processing</Text>
-      <Button title="Select Image" onPress={selectImage} />
-      <Button
-        title="Upload and Process"
-        onPress={handleSubmit}
-        disabled={!image}
+      <Image source={{ uri: image }} style={styles.image} />
+      <Text style={styles.objectCount}>Object Count: {boxes.length}</Text>
+      <FlatList
+        data={boxes}
+        renderItem={({ item, index }) => (
+          <View style={styles.boxItem}>
+            <Text>
+              Box {index + 1}: X: {item.x}, Y: {item.y}, Width: {item.width},
+              Height: {item.height}
+            </Text>
+            <TouchableOpacity
+              style={styles.removeButton}
+              onPress={() => removeBox(index)}
+            >
+              <Text style={styles.removeButtonText}>Remove</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        keyExtractor={(item, index) => index.toString()}
       />
 
-      {error && <Text style={styles.error}>{error}</Text>}
-
-      {image && <Image source={{ uri: image }} style={styles.image} />}
-
-      {response && (
-        <View>
-          <Text style={styles.subtitle}>Processed Image:</Text>
-          <Image
-            source={{
-              uri: `data:image/png;base64,${response.processed_image}`,
-            }}
-            style={styles.processedImage}
-          />
-          <Text style={styles.objectCount}>
-            Object Count: {response.object_count}
-          </Text>
-          <Text style={styles.boundingBoxTitle}>Bounding Boxes:</Text>
-          <FlatList
-            data={response.bounding_boxes}
-            renderItem={({ item }) => (
-              <Text>
-                X: {item.x}, Y: {item.y}, Width: {item.width}, Height: {item.height}
-              </Text>
-            )}
-            keyExtractor={(item, index) => index.toString()}
-          />
-        </View>
-      )}
+      <View style={styles.inputRow}>
+        <TextInput
+          style={styles.input}
+          placeholder="X"
+          keyboardType="numeric"
+          value={newBox.x}
+          onChangeText={(text) => setNewBox({ ...newBox, x: text })}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Y"
+          keyboardType="numeric"
+          value={newBox.y}
+          onChangeText={(text) => setNewBox({ ...newBox, y: text })}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Width"
+          keyboardType="numeric"
+          value={newBox.width}
+          onChangeText={(text) => setNewBox({ ...newBox, width: text })}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Height"
+          keyboardType="numeric"
+          value={newBox.height}
+          onChangeText={(text) => setNewBox({ ...newBox, height: text })}
+        />
+        <Button title="Add Box" onPress={addBox} />
+      </View>
     </View>
   );
 };
@@ -117,41 +94,47 @@ const ImageUpload = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: 16,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  error: {
-    color: 'red',
-    marginTop: 10,
-  },
   image: {
-    width: 200,
-    height: 200,
-    marginTop: 10,
-  },
-  processedImage: {
-    width: 300,
+    width: '100%',
     height: 300,
-    marginTop: 20,
+    resizeMode: 'contain',
   },
   objectCount: {
     fontSize: 18,
     marginTop: 10,
   },
-  boundingBoxTitle: {
-    fontSize: 18,
-    marginTop: 10,
+  boxItem: {
+    marginVertical: 5,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 5,
   },
-  subtitle: {
-    fontSize: 20,
+  removeButton: {
+    marginTop: 5,
+    backgroundColor: '#ff4d4d',
+    padding: 5,
+    borderRadius: 5,
+  },
+  removeButtonText: {
+    color: 'white',
+    textAlign: 'center',
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: 20,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 5,
+    padding: 5,
+    marginRight: 10,
+    width: 60,
   },
 });
 
-export default ImageUpload;
+export default ImageWithBoundingBoxes;
