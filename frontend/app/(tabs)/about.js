@@ -7,6 +7,7 @@ import {
   FlatList,
   StyleSheet,
   Platform,
+  ScrollView,
 } from 'react-native';
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
@@ -78,6 +79,9 @@ const ImageUpload = () => {
       );
       setResponse(res.data);
       console.log(res.data.bounding_boxes); // box coordinates
+      console.log(res.data);
+      console.log(res.data.image_dimensions.height); // image dimension
+      console.log(res.data.image_dimensions.width);
 
       // Call addBox for each bounding box in the response
       res.data.bounding_boxes.forEach((box) => {
@@ -99,17 +103,17 @@ const ImageUpload = () => {
     if (imageDimensions) {
       const { width: imgWidth, height: imgHeight } = imageDimensions;
       return {
-        x: (box.x / imgWidth) * 100, // Scale x to percentage of image width
-        y: (box.y / imgHeight) * 100, // Scale y to percentage of image height
-        width: (box.width / imgWidth) * 100, // Scale width to percentage of image width
-        height: (box.height / imgHeight) * 100, // Scale height to percentage of image height
+        x: (box.x / imgWidth) * imageDimensions.width, // Adjust to image's displayed width
+        y: (box.y / imgHeight) * imageDimensions.height, // Adjust to image's displayed height
+        width: (box.width / imgWidth) * imageDimensions.width, // Adjust to image's displayed width
+        height: (box.height / imgHeight) * imageDimensions.height, // Adjust to image's displayed height
       };
     }
     return box;
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Upload Image for Processing</Text>
       <Button title="Select Image" onPress={selectImage} />
       <Button
@@ -126,36 +130,42 @@ const ImageUpload = () => {
         <View>
           <Text style={styles.subtitle}>Processed Image:</Text>
 
-          <Image
-            source={{
-              uri: `data:image/png;base64,${response.processed_image}`,
-            }}
-            style={styles.processedImage}
-          />
-          {/* SVG component to draw the boxes */}
-          {imageDimensions && (
-            <Svg
-              height={imageDimensions.height}
-              width={imageDimensions.width}
-              style={styles.svg}
-            >
-              {boxes.map((box, index) => {
-                const scaledBox = scaleBoxCoordinates(box);
-                return (
-                  <Rect
-                    key={index}
-                    x={scaledBox.x}
-                    y={scaledBox.y}
-                    width={scaledBox.width}
-                    height={scaledBox.height}
-                    stroke="blue"
-                    fill="transparent"
-                    strokeWidth="2"
-                  />
-                );
-              })}
-            </Svg>
-          )}
+          <View style={styles.imageContainer}>
+            <Image
+              source={{
+                uri: `data:image/png;base64,${response.processed_image}`,
+              }}
+              style={{
+                width: imageDimensions?.width,
+                height: imageDimensions?.height,
+                resizeMode: 'contain', // Ensures image is contained within bounds
+              }}
+            />
+            {/* SVG component to draw the boxes */}
+            {imageDimensions && (
+              <Svg
+                height={imageDimensions.height}
+                width={imageDimensions.width}
+                style={styles.svg}
+              >
+                {boxes.map((box, index) => {
+                  const scaledBox = scaleBoxCoordinates(box);
+                  return (
+                    <Rect
+                      key={index}
+                      x={scaledBox.x}
+                      y={scaledBox.y}
+                      width={scaledBox.width}
+                      height={scaledBox.height}
+                      stroke="blue"
+                      fill="transparent"
+                      strokeWidth="2"
+                    />
+                  );
+                })}
+              </Svg>
+            )}
+          </View>
 
           <Text style={styles.objectCount}>
             Object Count: {response.object_count}
@@ -172,7 +182,7 @@ const ImageUpload = () => {
           />
         </View>
       )}
-    </View>
+    </ScrollView>
   );
 };
 
@@ -181,7 +191,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 16,
+    marginTop: '20%',
+    marginBottom: '20%',
   },
   title: {
     fontSize: 24,
@@ -197,14 +208,10 @@ const styles = StyleSheet.create({
     height: 200,
     marginTop: 10,
   },
-  processedImage: {
-    width: 85,
-    height: 85,
-    position: 'absolute',
-    marginTop: 6,
-    marginLeft: 6,
+  imageContainer: {
+    position: 'relative',
+    marginTop: 20,
   },
-
   objectCount: {
     fontSize: 18,
     marginTop: 10,
@@ -218,7 +225,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   svg: {
-    position: 'absolute', // Overlay the SVG (bounding boxes) on top of the image
+    position: 'absolute',
     top: 0,
     left: 0,
     zIndex: 999,
