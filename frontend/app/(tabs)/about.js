@@ -198,10 +198,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   processedImage: {
-    width: 300,
-    height: 300,
+    width: 85,
+    height: 85,
     position: 'absolute',
-    marginTop: 10,
+    marginTop: 6,
+    marginLeft: 6,
   },
 
   objectCount: {
@@ -220,7 +221,7 @@ const styles = StyleSheet.create({
     position: 'absolute', // Overlay the SVG (bounding boxes) on top of the image
     top: 0,
     left: 0,
-    zIndex: 99999,
+    zIndex: 999,
   },
 });
 
