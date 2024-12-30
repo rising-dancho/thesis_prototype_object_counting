@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Fragment } from 'react';
 import {
   View,
   Text,
@@ -151,7 +151,7 @@ const ImageUpload = () => {
                 {boxes.map((box, index) => {
                   const scaledBox = scaleBoxCoordinates(box);
                   return (
-                    <React.Fragment key={index}>
+                    <Fragment key={index}>
                       {/* Bounding Box */}
                       <Rect
                         x={scaledBox.x}
@@ -166,14 +166,14 @@ const ImageUpload = () => {
                       <SvgText
                         x={scaledBox.x + scaledBox.width / 2}
                         y={scaledBox.y + scaledBox.height / 2}
-                        fill="blue"
+                        fill="#122FBA"
                         fontSize="32"
                         fontWeight="bold"
                         textAnchor="middle"
                       >
                         {index + 1}
                       </SvgText>
-                    </React.Fragment>
+                    </Fragment>
                   );
                 })}
               </Svg>
