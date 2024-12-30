@@ -20,17 +20,10 @@ const ImageUpload = () => {
   const [boxes, setBoxes] = useState([]); // Holds the bounding boxes
   const [imageDimensions, setImageDimensions] = useState(null); // Holds image dimensions
 
-  const addBox = (x, y, width, height) => {
-    setBoxes([
-      ...boxes,
-      { x, y, width, height }, // Add new box to the array
-    ]);
-  };
-
   const selectImage = async () => {
     try {
       let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true,
         quality: 1,
       });
