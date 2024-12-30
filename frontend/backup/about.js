@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
-import { Svg, Rect } from 'react-native-svg';
+import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 
 const ImageUpload = () => {
   const [image, setImage] = useState(null);
@@ -151,16 +151,29 @@ const ImageUpload = () => {
                 {boxes.map((box, index) => {
                   const scaledBox = scaleBoxCoordinates(box);
                   return (
-                    <Rect
-                      key={index}
-                      x={scaledBox.x}
-                      y={scaledBox.y}
-                      width={scaledBox.width}
-                      height={scaledBox.height}
-                      stroke="blue"
-                      fill="transparent"
-                      strokeWidth="2"
-                    />
+                    <React.Fragment key={index}>
+                      {/* Bounding Box */}
+                      <Rect
+                        x={scaledBox.x}
+                        y={scaledBox.y}
+                        width={scaledBox.width}
+                        height={scaledBox.height}
+                        stroke="#00FF00"
+                        fill="transparent"
+                        strokeWidth="3"
+                      />
+                      {/* Object Number */}
+                      <SvgText
+                        x={scaledBox.x + scaledBox.width / 2}
+                        y={scaledBox.y + scaledBox.height / 2}
+                        fill="blue"
+                        fontSize="32"
+                        fontWeight="bold"
+                        textAnchor="middle"
+                      >
+                        {index + 1}
+                      </SvgText>
+                    </React.Fragment>
                   );
                 })}
               </Svg>
