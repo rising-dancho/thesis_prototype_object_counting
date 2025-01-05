@@ -14,36 +14,16 @@ import * as ImagePicker from 'expo-image-picker';
 import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 
 const ImageUpload = () => {
-  const [image, setImage] = useState(null);
   const [response, setResponse] = useState(null);
+
+  const [selectedImage, setSelectedImage] = useState(undefined);
+
   const [error, setError] = useState(null);
   const [boxes, setBoxes] = useState([]); // Holds the bounding boxes
   const [imageDimensions, setImageDimensions] = useState(null); // Holds image dimensions
 
-  const selectImage = async () => {
-    try {
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
-        allowsEditing: true,
-        quality: 1,
-      });
-
-      if (!result.canceled) {
-        const selectedAsset = result.assets[0].uri;
-        const { width, height } = result.assets[0];
-        setImage(selectedAsset);
-        setImageDimensions({ width, height });
-        setError(null);
-      } else {
-        setError('You did not select any image.');
-      }
-    } catch (err) {
-      setError('Error selecting image: ' + err.message);
-    }
-  };
-
   const handleSubmit = async () => {
-    if (!image) {
+    if (!selectedImage) {
       setError('No image selected');
       return;
     }
@@ -51,12 +31,12 @@ const ImageUpload = () => {
     const formData = new FormData();
 
     if (Platform.OS === 'web') {
-      const response = await fetch(image);
+      const response = await fetch(selectedImage);
       const blob = await response.blob();
       formData.append('image', blob, 'uploaded-image.jpg');
     } else {
       formData.append('image', {
-        uri: image,
+        uri: selectedImage,
         type: 'image/jpeg',
         name: 'uploaded-image.jpg',
       });
@@ -91,6 +71,28 @@ const ImageUpload = () => {
     }
   };
 
+  const selectImage = async () => {
+    try {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        const selectedAsset = result.assets[0].uri;
+        const { width, height } = result.assets[0];
+        setSelectedImage(selectedAsset);
+        setImageDimensions({ width, height });
+        setError(null);
+      } else {
+        setError('You did not select any image.');
+      }
+    } catch (err) {
+      setError('Error selecting image: ' + err.message);
+    }
+  };
+
   // Scale the bounding box coordinates relative to the image size
   const scaleBoxCoordinates = (box) => {
     if (imageDimensions) {
@@ -112,12 +114,12 @@ const ImageUpload = () => {
       <Button
         title="Upload and Process"
         onPress={handleSubmit}
-        disabled={!image}
+        disabled={!selectedImage}
       />
 
       {error && <Text style={styles.error}>{error}</Text>}
 
-      {image && <Image source={{ uri: image }} style={styles.image} />}
+      {/* {image && <Image source={{ uri: image }} style={styles.image} />} */}
 
       {response && (
         <View>
