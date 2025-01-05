@@ -88,7 +88,9 @@ export default function Index() {
 
     if (!result.canceled) {
       const selectedAsset = result.assets[0].uri;
+      const { width, height } = result.assets[0];
       setSelectedImage(selectedAsset);
+      setImageDimensions({ width, height });
       return selectedAsset;
     } else {
       alert('You did not select any image.');
@@ -259,6 +261,9 @@ export default function Index() {
             timestamp={timestamp}
             clicked={isCountClicked}
             boxes={boxes}
+            response={response}
+            scaleBoxCoordinates={scaleBoxCoordinates}
+            imageDimensions={imageDimensions}
           />
         </View>
       </View>

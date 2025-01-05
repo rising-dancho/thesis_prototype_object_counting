@@ -1,8 +1,8 @@
 import { StyleSheet, View } from 'react-native';
 import { Image, type ImageSource } from 'expo-image';
 import { Text } from 'react-native-paper';
-import React from 'react';
-import Svg, { Rect } from 'react-native-svg';
+import React, { Fragment } from 'react';
+import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 
 interface BoundingBox {
   x: number;
@@ -12,12 +12,14 @@ interface BoundingBox {
 }
 
 export default function ImageViewer({
-  imgSource,
   text,
   count,
   timestamp,
   clicked,
   boxes,
+  response,
+  imageDimensions,
+  scaleBoxCoordinates,
 }: {
   imgSource: ImageSource;
   text: any;
@@ -25,27 +27,72 @@ export default function ImageViewer({
   timestamp: any;
   clicked: any;
   boxes: BoundingBox[]; // New prop to handle the bounding boxes
+  response: any;
+  imageDimensions: any;
+  scaleBoxCoordinates: any;
 }) {
   return (
     <View style={styles.container}>
-      <Image source={imgSource} style={styles.image} contentFit="contain" />
-      
-      {/* SVG component for rendering bounding boxes */}
-      <Svg style={styles.svg}>
-        {boxes.map((box, index) => (
-          <Rect
-            key={index}
-            x={box.x}
-            y={box.y}
-            width={box.width}
-            height={box.height}
-            stroke="red"
-            strokeWidth="2"
-            fill="transparent"
-          />
-        ))}
-      </Svg>
-      
+      {response && (
+        <View>
+          <Text style={styles.subtitle}>Processed Image:</Text>
+
+          <View style={styles.imageContainer}>
+            <Image
+              source={{
+                uri: `data:image/png;base64,${response.processed_image}`,
+              }}
+              style={{
+                width: imageDimensions?.width,
+                height: imageDimensions?.height,
+                resizeMode: 'contain', // Ensures image is contained within bounds
+              }}
+            />
+            {/* SVG component to draw the boxes */}
+            {imageDimensions && (
+              <Svg
+                height={imageDimensions.height}
+                width={imageDimensions.width}
+                style={styles.svg}
+              >
+                {boxes.map((box, index) => {
+                  const scaledBox = scaleBoxCoordinates(box);
+                  return (
+                    <Fragment key={index}>
+                      {/* Bounding Box */}
+                      <Rect
+                        x={scaledBox.x}
+                        y={scaledBox.y}
+                        width={scaledBox.width}
+                        height={scaledBox.height}
+                        stroke="#00FF00"
+                        fill="transparent"
+                        strokeWidth="3"
+                      />
+                      {/* Object Number */}
+                      <SvgText
+                        x={scaledBox.x + scaledBox.width / 2}
+                        y={scaledBox.y + scaledBox.height / 2}
+                        fill="#122FBA"
+                        fontSize="32"
+                        fontWeight="bold"
+                        textAnchor="middle"
+                      >
+                        {index + 1}
+                      </SvgText>
+                    </Fragment>
+                  );
+                })}
+              </Svg>
+            )}
+          </View>
+
+          <Text style={styles.objectCount}>
+            Object Count: {response.object_count}
+          </Text>
+        </View>
+      )}
+
       <Text variant="labelLarge" style={styles.text}>
         {text || ''}
       </Text>
@@ -105,5 +152,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 5,
+  },
+  subtitle: {
+    fontSize: 20,
+    marginTop: 20,
+  },
+  imageContainer: {
+    position: 'relative',
+    marginTop: 20,
+  },
+  objectCount: {
+    fontSize: 18,
+    marginTop: 10,
   },
 });
