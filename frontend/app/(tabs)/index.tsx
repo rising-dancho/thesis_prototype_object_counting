@@ -19,12 +19,23 @@ import IconButton from '@/components/IconButton';
 
 const PlaceholderImage = require('@/assets/images/background-image.png');
 
+interface BoundingBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export default function Index() {
   // hooks
   const [status, requestPermission] = MediaLibrary.usePermissions();
   const [selectedImage, setSelectedImage] = useState<string | undefined>(
     undefined
   );
+
+  // --- Bounding Boxes ---
+  const [boxes, setBoxes] = useState<BoundingBox[]>([]); // Holds the bounding boxes
+  const [response, setResponse] = useState<string | null>(null);
 
   // navigation pagination
   const [currentPage, setCurrentPage] = useState<
@@ -117,6 +128,27 @@ export default function Index() {
           headers: { 'Content-Type': 'multipart/form-data' },
         }
       );
+
+      setResponse(res.data);
+      console.log(res.data.bounding_boxes, 'res.data.bounding_boxes'); // box coordinates
+      console.log(res.data, 'res:data');
+      console.log(
+        res.data.image_dimensions.height,
+        'res.data.image_dimensions.height'
+      ); // image dimension
+      console.log(
+        res.data.image_dimensions.width,
+        'res.data.image_dimensions.width'
+      );
+
+      // Call addBox for each bounding box in the response
+      res.data.bounding_boxes.forEach((box: any[]) => {
+        setBoxes((prevBoxes) => [
+          ...prevBoxes,
+          { x: box[0], y: box[1], width: box[2], height: box[3] }, // Add each box
+        ]);
+      });
+
       const { object_count, message, processed_image } = res.data;
 
       // Update the selectedImage state with the base64 string (prepended with the appropriate data URL prefix)
@@ -199,6 +231,18 @@ export default function Index() {
             timestamp={timestamp}
             clicked={isCountClicked}
           />
+          {boxes && (
+            <Text style={styles.text}>
+              {boxes.map((box, index) => {
+                return (
+                  <Text key={index}>
+                    Box {index + 1}: x={box.x}, y={box.y}, width={box.width},
+                    height={box.height}
+                  </Text>
+                );
+              })}
+            </Text>
+          )}
         </View>
       </View>
 
@@ -319,5 +363,9 @@ const styles = StyleSheet.create({
     flex: 2,
     alignItems: 'center',
     flexDirection: 'row',
+  },
+  text: {
+    color: 'red',
+    marginTop: 10,
   },
 });
