@@ -12,6 +12,7 @@ interface BoundingBox {
 }
 
 export default function ImageViewer({
+  imgSource,
   text,
   count,
   timestamp,
@@ -35,6 +36,8 @@ export default function ImageViewer({
     <View style={styles.container}>
       {response && (
         <View>
+          <Text style={styles.subtitle}>Processed Image:</Text>
+
           <View style={styles.imageContainer}>
             <Image
               source={{
@@ -84,6 +87,10 @@ export default function ImageViewer({
               </Svg>
             )}
           </View>
+
+          <Text style={styles.objectCount}>
+            Object Count: {response.object_count}
+          </Text>
         </View>
       )}
 
@@ -91,7 +98,7 @@ export default function ImageViewer({
         {text || ''}
       </Text>
       <Text variant="labelLarge" style={styles.count}>
-        {clicked && `Total Count: ${response.object_count}`}
+        {clicked && `Total Count: ${count}`}
       </Text>
       <Text variant="labelLarge" style={styles.timestamp}>
         {timestamp}
