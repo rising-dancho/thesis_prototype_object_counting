@@ -1,20 +1,12 @@
-import {
-  View,
-  StyleSheet,
-  Platform,
-  Pressable,
-  Text,
-  Image,
-} from 'react-native';
+import { View, StyleSheet, Platform, Pressable, Text } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { useEffect, useState, useRef, Fragment } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import * as MediaLibrary from 'expo-media-library';
 import { captureRef } from 'react-native-view-shot';
 import domtoimage from 'dom-to-image';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import axios from 'axios';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 
 // react native paper
 import { TextInput } from 'react-native-paper';
@@ -34,15 +26,6 @@ interface BoundingBox {
   height: number;
 }
 
-interface ImageDimensions {
-  width: number;
-  height: number;
-}
-
-type ResponseType = {
-  processed_image: string;
-} | null;
-
 export default function Index() {
   // hooks
   const [status, requestPermission] = MediaLibrary.usePermissions();
@@ -52,9 +35,7 @@ export default function Index() {
 
   // --- Bounding Boxes ---
   const [boxes, setBoxes] = useState<BoundingBox[]>([]); // Holds the bounding boxes
-  const [response, setResponse] = useState<ResponseType>(null);
-  const [imageDimensions, setImageDimensions] =
-    useState<ImageDimensions | null>(null); // Holds image dimensions
+  const [response, setResponse] = useState<string | null>(null);
 
   // navigation pagination
   const [currentPage, setCurrentPage] = useState<
@@ -74,10 +55,6 @@ export default function Index() {
       requestPermission();
     }
   }, [status, requestPermission]);
-
-  useEffect(() => {
-    console.log(response, 'RESPONSE');
-  }, [response]); // This will run whenever 'response' changes
 
   const selectImage = async (): Promise<string | undefined> => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -153,7 +130,6 @@ export default function Index() {
       );
 
       setResponse(res.data);
-      console.log(response, 'RESPONSE');
       console.log(res.data.bounding_boxes, 'res.data.bounding_boxes'); // box coordinates
       console.log(res.data, 'res:data');
       console.log(
@@ -172,6 +148,16 @@ export default function Index() {
           { x: box[0], y: box[1], width: box[2], height: box[3] }, // Add each box
         ]);
       });
+
+      const { object_count, message, processed_image } = res.data;
+
+      // Update the selectedImage state with the base64 string (prepended with the appropriate data URL prefix)
+      setSelectedImage(`data:image/png;base64,${processed_image}`);
+      setCount(object_count);
+      // setShowAppOptions(true);
+
+      console.log(message);
+      console.log('Server Response:', res.data);
     } catch (error: any) {
       console.error(
         'Error picking or uploading image:',
@@ -234,20 +220,6 @@ export default function Index() {
     return setTimestamp(result);
   };
 
-  // Scale the bounding box coordinates relative to the image size
-  const scaleBoxCoordinates = (box: BoundingBox) => {
-    if (imageDimensions) {
-      const { width: imgWidth, height: imgHeight } = imageDimensions;
-      return {
-        x: (box.x / imgWidth) * imageDimensions.width, // Adjust to image's displayed width
-        y: (box.y / imgHeight) * imageDimensions.height, // Adjust to image's displayed height
-        width: (box.width / imgWidth) * imageDimensions.width, // Adjust to image's displayed width
-        height: (box.height / imgHeight) * imageDimensions.height, // Adjust to image's displayed height
-      };
-    }
-    return box;
-  };
-
   return (
     <GestureHandlerRootView style={styles.container}>
       <View style={styles.imageContainer}>
@@ -258,8 +230,19 @@ export default function Index() {
             count={count}
             timestamp={timestamp}
             clicked={isCountClicked}
-            boxes={boxes}
           />
+          {boxes && (
+            <Text style={styles.text}>
+              {boxes.map((box, index) => {
+                return (
+                  <Text key={index}>
+                    Box {index + 1}: x={box.x}, y={box.y}, width={box.width},
+                    height={box.height}
+                  </Text>
+                );
+              })}
+            </Text>
+          )}
         </View>
       </View>
 
@@ -384,15 +367,5 @@ const styles = StyleSheet.create({
   text: {
     color: 'red',
     marginTop: 10,
-  },
-  objectCount: {
-    fontSize: 18,
-    marginTop: 10,
-  },
-  svg: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    zIndex: 999,
   },
 });

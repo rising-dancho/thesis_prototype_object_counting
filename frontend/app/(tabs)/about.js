@@ -30,8 +30,8 @@ const ImageUpload = () => {
     const formData = new FormData();
 
     if (Platform.OS === 'web') {
-      const response = await fetch(selectedImage);
-      const blob = await response.blob();
+      const res = await fetch(selectedImage);
+      const blob = await res.blob();
       formData.append('image', blob, 'uploaded-image.jpg');
     } else {
       formData.append('image', {
@@ -117,8 +117,6 @@ const ImageUpload = () => {
       />
 
       {error && <Text style={styles.error}>{error}</Text>}
-
-      {/* {image && <Image source={{ uri: image }} style={styles.image} />} */}
 
       {response && (
         <View>
