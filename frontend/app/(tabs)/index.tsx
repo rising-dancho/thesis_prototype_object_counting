@@ -110,24 +110,22 @@ export default function Index() {
       }
 
       // Upload image to the server
-      await axios
-        .post('http://127.0.0.1:5000/image-processing', formData, {
+      const res = await axios.post(
+        'http://localhost:5000/image-processing',
+        formData,
+        {
           headers: { 'Content-Type': 'multipart/form-data' },
-        })
-        .then((response) => {
-          const { object_count, message, processed_image } = response.data;
+        }
+      );
+      const { object_count, message, processed_image } = res.data;
 
-          // Update the selectedImage state with the base64 string (prepended with the appropriate data URL prefix)
-          setSelectedImage(`data:image/png;base64,${processed_image}`);
-          setCount(object_count);
-          // setShowAppOptions(true);
+      // Update the selectedImage state with the base64 string (prepended with the appropriate data URL prefix)
+      setSelectedImage(`data:image/png;base64,${processed_image}`);
+      setCount(object_count);
+      // setShowAppOptions(true);
 
-          console.log(message);
-          console.log('Server Response:', response.data);
-        })
-        .catch((error) => {
-          console.error('Error:', error);
-        });
+      console.log(message);
+      console.log('Server Response:', res.data);
     } catch (error: any) {
       console.error(
         'Error picking or uploading image:',

@@ -4,7 +4,6 @@ import {
   Text,
   Button,
   Image,
-  FlatList,
   StyleSheet,
   Platform,
   ScrollView,
@@ -178,16 +177,6 @@ const ImageUpload = () => {
           <Text style={styles.objectCount}>
             Object Count: {response.object_count}
           </Text>
-          <Text style={styles.boundingBoxTitle}>Bounding Boxes:</Text>
-          <FlatList
-            data={response.bounding_boxes}
-            renderItem={({ item }) => (
-              <Text>
-                X: {item[0]}, Y: {item[1]}, Width: {item[2]}, Height: {item[3]}
-              </Text>
-            )}
-            keyExtractor={(item, index) => index.toString()}
-          />
         </View>
       )}
     </ScrollView>
