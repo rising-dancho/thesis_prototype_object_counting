@@ -1,7 +1,15 @@
 import { StyleSheet, View } from 'react-native';
 import { Image, type ImageSource } from 'expo-image';
 import { Text } from 'react-native-paper';
-import React from 'react';
+import React, { Fragment } from 'react';
+import Svg, { Rect, Text as SvgText } from 'react-native-svg';
+
+interface BoundingBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
 
 export default function ImageViewer({
   imgSource,
@@ -9,21 +17,80 @@ export default function ImageViewer({
   count,
   timestamp,
   clicked,
+  boxes,
+  response,
+  imageDimensions,
+  scaleBoxCoordinates,
 }: {
   imgSource: ImageSource;
   text: any;
   count: any;
   timestamp: any;
   clicked: any;
+  boxes: BoundingBox[]; // New prop to handle the bounding boxes
+  response: any;
+  imageDimensions: any;
+  scaleBoxCoordinates: any;
 }) {
   return (
-    <View>
-      <Image source={imgSource} style={styles.image} contentFit="contain" />
-      <Text variant="labelLarge" style={styles.text}>
+    <View style={styles.container}>
+      {response && (
+        <View>
+          <View style={styles.imageContainer}>
+            <Image
+              source={imgSource}
+              style={{
+                width: imageDimensions?.width,
+                height: imageDimensions?.height,
+                resizeMode: 'contain', // Ensures image is contained within bounds
+              }}
+            />
+            {/* SVG component to draw the boxes */}
+            {imageDimensions && (
+              <Svg
+                height={imageDimensions.height}
+                width={imageDimensions.width}
+                style={styles.svg}
+              >
+                {boxes.map((box, index) => {
+                  const scaledBox = scaleBoxCoordinates(box);
+                  return (
+                    <Fragment key={index}>
+                      {/* Bounding Box */}
+                      <Rect
+                        x={scaledBox.x}
+                        y={scaledBox.y}
+                        width={scaledBox.width}
+                        height={scaledBox.height}
+                        stroke="#00FF00"
+                        fill="transparent"
+                        strokeWidth="3"
+                      />
+                      {/* Object Number */}
+                      <SvgText
+                        x={scaledBox.x + scaledBox.width / 2}
+                        y={scaledBox.y + scaledBox.height / 2}
+                        fill="#122FBA"
+                        fontSize="32"
+                        fontWeight="bold"
+                        textAnchor="middle"
+                      >
+                        {index + 1}
+                      </SvgText>
+                    </Fragment>
+                  );
+                })}
+              </Svg>
+            )}
+          </View>
+        </View>
+      )}
+
+      <Text variant="labelLarge" style={styles.title}>
         {text || ''}
       </Text>
       <Text variant="labelLarge" style={styles.count}>
-        {clicked && `Total Count: ${count}`}
+        {clicked && `Total Count: ${response?.object_count}`}
       </Text>
       <Text variant="labelLarge" style={styles.timestamp}>
         {timestamp}
@@ -40,14 +107,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#F4F4F5',
     padding: '20%',
   },
-  text: {
+  svg: {
     position: 'absolute',
-    top: '1%', // Distance from the top of the image
-    left: '1%',
+    top: 0,
+    left: 0,
+    zIndex: 1,
+  },
+  title: {
+    position: 'absolute',
+    top: 0, // Distance from the top of the image
+    left: 0,
     alignSelf: 'center',
     color: 'black', // Ensure text is visible against the image
     fontWeight: 'bold', // Make the text stand out
-    // backgroundColor: '#000000', // Optional background for readability
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 5,
@@ -59,21 +131,31 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     color: 'black', // Ensure text is visible against the image
     fontWeight: 'bold', // Make the text stand out
-    // backgroundColor: '#000000', // Optional background for readability
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 5,
   },
   timestamp: {
     position: 'absolute',
-    bottom: '1%', // Distance from the top of the image
+    bottom: '1%', // Distance from the bottom of the image
     left: '1%',
     alignSelf: 'flex-end',
     color: 'black', // Ensure text is visible against the image
     fontWeight: 'bold', // Make the text stand out
-    // backgroundColor: '#000000', // Optional background for readability
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 5,
+  },
+  subtitle: {
+    fontSize: 20,
+    marginTop: 20,
+  },
+  imageContainer: {
+    position: 'relative',
+    marginTop: 20,
+  },
+  objectCount: {
+    fontSize: 18,
+    marginTop: 10,
   },
 });

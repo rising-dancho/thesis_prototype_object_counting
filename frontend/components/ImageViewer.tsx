@@ -90,7 +90,7 @@ export default function ImageViewer({
         {text || ''}
       </Text>
       <Text variant="labelLarge" style={styles.count}>
-        {clicked && `Total Count: ${response?.object_count}`}
+        {clicked && `Total Count: ${count || ''}`}
       </Text>
       <Text variant="labelLarge" style={styles.timestamp}>
         {timestamp}

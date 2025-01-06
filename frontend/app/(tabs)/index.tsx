@@ -31,6 +31,11 @@ interface ImageDimensions {
   height: number;
 }
 
+interface ParentDimensions {
+  width: number;
+  height: number;
+}
+
 type ResponseType = {
   processed_image: string;
 } | null;
@@ -47,6 +52,11 @@ export default function Index() {
   const [response, setResponse] = useState<ResponseType>(null);
   const [imageDimensions, setImageDimensions] =
     useState<ImageDimensions | null>(null); // Holds image dimensions
+
+  const [parentDimensions, setParentDimensions] = useState({
+    width: 0,
+    height: 0,
+  });
 
   // navigation pagination
   const [currentPage, setCurrentPage] = useState<
@@ -69,7 +79,7 @@ export default function Index() {
 
   useEffect(() => {
     console.log(response, 'RESPONSE');
-    console.log(selectedImage, "selectedImage");
+    console.log(selectedImage, 'selectedImage');
   }, [response]); // This will run whenever 'response' changes
 
   const selectImage = async (): Promise<string | undefined> => {
@@ -106,6 +116,7 @@ export default function Index() {
     setTimestamp('');
     setSelectedImage(undefined);
     setIsCountClicked(false);
+    setBoxes([]);
   };
 
   const processImage = async () => {
@@ -148,6 +159,8 @@ export default function Index() {
       );
 
       setResponse(res.data);
+      setCount(res.data.object_count);
+      console.log(res.data.object_count, 'object_count');
       console.log(response, 'RESPONSE');
       console.log(res.data.bounding_boxes, 'res.data.bounding_boxes'); // box coordinates
       console.log(res.data, 'res:data');
@@ -231,13 +244,22 @@ export default function Index() {
 
   // Scale the bounding box coordinates relative to the image size
   const scaleBoxCoordinates = (box: BoundingBox) => {
-    if (imageDimensions) {
+    if (imageDimensions && parentDimensions) {
       const { width: imgWidth, height: imgHeight } = imageDimensions;
+      const { width: parentWidth, height: parentHeight } = parentDimensions;
+
+      // Calculate the scaling factor based on the image and parent dimensions
+      const scaleFactor = Math.min(
+        parentWidth / imgWidth,
+        parentHeight / imgHeight
+      );
+
+      // Scale the bounding box relative to the scaled image size
       return {
-        x: (box.x / imgWidth) * imageDimensions.width, // Adjust to image's displayed width
-        y: (box.y / imgHeight) * imageDimensions.height, // Adjust to image's displayed height
-        width: (box.width / imgWidth) * imageDimensions.width, // Adjust to image's displayed width
-        height: (box.height / imgHeight) * imageDimensions.height, // Adjust to image's displayed height
+        x: box.x * scaleFactor,
+        y: box.y * scaleFactor,
+        width: box.width * scaleFactor,
+        height: box.height * scaleFactor,
       };
     }
     return box;
@@ -245,7 +267,13 @@ export default function Index() {
 
   return (
     <GestureHandlerRootView style={styles.container}>
-      <View style={styles.imageContainer}>
+      <View
+        style={styles.imageContainer}
+        onLayout={(event) => {
+          const { width, height } = event.nativeEvent.layout;
+          setParentDimensions({ width, height });
+        }}
+      >
         <View ref={imageRef} collapsable={false} style={{ padding: 3 }}>
           <ImageViewer
             imgSource={selectedImage || PlaceholderImage}
