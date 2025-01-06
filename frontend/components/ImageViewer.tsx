@@ -23,12 +23,12 @@ export default function ImageViewer({
   scaleBoxCoordinates,
 }: {
   imgSource: ImageSource;
-  text?: string;
-  count?: number;
-  timestamp?: string;
-  clicked?: boolean;
+  text?: any;
+  count?: any;
+  timestamp?: any;
+  clicked?: any;
   boxes: BoundingBox[];
-  response?: boolean;
+  response?: any;
   imageDimensions?: { width: number; height: number } | null;
   scaleBoxCoordinates: (box: BoundingBox) => BoundingBox;
 }) {
