@@ -1,7 +1,7 @@
+import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Image, type ImageSource } from 'expo-image';
 import { Text } from 'react-native-paper';
-import React, { Fragment } from 'react';
 import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 
 interface BoundingBox {
@@ -17,81 +17,111 @@ export default function ImageViewer({
   count,
   timestamp,
   clicked,
-  boxes,
+  boxes = [],
   response,
   imageDimensions,
   scaleBoxCoordinates,
 }: {
   imgSource: ImageSource;
-  text: any;
-  count: any;
-  timestamp: any;
-  clicked: any;
-  boxes: BoundingBox[]; // New prop to handle the bounding boxes
-  response: any;
-  imageDimensions: any;
-  scaleBoxCoordinates: any;
+  text?: any;
+  count?: any;
+  timestamp?: any;
+  clicked?: any;
+  boxes: BoundingBox[];
+  response?: any;
+  imageDimensions?: { width: number; height: number } | null;
+  scaleBoxCoordinates: (box: BoundingBox) => BoundingBox;
 }) {
+  // Setting a fixed display size
+  const displayWidth = 500; // Reduced for smaller scaling
+  const displayHeight = 640; // Adjusted for a balanced ratio
+
+  const scaledDimensions = imageDimensions
+    ? {
+        width: displayWidth,
+        height: (imageDimensions.height / imageDimensions.width) * displayWidth,
+      }
+    : { width: displayWidth, height: displayHeight };
+
   return (
     <View style={styles.container}>
       {response && (
-        <View>
-          <View style={styles.imageContainer}>
-            <Image
-              source={imgSource}
-              style={{
-                width: imageDimensions?.width,
-                height: imageDimensions?.height,
-                resizeMode: 'contain', // Ensures image is contained within bounds
-              }}
-            />
-            {/* SVG component to draw the boxes */}
-            {imageDimensions && (
-              <Svg
-                height={imageDimensions.height}
-                width={imageDimensions.width}
-                style={styles.svg}
-              >
-                {boxes.map((box, index) => {
-                  const scaledBox = scaleBoxCoordinates(box);
-                  return (
-                    <Fragment key={index}>
-                      {/* Bounding Box */}
-                      <Rect
-                        x={scaledBox.x}
-                        y={scaledBox.y}
-                        width={scaledBox.width}
-                        height={scaledBox.height}
-                        stroke="#00FF00"
-                        fill="transparent"
-                        strokeWidth="3"
-                      />
-                      {/* Object Number */}
-                      <SvgText
-                        x={scaledBox.x + scaledBox.width / 2}
-                        y={scaledBox.y + scaledBox.height / 2}
-                        fill="#122FBA"
-                        fontSize="32"
-                        fontWeight="bold"
-                        textAnchor="middle"
-                      >
-                        {index + 1}
-                      </SvgText>
-                    </Fragment>
-                  );
-                })}
-              </Svg>
-            )}
-          </View>
+        <View style={styles.imageContainer}>
+          {/* Image */}
+          <Image
+            source={imgSource}
+            style={{
+              width: scaledDimensions.width,
+              height: scaledDimensions.height,
+              resizeMode: 'contain',
+            }}
+          />
+
+          {/* SVG Overlay for Bounding Boxes */}
+          {imageDimensions && (
+            <Svg
+              height={scaledDimensions.height}
+              width={scaledDimensions.width}
+              style={styles.svg}
+            >
+              {boxes.map((box, index) => {
+                const scaledBox = scaleBoxCoordinates(box);
+                return (
+                  <React.Fragment key={index}>
+                    <Rect
+                      x={
+                        scaledBox.x *
+                        (scaledDimensions.width / imageDimensions.width)
+                      }
+                      y={
+                        scaledBox.y *
+                        (scaledDimensions.height / imageDimensions.height)
+                      }
+                      width={
+                        scaledBox.width *
+                        (scaledDimensions.width / imageDimensions.width)
+                      }
+                      height={
+                        scaledBox.height *
+                        (scaledDimensions.height / imageDimensions.height)
+                      }
+                      stroke="#00FF00"
+                      fill="transparent"
+                      strokeWidth="2"
+                    />
+                    <SvgText
+                      x={
+                        (scaledBox.x + scaledBox.width / 2) *
+                        (scaledDimensions.width / imageDimensions.width)
+                      }
+                      y={
+                        (scaledBox.y + scaledBox.height / 2) *
+                        (scaledDimensions.height / imageDimensions.height)
+                      }
+                      fill="#122FBA"
+                      fontSize="16"
+                      fontWeight="bold"
+                      textAnchor="middle"
+                    >
+                      {index + 1}
+                    </SvgText>
+                  </React.Fragment>
+                );
+              })}
+            </Svg>
+          )}
         </View>
       )}
 
+      {/* Text Information */}
       <Text variant="labelLarge" style={styles.title}>
         {text || ''}
       </Text>
-      <Text variant="labelLarge" style={styles.count}>
-        {clicked && `Total Count: ${count || ''}`}
-      </Text>
+      {clicked && (
+        <Text variant="labelLarge" style={styles.count}>
+          Total Count: {count || ''}
+        </Text>
+      )}
       <Text variant="labelLarge" style={styles.timestamp}>
         {timestamp}
       </Text>
@@ -100,62 +130,34 @@ export default function ImageViewer({
 }
 
 const styles = StyleSheet.create({
-  container: { position: 'relative' },
-  image: {
-    width: 520,
-    height: 640,
+  container: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
     backgroundColor: '#F4F4F5',
-    padding: '20%',
+  },
+  imageContainer: {
+    position: 'relative',
+    borderWidth: 1,
+    borderColor: 'transparent',
+    overflow: 'hidden',
   },
   svg: {
     position: 'absolute',
     top: 0,
     left: 0,
-    zIndex: 1,
   },
   title: {
-    position: 'absolute',
-    top: 0, // Distance from the top of the image
-    left: 0,
-    alignSelf: 'center',
-    color: 'black', // Ensure text is visible against the image
-    fontWeight: 'bold', // Make the text stand out
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 5,
+    marginTop: 10,
+    fontWeight: 'bold',
+    fontSize: 16,
   },
   count: {
-    position: 'absolute',
-    top: '1%', // Distance from the top of the image
-    right: '1%',
-    alignSelf: 'flex-end',
-    color: 'black', // Ensure text is visible against the image
-    fontWeight: 'bold', // Make the text stand out
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 5,
+    marginTop: 5,
+    fontSize: 14,
   },
   timestamp: {
-    position: 'absolute',
-    bottom: '1%', // Distance from the bottom of the image
-    left: '1%',
-    alignSelf: 'flex-end',
-    color: 'black', // Ensure text is visible against the image
-    fontWeight: 'bold', // Make the text stand out
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 5,
-  },
-  subtitle: {
-    fontSize: 20,
-    marginTop: 20,
-  },
-  imageContainer: {
-    position: 'relative',
-    marginTop: 20,
-  },
-  objectCount: {
-    fontSize: 18,
-    marginTop: 10,
+    marginTop: 5,
+    fontSize: 14,
   },
 });

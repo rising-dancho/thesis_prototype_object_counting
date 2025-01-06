@@ -14,7 +14,7 @@ import { TextInput } from 'react-native-paper';
 // components
 import Button from '@/components/Button';
 import CircleButton from '@/components/CircleButton';
-import ImageViewer from '@/components/ImageViewer';
+import ImageViewer from '@/backup/ImageViewer';
 import IconButton from '@/components/IconButton';
 
 const PlaceholderImage = require('@/assets/images/background-image.png');
@@ -27,6 +27,11 @@ interface BoundingBox {
 }
 
 interface ImageDimensions {
+  width: number;
+  height: number;
+}
+
+interface ParentDimensions {
   width: number;
   height: number;
 }
@@ -47,6 +52,11 @@ export default function Index() {
   const [response, setResponse] = useState<ResponseType>(null);
   const [imageDimensions, setImageDimensions] =
     useState<ImageDimensions | null>(null); // Holds image dimensions
+
+  const [parentDimensions, setParentDimensions] = useState({
+    width: 0,
+    height: 0,
+  });
 
   // navigation pagination
   const [currentPage, setCurrentPage] = useState<
@@ -69,7 +79,7 @@ export default function Index() {
 
   useEffect(() => {
     console.log(response, 'RESPONSE');
-    console.log(selectedImage, "selectedImage");
+    console.log(selectedImage, 'selectedImage');
   }, [response]); // This will run whenever 'response' changes
 
   const selectImage = async (): Promise<string | undefined> => {
@@ -106,6 +116,7 @@ export default function Index() {
     setTimestamp('');
     setSelectedImage(undefined);
     setIsCountClicked(false);
+    setBoxes([]);
   };
 
   const processImage = async () => {
@@ -148,6 +159,8 @@ export default function Index() {
       );
 
       setResponse(res.data);
+      setCount(res.data.object_count);
+      console.log(res.data.object_count, 'object_count');
       console.log(response, 'RESPONSE');
       console.log(res.data.bounding_boxes, 'res.data.bounding_boxes'); // box coordinates
       console.log(res.data, 'res:data');
@@ -230,6 +243,7 @@ export default function Index() {
   };
 
   // Scale the bounding box coordinates relative to the image size
+  // Scale the bounding box coordinates relative to the image size
   const scaleBoxCoordinates = (box: BoundingBox) => {
     if (imageDimensions) {
       const { width: imgWidth, height: imgHeight } = imageDimensions;
@@ -245,7 +259,13 @@ export default function Index() {
 
   return (
     <GestureHandlerRootView style={styles.container}>
-      <View style={styles.imageContainer}>
+      <View
+        style={styles.imageContainer}
+        onLayout={(event) => {
+          const { width, height } = event.nativeEvent.layout;
+          setParentDimensions({ width, height });
+        }}
+      >
         <View ref={imageRef} collapsable={false} style={{ padding: 3 }}>
           <ImageViewer
             imgSource={selectedImage || PlaceholderImage}
