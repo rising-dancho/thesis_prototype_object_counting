@@ -243,23 +243,15 @@ export default function Index() {
   };
 
   // Scale the bounding box coordinates relative to the image size
+  // Scale the bounding box coordinates relative to the image size
   const scaleBoxCoordinates = (box: BoundingBox) => {
-    if (imageDimensions && parentDimensions) {
+    if (imageDimensions) {
       const { width: imgWidth, height: imgHeight } = imageDimensions;
-      const { width: parentWidth, height: parentHeight } = parentDimensions;
-
-      // Calculate the scaling factor based on the image and parent dimensions
-      const scaleFactor = Math.min(
-        parentWidth / imgWidth,
-        parentHeight / imgHeight
-      );
-
-      // Scale the bounding box relative to the scaled image size
       return {
-        x: box.x * scaleFactor,
-        y: box.y * scaleFactor,
-        width: box.width * scaleFactor,
-        height: box.height * scaleFactor,
+        x: (box.x / imgWidth) * imageDimensions.width, // Adjust to image's displayed width
+        y: (box.y / imgHeight) * imageDimensions.height, // Adjust to image's displayed height
+        width: (box.width / imgWidth) * imageDimensions.width, // Adjust to image's displayed width
+        height: (box.height / imgHeight) * imageDimensions.height, // Adjust to image's displayed height
       };
     }
     return box;

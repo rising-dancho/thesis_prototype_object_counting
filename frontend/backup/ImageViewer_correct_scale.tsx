@@ -24,17 +24,17 @@ export default function ImageViewer({
 }: {
   imgSource: ImageSource;
   text?: string;
-  count?: number;
+  count?: any;
   timestamp?: string;
   clicked?: boolean;
   boxes: BoundingBox[];
-  response?: boolean;
+  response?: any;
   imageDimensions?: { width: number; height: number } | null;
   scaleBoxCoordinates: (box: BoundingBox) => BoundingBox;
 }) {
   // Setting a fixed display size
-  const displayWidth = 520; // Reduced for smaller scaling
-  const displayHeight = 640; // Adjusted for a balanced ratio
+  const displayWidth = 300; // Reduced for smaller scaling
+  const displayHeight = 400; // Adjusted for a balanced ratio
 
   const scaledDimensions = imageDimensions
     ? {
