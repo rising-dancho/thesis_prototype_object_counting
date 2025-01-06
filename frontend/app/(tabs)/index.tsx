@@ -1,20 +1,12 @@
-import {
-  View,
-  StyleSheet,
-  Platform,
-  Pressable,
-  Text,
-  Image,
-} from 'react-native';
+import { View, StyleSheet, Platform, Pressable, Text } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { useEffect, useState, useRef, Fragment } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import * as MediaLibrary from 'expo-media-library';
 import { captureRef } from 'react-native-view-shot';
 import domtoimage from 'dom-to-image';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import axios from 'axios';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 
 // react native paper
 import { TextInput } from 'react-native-paper';
@@ -77,6 +69,7 @@ export default function Index() {
 
   useEffect(() => {
     console.log(response, 'RESPONSE');
+    console.log(selectedImage, "selectedImage");
   }, [response]); // This will run whenever 'response' changes
 
   const selectImage = async (): Promise<string | undefined> => {

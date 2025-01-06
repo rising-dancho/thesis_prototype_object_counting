@@ -36,13 +36,9 @@ export default function ImageViewer({
     <View style={styles.container}>
       {response && (
         <View>
-          <Text style={styles.subtitle}>Processed Image:</Text>
-
           <View style={styles.imageContainer}>
             <Image
-              source={{
-                uri: `data:image/png;base64,${response.processed_image}`,
-              }}
+              source={imgSource}
               style={{
                 width: imageDimensions?.width,
                 height: imageDimensions?.height,
@@ -87,18 +83,14 @@ export default function ImageViewer({
               </Svg>
             )}
           </View>
-
-          <Text style={styles.objectCount}>
-            Object Count: {response.object_count}
-          </Text>
         </View>
       )}
 
-      <Text variant="labelLarge" style={styles.text}>
+      <Text variant="labelLarge" style={styles.title}>
         {text || ''}
       </Text>
       <Text variant="labelLarge" style={styles.count}>
-        {clicked && `Total Count: ${count}`}
+        {clicked && `Total Count: ${response?.object_count}`}
       </Text>
       <Text variant="labelLarge" style={styles.timestamp}>
         {timestamp}
@@ -121,10 +113,10 @@ const styles = StyleSheet.create({
     left: 0,
     zIndex: 1,
   },
-  text: {
+  title: {
     position: 'absolute',
-    top: '1%', // Distance from the top of the image
-    left: '1%',
+    top: 0, // Distance from the top of the image
+    left: 0,
     alignSelf: 'center',
     color: 'black', // Ensure text is visible against the image
     fontWeight: 'bold', // Make the text stand out

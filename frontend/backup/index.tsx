@@ -261,7 +261,7 @@ export default function Index() {
             <Pressable
               style={styles.iconButton}
               onPress={() => alert('Remove')}
-            >
+            >2
               <Ionicons name="close" size={24} color="#25292e" />
               <Text style={styles.iconButtonLabel}>Remove</Text>
             </Pressable>
