@@ -17,6 +17,8 @@ import CircleButton from '@/components/CircleButton';
 import ImageViewer from '@/backup/ImageViewer';
 import IconButton from '@/components/IconButton';
 
+const PlaceholderImage = require('@/assets/images/background-image.png');
+
 interface BoundingBox {
   x: number;
   y: number;
@@ -201,7 +203,6 @@ export default function Index() {
         const dataUrl = await domtoimage.toJpeg(imageRef.current, {
           quality: 1,
           width: 520,
-          height: 640,
         });
 
         let link = document.createElement('a');
@@ -236,7 +237,6 @@ export default function Index() {
   };
 
   // Scale the bounding box coordinates relative to the image size
-  // Scale the bounding box coordinates relative to the image size
   const scaleBoxCoordinates = (box: BoundingBox) => {
     if (imageDimensions) {
       const { width: imgWidth, height: imgHeight } = imageDimensions;
@@ -266,7 +266,7 @@ export default function Index() {
           key={selectedImage ? selectedImage : 'reset'}
         >
           <ImageViewer
-            imgSource={selectedImage ? selectedImage : undefined}
+            imgSource={selectedImage ? selectedImage : PlaceholderImage}
             text={title}
             count={count}
             timestamp={timestamp}
@@ -378,6 +378,9 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     margin: 20,
     overflow: 'hidden',
+    borderStyle: 'solid',
+    borderColor: '#25292E',
+    borderWidth: 5,
   },
   buttonGap: {
     flex: 1,
@@ -389,8 +392,11 @@ const styles = StyleSheet.create({
     marginVertical: 10, // Add vertical margin to give buttons breathing room
   },
   buttonContainer: {
-    flex: 1 / 3,
+    flex: 1 / 5,
     alignItems: 'center',
+    // borderStyle: 'solid',
+    // borderColor: 'red',
+    // borderWidth: 1,
   },
   optionsRow: {
     flex: 2,
