@@ -17,8 +17,6 @@ import CircleButton from '@/components/CircleButton';
 import ImageViewer from '@/backup/ImageViewer';
 import IconButton from '@/components/IconButton';
 
-const PlaceholderImage = require('@/assets/images/background-image.png');
-
 interface BoundingBox {
   x: number;
   y: number;
@@ -27,11 +25,6 @@ interface BoundingBox {
 }
 
 interface ImageDimensions {
-  width: number;
-  height: number;
-}
-
-interface ParentDimensions {
   width: number;
   height: number;
 }
@@ -266,9 +259,14 @@ export default function Index() {
           setParentDimensions({ width, height });
         }}
       >
-        <View ref={imageRef} collapsable={false} style={{ padding: 3 }}>
+        <View
+          ref={imageRef}
+          collapsable={false}
+          style={{ padding: 3 }}
+          key={selectedImage ? selectedImage : 'reset'}
+        >
           <ImageViewer
-            imgSource={selectedImage || PlaceholderImage}
+            imgSource={selectedImage ? selectedImage : undefined}
             text={title}
             count={count}
             timestamp={timestamp}

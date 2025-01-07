@@ -137,11 +137,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 10,
     backgroundColor: '#F4F4F5',
+    position: 'relative',
   },
   imageContainer: {
-    position: 'relative',
-    borderWidth: 1,
-    borderColor: 'transparent',
     overflow: 'hidden',
   },
   svg: {
@@ -150,16 +148,36 @@ const styles = StyleSheet.create({
     left: 0,
   },
   title: {
-    marginTop: 10,
-    fontWeight: 'bold',
-    fontSize: 16,
+    position: 'absolute',
+    top: '1%', // Distance from the top of the image
+    left: '1%',
+    alignSelf: 'center',
+    color: 'black', // Ensure text is visible against the image
+    fontWeight: 'bold', // Make the text stand out
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 5,
   },
   count: {
-    marginTop: 5,
-    fontSize: 14,
+    position: 'absolute',
+    top: '1%', // Distance from the top of the image
+    right: '1%',
+    alignSelf: 'flex-end',
+    color: 'black', // Ensure text is visible against the image
+    fontWeight: 'bold', // Make the text stand out
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 5,
   },
   timestamp: {
-    marginTop: 5,
-    fontSize: 14,
+    position: 'absolute',
+    bottom: '1%', // Distance from the bottom of the image
+    left: '1%',
+    alignSelf: 'flex-end',
+    color: 'black', // Ensure text is visible against the image
+    fontWeight: 'bold', // Make the text stand out
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 5,
   },
 });
