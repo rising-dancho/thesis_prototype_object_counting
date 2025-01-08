@@ -7,6 +7,7 @@ import domtoimage from 'dom-to-image';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import axios from 'axios';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Asset } from 'expo-asset';
 
 // react native paper
 import { TextInput } from 'react-native-paper';
@@ -17,7 +18,9 @@ import CircleButton from '@/components/CircleButton';
 import ImageViewer from '@/components/ImageViewer';
 import IconButton from '@/components/IconButton';
 
-const PlaceholderImage = require('../../assets/images/background-image.png');
+const PlaceholderImage = Asset.fromModule(
+  require('@/assets/images/background-image.png')
+).uri;
 
 interface BoundingBox {
   x: number;
@@ -261,7 +264,6 @@ export default function Index() {
         <View
           ref={imageRef}
           collapsable={false}
-          style={{ padding: 3 }}
           key={selectedImage ? selectedImage : 'reset'}
         >
           <ImageViewer
@@ -294,20 +296,6 @@ export default function Index() {
 
       {currentPage === 'showAppOptions' && (
         <View style={styles.buttonContainer}>
-          <View style={styles.optionsRow}>
-            <IconButton icon="refresh" label="Reset" onPress={onReset} />
-            <CircleButton onPress={processImage} />
-            <IconButton
-              icon="arrow-forward"
-              label="Next"
-              onPress={() => setCurrentPage('showEditPage')}
-            />
-          </View>
-        </View>
-      )}
-
-      {currentPage === 'showEditPage' && (
-        <View style={styles.buttonContainer}>
           <TextInput
             label="File name"
             value={title}
@@ -322,7 +310,22 @@ export default function Index() {
                 placeholder: '#aaaaaa', // Placeholder color
               },
             }}
+            style={{ marginBottom: 10 }}
           />
+          <View style={styles.optionsRow}>
+            <IconButton icon="refresh" label="Reset" onPress={onReset} />
+            <CircleButton onPress={processImage} />
+            <IconButton
+              icon="arrow-forward"
+              label="Next"
+              onPress={() => setCurrentPage('showEditPage')}
+            />
+          </View>
+        </View>
+      )}
+
+      {currentPage === 'showEditPage' && (
+        <View style={styles.buttonContainer}>
           <View style={styles.buttonGap}>
             <IconButton
               icon="arrow-back"
@@ -377,11 +380,11 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     margin: 20,
     overflow: 'hidden',
-    borderStyle: 'solid',
-    borderColor: 'red',
-    borderWidth: 1,
     width: 520,
     height: 640,
+    // borderStyle: 'solid',
+    // borderColor: 'red',
+    // borderWidth: 1,
   },
   buttonGap: {
     flex: 1,
@@ -395,6 +398,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flex: 1 / 5,
     alignItems: 'center',
+    marginBottom: 10,
     // borderStyle: 'solid',
     // borderColor: 'red',
     // borderWidth: 1,

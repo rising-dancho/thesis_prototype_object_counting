@@ -145,11 +145,12 @@ export default function ImageViewer({
 
 const styles = StyleSheet.create({
   container: {
+    justifyContent: 'center',
     padding: 3,
     backgroundColor: '#F4F4F5',
-    borderStyle: 'solid',
-    borderColor: 'red',
-    borderWidth: 1,
+    // borderStyle: 'solid',
+    // borderColor: 'red',
+    // borderWidth: 1,
   },
   placeholderImage: {
     width: '100%', // Full width of the parent
@@ -173,9 +174,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#F4F4F5',
     width: '100%', // Ensure the container takes the full width of the parent
     // height: 640, // Add a height for the placeholder to render properly
-    borderStyle: 'solid',
-    borderColor: 'red',
-    borderWidth: 1,
+    // borderStyle: 'solid',
+    // borderColor: 'red',
+    // borderWidth: 1,
   },
   svg: {
     position: 'absolute',
@@ -183,27 +184,25 @@ const styles = StyleSheet.create({
     left: 0,
   },
   title: {
-    marginTop: 10,
+    paddingBottom: 3,
     fontWeight: '700',
     fontSize: 18,
-    borderStyle: 'solid',
-    borderColor: 'red',
-    borderWidth: 1,
+    // borderStyle: 'solid',
+    // borderColor: 'red',
+    // borderWidth: 1,
   },
   count: {
-    marginTop: 5,
     fontSize: 16,
     fontWeight: 'bold',
-    borderStyle: 'solid',
-    borderColor: 'red',
-    borderWidth: 1,
+    // borderStyle: 'solid',
+    // borderColor: 'red',
+    // borderWidth: 1,
   },
   timestamp: {
-    marginTop: 5,
     fontSize: 16,
     fontWeight: 'bold',
-    borderStyle: 'solid',
-    borderColor: 'red',
-    borderWidth: 1,
+    // borderStyle: 'solid',
+    // borderColor: 'red',
+    // borderWidth: 1,
   },
 });
