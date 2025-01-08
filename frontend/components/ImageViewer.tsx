@@ -108,7 +108,7 @@ export default function ImageViewer({
                       }
                       stroke="#00FF00"
                       fill="transparent"
-                      strokeWidth="2"
+                      strokeWidth="3"
                     />
                     <SvgText
                       x={
@@ -120,7 +120,7 @@ export default function ImageViewer({
                         (scaledDimensions.height / imageDimensions.height)
                       }
                       fill="#122FBA"
-                      fontSize="16"
+                      fontSize="22"
                       fontWeight="bold"
                       textAnchor="middle"
                     >

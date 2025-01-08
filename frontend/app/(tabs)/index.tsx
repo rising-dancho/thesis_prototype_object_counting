@@ -42,7 +42,7 @@ export default function Index() {
   // hooks
   const [status, requestPermission] = MediaLibrary.usePermissions();
   const [selectedImage, setSelectedImage] = useState<string | undefined>(
-    PlaceholderImage.uri
+    undefined
   );
 
   // --- Bounding Boxes ---
@@ -343,10 +343,6 @@ export default function Index() {
               <Text style={styles.iconButtonLabel}>Remove</Text>
             </Pressable>
 
-            <Pressable style={styles.iconButton} onPress={() => alert('Move')}>
-              <Ionicons name="move" size={24} color="#25292e" />
-              <Text style={styles.iconButtonLabel}>Move</Text>
-            </Pressable>
             {/* ----- */}
             <IconButton
               icon="save-alt"

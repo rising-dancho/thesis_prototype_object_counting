@@ -74,6 +74,19 @@ def automatic_process_image():
                 x1, y1, w, h = cv2.boundingRect(cnt)
                 bounding_boxes.append([x1, y1, w, h])
 
+                # # Add a label with the object's count inside the box
+                # cx = x1 + w // 2
+                # cy = y1 + h // 2
+                # cv2.putText(
+                #     img,
+                #     f"{object_count}",
+                #     (cx - 10, cy + 10),  # Center the label
+                #     cv2.FONT_HERSHEY_SIMPLEX,
+                #     1.25,  # Font scale
+                #     (185, 25, 25),  # Color (blue)
+                #     3,  # Thickness
+                # )
+
         # Convert processed image (BGR) to RGB for sending in the response
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
