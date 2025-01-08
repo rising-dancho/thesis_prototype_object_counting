@@ -17,7 +17,7 @@ import CircleButton from '@/components/CircleButton';
 import ImageViewer from '@/components/ImageViewer';
 import IconButton from '@/components/IconButton';
 
-const PlaceholderImage = require('@/assets/images/background-image.png');
+const PlaceholderImage = require('../../assets/images/background-image.png');
 
 interface BoundingBox {
   x: number;
@@ -39,7 +39,7 @@ export default function Index() {
   // hooks
   const [status, requestPermission] = MediaLibrary.usePermissions();
   const [selectedImage, setSelectedImage] = useState<string | undefined>(
-    undefined
+    PlaceholderImage.uri
   );
 
   // --- Bounding Boxes ---
@@ -73,9 +73,13 @@ export default function Index() {
   }, [status, requestPermission]);
 
   useEffect(() => {
-    // console.log(response, 'RESPONSE');
-    // console.log(selectedImage, 'selectedImage');
+    console.log(response, 'RESPONSE');
+    console.log(selectedImage, 'selectedImage');
   }, [response]); // This will run whenever 'response' changes
+
+  useEffect(() => {
+    console.log(PlaceholderImage);
+  }, []);
 
   const selectImage = async (): Promise<string | undefined> => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -155,18 +159,18 @@ export default function Index() {
 
       setResponse(res.data);
       setCount(res.data.object_count);
-      // console.log(res.data.object_count, 'object_count');
-      // console.log(response, 'RESPONSE');
-      // console.log(res.data.bounding_boxes, 'res.data.bounding_boxes'); // box coordinates
-      // console.log(res.data, 'res:data');
-      // console.log(
-      //   res.data.image_dimensions.height,
-      //   'res.data.image_dimensions.height'
-      // ); // image dimension
-      // console.log(
-      //   res.data.image_dimensions.width,
-      //   'res.data.image_dimensions.width'
-      // );
+      console.log(res.data.object_count, 'object_count');
+      console.log(response, 'RESPONSE');
+      console.log(res.data.bounding_boxes, 'res.data.bounding_boxes'); // box coordinates
+      console.log(res.data, 'res:data');
+      console.log(
+        res.data.image_dimensions.height,
+        'res.data.image_dimensions.height'
+      ); // image dimension
+      console.log(
+        res.data.image_dimensions.width,
+        'res.data.image_dimensions.width'
+      );
 
       // Call addBox for each bounding box in the response
       setBoxes(
@@ -265,7 +269,7 @@ export default function Index() {
           key={selectedImage ? selectedImage : 'reset'}
         >
           <ImageViewer
-            imgSource={selectedImage ? selectedImage : PlaceholderImage}
+            imgSource={selectedImage ? selectedImage : undefined}
             text={title}
             count={count}
             timestamp={timestamp}
@@ -380,6 +384,8 @@ const styles = StyleSheet.create({
     borderStyle: 'solid',
     borderColor: 'red',
     borderWidth: 1,
+    width: 520,
+    height: 640,
   },
   buttonGap: {
     flex: 1,

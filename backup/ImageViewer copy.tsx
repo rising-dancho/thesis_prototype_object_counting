@@ -23,8 +23,6 @@ interface ImageViewerProps {
   scaleBoxCoordinates: (box: BoundingBox) => BoundingBox;
 }
 
-const PlaceholderImage = require('@/assets/images/background-image.png');
-
 export default function ImageViewer({
   imgSource,
   text,
@@ -40,15 +38,12 @@ export default function ImageViewer({
   const displayWidth = 520; // Reduced for smaller scaling
   const displayHeight = 640; // Adjusted for a balanced ratio
 
-  const scaledDimensions: { width: number; height: number } = imageDimensions
+  const scaledDimensions = imageDimensions
     ? {
         width: displayWidth,
         height: (imageDimensions.height / imageDimensions.width) * displayWidth,
       }
-    : {
-        width: displayWidth,
-        height: displayHeight,
-      };
+    : styles.image; // Uses default dimensions directly if not provided
 
   return (
     <View style={styles.container}>
@@ -64,19 +59,9 @@ export default function ImageViewer({
       </View>
 
       {response && (
-        <View
-          style={[
-            styles.imageContainer,
-            !imgSource && { height: 640 }, // Conditionally set height
-          ]}
-        >
-          {/* Render PlaceholderImage independently if imgSource is not provided */}
-          {!imgSource && (
-            <Image source={PlaceholderImage} style={styles.placeholderImage} />
-          )}
-
-          {/* Render the dynamic image if imgSource is provided */}
-          {imgSource && <Image source={imgSource} style={scaledDimensions} />}
+        <View style={styles.imageContainer}>
+          {/* Image */}
+          <Image source={imgSource} style={scaledDimensions} />
 
           {/* SVG Overlay for Bounding Boxes */}
           {imageDimensions && (
@@ -151,16 +136,12 @@ const styles = StyleSheet.create({
     borderColor: 'red',
     borderWidth: 1,
   },
-  placeholderImage: {
-    width: '100%', // Full width of the parent
-    height: '100%', // Full height of the parent
-    resizeMode: 'contain', // Maintain aspect ratio
-  },
   image: {
-    flex: 1, // Stretches to fill the container
-    width: '100%', // Full width of the parent
-    height: '100%', // Full height of the parent
-    resizeMode: 'cover', // Covers the entire space while maintaining aspect ratio
+    width: 520, // Default width
+    height: 640, // Default height
+    resizeMode: 'contain',
+    // borderColor: 'red',
+    // borderWidth: 1,
   },
   flex: {
     flexDirection: 'row',
@@ -171,8 +152,6 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
     backgroundColor: '#F4F4F5',
-    width: '100%', // Ensure the container takes the full width of the parent
-    // height: 640, // Add a height for the placeholder to render properly
     borderStyle: 'solid',
     borderColor: 'red',
     borderWidth: 1,
