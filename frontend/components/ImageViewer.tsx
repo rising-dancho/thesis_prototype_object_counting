@@ -35,7 +35,7 @@ export default function ImageViewer({
   scaleBoxCoordinates,
 }: ImageViewerProps) {
   // Setting a fixed display size
-  const displayWidth = 500; // Reduced for smaller scaling
+  const displayWidth = 520; // Reduced for smaller scaling
   const displayHeight = 640; // Adjusted for a balanced ratio
 
   const scaledDimensions = imageDimensions
@@ -47,6 +47,17 @@ export default function ImageViewer({
 
   return (
     <View style={styles.container}>
+      <View style={styles.flex}>
+        <Text variant="labelLarge" style={styles.title}>
+          {text || ''}
+        </Text>
+        {clicked && (
+          <Text variant="labelLarge" style={styles.count}>
+            Total Count: {count || ''}
+          </Text>
+        )}
+      </View>
+
       {response && (
         <View style={styles.imageContainer}>
           {/* Image */}
@@ -116,14 +127,7 @@ export default function ImageViewer({
       )}
 
       {/* Text Information */}
-      <Text variant="labelLarge" style={styles.title}>
-        {text || ''}
-      </Text>
-      {clicked && (
-        <Text variant="labelLarge" style={styles.count}>
-          Total Count: {count || ''}
-        </Text>
-      )}
+
       <Text variant="labelLarge" style={styles.timestamp}>
         {timestamp}
       </Text>
@@ -133,14 +137,20 @@ export default function ImageViewer({
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 10,
+    padding: 3,
     backgroundColor: '#F4F4F5',
-    position: 'relative',
+  },
+  flex: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   imageContainer: {
+    position: 'relative',
+    borderWidth: 1,
+    borderColor: 'transparent',
     overflow: 'hidden',
+    backgroundColor: '#F4F4F5',
   },
   svg: {
     position: 'absolute',
@@ -148,36 +158,18 @@ const styles = StyleSheet.create({
     left: 0,
   },
   title: {
-    position: 'absolute',
-    top: '1%', // Distance from the top of the image
-    left: '1%',
-    alignSelf: 'center',
-    color: 'black', // Ensure text is visible against the image
-    fontWeight: 'bold', // Make the text stand out
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 5,
+    marginTop: 10,
+    fontWeight: '700',
+    fontSize: 18,
   },
   count: {
-    position: 'absolute',
-    top: '1%', // Distance from the top of the image
-    right: '1%',
-    alignSelf: 'flex-end',
-    color: 'black', // Ensure text is visible against the image
-    fontWeight: 'bold', // Make the text stand out
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 5,
+    marginTop: 5,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   timestamp: {
-    position: 'absolute',
-    bottom: '1%', // Distance from the bottom of the image
-    left: '1%',
-    alignSelf: 'flex-end',
-    color: 'black', // Ensure text is visible against the image
-    fontWeight: 'bold', // Make the text stand out
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 5,
+    marginTop: 5,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

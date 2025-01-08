@@ -14,7 +14,7 @@ import { TextInput } from 'react-native-paper';
 // components
 import Button from '@/components/Button';
 import CircleButton from '@/components/CircleButton';
-import ImageViewer from '@/backup/ImageViewer';
+import ImageViewer from '@/components/ImageViewer';
 import IconButton from '@/components/IconButton';
 
 const PlaceholderImage = require('@/assets/images/background-image.png');
@@ -73,8 +73,8 @@ export default function Index() {
   }, [status, requestPermission]);
 
   useEffect(() => {
-    console.log(response, 'RESPONSE');
-    console.log(selectedImage, 'selectedImage');
+    // console.log(response, 'RESPONSE');
+    // console.log(selectedImage, 'selectedImage');
   }, [response]); // This will run whenever 'response' changes
 
   const selectImage = async (): Promise<string | undefined> => {
@@ -155,26 +155,28 @@ export default function Index() {
 
       setResponse(res.data);
       setCount(res.data.object_count);
-      console.log(res.data.object_count, 'object_count');
-      console.log(response, 'RESPONSE');
-      console.log(res.data.bounding_boxes, 'res.data.bounding_boxes'); // box coordinates
-      console.log(res.data, 'res:data');
-      console.log(
-        res.data.image_dimensions.height,
-        'res.data.image_dimensions.height'
-      ); // image dimension
-      console.log(
-        res.data.image_dimensions.width,
-        'res.data.image_dimensions.width'
-      );
+      // console.log(res.data.object_count, 'object_count');
+      // console.log(response, 'RESPONSE');
+      // console.log(res.data.bounding_boxes, 'res.data.bounding_boxes'); // box coordinates
+      // console.log(res.data, 'res:data');
+      // console.log(
+      //   res.data.image_dimensions.height,
+      //   'res.data.image_dimensions.height'
+      // ); // image dimension
+      // console.log(
+      //   res.data.image_dimensions.width,
+      //   'res.data.image_dimensions.width'
+      // );
 
       // Call addBox for each bounding box in the response
-      res.data.bounding_boxes.forEach((box: any[]) => {
-        setBoxes((prevBoxes) => [
-          ...prevBoxes,
-          { x: box[0], y: box[1], width: box[2], height: box[3] }, // Add each box
-        ]);
-      });
+      setBoxes(
+        res.data.bounding_boxes.map((box: any[]) => ({
+          x: box[0],
+          y: box[1],
+          width: box[2],
+          height: box[3],
+        }))
+      );
     } catch (error: any) {
       console.error(
         'Error picking or uploading image:',
@@ -187,7 +189,6 @@ export default function Index() {
     if (Platform.OS !== 'web') {
       try {
         const localUri = await captureRef(imageRef, {
-          height: 440,
           quality: 1,
         });
 
@@ -378,9 +379,9 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     margin: 20,
     overflow: 'hidden',
-    borderStyle: 'solid',
-    borderColor: '#25292E',
-    borderWidth: 5,
+    // borderStyle: 'solid',
+    // borderColor: '#4A4A4A',
+    // borderWidth: 5,
   },
   buttonGap: {
     flex: 1,
