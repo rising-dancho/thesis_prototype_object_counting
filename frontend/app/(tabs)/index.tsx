@@ -265,17 +265,19 @@ export default function Index() {
           collapsable={false}
           key={selectedImage ? selectedImage : 'reset'}
         >
-          <ImageViewer
-            imgSource={selectedImage ? selectedImage : undefined}
-            text={title}
-            count={count}
-            timestamp={timestamp}
-            clicked={isCountClicked}
-            boxes={boxes}
-            response={response}
-            scaleBoxCoordinates={scaleBoxCoordinates}
-            imageDimensions={imageDimensions}
-          />
+          {selectedImage !== undefined && (
+            <ImageViewer
+              imgSource={selectedImage ? selectedImage : undefined}
+              text={title}
+              count={count}
+              timestamp={timestamp}
+              clicked={isCountClicked}
+              boxes={boxes}
+              response={response}
+              scaleBoxCoordinates={scaleBoxCoordinates}
+              imageDimensions={imageDimensions}
+            />
+          )}
         </View>
       </View>
 
