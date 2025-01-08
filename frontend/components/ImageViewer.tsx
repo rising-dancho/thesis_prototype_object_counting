@@ -139,6 +139,9 @@ const styles = StyleSheet.create({
   container: {
     padding: 3,
     backgroundColor: '#F4F4F5',
+    borderStyle: 'solid',
+    borderColor: 'red',
+    borderWidth: 1,
   },
   flex: {
     flexDirection: 'row',
@@ -147,10 +150,11 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     position: 'relative',
-    borderWidth: 1,
-    borderColor: 'transparent',
     overflow: 'hidden',
     backgroundColor: '#F4F4F5',
+    borderStyle: 'solid',
+    borderColor: 'red',
+    borderWidth: 1,
   },
   svg: {
     position: 'absolute',
@@ -161,15 +165,24 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontWeight: '700',
     fontSize: 18,
+    borderStyle: 'solid',
+    borderColor: 'red',
+    borderWidth: 1,
   },
   count: {
     marginTop: 5,
     fontSize: 16,
     fontWeight: 'bold',
+    borderStyle: 'solid',
+    borderColor: 'red',
+    borderWidth: 1,
   },
   timestamp: {
     marginTop: 5,
     fontSize: 16,
     fontWeight: 'bold',
+    borderStyle: 'solid',
+    borderColor: 'red',
+    borderWidth: 1,
   },
 });

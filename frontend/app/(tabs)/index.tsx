@@ -203,9 +203,7 @@ export default function Index() {
       try {
         const dataUrl = await domtoimage.toJpeg(imageRef.current, {
           quality: 1,
-          width: 520,
         });
-
         let link = document.createElement('a');
         link.download = 'processed-image.jpeg';
         link.href = dataUrl;
@@ -379,9 +377,9 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     margin: 20,
     overflow: 'hidden',
-    // borderStyle: 'solid',
-    // borderColor: '#4A4A4A',
-    // borderWidth: 5,
+    borderStyle: 'solid',
+    borderColor: 'red',
+    borderWidth: 1,
   },
   buttonGap: {
     flex: 1,
