@@ -77,10 +77,6 @@ export default function Index() {
     console.log(selectedImage, 'selectedImage');
   }, [response]); // This will run whenever 'response' changes
 
-  useEffect(() => {
-    console.log(PlaceholderImage);
-  }, []);
-
   const selectImage = async (): Promise<string | undefined> => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
