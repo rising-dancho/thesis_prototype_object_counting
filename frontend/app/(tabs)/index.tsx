@@ -295,6 +295,16 @@ export default function Index() {
 
       {currentPage === 'showAppOptions' && (
         <View style={styles.buttonContainer}>
+          <Text
+            style={{
+              color: 'white',
+              width: '100%',
+              marginBottom: 8,
+              fontWeight: 'bold',
+            }}
+          >
+            Filename
+          </Text>
           <TextInput
             value={title}
             placeholder="Type in your file name.."
@@ -306,6 +316,7 @@ export default function Index() {
               marginBottom: 10,
               padding: 10,
               borderRadius: 6,
+              width: '100%',
             }}
             placeholderTextColor="#aaa" // Placeholder text color
           />
@@ -389,7 +400,7 @@ const styles = StyleSheet.create({
     marginVertical: 10, // Add vertical margin to give buttons breathing room
   },
   buttonContainer: {
-    flex: 1 / 5,
+    flex: 1 / 4,
     alignItems: 'center',
     marginBottom: 10,
     // borderStyle: 'solid',
