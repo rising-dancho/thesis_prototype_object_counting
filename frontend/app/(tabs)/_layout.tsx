@@ -7,16 +7,16 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: '#50AB5E',
-        tabBarInactiveTintColor: '#25292e', // Customize inactive color here
+        tabBarInactiveTintColor: '#3F7140', // Customize inactive color here
         headerStyle: {
-          backgroundColor: '#ebf6ed',
+          backgroundColor: '#25292e',
         },
-        headerShadowVisible: true,
+        headerShadowVisible: false,
         headerTintColor: '#50AB5E',
 
         tabBarStyle: {
-          backgroundColor: '#ebf6ed',
-          borderTopColor: '#cee8d2', // Change the border color here
+          backgroundColor: '#25292e',
+          borderTopColor: '#50AB5E', // Change the border color here
           borderTopWidth: 1, // Adjust border width if needed
         },
       }}

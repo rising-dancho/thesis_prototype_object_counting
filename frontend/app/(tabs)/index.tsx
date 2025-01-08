@@ -1,4 +1,11 @@
-import { View, StyleSheet, Platform, Pressable, Text } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Platform,
+  Pressable,
+  Text,
+  TextInput,
+} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useState, useRef } from 'react';
 import * as MediaLibrary from 'expo-media-library';
@@ -7,20 +14,12 @@ import domtoimage from 'dom-to-image';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import axios from 'axios';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Asset } from 'expo-asset';
-
-// react native paper
-import { TextInput } from 'react-native-paper';
 
 // components
 import Button from '@/components/Button';
 import CircleButton from '@/components/CircleButton';
 import ImageViewer from '@/components/ImageViewer';
 import IconButton from '@/components/IconButton';
-
-const PlaceholderImage = Asset.fromModule(
-  require('@/assets/images/background-image.png')
-).uri;
 
 interface BoundingBox {
   x: number;
@@ -297,20 +296,18 @@ export default function Index() {
       {currentPage === 'showAppOptions' && (
         <View style={styles.buttonContainer}>
           <TextInput
-            label="File name"
             value={title}
-            mode="outlined"
             placeholder="Type in your file name.."
             onChangeText={(text) => setTitle(text)}
-            theme={{
-              colors: {
-                primary: '#3DA24D', // Outline color when focused
-                background: '#ffffff', // Input background
-                text: '#000000', // Text color
-                placeholder: '#aaaaaa', // Placeholder color
-              },
+            style={{
+              backgroundColor: '#ffffff', // Input background
+              color: '#000000', // Text color
+              fontWeight: 'bold',
+              marginBottom: 10,
+              padding: 10,
+              borderRadius: 6,
             }}
-            style={{ marginBottom: 10 }}
+            placeholderTextColor="#aaa" // Placeholder text color
           />
           <View style={styles.optionsRow}>
             <IconButton icon="refresh" label="Reset" onPress={onReset} />
@@ -339,7 +336,7 @@ export default function Index() {
               style={styles.iconButton}
               onPress={() => alert('Remove')}
             >
-              <Ionicons name="close" size={24} color="#25292e" />
+              <Ionicons name="close" size={24} color="#fff" />
               <Text style={styles.iconButtonLabel}>Remove</Text>
             </Pressable>
 
@@ -359,7 +356,7 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F4F4F5',
+    backgroundColor: '#25292e',
     alignItems: 'center',
   },
   iconButton: {
@@ -368,7 +365,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   iconButtonLabel: {
-    color: '#25292e',
+    color: '#fff',
     marginTop: 12,
   },
   imageContainer: {

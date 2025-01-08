@@ -9,9 +9,9 @@ export default function NotFoundScreen() {
         options={{
           title: 'Oops! Not found',
           headerStyle: {
-            backgroundColor: '#F3ECF8',
+            backgroundColor: '#25292e',
           },
-          headerTintColor: '#25292e',
+          headerTintColor: '#50AB5E',
           headerShadowVisible: false,
         }}
       />

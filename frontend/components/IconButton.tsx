@@ -10,7 +10,7 @@ type Props = {
 export default function IconButton({ icon, label, onPress }: Props) {
   return (
     <Pressable style={styles.iconButton} onPress={onPress}>
-      <MaterialIcons name={icon} size={24} color="#25292e" />
+      <MaterialIcons name={icon} size={24} color="#fff" />
       <Text style={styles.iconButtonLabel}>{label}</Text>
     </Pressable>
   );
@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20, // Add margin around individual buttons
   },
   iconButtonLabel: {
-    color: '#25292e',
+    color: '#fff',
     marginTop: 12,
   },
 });

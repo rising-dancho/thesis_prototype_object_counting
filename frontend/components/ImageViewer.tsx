@@ -23,8 +23,6 @@ interface ImageViewerProps {
   scaleBoxCoordinates: (box: BoundingBox) => BoundingBox;
 }
 
-const PlaceholderImage = require('@/assets/images/background-image.png');
-
 export default function ImageViewer({
   imgSource,
   text,
@@ -70,11 +68,6 @@ export default function ImageViewer({
             !imgSource && { height: 640 }, // Conditionally set height
           ]}
         >
-          {/* Render PlaceholderImage independently if imgSource is not provided */}
-          {!imgSource && (
-            <Image source={PlaceholderImage} style={styles.placeholderImage} />
-          )}
-
           {/* Render the dynamic image if imgSource is provided */}
           {imgSource && <Image source={imgSource} style={scaledDimensions} />}
 
@@ -145,12 +138,7 @@ export default function ImageViewer({
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: 'center',
-    padding: 3,
     backgroundColor: '#F4F4F5',
-    // borderStyle: 'solid',
-    // borderColor: 'red',
-    // borderWidth: 1,
   },
   placeholderImage: {
     width: '100%', // Full width of the parent
@@ -171,7 +159,7 @@ const styles = StyleSheet.create({
   imageContainer: {
     position: 'relative',
     overflow: 'hidden',
-    backgroundColor: '#F4F4F5',
+    backgroundColor: '#25292e',
     width: '100%', // Ensure the container takes the full width of the parent
     // height: 640, // Add a height for the placeholder to render properly
     // borderStyle: 'solid',
