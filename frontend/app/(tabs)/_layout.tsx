@@ -16,8 +16,12 @@ export default function TabsLayout() {
 
         tabBarStyle: {
           backgroundColor: '#25292e',
-          borderTopColor: '#50AB5E', // Change the border color here
+          borderTopColor: '#3F7140', // Change the border color here
           borderTopWidth: 1, // Adjust border width if needed
+          shadowColor: '#50AB5E', // Shadow color
+          shadowOpacity: 0.22, // Shadow opacity
+          shadowRadius: 30, // Radius of the shadow
+          elevation: 1, // For Android
         },
       }}
     >

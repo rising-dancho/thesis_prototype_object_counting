@@ -303,7 +303,7 @@ export default function Index() {
               fontWeight: 'bold',
             }}
           >
-            Filename
+            File name
           </Text>
           <TextInput
             value={title}
