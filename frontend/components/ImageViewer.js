@@ -13,7 +13,7 @@ import {
   Gesture,
 } from 'react-native-gesture-handler';
 
-const AnimatedG = Animated.createAnimatedComponent(Group);
+const AnimatedGroup = Animated.createAnimatedComponent(Group);
 
 export default function ImageViewer({
   imgSource,
@@ -83,7 +83,7 @@ export default function ImageViewer({
                   {boxes.map((box, index) => {
                     const scaledBox = scaleBoxCoordinates(box);
                     return (
-                      <AnimatedG key={index} animatedProps={animatedProps}>
+                      <AnimatedGroup key={index} animatedProps={animatedProps}>
                         <Rect
                           x={
                             scaledBox.x *
@@ -121,7 +121,7 @@ export default function ImageViewer({
                         >
                           {index + 1}
                         </SvgText>
-                      </AnimatedG>
+                      </AnimatedGroup>
                     );
                   })}
                 </Svg>

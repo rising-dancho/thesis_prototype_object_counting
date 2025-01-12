@@ -31,12 +31,13 @@ export default function App() {
       ],
     }));
 
-  const createPanGesture = (translationX, translationY) =>
+  const createPanGesture = (box, translationX, translationY) =>
     Gesture.Pan()
       .minDistance(1)
       .onStart(() => {
         translationX.prev = translationX.value;
         translationY.prev = translationY.value;
+        console.log(`Gesture started on Box ${box.id}`);
       })
       .onUpdate((event) => {
         const maxTranslateX = width / 2 - 50;
@@ -52,6 +53,10 @@ export default function App() {
           -maxTranslateY,
           maxTranslateY
         );
+        console.log(`Gesture moving Box ${box.id}:`, event);
+      })
+      .onEnd(() => {
+        console.log(`Gesture ended on Box ${box.id}`);
       })
       .runOnJS(true);
 
@@ -60,7 +65,7 @@ export default function App() {
       {boxes.map((box) => (
         <GestureDetector
           key={box.id}
-          gesture={createPanGesture(box.translationX, box.translationY)}
+          gesture={createPanGesture(box, box.translationX, box.translationY)}
         >
           <Animated.View
             style={[
