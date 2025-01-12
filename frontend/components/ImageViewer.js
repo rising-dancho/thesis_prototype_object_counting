@@ -5,7 +5,6 @@ import { Text } from 'react-native-paper';
 import Svg, { Rect, Text as SvgText, G } from 'react-native-svg';
 import Animated, {
   useSharedValue,
-  useAnimatedStyle,
   useAnimatedProps,
 } from 'react-native-reanimated';
 import {
@@ -15,25 +14,6 @@ import {
 } from 'react-native-gesture-handler';
 
 const AnimatedG = Animated.createAnimatedComponent(G);
-
-interface BoundingBox {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-type ImageSource = string | undefined;
-interface ImageViewerProps {
-  imgSource?: ImageSource;
-  text?: any;
-  count?: any;
-  timestamp?: any;
-  clicked?: any;
-  boxes: BoundingBox[];
-  response?: any;
-  imageDimensions?: { width: number; height: number } | null;
-  scaleBoxCoordinates: (box: BoundingBox) => BoundingBox;
-}
 
 export default function ImageViewer({
   imgSource,
@@ -45,7 +25,7 @@ export default function ImageViewer({
   response,
   imageDimensions,
   scaleBoxCoordinates,
-}: ImageViewerProps) {
+}) {
   const translationX = useSharedValue(0);
   const translationY = useSharedValue(0);
 

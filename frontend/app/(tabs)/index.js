@@ -16,39 +16,21 @@ import axios from 'axios';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 // components
-import Button from '@/components/Button';
-import CircleButton from '@/components/CircleButton';
-import ImageViewer from '@/components/ImageViewer';
-import IconButton from '@/components/IconButton';
-
-interface BoundingBox {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-interface ImageDimensions {
-  width: number;
-  height: number;
-}
-
-type ResponseType = {
-  processed_image: string;
-} | null;
+import Button from '../../components/Button';
+import CircleButton from '../../components/CircleButton';
+import ImageViewer from '../../components/ImageViewer';
+import IconButton from '../../components/IconButton';
+// import PanGesture from '../../components/PanGesture';
 
 export default function Index() {
   // hooks
   const [status, requestPermission] = MediaLibrary.usePermissions();
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(
-    undefined
-  );
+  const [selectedImage, setSelectedImage] = useState(undefined);
 
   // --- Bounding Boxes ---
-  const [boxes, setBoxes] = useState<BoundingBox[]>([]); // Holds the bounding boxes
-  const [response, setResponse] = useState<ResponseType>(null);
-  const [imageDimensions, setImageDimensions] =
-    useState<ImageDimensions | null>(null); // Holds image dimensions
+  const [boxes, setBoxes] = useState([]); // Holds the bounding boxes
+  const [response, setResponse] = useState(null);
+  const [imageDimensions, setImageDimensions] = useState(null); // Holds image dimensions
 
   const [parentDimensions, setParentDimensions] = useState({
     width: 0,
@@ -56,15 +38,13 @@ export default function Index() {
   });
 
   // navigation pagination
-  const [currentPage, setCurrentPage] = useState<
-    'choosePhoto' | 'showAppOptions' | 'showEditPage'
-  >('choosePhoto');
+  const [currentPage, setCurrentPage] = useState('choosePhoto');
 
   // ui
-  const imageRef = useRef<View>(null);
-  const [title, setTitle] = useState<string>('');
-  const [count, setCount] = useState<string>('');
-  const [timestamp, setTimestamp] = useState<string>('');
+  const imageRef = useRef(null);
+  const [title, setTitle] = useState('');
+  const [count, setCount] = useState('');
+  const [timestamp, setTimestamp] = useState('');
   const [isCountClicked, setIsCountClicked] = useState(false);
 
   // methods
@@ -79,7 +59,7 @@ export default function Index() {
     console.log(selectedImage, 'selectedImage');
   }, [response]); // This will run whenever 'response' changes
 
-  const selectImage = async (): Promise<string | undefined> => {
+  const selectImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
@@ -143,7 +123,7 @@ export default function Index() {
           uri: selectedImage,
           name: 'uploaded-image.jpg',
           type: 'image/jpeg',
-        } as any); // Use 'as any' to bypass strict type checks for React Native
+        }); // Use 'as any' to bypass strict type checks for React Native
       }
 
       // Upload image to the server
@@ -172,14 +152,14 @@ export default function Index() {
 
       // Call addBox for each bounding box in the response
       setBoxes(
-        res.data.bounding_boxes.map((box: any[]) => ({
+        res.data.bounding_boxes.map((box) => ({
           x: box[0],
           y: box[1],
           width: box[2],
           height: box[3],
         }))
       );
-    } catch (error: any) {
+    } catch (error) {
       console.error(
         'Error picking or uploading image:',
         error.response?.data || error.message
@@ -238,7 +218,7 @@ export default function Index() {
   };
 
   // Scale the bounding box coordinates relative to the image size
-  const scaleBoxCoordinates = (box: BoundingBox) => {
+  const scaleBoxCoordinates = (box) => {
     if (imageDimensions) {
       const { width: imgWidth, height: imgHeight } = imageDimensions;
       return {
