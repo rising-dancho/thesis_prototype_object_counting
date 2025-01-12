@@ -4,25 +4,6 @@ import { Image } from 'expo-image';
 import { Text } from 'react-native-paper';
 import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 
-interface BoundingBox {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-type ImageSource = string | undefined;
-interface ImageViewerProps {
-  imgSource?: ImageSource;
-  text?: any;
-  count?: any;
-  timestamp?: any;
-  clicked?: any;
-  boxes: BoundingBox[];
-  response?: any;
-  imageDimensions?: { width: number; height: number } | null;
-  scaleBoxCoordinates: (box: BoundingBox) => BoundingBox;
-}
-
 export default function ImageViewer({
   imgSource,
   text,
@@ -33,12 +14,12 @@ export default function ImageViewer({
   response,
   imageDimensions,
   scaleBoxCoordinates,
-}: ImageViewerProps) {
+}) {
   // Setting a fixed display size
   const displayWidth = 520; // Reduced for smaller scaling
   const displayHeight = 640; // Adjusted for a balanced ratio
 
-  const scaledDimensions: { width: number; height: number } = imageDimensions
+  const scaledDimensions = imageDimensions
     ? {
         width: displayWidth,
         height: (imageDimensions.height / imageDimensions.width) * displayWidth,

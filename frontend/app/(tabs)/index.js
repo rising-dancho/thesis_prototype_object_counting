@@ -36,6 +36,7 @@ export default function Index() {
     width: 0,
     height: 0,
   });
+  const [isAddingBox, setIsAddingBox] = useState(false);
 
   // navigation pagination
   const [currentPage, setCurrentPage] = useState('choosePhoto');
@@ -75,6 +76,17 @@ export default function Index() {
     } else {
       alert('You did not select any image.');
       return undefined;
+    }
+  };
+
+  const handleAddBox = (event) => {
+    if (isAddingBox) {
+      const { locationX, locationY } = event.nativeEvent;
+      setBoxes((prevBoxes) => [
+        ...prevBoxes,
+        { x: locationX, y: locationY, width: 100, height: 100 },
+      ]);
+      setIsAddingBox(false); // Disable adding mode after placing one box
     }
   };
 
@@ -235,6 +247,8 @@ export default function Index() {
     <GestureHandlerRootView style={styles.container}>
       <View
         style={styles.imageContainer}
+        onStartShouldSetResponder={() => true}
+        onResponderRelease={handleAddBox}
         onLayout={(event) => {
           let { width, height } = event.nativeEvent.layout;
           setParentDimensions({ width, height });
@@ -322,7 +336,11 @@ export default function Index() {
               label="Back"
               onPress={() => setCurrentPage('showAppOptions')}
             />
-            <IconButton icon="add" label="Add" onPress={() => alert('Add')} />
+            <IconButton
+              icon="add"
+              label="Add"
+              onPress={() => setIsAddingBox(true)}
+            />
             {/* Custom Pressable Icon */}
 
             <Pressable
