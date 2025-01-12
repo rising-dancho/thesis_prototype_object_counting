@@ -28,7 +28,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          headerTitle: 'Objects Counter Prototype',
+          headerTitle: 'Object Counting Prototype',
           tabBarLabel: 'Count',
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
@@ -42,7 +42,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="about"
         options={{
-          headerTitle: 'Objects Counter Prototype',
+          headerTitle: 'Object Counting Prototype',
           tabBarLabel: 'About',
           tabBarIcon: ({ focused, color }) => (
             <Ionicons

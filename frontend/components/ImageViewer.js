@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Text } from 'react-native-paper';
-import Svg, { Rect, Text as SvgText, G } from 'react-native-svg';
+import Svg, { Rect, Text as SvgText, G as Group } from 'react-native-svg';
 import Animated, {
   useSharedValue,
   useAnimatedProps,
@@ -13,7 +13,7 @@ import {
   Gesture,
 } from 'react-native-gesture-handler';
 
-const AnimatedG = Animated.createAnimatedComponent(G);
+const AnimatedG = Animated.createAnimatedComponent(Group);
 
 export default function ImageViewer({
   imgSource,
