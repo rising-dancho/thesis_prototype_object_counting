@@ -8,14 +8,11 @@ import {
   GestureDetector,
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
-import { Dimensions } from 'react-native';
-import Svg, { Rect, Text as SvgText, G as Group } from 'react-native-svg';
+import { StyleSheet, Dimensions } from 'react-native';
 
 function clamp(val, min, max) {
   return Math.min(Math.max(val, min), max);
 }
-
-const AnimatedG = Animated.createAnimatedComponent(Group);
 
 const { width, height } = Dimensions.get('screen');
 
@@ -59,35 +56,35 @@ export default function App() {
       .runOnJS(true);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <Svg width={width} height={height}>
-        {boxes.map((box) => (
-          <GestureDetector
-            key={box.id}
-            gesture={createPanGesture(box.translationX, box.translationY)}
-          >
-            <Animated.Rect
-              x={50} // X position is initially fixed or based on your logic
-              y={50} // Y position is initially fixed or based on your logic
-              width={100}
-              height={100}
-              fill="#b58df1"
-              rx={20} // Border radius equivalent
-              style={animatedStyles(box.translationX, box.translationY)}
-            />
-            <SvgText
-              x={50 + 50} // Center the text horizontally (x + width/2)
-              y={50 + 50} // Center the text vertically (y + height/2)
-              fontSize="22"
-              fontWeight="bold"
-              textAnchor="middle"
-              fill="#122FBA"
-            >
-              {box.id}
-            </SvgText>
-          </GestureDetector>
-        ))}
-      </Svg>
+    <GestureHandlerRootView style={styles.container}>
+      {boxes.map((box) => (
+        <GestureDetector
+          key={box.id}
+          gesture={createPanGesture(box.translationX, box.translationY)}
+        >
+          <Animated.View
+            style={[
+              animatedStyles(box.translationX, box.translationY),
+              styles.box,
+            ]}
+          />
+        </GestureDetector>
+      ))}
     </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  box: {
+    width: 100,
+    height: 100,
+    backgroundColor: '#b58df1',
+    borderRadius: 20,
+    margin: 10,
+  },
+});
