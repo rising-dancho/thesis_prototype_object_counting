@@ -5,7 +5,6 @@ import { Text } from 'react-native-paper';
 import Svg, { Rect, Text as SvgText, G } from 'react-native-svg';
 import Animated, {
   useSharedValue,
-  useAnimatedStyle,
   useAnimatedProps,
 } from 'react-native-reanimated';
 import {

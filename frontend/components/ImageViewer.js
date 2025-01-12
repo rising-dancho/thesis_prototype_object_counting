@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, View, Alert } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Text } from 'react-native-paper';
 import Svg, { Rect, Text as SvgText, G } from 'react-native-svg';
@@ -22,15 +22,24 @@ export default function ImageViewer({
   timestamp,
   clicked,
   boxes = [],
-  setBoxes,
   response,
   imageDimensions,
   scaleBoxCoordinates,
 }) {
-  const translations = boxes.map(() => ({
-    translationX: useSharedValue(0),
-    translationY: useSharedValue(0),
+  const translationX = useSharedValue(0);
+  const translationY = useSharedValue(0);
+
+  const animatedProps = useAnimatedProps(() => ({
+    transform: [
+      { translateX: translationX.value },
+      { translateY: translationY.value },
+    ],
   }));
+
+  const panGesture = Gesture.Pan().onUpdate((event) => {
+    translationX.value = event.translationX;
+    translationY.value = event.translationY;
+  });
 
   const displayWidth = 520;
   const displayHeight = 640;
@@ -44,45 +53,37 @@ export default function ImageViewer({
 
   return (
     <GestureHandlerRootView style={styles.container}>
-      <View style={styles.container}>
-        <View style={styles.flex}>
-          <Text variant="labelLarge" style={styles.title}>
-            {text || ''}
-          </Text>
-          {clicked && (
-            <Text variant="labelLarge" style={styles.count}>
-              Total Count: {count || ''}
+      <GestureDetector gesture={panGesture}>
+        <View style={styles.container}>
+          <View style={styles.flex}>
+            <Text variant="labelLarge" style={styles.title}>
+              {text || ''}
             </Text>
-          )}
-        </View>
+            {clicked && (
+              <Text variant="labelLarge" style={styles.count}>
+                Total Count: {count || ''}
+              </Text>
+            )}
+          </View>
 
-        {response && (
-          <View style={[styles.imageContainer, !imgSource && { height: 640 }]}>
-            {imgSource && <Image source={imgSource} style={scaledDimensions} />}
+          {response && (
+            <View
+              style={[styles.imageContainer, !imgSource && { height: 640 }]}
+            >
+              {imgSource && (
+                <Image source={imgSource} style={scaledDimensions} />
+              )}
 
-            {imageDimensions && (
-              <Svg
-                height={scaledDimensions.height}
-                width={scaledDimensions.width}
-                style={styles.svg}
-              >
-                {boxes.map((box, index) => {
-                  const scaledBox = scaleBoxCoordinates(box);
-                  const animatedProps = useAnimatedProps(() => ({
-                    transform: [
-                      { translateX: translations[index].translationX.value },
-                      { translateY: translations[index].translationY.value },
-                    ],
-                  }));
-
-                  const panGesture = Gesture.Pan().onUpdate((event) => {
-                    translations[index].translationX.value = event.translationX;
-                    translations[index].translationY.value = event.translationY;
-                  });
-
-                  return (
-                    <GestureDetector key={index} gesture={panGesture}>
-                      <AnimatedG animatedProps={animatedProps}>
+              {imageDimensions && (
+                <Svg
+                  height={scaledDimensions.height}
+                  width={scaledDimensions.width}
+                  style={styles.svg}
+                >
+                  {boxes.map((box, index) => {
+                    const scaledBox = scaleBoxCoordinates(box);
+                    return (
+                      <AnimatedG key={index} animatedProps={animatedProps}>
                         <Rect
                           x={
                             scaledBox.x *
@@ -103,23 +104,6 @@ export default function ImageViewer({
                           stroke="#00FF00"
                           fill="transparent"
                           strokeWidth="3"
-                          onPressIn={() => {
-                            Alert.alert(
-                              'Delete Box?',
-                              'Are you sure you want to remove this box?',
-                              [
-                                { text: 'Cancel', style: 'cancel' },
-                                {
-                                  text: 'Delete',
-                                  onPress: () => {
-                                    setBoxes((prevBoxes) =>
-                                      prevBoxes.filter((_, i) => i !== index)
-                                    );
-                                  },
-                                },
-                              ]
-                            );
-                          }}
                         />
                         <SvgText
                           x={
@@ -138,18 +122,18 @@ export default function ImageViewer({
                           {index + 1}
                         </SvgText>
                       </AnimatedG>
-                    </GestureDetector>
-                  );
-                })}
-              </Svg>
-            )}
-          </View>
-        )}
+                    );
+                  })}
+                </Svg>
+              )}
+            </View>
+          )}
 
-        <Text variant="labelLarge" style={styles.timestamp}>
-          {timestamp}
-        </Text>
-      </View>
+          <Text variant="labelLarge" style={styles.timestamp}>
+            {timestamp}
+          </Text>
+        </View>
+      </GestureDetector>
     </GestureHandlerRootView>
   );
 }
