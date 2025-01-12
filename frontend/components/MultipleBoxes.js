@@ -1,95 +1,76 @@
 import React from 'react';
+import { View, StyleSheet, Button } from 'react-native';
 import Animated, {
+  useAnimatedProps,
   useSharedValue,
-  useAnimatedStyle,
+  withTiming,
 } from 'react-native-reanimated';
-import {
-  Gesture,
-  GestureDetector,
-  GestureHandlerRootView,
-} from 'react-native-gesture-handler';
-import { StyleSheet, Dimensions } from 'react-native';
+import Svg, { Circle } from 'react-native-svg';
 
-function clamp(val, min, max) {
-  return Math.min(Math.max(val, min), max);
-}
+// Animated Circle component
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
-const { width, height } = Dimensions.get('screen');
+const CircularProgress = ({
+  radius = 100,
+  strokeWidth = 20,
+  backgroundColor = 'purple',
+}) => {
+  const innerRadius = radius - strokeWidth / 2;
+  const circumference = 2 * Math.PI * innerRadius;
 
-export default function App() {
-  const boxes = [
-    { id: 1, translationX: useSharedValue(0), translationY: useSharedValue(0) },
-    { id: 2, translationX: useSharedValue(0), translationY: useSharedValue(0) },
-    { id: 3, translationX: useSharedValue(0), translationY: useSharedValue(0) },
-  ];
+  // Shared value for animation
+  const progress = useSharedValue(0); // Start from 0% progress
 
-  const animatedStyles = (translationX, translationY) =>
-    useAnimatedStyle(() => ({
-      transform: [
-        { translateX: translationX.value },
-        { translateY: translationY.value },
-      ],
-    }));
+  // Animated props for circle stroke offset
+  const animatedProps = useAnimatedProps(() => ({
+    strokeDashoffset: withTiming(
+      circumference * (1 - progress.value),
+      { duration: 1000 }
+    ),
+  }));
 
-  const createPanGesture = (box, translationX, translationY) =>
-    Gesture.Pan()
-      .minDistance(1)
-      .onStart(() => {
-        translationX.prev = translationX.value;
-        translationY.prev = translationY.value;
-        console.log(`Gesture started on Box ${box.id}`);
-      })
-      .onUpdate((event) => {
-        const maxTranslateX = width / 2 - 50;
-        const maxTranslateY = height / 2 - 50;
-
-        translationX.value = clamp(
-          translationX.prev + event.translationX,
-          -maxTranslateX,
-          maxTranslateX
-        );
-        translationY.value = clamp(
-          translationY.prev + event.translationY,
-          -maxTranslateY,
-          maxTranslateY
-        );
-        console.log(`Gesture moving Box ${box.id}:`, event);
-      })
-      .onEnd(() => {
-        console.log(`Gesture ended on Box ${box.id}`);
-      })
-      .runOnJS(true);
+  const handlePress = () => {
+    progress.value = progress.value === 1 ? 0 : 1; // Toggle animation
+  };
 
   return (
-    <GestureHandlerRootView style={styles.container}>
-      {boxes.map((box) => (
-        <GestureDetector
-          key={box.id}
-          gesture={createPanGesture(box, box.translationX, box.translationY)}
-        >
-          <Animated.View
-            style={[
-              animatedStyles(box.translationX, box.translationY),
-              styles.box,
-            ]}
-          />
-        </GestureDetector>
-      ))}
-    </GestureHandlerRootView>
+    <View style={styles.container}>
+      <Svg width={radius * 2} height={radius * 2}>
+        {/* Background Circle */}
+        <Circle
+          cx={radius}
+          cy={radius}
+          r={innerRadius}
+          stroke="lightgray"
+          strokeWidth={strokeWidth}
+          fill="transparent"
+        />
+        {/* Animated Circle */}
+        <AnimatedCircle
+          cx={radius}
+          cy={radius}
+          r={innerRadius}
+          fill="transparent"
+          stroke={backgroundColor}
+          strokeWidth={strokeWidth}
+          strokeDasharray={`${circumference}, ${circumference}`}
+          animatedProps={animatedProps}
+          strokeLinecap="round"
+        />
+      </Svg>
+
+      {/* Button to trigger animation */}
+      <Button title="Animate Progress" onPress={handlePress} />
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
-  },
-  box: {
-    width: 100,
-    height: 100,
-    backgroundColor: '#b58df1',
-    borderRadius: 20,
-    margin: 10,
+    alignItems: 'center',
+    flex: 1,
   },
 });
+
+export default CircularProgress;

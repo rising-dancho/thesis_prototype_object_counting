@@ -1,3 +1,5 @@
+import 'react-native-gesture-handler';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {
   View,
   StyleSheet,
@@ -11,7 +13,6 @@ import { useEffect, useState, useRef } from 'react';
 import * as MediaLibrary from 'expo-media-library';
 import { captureRef } from 'react-native-view-shot';
 import domtoimage from 'dom-to-image';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import axios from 'axios';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
