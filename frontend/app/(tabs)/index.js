@@ -267,6 +267,7 @@ export default function Index() {
               timestamp={timestamp}
               clicked={isCountClicked}
               boxes={boxes}
+              setBoxes={setBoxes}
               response={response}
               scaleBoxCoordinates={scaleBoxCoordinates}
               imageDimensions={imageDimensions}
