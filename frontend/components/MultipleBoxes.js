@@ -9,7 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import Svg, { Circle, Text } from 'react-native-svg';
 
-// Animated Circle component
+// Animated components for Circle and Text
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const AnimatedText = Animated.createAnimatedComponent(Text);
 
@@ -24,7 +24,7 @@ const CircularProgress = ({
   const translateY = useSharedValue(0);
 
   // Shared value for animation
-  const progress = useSharedValue(0); // Start from 0% progress
+  const progress = useSharedValue(0);
 
   // Animated props for circle stroke offset
   const animatedProps = useAnimatedProps(() => ({
@@ -34,64 +34,60 @@ const CircularProgress = ({
   }));
 
   const handlePress = () => {
-    progress.value = progress.value === 1 ? 0 : 1; // Toggle animation
+    progress.value = progress.value === 1 ? 0 : 1;
   };
 
-  // Gesture for dragging
-  const drag = Gesture.Pan()
-    .onUpdate((event) => {
-      translateX.value = event.translationX;
-      translateY.value = event.translationY;
-    });
-
-  // Animated style for moving the text
-  const containerStyle = useAnimatedStyle(() => {
-    return {
-      transform: [
-        { translateX: translateX.value },
-        { translateY: translateY.value },
-      ],
-    };
+  // Gesture handler for dragging
+  const drag = Gesture.Pan().onUpdate((event) => {
+    translateX.value = event.translationX;
+    translateY.value = event.translationY;
   });
+
+  // Animated style to move both elements together
+  const containerStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: translateX.value },
+      { translateY: translateY.value },
+    ],
+  }));
 
   return (
     <View style={styles.container}>
-      <Svg width={radius * 2} height={radius * 2}>
-        {/* Background Circle */}
-        <Circle
-          cx={radius}
-          cy={radius}
-          r={innerRadius}
-          fill="transparent"
-          stroke="#E0E0E0"
-          strokeWidth={strokeWidth}
-        />
-
-        {/* Animated Circle */}
-        <AnimatedCircle
-          cx={radius}
-          cy={radius}
-          r={innerRadius}
-          fill="transparent"
-          stroke={backgroundColor}
-          strokeWidth={strokeWidth}
-          strokeDasharray={`${circumference}, ${circumference}`}
-          animatedProps={animatedProps}
-          strokeLinecap="round"
-        />
-      </Svg>
-
-      {/* Gesture Detector Wrapping the Animated Text */}
+      {/* Gesture Detector wrapping both circle and text */}
       <GestureDetector gesture={drag}>
-        <Animated.View style={[containerStyle]}>
+        <Animated.View style={containerStyle}>
+          {/* SVG for the circular progress */}
           <Svg width={radius * 2} height={radius * 2}>
+            {/* Background Circle */}
+            <Circle
+              cx={radius}
+              cy={radius}
+              r={innerRadius}
+              fill="transparent"
+              stroke="#E0E0E0"
+              strokeWidth={strokeWidth}
+            />
+
+            {/* Animated Circle */}
+            <AnimatedCircle
+              cx={radius}
+              cy={radius}
+              r={innerRadius}
+              fill="transparent"
+              stroke={backgroundColor}
+              strokeWidth={strokeWidth}
+              strokeDasharray={`${circumference}, ${circumference}`}
+              animatedProps={animatedProps}
+              strokeLinecap="round"
+            />
+
+            {/* Animated Text Centered in the Circle */}
             <AnimatedText
-              fill="none"
-              stroke="red"
+              fill="red"
               fontSize="20"
               fontWeight="bold"
-              x="50%"
-              y="50%"
+              x={radius}
+              y={radius + 6} // Adjusted for vertical centering
               textAnchor="middle"
             >
               STROKED TEXT
@@ -100,7 +96,7 @@ const CircularProgress = ({
         </Animated.View>
       </GestureDetector>
 
-      {/* Button to trigger animation */}
+      {/* Button to trigger progress animation */}
       <Button title="Animate Progress" onPress={handlePress} />
     </View>
   );
