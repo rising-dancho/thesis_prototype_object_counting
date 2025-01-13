@@ -1,58 +1,37 @@
 import React from 'react';
 import { View, StyleSheet, Button } from 'react-native';
-import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedProps,
   useSharedValue,
   withTiming,
-  useAnimatedStyle,
 } from 'react-native-reanimated';
-import Svg, { Circle, Text } from 'react-native-svg';
+import Svg, { Circle } from 'react-native-svg';
 
 // Animated Circle component
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
-const AnimatedText = Animated.createAnimatedComponent(Text);
 
 const CircularProgress = ({
   radius = 100,
   strokeWidth = 20,
-  backgroundColor = '#53D664',
+  backgroundColor = 'purple',
 }) => {
   const innerRadius = radius - strokeWidth / 2;
   const circumference = 2 * Math.PI * innerRadius;
-  const translateX = useSharedValue(0);
-  const translateY = useSharedValue(0);
 
   // Shared value for animation
   const progress = useSharedValue(0); // Start from 0% progress
 
   // Animated props for circle stroke offset
   const animatedProps = useAnimatedProps(() => ({
-    strokeDashoffset: withTiming(circumference * (1 - progress.value), {
-      duration: 1000,
-    }),
+    strokeDashoffset: withTiming(
+      circumference * (1 - progress.value),
+      { duration: 1000 }
+    ),
   }));
 
   const handlePress = () => {
     progress.value = progress.value === 1 ? 0 : 1; // Toggle animation
   };
-
-  // Gesture for dragging
-  const drag = Gesture.Pan()
-    .onUpdate((event) => {
-      translateX.value = event.translationX;
-      translateY.value = event.translationY;
-    });
-
-  // Animated style for moving the text
-  const containerStyle = useAnimatedStyle(() => {
-    return {
-      transform: [
-        { translateX: translateX.value },
-        { translateY: translateY.value },
-      ],
-    };
-  });
 
   return (
     <View style={styles.container}>
@@ -62,11 +41,10 @@ const CircularProgress = ({
           cx={radius}
           cy={radius}
           r={innerRadius}
-          fill="transparent"
-          stroke="#E0E0E0"
+          stroke="lightgray"
           strokeWidth={strokeWidth}
+          fill="transparent"
         />
-
         {/* Animated Circle */}
         <AnimatedCircle
           cx={radius}
@@ -80,25 +58,6 @@ const CircularProgress = ({
           strokeLinecap="round"
         />
       </Svg>
-
-      {/* Gesture Detector Wrapping the Animated Text */}
-      <GestureDetector gesture={drag}>
-        <Animated.View style={[containerStyle]}>
-          <Svg width={radius * 2} height={radius * 2}>
-            <AnimatedText
-              fill="none"
-              stroke="red"
-              fontSize="20"
-              fontWeight="bold"
-              x="50%"
-              y="50%"
-              textAnchor="middle"
-            >
-              STROKED TEXT
-            </AnimatedText>
-          </Svg>
-        </Animated.View>
-      </GestureDetector>
 
       {/* Button to trigger animation */}
       <Button title="Animate Progress" onPress={handlePress} />
