@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Text } from 'react-native-paper';
@@ -13,7 +13,7 @@ import {
   Gesture,
 } from 'react-native-gesture-handler';
 
-const AnimatedGroup = Animated.createAnimatedComponent(Group);
+const AnimatedG = Animated.createAnimatedComponent(Group);
 
 export default function ImageViewer({
   imgSource,
@@ -26,21 +26,6 @@ export default function ImageViewer({
   imageDimensions,
   scaleBoxCoordinates,
 }) {
-  const translationX = useSharedValue(0);
-  const translationY = useSharedValue(0);
-
-  const animatedProps = useAnimatedProps(() => ({
-    transform: [
-      { translateX: translationX.value },
-      { translateY: translationY.value },
-    ],
-  }));
-
-  const panGesture = Gesture.Pan().onUpdate((event) => {
-    translationX.value = event.translationX;
-    translationY.value = event.translationY;
-  });
-
   const displayWidth = 520;
   const displayHeight = 640;
 
@@ -51,39 +36,67 @@ export default function ImageViewer({
       }
     : { width: displayWidth, height: displayHeight };
 
+  const createGestureHandlers = () => {
+    return boxes.map((box, index) => {
+      const translateX = useSharedValue(0);
+      const translateY = useSharedValue(0);
+
+      const panGesture = Gesture.Pan().onUpdate((event) => {
+        translateX.value = event.translationX;
+        translateY.value = event.translationY;
+      });
+
+      const animatedProps = useAnimatedProps(() => ({
+        transform: [
+          { translateX: translateX.value },
+          { translateY: translateY.value },
+        ],
+      }));
+
+      return { panGesture, animatedProps, translateX, translateY };
+    });
+  };
+
+  const gestures = createGestureHandlers();
+
   return (
     <GestureHandlerRootView style={styles.container}>
-      <GestureDetector gesture={panGesture}>
-        <View style={styles.container}>
-          <View style={styles.flex}>
-            <Text variant="labelLarge" style={styles.title}>
-              {text || ''}
+      <View style={styles.container}>
+        <View style={styles.flex}>
+          <Text variant="labelLarge" style={styles.title}>
+            {text || ''}
+          </Text>
+          {clicked && (
+            <Text variant="labelLarge" style={styles.count}>
+              Total Count: {count || ''}
             </Text>
-            {clicked && (
-              <Text variant="labelLarge" style={styles.count}>
-                Total Count: {count || ''}
-              </Text>
+          )}
+        </View>
+
+        {response && (
+          <View
+            style={[styles.imageContainer, !imgSource && { height: 640 }]}
+          >
+            {imgSource && (
+              <Image source={imgSource} style={scaledDimensions} />
             )}
-          </View>
 
-          {response && (
-            <View
-              style={[styles.imageContainer, !imgSource && { height: 640 }]}
-            >
-              {imgSource && (
-                <Image source={imgSource} style={scaledDimensions} />
-              )}
+            {imageDimensions && (
+              <Svg
+                height={scaledDimensions.height}
+                width={scaledDimensions.width}
+                style={styles.svg}
+              >
+                {boxes.map((box, index) => {
+                  const scaledBox = scaleBoxCoordinates(box);
+                  const gesture = gestures[index];
 
-              {imageDimensions && (
-                <Svg
-                  height={scaledDimensions.height}
-                  width={scaledDimensions.width}
-                  style={styles.svg}
-                >
-                  {boxes.map((box, index) => {
-                    const scaledBox = scaleBoxCoordinates(box);
-                    return (
-                      <AnimatedGroup key={index} animatedProps={animatedProps}>
+                  return (
+                    <GestureDetector
+                      key={index}
+                      gesture={gesture.panGesture}
+                    >
+                      <AnimatedG animatedProps={gesture.animatedProps}>
                         <Rect
                           x={
                             scaledBox.x *
@@ -121,19 +134,19 @@ export default function ImageViewer({
                         >
                           {index + 1}
                         </SvgText>
-                      </AnimatedGroup>
-                    );
-                  })}
-                </Svg>
-              )}
-            </View>
-          )}
+                      </AnimatedG>
+                    </GestureDetector>
+                  );
+                })}
+              </Svg>
+            )}
+          </View>
+        )}
 
-          <Text variant="labelLarge" style={styles.timestamp}>
-            {timestamp}
-          </Text>
-        </View>
-      </GestureDetector>
+        <Text variant="labelLarge" style={styles.timestamp}>
+          {timestamp}
+        </Text>
+      </View>
     </GestureHandlerRootView>
   );
 }

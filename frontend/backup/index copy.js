@@ -19,9 +19,9 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 // components
 import Button from '../../components/Button';
 import CircleButton from '../../components/CircleButton';
-// import ImageViewer from '../../components/ImageViewer';
+import ImageViewer from '../../components/ImageViewer';
 import IconButton from '../../components/IconButton';
-import MultipleBoxes from '../../components/MultipleBoxes';
+// import MultipleBoxes from '../../components/MultipleBoxes';
 
 export default function Index() {
   // hooks
@@ -261,19 +261,19 @@ export default function Index() {
           key={selectedImage ? selectedImage : 'reset'}
         >
           {selectedImage !== undefined && (
-            // <ImageViewer
-            //   imgSource={selectedImage ? selectedImage : undefined}
-            //   text={title}
-            //   count={count}
-            //   timestamp={timestamp}
-            //   clicked={isCountClicked}
-            //   boxes={boxes}
-            //   setBoxes={setBoxes}
-            //   response={response}
-            //   scaleBoxCoordinates={scaleBoxCoordinates}
-            //   imageDimensions={imageDimensions}
-            // />
-            <MultipleBoxes />
+            <ImageViewer
+              imgSource={selectedImage ? selectedImage : undefined}
+              text={title}
+              count={count}
+              timestamp={timestamp}
+              clicked={isCountClicked}
+              boxes={boxes}
+              setBoxes={setBoxes}
+              response={response}
+              scaleBoxCoordinates={scaleBoxCoordinates}
+              imageDimensions={imageDimensions}
+            />
+            // <MultipleBoxes />
           )}
         </View>
       </View>

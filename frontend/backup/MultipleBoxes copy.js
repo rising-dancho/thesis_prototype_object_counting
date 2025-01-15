@@ -1,66 +1,66 @@
 import React from 'react';
-import { View, StyleSheet, Button } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, {
-  useAnimatedProps,
   useSharedValue,
-  withTiming,
+  useAnimatedStyle,
 } from 'react-native-reanimated';
-import Svg, { Circle } from 'react-native-svg';
+import Svg, { Circle, Text } from 'react-native-svg';
 
-// Animated Circle component
+// Animated components for Circle and Text
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+const AnimatedText = Animated.createAnimatedComponent(Text);
 
-const CircularProgress = ({
-  radius = 100,
-  strokeWidth = 20,
-  backgroundColor = 'purple',
-}) => {
-  const innerRadius = radius - strokeWidth / 2;
-  const circumference = 2 * Math.PI * innerRadius;
-
-  // Shared value for animation
-  const progress = useSharedValue(0); // Start from 0% progress
-
-  // Animated props for circle stroke offset
-  const animatedProps = useAnimatedProps(() => ({
-    strokeDashoffset: withTiming(
-      circumference * (1 - progress.value),
-      { duration: 1000 }
-    ),
-  }));
-
-  const handlePress = () => {
-    progress.value = progress.value === 1 ? 0 : 1; // Toggle animation
-  };
-
+const MovableCircles = ({ circles }) => {
   return (
     <View style={styles.container}>
-      <Svg width={radius * 2} height={radius * 2}>
-        {/* Background Circle */}
-        <Circle
-          cx={radius}
-          cy={radius}
-          r={innerRadius}
-          stroke="lightgray"
-          strokeWidth={strokeWidth}
-          fill="transparent"
-        />
-        {/* Animated Circle */}
-        <AnimatedCircle
-          cx={radius}
-          cy={radius}
-          r={innerRadius}
-          fill="transparent"
-          stroke={backgroundColor}
-          strokeWidth={strokeWidth}
-          strokeDasharray={`${circumference}, ${circumference}`}
-          animatedProps={animatedProps}
-          strokeLinecap="round"
-        />
-      </Svg>
+      {circles.map((circle, index) => {
+        const translateX = useSharedValue(0);
+        const translateY = useSharedValue(0);
 
-      {/* Button to trigger animation */}
-      <Button title="Animate Progress" onPress={handlePress} />
+        // Gesture handler for dragging each circle
+        const drag = Gesture.Pan().onUpdate((event) => {
+          translateX.value = event.translationX;
+          translateY.value = event.translationY;
+        });
+
+        // Animated style for each circle
+        const animatedStyle = useAnimatedStyle(() => ({
+          transform: [
+            { translateX: translateX.value },
+            { translateY: translateY.value },
+          ],
+        }));
+
+        return (
+          <GestureDetector key={index} gesture={drag}>
+            <Animated.View style={animatedStyle}>
+              <Svg width={circle.radius * 2} height={circle.radius * 2}>
+                {/* Circle with stroke */}
+                <AnimatedCircle
+                  cx={circle.radius}
+                  cy={circle.radius}
+                  r={circle.radius - circle.strokeWidth / 2}
+                  fill="transparent"
+                  stroke={circle.backgroundColor}
+                  strokeWidth={circle.strokeWidth}
+                />
+                {/* Centered Text */}
+                <AnimatedText
+                  fill="red"
+                  fontSize="20"
+                  fontWeight="bold"
+                  x={circle.radius}
+                  y={circle.radius + 6} 
+                  textAnchor="middle"
+                >
+                  {circle.text}
+                </AnimatedText>
+              </Svg>
+            </Animated.View>
+          </GestureDetector>
+        );
+      })}
     </View>
   );
 };
@@ -73,4 +73,12 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CircularProgress;
+export default function App() {
+  const circlesData = [
+    { radius: 80, strokeWidth: 10, backgroundColor: '#FF6347', text: 'A' },
+    { radius: 100, strokeWidth: 15, backgroundColor: '#53D664', text: 'B' },
+    { radius: 60, strokeWidth: 8, backgroundColor: '#1E90FF', text: 'C' },
+  ];
+
+  return <MovableCircles circles={circlesData} />;
+}
