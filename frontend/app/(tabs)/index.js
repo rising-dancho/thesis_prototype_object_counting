@@ -21,7 +21,14 @@ import Button from '../../components/Button';
 import CircleButton from '../../components/CircleButton';
 import ImageViewer from '../../components/ImageViewer';
 import IconButton from '../../components/IconButton';
-import MultipleBoxes from '../../components/MultipleBoxes';
+// import MultipleBoxes from '../../components/MultipleBoxes';
+
+// BOUNDING BOXES (meaning):
+// - bounding_boxes.append([x1, y1, w, h])
+// EXAMPLE:
+// 0: [831, 116, 257, 195]
+// 1: [87, 105, 291, 242]
+// 2: [454, 101, 301, 247]
 
 export default function Index() {
   // hooks
@@ -261,19 +268,19 @@ export default function Index() {
           key={selectedImage ? selectedImage : 'reset'}
         >
           {selectedImage !== undefined && (
-            // <ImageViewer
-            //   imgSource={selectedImage ? selectedImage : undefined}
-            //   text={title}
-            //   count={count}
-            //   timestamp={timestamp}
-            //   clicked={isCountClicked}
-            //   boxes={boxes}
-            //   setBoxes={setBoxes}
-            //   response={response}
-            //   scaleBoxCoordinates={scaleBoxCoordinates}
-            //   imageDimensions={imageDimensions}
-            // />
-            <MultipleBoxes />
+            <ImageViewer
+              imgSource={selectedImage ? selectedImage : undefined}
+              text={title}
+              count={count}
+              timestamp={timestamp}
+              clicked={isCountClicked}
+              boxes={boxes}
+              setBoxes={setBoxes}
+              response={response}
+              scaleBoxCoordinates={scaleBoxCoordinates}
+              imageDimensions={imageDimensions}
+            />
+            // <MultipleBoxes />
           )}
         </View>
       </View>
