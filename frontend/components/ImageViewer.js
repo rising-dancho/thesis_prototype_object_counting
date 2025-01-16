@@ -45,7 +45,7 @@ export default function ImageViewer({
       {response && (
         <View style={[styles.imageContainer, !imgSource && { height: 640 }]}>
           {/* Render the dynamic image if imgSource is provided */}
-          {/* {imgSource && <Image source={imgSource} style={scaledDimensions} />} */}
+          {imgSource && <Image source={imgSource} style={scaledDimensions} />}
 
           {/* Render bounding boxes using the MovableRectangles component */}
           <MovableRectangles
