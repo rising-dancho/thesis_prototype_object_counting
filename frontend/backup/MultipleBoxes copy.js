@@ -5,26 +5,26 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
 } from 'react-native-reanimated';
-import Svg, { Circle, Text } from 'react-native-svg';
+import Svg, { Rect, Text } from 'react-native-svg';
 
-// Animated components for Circle and Text
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+// Animated components for Rect and Text
+const AnimatedRect = Animated.createAnimatedComponent(Rect);
 const AnimatedText = Animated.createAnimatedComponent(Text);
 
-const MovableCircles = ({ circles }) => {
+const MovableRectangles = ({ rectangles }) => {
   return (
     <View style={styles.container}>
-      {circles.map((circle, index) => {
+      {rectangles.map((rectangle, index) => {
         const translateX = useSharedValue(0);
         const translateY = useSharedValue(0);
 
-        // Gesture handler for dragging each circle
+        // Gesture handler for dragging each rectangle
         const drag = Gesture.Pan().onUpdate((event) => {
           translateX.value = event.translationX;
           translateY.value = event.translationY;
         });
 
-        // Animated style for each circle
+        // Animated style for each rectangle
         const animatedStyle = useAnimatedStyle(() => ({
           transform: [
             { translateX: translateX.value },
@@ -35,26 +35,27 @@ const MovableCircles = ({ circles }) => {
         return (
           <GestureDetector key={index} gesture={drag}>
             <Animated.View style={animatedStyle}>
-              <Svg width={circle.radius * 2} height={circle.radius * 2}>
-                {/* Circle with stroke */}
-                <AnimatedCircle
-                  cx={circle.radius}
-                  cy={circle.radius}
-                  r={circle.radius - circle.strokeWidth / 2}
+              <Svg width={rectangle.width * 2} height={rectangle.width * 2}>
+                {/* Rect with stroke */}
+                <AnimatedRect
+                  x={rectangle.width / 2 - 35} // Centered horizontally
+                  y={rectangle.width / 2 - 35} // Centered vertically
+                  width="70"
+                  height="70"
                   fill="transparent"
-                  stroke={circle.backgroundColor}
-                  strokeWidth={circle.strokeWidth}
+                  stroke={rectangle.backgroundColor}
+                  strokeWidth={rectangle.strokeWidth}
                 />
                 {/* Centered Text */}
                 <AnimatedText
                   fill="red"
                   fontSize="20"
                   fontWeight="bold"
-                  x={circle.radius}
-                  y={circle.radius + 6} 
+                  x={rectangle.width / 2}
+                  y={rectangle.width / 2 + 6}
                   textAnchor="middle"
                 >
-                  {circle.text}
+                  {rectangle.text}
                 </AnimatedText>
               </Svg>
             </Animated.View>
@@ -74,11 +75,11 @@ const styles = StyleSheet.create({
 });
 
 export default function App() {
-  const circlesData = [
-    { radius: 80, strokeWidth: 10, backgroundColor: '#FF6347', text: 'A' },
-    { radius: 100, strokeWidth: 15, backgroundColor: '#53D664', text: 'B' },
-    { radius: 60, strokeWidth: 8, backgroundColor: '#1E90FF', text: 'C' },
+  const rectanglesData = [
+    { width: 80, strokeWidth: 10, backgroundColor: '#FF6347', text: '1' },
+    { width: 100, strokeWidth: 15, backgroundColor: '#53D664', text: '2' },
+    { width: 120, strokeWidth: 8, backgroundColor: '#1E90FF', text: '3' },
   ];
 
-  return <MovableCircles circles={circlesData} />;
+  return <MovableRectangles rectangles={rectanglesData} />;
 }
