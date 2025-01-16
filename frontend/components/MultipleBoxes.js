@@ -7,7 +7,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import Svg, { Rect, Text } from 'react-native-svg';
 
-// Animated components for Rect and Text
 const AnimatedRect = Animated.createAnimatedComponent(Rect);
 const AnimatedText = Animated.createAnimatedComponent(Text);
 
@@ -15,20 +14,22 @@ const MovableRectangles = ({ rectangles }) => {
   return (
     <View style={styles.container}>
       {rectangles.map(([x1, y1, width, height], index) => {
-        const translateX = useSharedValue(0);
-        const translateY = useSharedValue(0);
+        // Individual shared values for each rectangle
+        const translateX = useSharedValue(x1);
+        const translateY = useSharedValue(y1);
 
         // Gesture handler for dragging each rectangle
-        const drag = Gesture.Pan().onUpdate((event) => {
-          translateX.value = event.translationX;
-          translateY.value = event.translationY;
-        });
+        const drag = Gesture.Pan()
+          .onUpdate((event) => {
+            translateX.value = x1 + event.translationX;
+            translateY.value = y1 + event.translationY;
+          });
 
         // Animated style for each rectangle
         const animatedStyle = useAnimatedStyle(() => ({
           transform: [
-            { translateX: translateX.value },
-            { translateY: translateY.value },
+            { translateX: translateX.value - x1 },
+            { translateY: translateY.value - y1 },
           ],
         }));
 
@@ -36,23 +37,21 @@ const MovableRectangles = ({ rectangles }) => {
           <GestureDetector key={index} gesture={drag}>
             <Animated.View style={animatedStyle}>
               <Svg width={width} height={height}>
-                {/* Rect with provided dimensions */}
                 <AnimatedRect
-                  x={x1}
-                  y={y1}
+                  x={0}
+                  y={0}
                   width={width}
                   height={height}
                   fill="transparent"
                   stroke="blue"
                   strokeWidth={2}
                 />
-                {/* Centered Text */}
                 <AnimatedText
                   fill="red"
                   fontSize="20"
                   fontWeight="bold"
-                  x={x1 + width / 2}
-                  y={y1 + height / 2}
+                  x={width / 2}
+                  y={height / 2}
                   textAnchor="middle"
                 >
                   {index + 1}
