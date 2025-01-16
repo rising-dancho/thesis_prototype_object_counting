@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Text } from 'react-native-paper';
-// import MovableRectangles from './MovableRectangles';
+import MovableRectangles from './MovableRectangles';
 
 export default function ImageViewer({
   imgSource,
@@ -45,15 +45,15 @@ export default function ImageViewer({
       {response && (
         <View style={[styles.imageContainer, !imgSource && { height: 640 }]}>
           {/* Render the dynamic image if imgSource is provided */}
-          {imgSource && <Image source={imgSource} style={scaledDimensions} />}
+          {/* {imgSource && <Image source={imgSource} style={scaledDimensions} />} */}
 
           {/* Render bounding boxes using the MovableRectangles component */}
-          {/* <MovableRectangles
+          <MovableRectangles
             boxes={boxes}
-            imageDimensions={imageDimensions}
-            scaleBoxCoordinates={scaleBoxCoordinates}
-            scaledDimensions={scaledDimensions}
-          /> */}
+            // imageDimensions={imageDimensions}
+            // scaleBoxCoordinates={scaleBoxCoordinates}
+            // scaledDimensions={scaledDimensions}
+          />
         </View>
       )}
 

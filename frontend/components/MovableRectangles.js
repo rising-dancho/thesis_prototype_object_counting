@@ -11,54 +11,52 @@ import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 const AnimatedRect = Animated.createAnimatedComponent(Rect);
 const AnimatedText = Animated.createAnimatedComponent(SvgText);
 
-const MovableRectangles = ({ boxes, imageDimensions, scaleBoxCoordinates, scaledDimensions }) => {
+const MovableRectangles = ({
+  boxes,
+  // imageDimensions,
+  // scaleBoxCoordinates,
+  // scaledDimensions,
+}) => {
   return (
     <View style={styles.container}>
-      {boxes.map((box, index) => {
-        const scaledBox = scaleBoxCoordinates(box);
-
-        // Shared values for dragging
-        const translateX = useSharedValue(scaledBox.x);
-        const translateY = useSharedValue(scaledBox.y);
+      {boxes.map(([x1, y1, width, height], index) => {
+        // Individual shared values for each rectangle
+        const translateX = useSharedValue(x1);
+        const translateY = useSharedValue(y1);
 
         // Gesture handler for dragging each rectangle
-        const drag = Gesture.Pan()
-          .onUpdate((event) => {
-            translateX.value = scaledBox.x + event.translationX;
-            translateY.value = scaledBox.y + event.translationY;
-          });
+        const drag = Gesture.Pan().onUpdate((event) => {
+          translateX.value = x1 + event.translationX;
+          translateY.value = y1 + event.translationY;
+        });
 
         // Animated style for each rectangle
         const animatedStyle = useAnimatedStyle(() => ({
           transform: [
-            { translateX: translateX.value - scaledBox.x },
-            { translateY: translateY.value - scaledBox.y },
+            { translateX: translateX.value - x1 },
+            { translateY: translateY.value - y1 },
           ],
         }));
 
         return (
           <GestureDetector key={index} gesture={drag}>
             <Animated.View style={animatedStyle}>
-              <Svg
-                height={scaledDimensions.height}
-                width={scaledDimensions.width}
-                style={styles.svg}
-              >
+              <Svg width={width} height={height}>
                 <AnimatedRect
-                  x={translateX.value}
-                  y={translateY.value}
-                  width={scaledBox.width}
-                  height={scaledBox.height}
-                  stroke="#00FF00"
+                  x={0}
+                  y={0}
+                  width={width}
+                  height={height}
                   fill="transparent"
-                  strokeWidth="3"
+                  stroke="blue"
+                  strokeWidth={2}
                 />
                 <AnimatedText
-                  x={translateX.value + scaledBox.width / 2}
-                  y={translateY.value + scaledBox.height / 2}
-                  fill="#122FBA"
-                  fontSize="22"
+                  fill="red"
+                  fontSize="20"
                   fontWeight="bold"
+                  x={width / 2}
+                  y={height / 2}
                   textAnchor="middle"
                 >
                   {index + 1}
@@ -87,4 +85,12 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MovableRectangles;
+export default function App() {
+  const boundingBoxes = [
+    [50, 20, 157, 195],
+    [87, 30, 191, 142],
+    [20, 40, 101, 147],
+  ];
+
+  return <MovableRectangles boxes={boundingBoxes} />;
+}
