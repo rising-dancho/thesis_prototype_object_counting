@@ -2,6 +2,11 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Text } from 'react-native-paper';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
 import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 
 export default function ImageViewer({
@@ -18,6 +23,17 @@ export default function ImageViewer({
   // Setting a fixed display size
   const displayWidth = 520; // Reduced for smaller scaling
   const displayHeight = 640; // Adjusted for a balanced ratio
+
+  // Animated components for Rect and Text
+  const AnimatedRect = Animated.createAnimatedComponent(Rect);
+  const AnimatedText = Animated.createAnimatedComponent(Text);
+
+  // BOUNDING BOXES (meaning):
+  // - bounding_boxes.append([x1, y1, w, h])
+  // EXAMPLE:
+  // 0: [831, 116, 257, 195]
+  // 1: [87, 105, 291, 242]
+  // 2: [454, 101, 301, 247]
 
   const scaledDimensions = imageDimensions
     ? {

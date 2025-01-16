@@ -14,7 +14,7 @@ const AnimatedText = Animated.createAnimatedComponent(Text);
 const MovableRectangles = ({ rectangles }) => {
   return (
     <View style={styles.container}>
-      {rectangles.map((rectangle, index) => {
+      {rectangles.map(([x1, y1, width, height], index) => {
         const translateX = useSharedValue(0);
         const translateY = useSharedValue(0);
 
@@ -35,27 +35,27 @@ const MovableRectangles = ({ rectangles }) => {
         return (
           <GestureDetector key={index} gesture={drag}>
             <Animated.View style={animatedStyle}>
-              <Svg width={rectangle.width * 2} height={rectangle.width * 2}>
-                {/* Rect with stroke */}
+              <Svg width={width} height={height}>
+                {/* Rect with provided dimensions */}
                 <AnimatedRect
-                  x={rectangle.width / 2 - 35} // Centered horizontally
-                  y={rectangle.width / 2 - 35} // Centered vertically
-                  width="70"
-                  height="70"
+                  x={x1}
+                  y={y1}
+                  width={width}
+                  height={height}
                   fill="transparent"
-                  stroke={rectangle.backgroundColor}
-                  strokeWidth={rectangle.strokeWidth}
+                  stroke="blue"
+                  strokeWidth={2}
                 />
                 {/* Centered Text */}
                 <AnimatedText
                   fill="red"
                   fontSize="20"
                   fontWeight="bold"
-                  x={rectangle.width / 2}
-                  y={rectangle.width / 2 + 6}
+                  x={x1 + width / 2}
+                  y={y1 + height / 2}
                   textAnchor="middle"
                 >
-                  {rectangle.text}
+                  {index + 1}
                 </AnimatedText>
               </Svg>
             </Animated.View>
@@ -75,11 +75,11 @@ const styles = StyleSheet.create({
 });
 
 export default function App() {
-  const rectanglesData = [
-    { width: 80, strokeWidth: 10, backgroundColor: '#FF6347', text: '1' },
-    { width: 100, strokeWidth: 15, backgroundColor: '#53D664', text: '2' },
-    { width: 120, strokeWidth: 8, backgroundColor: '#1E90FF', text: '3' },
+  const boundingBoxes = [
+    [50, 20, 157, 195],
+    [87, 30, 191, 142],
+    [20, 40, 101, 147],
   ];
 
-  return <MovableRectangles rectangles={rectanglesData} />;
+  return <MovableRectangles rectangles={boundingBoxes} />;
 }

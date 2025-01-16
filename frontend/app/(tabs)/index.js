@@ -19,7 +19,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 // components
 import Button from '../../components/Button';
 import CircleButton from '../../components/CircleButton';
-// import ImageViewer from '../../components/ImageViewer';
+import ImageViewer from '../../components/ImageViewer';
 import IconButton from '../../components/IconButton';
 import MultipleBoxes from '../../components/MultipleBoxes';
 
