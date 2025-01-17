@@ -59,50 +59,43 @@ export default function ImageViewer({
               width={scaledDimensions.width}
               style={styles.svg}
             >
-              {boxes.map((box, index) => {
-                const scaledBox = scaleBoxCoordinates(box);
-                return (
-                  <React.Fragment key={index}>
-                    <Rect
-                      x={
-                        scaledBox.x *
-                        (scaledDimensions.width / imageDimensions.width)
-                      }
-                      y={
-                        scaledBox.y *
-                        (scaledDimensions.height / imageDimensions.height)
-                      }
-                      width={
-                        scaledBox.width *
-                        (scaledDimensions.width / imageDimensions.width)
-                      }
-                      height={
-                        scaledBox.height *
-                        (scaledDimensions.height / imageDimensions.height)
-                      }
-                      stroke="#00FF00"
-                      fill="transparent"
-                      strokeWidth="3"
-                    />
-                    <SvgText
-                      x={
-                        (scaledBox.x + scaledBox.width / 2) *
-                        (scaledDimensions.width / imageDimensions.width)
-                      }
-                      y={
-                        (scaledBox.y + scaledBox.height / 2) *
-                        (scaledDimensions.height / imageDimensions.height)
-                      }
-                      fill="#122FBA"
-                      fontSize="22"
-                      fontWeight="bold"
-                      textAnchor="middle"
-                    >
-                      {index + 1}
-                    </SvgText>
-                  </React.Fragment>
-                );
-              })}
+              {boxes.map((box, index) => (
+                <React.Fragment key={index}>
+                  <Rect
+                    x={box.x * (scaledDimensions.width / imageDimensions.width)}
+                    y={
+                      box.y * (scaledDimensions.height / imageDimensions.height)
+                    }
+                    width={
+                      box.width *
+                      (scaledDimensions.width / imageDimensions.width)
+                    }
+                    height={
+                      box.height *
+                      (scaledDimensions.height / imageDimensions.height)
+                    }
+                    stroke="#00FF00"
+                    fill="transparent"
+                    strokeWidth="3"
+                  />
+                  <SvgText
+                    x={
+                      (box.x + box.width / 2) *
+                      (scaledDimensions.width / imageDimensions.width)
+                    }
+                    y={
+                      (box.y + box.height / 2) *
+                      (scaledDimensions.height / imageDimensions.height)
+                    }
+                    fill="#122FBA"
+                    fontSize="22"
+                    fontWeight="bold"
+                    textAnchor="middle"
+                  >
+                    {index + 1}
+                  </SvgText>
+                </React.Fragment>
+              ))}
             </Svg>
           )}
         </View>

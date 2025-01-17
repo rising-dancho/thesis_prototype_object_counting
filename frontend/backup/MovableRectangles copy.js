@@ -11,7 +11,12 @@ import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 const AnimatedRect = Animated.createAnimatedComponent(Rect);
 const AnimatedText = Animated.createAnimatedComponent(SvgText);
 
-const MovableRectangles = ({ boxes }) => {
+const MovableRectangles = ({
+  boxes,
+  // imageDimensions,
+  // scaleBoxCoordinates,
+  // scaledDimensions,
+}) => {
   return (
     <View style={styles.container}>
       {boxes.map(([x1, y1, width, height], index) => {

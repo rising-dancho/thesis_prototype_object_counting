@@ -69,6 +69,10 @@ export default function Index() {
     console.log(selectedImage, 'selectedImage');
   }, [response]); // This will run whenever 'response' changes
 
+  useEffect(() => {
+    console.log(boxes, 'boxes');
+  }, [boxes]);
+
   const selectImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
@@ -238,20 +242,6 @@ export default function Index() {
     return setTimestamp(result);
   };
 
-  // Scale the bounding box coordinates relative to the image size
-  const scaleBoxCoordinates = (box) => {
-    if (imageDimensions) {
-      const { width: imgWidth, height: imgHeight } = imageDimensions;
-      return {
-        x: (box.x / imgWidth) * imageDimensions.width, // Adjust to image's displayed width
-        y: (box.y / imgHeight) * imageDimensions.height, // Adjust to image's displayed height
-        width: (box.width / imgWidth) * imageDimensions.width, // Adjust to image's displayed width
-        height: (box.height / imgHeight) * imageDimensions.height, // Adjust to image's displayed height
-      };
-    }
-    return box;
-  };
-
   return (
     <GestureHandlerRootView style={styles.container}>
       <View
@@ -278,7 +268,6 @@ export default function Index() {
               boxes={boxes}
               setBoxes={setBoxes}
               response={response}
-              scaleBoxCoordinates={scaleBoxCoordinates}
               imageDimensions={imageDimensions}
             />
             // <MultipleBoxes />
