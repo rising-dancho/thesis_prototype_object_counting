@@ -13,7 +13,6 @@ export default function ImageViewer({
   boxes = [],
   response,
   imageDimensions,
-  scaleBoxCoordinates,
 }) {
   // Setting a fixed display size
   const displayWidth = 520; // Reduced for smaller scaling
