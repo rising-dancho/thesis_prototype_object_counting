@@ -46,17 +46,17 @@ export default function MovableRectangles({ boxes }) {
                   y={0}
                   width={width}
                   height={height}
+                  stroke="#00FF00"
                   fill="transparent"
-                  stroke="blue"
-                  strokeWidth={2}
+                  strokeWidth="3"
                 />
                 <AnimatedText
-                  fill="red"
-                  fontSize="20"
+                  fill="#122FBA"
+                  fontSize="22"
                   fontWeight="bold"
+                  textAnchor="middle"
                   x={width / 2}
                   y={height / 2}
-                  textAnchor="middle"
                 >
                   {index + 1}
                 </AnimatedText>
