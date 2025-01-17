@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Text } from 'react-native-paper';
@@ -50,7 +50,6 @@ export default function ImageViewer({
           <MovableRectangles
             boxes={boxes}
             scaledDimensions={scaledDimensions}
-            imageDimensions={imageDimensions}
           />
         </View>
       )}
