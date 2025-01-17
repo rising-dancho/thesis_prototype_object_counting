@@ -47,10 +47,7 @@ export default function ImageViewer({
           {imgSource && <Image source={imgSource} style={scaledDimensions} />}
 
           {/* Render bounding boxes using the MovableRectangles component */}
-          <MovableRectangles
-            boxes={boxes}
-            scaledDimensions={scaledDimensions}
-          />
+          <MovableRectangles boxes={boxes} imageDimensions={imageDimensions} />
         </View>
       )}
 

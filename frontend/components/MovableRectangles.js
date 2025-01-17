@@ -11,8 +11,14 @@ import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 const AnimatedRect = Animated.createAnimatedComponent(Rect);
 const AnimatedText = Animated.createAnimatedComponent(SvgText);
 
-export default function MovableRectangles({ boxes }) {
+export default function MovableRectangles({
+  boxes,
+  imageDimensions,
+  scaledDimensions,
+}) {
   console.log('Boxes:', boxes); // Log the whole boxes array to check its structure
+  console.log('imageDimensions:', imageDimensions);
+  console.log('scaledDimensions:', imageDimensions);
 
   return (
     <View style={styles.container}>
@@ -76,19 +82,4 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  svg: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-  },
 });
-
-// export default function App() {
-//   const boundingBoxes = [
-//     [50, 20, 157, 195],
-//     [87, 30, 191, 142],
-//     [20, 40, 101, 147],
-//   ];
-
-//   return <MovableRectangles boxes={boundingBoxes} />;
-// }
