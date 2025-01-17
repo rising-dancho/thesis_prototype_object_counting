@@ -101,7 +101,6 @@ export default function ImageViewer({
       )}
 
       {/* Text Information */}
-
       <Text variant="labelLarge" style={styles.timestamp}>
         {timestamp}
       </Text>
@@ -112,22 +111,6 @@ export default function ImageViewer({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#F4F4F5',
-  },
-  placeholderImage: {
-    width: '100%', // Full width of the parent
-    height: '100%', // Full height of the parent
-    resizeMode: 'contain', // Maintain aspect ratio
-  },
-  image: {
-    flex: 1, // Stretches to fill the container
-    width: '100%', // Full width of the parent
-    height: '100%', // Full height of the parent
-    resizeMode: 'cover', // Covers the entire space while maintaining aspect ratio
-  },
-  flex: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
   imageContainer: {
     position: 'relative',
@@ -143,6 +126,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
+  },
+  flex: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   title: {
     paddingBottom: 3,

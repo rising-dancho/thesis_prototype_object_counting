@@ -72,7 +72,11 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
     backgroundColor: '#25292e',
-    width: '100%',
+    width: '100%', // Ensure the container takes the full width of the parent
+    // height: 640, // Add a height for the placeholder to render properly
+    // borderStyle: 'solid',
+    // borderColor: 'red',
+    // borderWidth: 1,
   },
   svg: {
     position: 'absolute',
@@ -88,13 +92,22 @@ const styles = StyleSheet.create({
     paddingBottom: 3,
     fontWeight: '700',
     fontSize: 18,
+    // borderStyle: 'solid',
+    // borderColor: 'red',
+    // borderWidth: 1,
   },
   count: {
     fontSize: 16,
     fontWeight: 'bold',
+    // borderStyle: 'solid',
+    // borderColor: 'red',
+    // borderWidth: 1,
   },
   timestamp: {
     fontSize: 16,
     fontWeight: 'bold',
+    // borderStyle: 'solid',
+    // borderColor: 'red',
+    // borderWidth: 1,
   },
 });
