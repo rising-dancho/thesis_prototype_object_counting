@@ -11,59 +11,86 @@ import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 const AnimatedRect = Animated.createAnimatedComponent(Rect);
 const AnimatedText = Animated.createAnimatedComponent(SvgText);
 
-const MovableRectangles = ({ boxes }) => {
+export default function MovableRectangles({
+  boxes,
+  scaledDimensions,
+  imageDimensions,
+}) {
   return (
     <View style={styles.container}>
-      {boxes.map(([x1, y1, width, height], index) => {
+      {boxes.map((box, index) => {
         // Individual shared values for each rectangle
-        const translateX = useSharedValue(x1);
-        const translateY = useSharedValue(y1);
+        const translateX = useSharedValue(box.x1);
+        const translateY = useSharedValue(box.y1);
 
         // Gesture handler for dragging each rectangle
         const drag = Gesture.Pan().onUpdate((event) => {
-          translateX.value = x1 + event.translationX;
-          translateY.value = y1 + event.translationY;
+          translateX.value = box.x1 + event.translationX;
+          translateY.value = box.y1 + event.translationY;
         });
 
         // Animated style for each rectangle
         const animatedStyle = useAnimatedStyle(() => ({
           transform: [
-            { translateX: translateX.value - x1 },
-            { translateY: translateY.value - y1 },
+            { translateX: translateX.value - box.x1 },
+            { translateY: translateY.value - box.y1 },
           ],
         }));
 
         return (
           <GestureDetector key={index} gesture={drag}>
             <Animated.View style={animatedStyle}>
-              <Svg width={width} height={height}>
-                <AnimatedRect
-                  x={0}
-                  y={0}
-                  width={width}
-                  height={height}
-                  fill="transparent"
-                  stroke="blue"
-                  strokeWidth={2}
-                />
-                <AnimatedText
-                  fill="red"
-                  fontSize="20"
-                  fontWeight="bold"
-                  x={width / 2}
-                  y={height / 2}
-                  textAnchor="middle"
+              {imageDimensions && (
+                <Svg
+                  width={scaledDimensions.height}
+                  height={scaledDimensions.width}
+                  style={styles.svg}
                 >
-                  {index + 1}
-                </AnimatedText>
-              </Svg>
+                  <AnimatedRect
+                    x={
+                      (box?.x || 0) *
+                      (scaledDimensions?.width / (imageDimensions?.width || 1))
+                    }
+                    y={
+                      (box?.y || 0) *
+                      (scaledDimensions?.height /
+                        (imageDimensions?.height || 1))
+                    }
+                    width={
+                      (box?.width || 0) *
+                      (scaledDimensions?.width / (imageDimensions?.width || 1))
+                    }
+                    height={
+                      (box?.height || 0) *
+                      (scaledDimensions?.height /
+                        (imageDimensions?.height || 1))
+                    }
+                  />
+                  <AnimatedText
+                    x={
+                      (box.x + box.width / 2) *
+                      (scaledDimensions.width / imageDimensions.width)
+                    }
+                    y={
+                      (box.y + box.height / 2) *
+                      (scaledDimensions.height / imageDimensions.height)
+                    }
+                    fill="#122FBA"
+                    fontSize="22"
+                    fontWeight="bold"
+                    textAnchor="middle"
+                  >
+                    {index + 1}
+                  </AnimatedText>
+                </Svg>
+              )}
             </Animated.View>
           </GestureDetector>
         );
       })}
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -79,13 +106,3 @@ const styles = StyleSheet.create({
     left: 0,
   },
 });
-
-export default function App() {
-  const boundingBoxes = [
-    [50, 20, 157, 195],
-    [87, 30, 191, 142],
-    [20, 40, 101, 147],
-  ];
-
-  return <MovableRectangles boxes={boundingBoxes} />;
-}

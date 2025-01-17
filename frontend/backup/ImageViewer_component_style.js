@@ -49,9 +49,8 @@ export default function ImageViewer({
           {/* Render bounding boxes using the MovableRectangles component */}
           <MovableRectangles
             boxes={boxes}
-            // imageDimensions={imageDimensions}
-            // scaleBoxCoordinates={scaleBoxCoordinates}
-            // scaledDimensions={scaledDimensions}
+            scaledDimensions={scaledDimensions}
+            imageDimensions={imageDimensions}
           />
         </View>
       )}
@@ -77,11 +76,6 @@ const styles = StyleSheet.create({
     // borderStyle: 'solid',
     // borderColor: 'red',
     // borderWidth: 1,
-  },
-  svg: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
   },
   flex: {
     flexDirection: 'row',
