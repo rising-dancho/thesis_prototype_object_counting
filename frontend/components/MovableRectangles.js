@@ -17,14 +17,29 @@ export default function MovableRectangles({
   scaledDimensions,
 }) {
   console.log('Boxes:', boxes); // Log the whole boxes array to check its structure
-  console.log('imageDimensions:', imageDimensions);
-  console.log('scaledDimensions:', imageDimensions);
+
+  // console.log('scaledDimensions:', imageDimensions);
+  console.log('scaledDimensions.width:', scaledDimensions.width);
+  console.log('scaledDimensions.height:', scaledDimensions.height);
+
+  // console.log('imageDimensions:', imageDimensions);
+  console.log('imageDimensions.width:', imageDimensions.width);
+  console.log('imageDimensions.height:', imageDimensions.height);
 
   return (
     <View style={styles.container}>
       {boxes.map((box, index) => {
         // Directly destructure x, y, width, and height from the box
         const { x, y, width, height } = box;
+
+        console.log(
+          'bounding box x',
+          box.x * (scaledDimensions.width / imageDimensions.width)
+        );
+        console.log(
+          'bounding box y',
+          box.y * (scaledDimensions.height / imageDimensions.height)
+        );
 
         console.log(x, 'x', y, 'y', width, 'width', height, 'height'); // Check individual box properties
 
