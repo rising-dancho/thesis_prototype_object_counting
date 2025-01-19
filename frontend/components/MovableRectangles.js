@@ -25,7 +25,6 @@ export default function MovableRectangles({
         style={{
           width: scaledDimensions.width,
           height: scaledDimensions.height,
-          position: 'relative', // Allows bounding boxes to overlay the image
         }}
       >
         {/* Background Image */}
@@ -44,7 +43,8 @@ export default function MovableRectangles({
 
           // Scale the bounding box's position
           const scaledX = x * (scaledDimensions.width / imageDimensions.width);
-          const scaledY = y * (scaledDimensions.height / imageDimensions.height);
+          const scaledY =
+            y * (scaledDimensions.height / imageDimensions.height);
           const scaledWidth =
             width * (scaledDimensions.width / imageDimensions.width);
           const scaledHeight =
@@ -96,9 +96,9 @@ export default function MovableRectangles({
                   style={styles.closeButton}
                   onTouchEnd={() => onBoxRemove(index)}
                 >
-                  <SvgText fill="#FF0000" fontSize="18" fontWeight="bold">
+                  {/* <SvgText fill="#FF0000" fontSize="18" fontWeight="bold">
                     X
-                  </SvgText>
+                  </SvgText> */}
                 </View>
               </Animated.View>
             </GestureDetector>
@@ -111,25 +111,26 @@ export default function MovableRectangles({
 
 const styles = StyleSheet.create({
   container: {
+    position: 'absolute',
     justifyContent: 'center',
     alignItems: 'center',
-    borderStyle: 'solid',
-    borderColor: 'red',
-    borderWidth: 1,
+    // borderStyle: 'solid',
+    // borderColor: 'red',
+    // borderWidth: 1,
   },
   boxContainer: {
     position: 'absolute', // Ensure the boxes are positioned absolutely
-    borderStyle: 'solid',
-    borderColor: 'red',
-    borderWidth: 1,
+    // borderStyle: 'solid',
+    // borderColor: 'red',
+    // borderWidth: 2,
   },
   closeButton: {
     position: 'absolute',
     top: -20, // Position above the box
     right: -20, // Position to the right of the box
     backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 5,
-    zIndex: 1,
+    // borderRadius: 10,
+    // padding: 5,
+    // zIndex: 2,
   },
 });
