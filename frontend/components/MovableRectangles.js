@@ -113,6 +113,9 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
     alignItems: 'center',
+    borderStyle: 'solid',
+    borderColor: 'red',
+    borderWidth: 1,
   },
   boxContainer: {
     position: 'absolute', // Ensure the boxes are positioned absolutely
