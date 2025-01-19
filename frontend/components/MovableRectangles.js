@@ -29,7 +29,7 @@ export default function MovableRectangles({
   return (
     <View style={styles.container}>
       {boxes.map((box, index) => {
-        // Directly destructure x, y, width, and height from the box
+        // Destructure x, y, width, and height from the box
         const { x, y, width, height } = box;
 
         console.log(
@@ -43,45 +43,73 @@ export default function MovableRectangles({
 
         console.log(x, 'x', y, 'y', width, 'width', height, 'height'); // Check individual box properties
 
-        const translateX = useSharedValue(x);
-        const translateY = useSharedValue(y);
+        // Scale the bounding box's position
+        const scaledX = x * (scaledDimensions.width / imageDimensions.width);
+        const scaledY = y * (scaledDimensions.height / imageDimensions.height);
 
+        // Set initial shared values for translation
+        const translateX = useSharedValue(scaledX);
+        const translateY = useSharedValue(scaledY);
+
+        // Define gesture for dragging the box
         const drag = Gesture.Pan().onUpdate((event) => {
-          translateX.value = x + event.translationX;
-          translateY.value = y + event.translationY;
+          translateX.value = scaledX + event.translationX;
+          translateY.value = scaledY + event.translationY;
         });
 
+        // Apply animated styles for translation during drag
         const animatedStyle = useAnimatedStyle(() => ({
           transform: [
-            { translateX: translateX.value - x },
-            { translateY: translateY.value - y },
+            { translateX: translateX.value - scaledX },
+            { translateY: translateY.value - scaledY },
           ],
         }));
 
         return (
           <GestureDetector key={index} gesture={drag}>
             <Animated.View style={animatedStyle}>
-              <Svg width={width} height={height}>
-                <AnimatedRect
-                  x={0} // Adjusted to avoid double offset
-                  y={0}
-                  width={width}
-                  height={height}
-                  stroke="#00FF00"
-                  fill="transparent"
-                  strokeWidth="3"
-                />
-                <AnimatedText
-                  fill="#122FBA"
-                  fontSize="22"
-                  fontWeight="bold"
-                  textAnchor="middle"
-                  x={width / 2}
-                  y={height / 2}
+              <View style={styles.svgContainer}>
+                <Svg
+                  height={scaledDimensions.height}
+                  width={scaledDimensions.width}
+                  // style={styles.svg}
                 >
-                  {index + 1}
-                </AnimatedText>
-              </Svg>
+                  <AnimatedRect
+                    x={scaledX} // Use scaled position for x
+                    y={scaledY} // Use scaled position for y
+                    width={
+                      width * (scaledDimensions.width / imageDimensions.width)
+                    } // Scale width
+                    height={
+                      height *
+                      (scaledDimensions.height / imageDimensions.height)
+                    } // Scale height
+                    stroke="#00FF00"
+                    fill="transparent"
+                    strokeWidth="3"
+                  />
+                  <AnimatedText
+                    fill="#122FBA"
+                    fontSize="22"
+                    fontWeight="bold"
+                    textAnchor="middle"
+                    x={
+                      scaledX +
+                      (width *
+                        (scaledDimensions.width / imageDimensions.width)) /
+                        2
+                    }
+                    y={
+                      scaledY +
+                      (height *
+                        (scaledDimensions.height / imageDimensions.height)) /
+                        2
+                    }
+                  >
+                    {index + 1}
+                  </AnimatedText>
+                </Svg>
+              </View>
             </Animated.View>
           </GestureDetector>
         );
@@ -89,12 +117,40 @@ export default function MovableRectangles({
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
+    position: 'relative',
     top: 0,
     left: 0,
     width: '100%',
+    borderStyle: 'solid',
+    borderColor: 'red',
+    borderWidth: 1,
+    // borderStyle: 'solid',
+    // borderColor: 'red',
+    // borderWidth: 1,
+  },
+  svgContainer: {
+    // Remove absolute positioning, let it flow naturally
+    width: '100%',
     height: '100%',
+    borderStyle: 'solid',
+    borderColor: 'red',
+    borderWidth: 1,
+    // borderStyle: 'solid',
+    // borderColor: 'red',
+    // borderWidth: 1,
+  },
+  svg: {
+    // Ensure the SVG takes up the full container space
+    width: '100%',
+    height: '100%',
+    borderStyle: 'solid',
+    borderColor: 'red',
+    borderWidth: 1,
+    // borderStyle: 'solid',
+    // borderColor: 'red',
+    // borderWidth: 1,
   },
 });
