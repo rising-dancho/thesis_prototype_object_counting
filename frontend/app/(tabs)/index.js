@@ -21,8 +21,6 @@ import Button from '../../components/Button';
 import CircleButton from '../../components/CircleButton';
 import ImageViewer from '../../components/ImageViewer';
 import IconButton from '../../components/IconButton';
-// import MultipleBoxes from '../../components/MultipleBoxes';
-import MovableRectangles from '../../components/MovableRectangles';
 
 // BOUNDING BOXES (meaning):
 // - bounding_boxes.append([x1, y1, w, h])
@@ -239,7 +237,7 @@ export default function Index() {
     // Format result
     let result = `${year}-${month}-${day} ${hours}:${minutes}:${seconds} ${ampm}`;
 
-    return setTimestamp(result);
+    return setTimestamp(result);    
   };
 
   return (
@@ -270,8 +268,6 @@ export default function Index() {
               response={response}
               imageDimensions={imageDimensions}
             />
-            // <MultipleBoxes />
-            // <MovableRectangles />
           )}
         </View>
       </View>

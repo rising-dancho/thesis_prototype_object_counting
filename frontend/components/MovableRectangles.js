@@ -17,6 +17,7 @@ export default function MovableRectangles({
   scaledDimensions,
   imageSource,
   onBoxRemove, // Function to remove a box
+  updateBoxPosition, // Function to update box position from the parent
 }) {
   return (
     <View style={styles.container}>
@@ -38,7 +39,6 @@ export default function MovableRectangles({
         />
 
         {boxes.map((box, index) => {
-          // Destructure x, y, width, and height from the box
           const { x, y, width, height } = box;
 
           // Scale the bounding box's position
@@ -62,14 +62,22 @@ export default function MovableRectangles({
 
           // Apply animated styles for translation during drag
           const animatedStyle = useAnimatedStyle(() => ({
-            position: 'absolute', // Absolute positioning over the image
+            position: 'absolute',
             left: translateX.value,
             top: translateY.value,
           }));
 
+          // When dragging ends, update the box position
+          const handleDragEnd = () => {
+            updateBoxPosition(index, translateX.value, translateY.value);
+          };
+
           return (
             <GestureDetector key={index} gesture={drag}>
-              <Animated.View style={[styles.boxContainer, animatedStyle]}>
+              <Animated.View
+                style={[styles.boxContainer, animatedStyle]}
+                onTouchEnd={handleDragEnd} // Update position when drag ends
+              >
                 <Svg width={scaledWidth} height={scaledHeight}>
                   <AnimatedRect
                     x={0}
@@ -95,11 +103,7 @@ export default function MovableRectangles({
                 <View
                   style={styles.closeButton}
                   onTouchEnd={() => onBoxRemove(index)}
-                >
-                  {/* <SvgText fill="#FF0000" fontSize="18" fontWeight="bold">
-                    X
-                  </SvgText> */}
-                </View>
+                />
               </Animated.View>
             </GestureDetector>
           );
@@ -114,23 +118,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     justifyContent: 'center',
     alignItems: 'center',
-    borderStyle: 'solid',
-    borderColor: 'red',
-    borderWidth: 1,
   },
   boxContainer: {
-    position: 'absolute', // Ensure the boxes are positioned absolutely
-    // borderStyle: 'solid',
-    // borderColor: 'red',
-    // borderWidth: 2,
+    position: 'absolute',
   },
   closeButton: {
     position: 'absolute',
-    top: -20, // Position above the box
-    right: -20, // Position to the right of the box
+    top: -20, 
+    right: -20, 
     backgroundColor: 'white',
-    // borderRadius: 10,
-    // padding: 5,
-    // zIndex: 2,
   },
 });
