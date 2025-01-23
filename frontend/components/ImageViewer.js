@@ -36,16 +36,27 @@ export default function ImageViewer({
     );
   };
 
-  const handleRemoveBox = (index) => {
-    setBoxes((prevBoxes) => prevBoxes.filter((_, i) => i !== index));
-  };
+  // const handleRemoveBox = (index) => {
+  //   setBoxes((prevBoxes) => prevBoxes.filter((_, i) => i !== index));
+  // };
 
-  const handleAddBox = (event) => {
+  const handleAddBox2 = (event) => {
     const { locationX, locationY } = event.nativeEvent;
     setBoxes((prevBoxes) => [
       ...prevBoxes,
       { x: locationX, y: locationY, width: 100, height: 100 },
     ]);
+  };
+
+  const handleAddBox = (event) => {
+    if (isAddingBox) {
+      const { locationX, locationY } = event.nativeEvent;
+      setBoxes((prevBoxes) => [
+        ...prevBoxes,
+        { x: locationX, y: locationY, width: 100, height: 100 },
+      ]);
+      setIsAddingBox(false); // Disable adding mode after placing one box
+    }
   };
 
   return (
@@ -73,7 +84,7 @@ export default function ImageViewer({
             scaledDimensions={scaledDimensions}
             setBoxes={setBoxes} // Pass setBoxes to MovableRectangles
             updateBoxPosition={updateBoxPosition} // Function to update box position
-            onBoxRemove={handleRemoveBox}
+            // onBoxRemove={handleRemoveBox}
             onBoxAdd={handleAddBox} // Pass handleAddBox to MovableRectangles
           />
         </View>
