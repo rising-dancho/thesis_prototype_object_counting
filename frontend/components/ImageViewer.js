@@ -14,12 +14,14 @@ export default function ImageViewer({
   response,
   imageDimensions,
   setBoxes,
+  isAddingBox,
+  setIsAddingBox,
 }) {
   // Setting a fixed display size
   const displayWidth = 520; // Reduced for smaller scaling
   const displayHeight = 640; // Adjusted for a balanced ratio
 
-  const scaledDimensions = imageDimensions
+  const scaledDimensions = imageDimensions?.width
     ? {
         width: displayWidth,
         height: (imageDimensions.height / imageDimensions.width) * displayWidth,
@@ -40,15 +42,9 @@ export default function ImageViewer({
   //   setBoxes((prevBoxes) => prevBoxes.filter((_, i) => i !== index));
   // };
 
-  const handleAddBox2 = (event) => {
-    const { locationX, locationY } = event.nativeEvent;
-    setBoxes((prevBoxes) => [
-      ...prevBoxes,
-      { x: locationX, y: locationY, width: 100, height: 100 },
-    ]);
-  };
-
   const handleAddBox = (event) => {
+    console.log('handleAddBox called');
+    alert('ADD BOX CALLED!');
     if (isAddingBox) {
       const { locationX, locationY } = event.nativeEvent;
       setBoxes((prevBoxes) => [
@@ -73,7 +69,14 @@ export default function ImageViewer({
       </View>
 
       {response && (
-        <View style={[styles.imageContainer, !imgSource && { height: 640 }]}>
+        <View
+          style={[styles.imageContainer, !imgSource && { height: 640 }]}
+          onStartShouldSetResponder={() => true} // Enables touch events
+          onResponderRelease={(event) => {
+            console.log('Touch released:', event.nativeEvent);
+            alert('you touch my tralala');
+          }}
+        >
           {/* Render the dynamic image if imgSource is provided */}
           {imgSource && <Image source={imgSource} style={scaledDimensions} />}
 

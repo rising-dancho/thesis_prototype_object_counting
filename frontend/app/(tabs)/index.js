@@ -267,6 +267,8 @@ export default function Index() {
               setBoxes={setBoxes}
               response={response}
               imageDimensions={imageDimensions}
+              isAddingBox={isAddingBox}
+              setIsAddingBox={setIsAddingBox}
             />
           )}
         </View>
@@ -336,7 +338,11 @@ export default function Index() {
             <IconButton
               icon="add"
               label="Add"
-              onPress={() => setIsAddingBox(true)}
+              onPress={() => {
+                setIsAddingBox(true);
+                alert('uhhhg.. my dingdingdong');
+                console.log(isAddingBox);
+              }}
             />
             {/* Custom Pressable Icon */}
 

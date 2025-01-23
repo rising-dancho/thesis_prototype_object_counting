@@ -43,10 +43,13 @@ export default function MovableRectangles({
 
           // Scale the bounding box's position
           const scaledX = x * (scaledDimensions.width / imageDimensions.width);
+
           const scaledY =
             y * (scaledDimensions.height / imageDimensions.height);
+
           const scaledWidth =
             width * (scaledDimensions.width / imageDimensions.width);
+
           const scaledHeight =
             height * (scaledDimensions.height / imageDimensions.height);
 
