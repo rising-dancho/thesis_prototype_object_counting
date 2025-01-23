@@ -75,6 +75,8 @@ export default function ImageViewer({
           onResponderRelease={(event) => {
             console.log('Touch released:', event.nativeEvent);
             alert('you touch my tralala');
+            setIsAddingBox(false);
+            console.log(isAddingBox);
           }}
         >
           {/* Render the dynamic image if imgSource is provided */}
