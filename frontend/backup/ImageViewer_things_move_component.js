@@ -45,13 +45,19 @@ export default function ImageViewer({
   const handleAddBox = (event) => {
     console.log('handleAddBox called');
     if (isAddingBox) {
-      // const { locationX, locationY } = event.nativeEvent;
-      // setBoxes((prevBoxes) => [
-      //   ...prevBoxes,
-      //   { x: locationX, y: locationY, width: 100, height: 100 },
-      // ]);
       alert('ADD BOX CALLED!');
-      setIsAddingBox(false); // Disable adding mode after placing one box
+      const { locationX, locationY } = event.nativeEvent;
+
+      // Disable adding mode first
+      setIsAddingBox(false);
+
+      // THIS IS WHERE THE ERROR IS OCCURING
+      setBoxes([
+        ...prevBoxes,
+        { x: locationX, y: locationY, width: 100, height: 100 },
+      ]);
+
+      console.log(locationX, locationY);
     }
   };
 
@@ -91,7 +97,6 @@ export default function ImageViewer({
             setBoxes={setBoxes} // Pass setBoxes to MovableRectangles
             updateBoxPosition={updateBoxPosition} // Function to update box position
             // onBoxRemove={handleRemoveBox}
-            onBoxAdd={handleAddBox} // Pass handleAddBox to MovableRectangles
           />
         </View>
       )}
