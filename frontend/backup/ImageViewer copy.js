@@ -14,12 +14,14 @@ export default function ImageViewer({
   response,
   imageDimensions,
   setBoxes,
+  isAddingBox,
+  setIsAddingBox,
 }) {
   // Setting a fixed display size
   const displayWidth = 520; // Reduced for smaller scaling
   const displayHeight = 640; // Adjusted for a balanced ratio
 
-  const scaledDimensions = imageDimensions
+  const scaledDimensions = imageDimensions?.width
     ? {
         width: displayWidth,
         height: (imageDimensions.height / imageDimensions.width) * displayWidth,
@@ -36,16 +38,21 @@ export default function ImageViewer({
     );
   };
 
-  const handleRemoveBox = (index) => {
-    setBoxes((prevBoxes) => prevBoxes.filter((_, i) => i !== index));
-  };
+  // const handleRemoveBox = (index) => {
+  //   setBoxes((prevBoxes) => prevBoxes.filter((_, i) => i !== index));
+  // };
 
   const handleAddBox = (event) => {
-    const { locationX, locationY } = event.nativeEvent;
-    setBoxes((prevBoxes) => [
-      ...prevBoxes,
-      { x: locationX, y: locationY, width: 100, height: 100 },
-    ]);
+    console.log('handleAddBox called');
+    if (isAddingBox) {
+      // const { locationX, locationY } = event.nativeEvent;
+      // setBoxes((prevBoxes) => [
+      //   ...prevBoxes,
+      //   { x: locationX, y: locationY, width: 100, height: 100 },
+      // ]);
+      alert('ADD BOX CALLED!');
+      setIsAddingBox(false); // Disable adding mode after placing one box
+    }
   };
 
   return (
@@ -62,7 +69,17 @@ export default function ImageViewer({
       </View>
 
       {response && (
-        <View style={[styles.imageContainer, !imgSource && { height: 640 }]}>
+        <View
+          style={[styles.imageContainer, !imgSource && { height: 640 }]}
+          onStartShouldSetResponder={() => true} // Enables touch events
+          // onResponderRelease={(event) => {
+          //   console.log('Touch released:', event.nativeEvent);
+          //   alert('you touch my tralala');
+          //   setIsAddingBox(false);
+          //   console.log(isAddingBox);
+          // }}
+          onResponderRelease={handleAddBox}
+        >
           {/* Render the dynamic image if imgSource is provided */}
           {imgSource && <Image source={imgSource} style={scaledDimensions} />}
 
@@ -73,7 +90,7 @@ export default function ImageViewer({
             scaledDimensions={scaledDimensions}
             setBoxes={setBoxes} // Pass setBoxes to MovableRectangles
             updateBoxPosition={updateBoxPosition} // Function to update box position
-            onBoxRemove={handleRemoveBox}
+            // onBoxRemove={handleRemoveBox}
             onBoxAdd={handleAddBox} // Pass handleAddBox to MovableRectangles
           />
         </View>
