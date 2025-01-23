@@ -92,6 +92,17 @@ export default function Index() {
     }
   };
 
+  const handleAddBox = (event) => {
+    if (isAddingBox) {
+      const { locationX, locationY } = event.nativeEvent;
+      setBoxes((prevBoxes) => [
+        ...prevBoxes,
+        { x: locationX, y: locationY, width: 100, height: 100 },
+      ]);
+      setIsAddingBox(false); // Disable adding mode after placing one box
+    }
+  };
+
   const pickImageAsync = async () => {
     const selectedAsset = await selectImage();
     if (selectedAsset) {
