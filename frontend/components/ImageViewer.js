@@ -45,16 +45,17 @@ export default function ImageViewer({
   const handleAddBox = (event) => {
     console.log('handleAddBox called');
     if (isAddingBox) {
-      // alert('ADD BOX CALLED!');
+      alert('ADD BOX CALLED!');
       const { locationX, locationY } = event.nativeEvent;
 
       // Disable adding mode first
       setIsAddingBox(false);
 
-      // setBoxes((prevBoxes) => [
-      //   ...prevBoxes,
-      //   { x: locationX, y: locationY, width: 100, height: 100 },
-      // ]);
+      // THIS IS WHERE THE ERROR IS OCCURING
+      setBoxes([
+        ...prevBoxes,
+        { x: locationX, y: locationY, width: 100, height: 100 },
+      ]);
 
       console.log(locationX, locationY);
     }
