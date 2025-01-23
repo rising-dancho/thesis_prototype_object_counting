@@ -18,6 +18,26 @@ export default function MovableRectangles({
   imageSource,
   onBoxRemove, // Function to remove a box
 }) {
+  const sharedValues = boxes.map((box) => {
+    const { x, y } = box;
+    const translateX = useSharedValue(
+      x * (scaledDimensions.width / imageDimensions.width)
+    );
+    const translateY = useSharedValue(
+      y * (scaledDimensions.height / imageDimensions.height)
+    );
+
+    return { translateX, translateY };
+  });
+
+  const animatedStyles = sharedValues.map(({ translateX, translateY }) =>
+    useAnimatedStyle(() => ({
+      position: 'absolute',
+      left: translateX.value,
+      top: translateY.value,
+    }))
+  );
+
   return (
     <View style={styles.container}>
       {/* Wrap the image and boxes inside a relative container */}
@@ -43,10 +63,13 @@ export default function MovableRectangles({
 
           // Scale the bounding box's position
           const scaledX = x * (scaledDimensions.width / imageDimensions.width);
+
           const scaledY =
             y * (scaledDimensions.height / imageDimensions.height);
+
           const scaledWidth =
             width * (scaledDimensions.width / imageDimensions.width);
+
           const scaledHeight =
             height * (scaledDimensions.height / imageDimensions.height);
 
@@ -96,9 +119,9 @@ export default function MovableRectangles({
                   style={styles.closeButton}
                   onTouchEnd={() => onBoxRemove(index)}
                 >
-                  {/* <SvgText fill="#FF0000" fontSize="18" fontWeight="bold">
-                    X
-                  </SvgText> */}
+                  <SvgText fill="#FF0000" fontSize="18" fontWeight="bold">
+                    ✖
+                  </SvgText>
                 </View>
               </Animated.View>
             </GestureDetector>
@@ -128,9 +151,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -20, // Position above the box
     right: -20, // Position to the right of the box
-    backgroundColor: 'white',
-    // borderRadius: 10,
-    // padding: 5,
+    backgroundColor: 'red',
+    color: 'white',
+    borderRadius: 2,
+    // padding: 2,
+    // paddingLeft: 6,
+    // paddingRight: 6,
     // zIndex: 2,
   },
 });

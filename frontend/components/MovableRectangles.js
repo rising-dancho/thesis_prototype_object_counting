@@ -18,6 +18,26 @@ export default function MovableRectangles({
   imageSource,
   onBoxRemove, // Function to remove a box
 }) {
+  const sharedValues = boxes.map((box) => {
+    const { x, y } = box;
+    const translateX = useSharedValue(
+      x * (scaledDimensions.width / imageDimensions.width)
+    );
+    const translateY = useSharedValue(
+      y * (scaledDimensions.height / imageDimensions.height)
+    );
+
+    return { translateX, translateY };
+  });
+
+  const animatedStyles = sharedValues.map(({ translateX, translateY }) =>
+    useAnimatedStyle(() => ({
+      position: 'absolute',
+      left: translateX.value,
+      top: translateY.value,
+    }))
+  );
+
   return (
     <View style={styles.container}>
       {/* Wrap the image and boxes inside a relative container */}

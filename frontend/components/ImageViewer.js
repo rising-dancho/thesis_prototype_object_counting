@@ -44,13 +44,13 @@ export default function ImageViewer({
 
   const handleAddBox = (event) => {
     console.log('handleAddBox called');
-    alert('ADD BOX CALLED!');
     if (isAddingBox) {
-      const { locationX, locationY } = event.nativeEvent;
-      setBoxes((prevBoxes) => [
-        ...prevBoxes,
-        { x: locationX, y: locationY, width: 100, height: 100 },
-      ]);
+      // const { locationX, locationY } = event.nativeEvent;
+      // setBoxes((prevBoxes) => [
+      //   ...prevBoxes,
+      //   { x: locationX, y: locationY, width: 100, height: 100 },
+      // ]);
+      alert('ADD BOX CALLED!');
       setIsAddingBox(false); // Disable adding mode after placing one box
     }
   };
@@ -72,12 +72,13 @@ export default function ImageViewer({
         <View
           style={[styles.imageContainer, !imgSource && { height: 640 }]}
           onStartShouldSetResponder={() => true} // Enables touch events
-          onResponderRelease={(event) => {
-            console.log('Touch released:', event.nativeEvent);
-            alert('you touch my tralala');
-            setIsAddingBox(false);
-            console.log(isAddingBox);
-          }}
+          // onResponderRelease={(event) => {
+          //   console.log('Touch released:', event.nativeEvent);
+          //   alert('you touch my tralala');
+          //   setIsAddingBox(false);
+          //   console.log(isAddingBox);
+          // }}
+          onResponderRelease={handleAddBox}
         >
           {/* Render the dynamic image if imgSource is provided */}
           {imgSource && <Image source={imgSource} style={scaledDimensions} />}
