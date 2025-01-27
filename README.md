@@ -5,7 +5,7 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 ## Get started
 
-1. Enter to the correct folder
+1. Enter inside the correct folder
    
     ```bash
    cd frontend
