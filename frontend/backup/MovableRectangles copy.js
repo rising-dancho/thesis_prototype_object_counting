@@ -119,9 +119,9 @@ export default function MovableRectangles({
                   style={styles.closeButton}
                   onTouchEnd={() => onBoxRemove(index)}
                 >
-                  <SvgText fill="#FF0000" fontSize="18" fontWeight="bold">
+                  {/* <SvgText fill="#FF0000" fontSize="18" fontWeight="bold">
                     ✖
-                  </SvgText>
+                  </SvgText> */}
                 </View>
               </Animated.View>
             </GestureDetector>
