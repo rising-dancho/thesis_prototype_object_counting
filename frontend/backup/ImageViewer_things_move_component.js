@@ -52,8 +52,8 @@ export default function ImageViewer({
       setIsAddingBox(false);
 
       // THIS IS WHERE THE ERROR IS OCCURING
-      setBoxes([
-        ...prevBoxes,
+      setBoxes((prevBoxes) => [
+        ...prevBoxes, // ✅ Now `prevBoxes` refers to the previous state correctly
         { x: locationX, y: locationY, width: 100, height: 100 },
       ]);
 
