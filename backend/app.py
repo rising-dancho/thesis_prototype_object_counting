@@ -102,6 +102,126 @@ def automatic_process_image():
         return jsonify({"error": str(e)}), 500
 
 
+# Template Matching Route
+@app.route("/template-matching", methods=["POST"])
+def template_matching():
+    try:
+        # Check if files are uploaded
+        if "image" not in request.files or "template" not in request.files:
+            return jsonify({"error": "Both image and template files are required"}), 400
+
+        # Read main image
+        image_file = request.files["image"]
+        npimg = np.frombuffer(image_file.read(), np.uint8)
+        img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
+
+        # Read template image
+        template_file = request.files["template"]
+        np_template = np.frombuffer(template_file.read(), np.uint8)
+        template = cv2.imdecode(np_template, cv2.IMREAD_COLOR)
+
+        # Convert images to grayscale for matching
+        img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        template_gray = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+
+        # Get template dimensions
+        h, w = template_gray.shape
+
+        # OpenCV template matching methods
+        methods = {
+            "TM_CCOEFF": cv2.TM_CCOEFF,
+            "TM_CCOEFF_NORMED": cv2.TM_CCOEFF_NORMED,
+            "TM_CCORR": cv2.TM_CCORR,
+            "TM_CCORR_NORMED": cv2.TM_CCORR_NORMED,
+            "TM_SQDIFF": cv2.TM_SQDIFF,
+            "TM_SQDIFF_NORMED": cv2.TM_SQDIFF_NORMED,
+        }
+
+        best_match = None
+        best_method = None
+        best_top_left = None
+        best_val = None
+        object_count = 0
+        bounding_boxes = []
+
+        for method_name, method in methods.items():
+            img_copy = img_gray.copy()
+
+            # Apply template matching
+            result = cv2.matchTemplate(img_copy, template_gray, method)
+
+            # Get threshold based on method type
+            threshold = (
+                0.8 if method in [cv2.TM_CCOEFF_NORMED, cv2.TM_CCORR_NORMED] else 0.2
+            )
+
+            # Get locations where template matches
+            if method in [cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED]:
+                loc = np.where(result <= threshold)  # Lower values mean better matches
+            else:
+                loc = np.where(result >= threshold)  # Higher values mean better matches
+
+            for pt in zip(*loc[::-1]):
+                bounding_boxes.append([int(pt[0]), int(pt[1]), int(w), int(h)])
+                object_count += 1
+                cv2.rectangle(
+                    img, (pt[0], pt[1]), (pt[0] + w, pt[1] + h), (0, 255, 0), 2
+                )
+
+            # Get best match for response
+            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
+            if method in [cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED]:
+                top_left = min_loc
+                match_val = min_val
+            else:
+                top_left = max_loc
+                match_val = max_val
+
+            # Store best match
+            if (
+                best_match is None
+                or (
+                    method not in [cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED]
+                    and match_val > best_val
+                )
+                or (
+                    method in [cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED]
+                    and match_val < best_val
+                )
+            ):
+                best_match = match_val
+                best_method = method_name  # Convert method to string
+                best_top_left = (
+                    int(top_left[0]),
+                    int(top_left[1]),
+                )  # Convert int64 to int
+                best_val = match_val
+
+        # Convert image for response
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        pil_img = Image.fromarray(img_rgb)
+        img_io = io.BytesIO()
+        pil_img.save(img_io, "PNG")
+        img_io.seek(0)
+        img_base64 = base64.b64encode(img_io.read()).decode("utf-8")
+
+        return (
+            jsonify(
+                {
+                    "object_count": object_count,
+                    # "bounding_boxes": bounding_boxes,
+                    # "best_match_location": best_top_left,
+                    "best_method": best_method,
+                    # "processed_image": img_base64,
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/")
 def index():
     return "Flask server running!"

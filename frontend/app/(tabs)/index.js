@@ -92,6 +92,17 @@ export default function Index() {
     }
   };
 
+  const handleAddBox = (event) => {
+    if (isAddingBox) {
+      const { locationX, locationY } = event.nativeEvent;
+      setBoxes((prevBoxes) => [
+        ...prevBoxes,
+        { x: locationX, y: locationY, width: 100, height: 100 },
+      ]);
+      setIsAddingBox(false); // Disable adding mode after placing one box
+    }
+  };
+
   const pickImageAsync = async () => {
     const selectedAsset = await selectImage();
     if (selectedAsset) {
@@ -235,6 +246,8 @@ export default function Index() {
     <GestureHandlerRootView style={styles.container}>
       <View
         style={styles.imageContainer}
+        onStartShouldSetResponder={() => true}
+        onResponderRelease={handleAddBox}
         onLayout={(event) => {
           let { width, height } = event.nativeEvent.layout;
           setParentDimensions({ width, height });
@@ -253,10 +266,12 @@ export default function Index() {
               timestamp={timestamp}
               clicked={isCountClicked}
               boxes={boxes}
-              setBoxes={setBoxes} // Pass the updater
+              setBoxes={setBoxes}
               response={response}
               imageDimensions={imageDimensions}
             />
+            // <MultipleBoxes />
+            // <MovableRectangles />
           )}
         </View>
       </View>
