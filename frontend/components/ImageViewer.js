@@ -14,8 +14,6 @@ export default function ImageViewer({
   response,
   imageDimensions,
   setBoxes,
-  isAddingBox,
-  setIsAddingBox,
 }) {
   // Setting a fixed display size
   const displayWidth = 520; // Reduced for smaller scaling
@@ -42,25 +40,6 @@ export default function ImageViewer({
   //   setBoxes((prevBoxes) => prevBoxes.filter((_, i) => i !== index));
   // };
 
-  const handleAddBox = (event) => {
-    console.log('handleAddBox called');
-    if (isAddingBox) {
-      alert('ADD BOX CALLED!');
-      const { locationX, locationY } = event.nativeEvent;
-
-      // Disable adding mode first
-      setIsAddingBox(false);
-
-      // THIS IS WHERE THE ERROR IS OCCURING
-      setBoxes((prevBoxes) => [
-        ...prevBoxes, // ✅ Now `prevBoxes` refers to the previous state correctly
-        { x: locationX, y: locationY, width: 100, height: 100 },
-      ]);
-
-      console.log(locationX, locationY);
-    }
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.flex}>
@@ -75,17 +54,7 @@ export default function ImageViewer({
       </View>
 
       {response && (
-        <View
-          style={[styles.imageContainer, !imgSource && { height: 640 }]}
-          onStartShouldSetResponder={() => true} // Enables touch events
-          // onResponderRelease={(event) => {
-          //   console.log('Touch released:', event.nativeEvent);
-          //   alert('you touch my tralala');
-          //   setIsAddingBox(false);
-          //   console.log(isAddingBox);
-          // }}
-          onResponderRelease={handleAddBox}
-        >
+        <View style={[styles.imageContainer, !imgSource && { height: 640 }]}>
           {/* Render the dynamic image if imgSource is provided */}
           {imgSource && <Image source={imgSource} style={scaledDimensions} />}
 
