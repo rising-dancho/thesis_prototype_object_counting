@@ -45,6 +45,7 @@ export default function Index() {
     width: 0,
     height: 0,
   });
+  
   const [isAddingBox, setIsAddingBox] = useState(false);
 
   // navigation pagination

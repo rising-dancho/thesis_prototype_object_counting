@@ -1,5 +1,5 @@
 import React from 'react';
-import { PanGestureHandler } from 'react-native-gesture-handler';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -8,24 +8,37 @@ import Animated, {
 import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 import { StyleSheet } from 'react-native';
 
-const DragBox = ({ box, index }) => {
+const DragBox = ({ box, index, setBoxes, isDraggable }) => {
   const translateX = useSharedValue(box[0]);
   const translateY = useSharedValue(box[1]);
 
+  const panGesture = Gesture.Pan()
+    .enabled(isDraggable) // Disable gesture if `isDraggable` is false
+    .onUpdate((event) => {
+      if (!isDraggable) return;
+      translateX.value = box[0] + event.translationX;
+      translateY.value = box[1] + event.translationY;
+    })
+    .onEnd(() => {
+      if (!isDraggable) return;
+      setBoxes((prevBoxes) =>
+        prevBoxes.map((b, i) =>
+          i === index ? { ...b, x: translateX.value, y: translateY.value } : b
+        )
+      );
+      translateX.value = withSpring(translateX.value);
+      translateY.value = withSpring(translateY.value);
+    });
+
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
-      { translateX: withSpring(translateX.value) },
-      { translateY: withSpring(translateY.value) },
+      { translateX: translateX.value },
+      { translateY: translateY.value },
     ],
   }));
 
-  const onGestureEvent = (event) => {
-    translateX.value = event.nativeEvent.translationX + box[0];
-    translateY.value = event.nativeEvent.translationY + box[1];
-  };
-
   return (
-    <PanGestureHandler onGestureEvent={onGestureEvent}>
+    <GestureDetector gesture={isDraggable ? panGesture : Gesture.Tap()}>
       <Animated.View style={[animatedStyle, styles.boxContainer]}>
         <Svg height={box[3]} width={box[2]}>
           <Rect
@@ -49,7 +62,7 @@ const DragBox = ({ box, index }) => {
           </SvgText>
         </Svg>
       </Animated.View>
-    </PanGestureHandler>
+    </GestureDetector>
   );
 };
 
