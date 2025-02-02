@@ -40,7 +40,7 @@ export default function MovableRectangles({
             ]}
             index={index}
             setBoxes={setBoxes}
-            isDraggable={true} // Change this dynamically to enable/disable dragging
+            isDraggable={true} 
           />
         ))}
       </View>
