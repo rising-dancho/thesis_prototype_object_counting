@@ -46,8 +46,8 @@ const DragBox = ({ box, index, setBoxes, isDraggable }) => {
             y={0}
             width={box[2]}
             height={box[3]}
-            stroke="red"
-            strokeWidth="3"
+            stroke="#00FF00"
+            strokeWidth="5"
             fill="transparent"
           />
           <SvgText
