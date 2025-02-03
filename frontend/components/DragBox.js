@@ -6,7 +6,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import Svg, { Rect, Text as SvgText } from 'react-native-svg';
-import { StyleSheet } from 'react-native';
+import { View, StyleSheet, Pressable } from 'react-native';
 
 const DragBox = ({ box, index, setBoxes, isDraggable }) => {
   const translateX = useSharedValue(box[0]);
@@ -29,6 +29,10 @@ const DragBox = ({ box, index, setBoxes, isDraggable }) => {
       translateX.value = withSpring(translateX.value);
       translateY.value = withSpring(translateY.value);
     });
+
+  const onBoxRemove = () => {
+    setBoxes((prevBoxes) => prevBoxes.filter((_, i) => i !== index));
+  };
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
@@ -61,6 +65,12 @@ const DragBox = ({ box, index, setBoxes, isDraggable }) => {
             {index + 1}
           </SvgText>
         </Svg>
+        {/* Button to remove the box */}
+        <Pressable style={styles.closeButton} onPress={onBoxRemove}>
+          <SvgText fontSize="18" fontWeight="bold">
+            ✖
+          </SvgText>
+        </Pressable>
       </Animated.View>
     </GestureDetector>
   );
@@ -69,6 +79,18 @@ const DragBox = ({ box, index, setBoxes, isDraggable }) => {
 const styles = StyleSheet.create({
   boxContainer: {
     position: 'absolute',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: -20, // Position above the box
+    right: -20, // Position to the right of the box
+    backgroundColor: 'red',
+    color: 'white',
+    borderRadius: 2,
+    zIndex: 10, // Ensure it is above other elements
+    // padding: 2,
+    // paddingLeft: 6,
+    // paddingRight: 6,
   },
 });
 

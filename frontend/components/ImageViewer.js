@@ -36,9 +36,9 @@ export default function ImageViewer({
     );
   };
 
-  // const handleRemoveBox = (index) => {
-  //   setBoxes((prevBoxes) => prevBoxes.filter((_, i) => i !== index));
-  // };
+  const handleRemoveBox = (index) => {
+    setBoxes((prevBoxes) => prevBoxes.filter((_, i) => i !== index));
+  };
 
   return (
     <View style={styles.container}>
@@ -65,7 +65,7 @@ export default function ImageViewer({
             scaledDimensions={scaledDimensions}
             setBoxes={setBoxes} // Pass setBoxes to MovableRectangles
             updateBoxPosition={updateBoxPosition} // Function to update box position
-            // onBoxRemove={handleRemoveBox}
+            onBoxRemove={handleRemoveBox}
           />
         </View>
       )}
