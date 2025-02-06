@@ -9,6 +9,11 @@ import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 import { StyleSheet, Pressable } from 'react-native';
 
 const DragBox = ({ box, index, setBoxes, isDraggable, onBoxRemove }) => {
+  if (!id) {
+    console.error('DragBox is missing an id!');
+    return null; // Prevent rendering if id is missing
+  }
+
   const translateX = useSharedValue(box[0]);
   const translateY = useSharedValue(box[1]);
 
@@ -22,8 +27,8 @@ const DragBox = ({ box, index, setBoxes, isDraggable, onBoxRemove }) => {
     .onEnd(() => {
       if (!isDraggable) return;
       setBoxes((prevBoxes) =>
-        prevBoxes.map((b, i) =>
-          i === index ? { ...b, x: translateX.value, y: translateY.value } : b
+        prevBoxes.map((b) =>
+          b.id === id ? { ...b, x: translateX.value, y: translateY.value } : b
         )
       );
       translateX.value = withSpring(translateX.value);
@@ -39,7 +44,7 @@ const DragBox = ({ box, index, setBoxes, isDraggable, onBoxRemove }) => {
 
   const handleRemove = () => {
     if (onBoxRemove) {
-      onBoxRemove(box.id); // Pass the box.id to the removal function
+      onBoxRemove(id); // Pass the box.id to the removal function
     }
   };
 

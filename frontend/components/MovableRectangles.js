@@ -34,7 +34,8 @@ export default function MovableRectangles({
         {/* Render Draggable Bounding Boxes */}
         {boxes.map((box, index) => (
           <DragBox
-            key={index}
+            key={box.id} // ✅ Ensure key is set correctly
+            id={box.id} // ✅ Pass id explicitly
             box={[
               box.x * (scaledDimensions.width / imageDimensions.width), // Scaled X
               box.y * (scaledDimensions.height / imageDimensions.height), // Scaled Y
