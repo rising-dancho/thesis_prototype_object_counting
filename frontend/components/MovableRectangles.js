@@ -36,6 +36,7 @@ export default function MovableRectangles({
           <DragBox
             key={box.id} // ✅ Ensure key is set correctly
             id={box.id} // ✅ Pass id explicitly
+            count={index}
             box={[
               box.x * (scaledDimensions.width / imageDimensions.width), // Scaled X
               box.y * (scaledDimensions.height / imageDimensions.height), // Scaled Y

@@ -8,7 +8,15 @@ import Animated, {
 import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 import { StyleSheet, Pressable } from 'react-native';
 
-const DragBox = ({ box, index, setBoxes, isDraggable, onBoxRemove }) => {
+const DragBox = ({
+  id,
+  box,
+  count,
+  index,
+  setBoxes,
+  isDraggable,
+  onBoxRemove,
+}) => {
   if (!id) {
     console.error('DragBox is missing an id!');
     return null; // Prevent rendering if id is missing
@@ -69,7 +77,7 @@ const DragBox = ({ box, index, setBoxes, isDraggable, onBoxRemove }) => {
             fontWeight="bold"
             textAnchor="middle"
           >
-            {index + 1}
+            {count + 1}
           </SvgText>
         </Svg>
         {/* Button to remove the box */}
