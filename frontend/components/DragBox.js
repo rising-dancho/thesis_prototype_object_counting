@@ -6,21 +6,16 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import Svg, { Rect, Text as SvgText } from 'react-native-svg';
-import { StyleSheet, Pressable } from 'react-native';
+import { StyleSheet, Pressable, Dimensions } from 'react-native';
 
-const DragBox = ({
-  id,
-  box,
-  count,
-  index,
-  setBoxes,
-  isDraggable,
-  onBoxRemove,
-}) => {
+const DragBox = ({ id, box, count, setBoxes, isDraggable, onBoxRemove }) => {
   if (!id) {
     console.error('DragBox is missing an id!');
     return null; // Prevent rendering if id is missing
   }
+
+  const { width, height } = Dimensions.get('window');
+  const dynamicFontSize = Math.min(width, height) * 0.025; // % of the smaller dimension
 
   const translateX = useSharedValue(box[0]);
   const translateY = useSharedValue(box[1]);
@@ -73,7 +68,7 @@ const DragBox = ({
             x={box[2] / 2}
             y={box[3] / 2}
             fill="blue"
-            fontSize="16"
+            fontSize={dynamicFontSize}
             fontWeight="bold"
             textAnchor="middle"
           >

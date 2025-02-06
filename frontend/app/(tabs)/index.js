@@ -271,8 +271,6 @@ export default function Index() {
               response={response}
               imageDimensions={imageDimensions}
             />
-            // <MultipleBoxes />
-            // <MovableRectangles />
           )}
         </View>
       </View>
