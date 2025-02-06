@@ -21,8 +21,7 @@ import Button from '../../components/Button';
 import CircleButton from '../../components/CircleButton';
 import ImageViewer from '../../components/ImageViewer';
 import IconButton from '../../components/IconButton';
-// import MultipleBoxes from '../../components/MultipleBoxes';
-import MovableRectangles from '../../components/MovableRectangles';
+import { v4 as uuidv4 } from 'uuid';
 
 // BOUNDING BOXES (meaning):
 // - bounding_boxes.append([x1, y1, w, h])
@@ -45,7 +44,7 @@ export default function Index() {
     width: 0,
     height: 0,
   });
-  
+
   const [isAddingBox, setIsAddingBox] = useState(false);
 
   // navigation pagination
@@ -98,7 +97,7 @@ export default function Index() {
       const { locationX, locationY } = event.nativeEvent;
       setBoxes((prevBoxes) => [
         ...prevBoxes,
-        { x: locationX, y: locationY, width: 100, height: 100 },
+        { id: uuidv4(), x: locationX, y: locationY, width: 100, height: 100 },
       ]);
       setIsAddingBox(false); // Disable adding mode after placing one box
     }
@@ -179,6 +178,7 @@ export default function Index() {
       // Call addBox for each bounding box in the response
       setBoxes(
         res.data.bounding_boxes.map((box) => ({
+          id: uuidv4(), // Unique ID
           x: box[0],
           y: box[1],
           width: box[2],
