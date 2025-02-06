@@ -37,6 +37,7 @@ export default function Index() {
 
   // --- Bounding Boxes ---
   const [boxes, setBoxes] = useState([]); // Holds the bounding boxes
+  const dynamic_box_count = boxes.length; // Dynamically update count
   const [response, setResponse] = useState(null);
   const [imageDimensions, setImageDimensions] = useState(null); // Holds image dimensions
 
@@ -53,7 +54,6 @@ export default function Index() {
   // ui
   const imageRef = useRef(null);
   const [title, setTitle] = useState('');
-  const [count, setCount] = useState('');
   const [timestamp, setTimestamp] = useState('');
   const [isCountClicked, setIsCountClicked] = useState(false);
 
@@ -114,7 +114,6 @@ export default function Index() {
   const onReset = () => {
     setCurrentPage('choosePhoto');
     setTitle('');
-    setCount('');
     setTimestamp('');
     setSelectedImage(undefined);
     setIsCountClicked(false);
@@ -161,7 +160,6 @@ export default function Index() {
       );
 
       setResponse(res.data);
-      setCount(res.data.object_count);
       console.log(res.data.object_count, 'object_count');
       console.log(response, 'RESPONSE');
       console.log(res.data.bounding_boxes, 'res.data.bounding_boxes'); // box coordinates
@@ -263,7 +261,7 @@ export default function Index() {
             <ImageViewer
               imgSource={selectedImage ? selectedImage : undefined}
               text={title}
-              count={count}
+              count={dynamic_box_count}
               timestamp={timestamp}
               clicked={isCountClicked}
               boxes={boxes}
