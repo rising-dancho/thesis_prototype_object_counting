@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Text } from 'react-native-paper';
-import MovableRectangles from '../components/MovableRectangles.js';
+import MovableRectangles from '../../components/MovableRectangles';
 
 export default function ImageViewer({
   imgSource,
@@ -29,6 +29,17 @@ export default function ImageViewer({
         height: displayHeight,
       };
 
+  // Function to update the box's position
+  const updateBoxPosition = (index, x, y) => {
+    setBoxes((prevBoxes) =>
+      prevBoxes.map((box, i) => (i === index ? { ...box, x, y } : box))
+    );
+  };
+
+  const handleRemoveBox = (index) => {
+    setBoxes((prevBoxes) => prevBoxes.filter((_, i) => i !== index));
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.flex}>
@@ -53,6 +64,8 @@ export default function ImageViewer({
             imageDimensions={imageDimensions}
             scaledDimensions={scaledDimensions}
             setBoxes={setBoxes} // Pass setBoxes to MovableRectangles
+            updateBoxPosition={updateBoxPosition} // Function to update box position
+            onBoxRemove={handleRemoveBox}
           />
         </View>
       )}

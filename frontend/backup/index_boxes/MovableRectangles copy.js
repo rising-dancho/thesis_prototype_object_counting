@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Image } from 'react-native';
-import DragBox from '../components/DragBox.js';
+import DragBox from '../../components/DragBox';
 
 export default function MovableRectangles({
   boxes,
@@ -8,11 +8,8 @@ export default function MovableRectangles({
   scaledDimensions,
   setBoxes,
   imageSource,
+  onBoxRemove, // Function to remove a box
 }) {
-  const onBoxRemove = (id) => {
-    setBoxes((prevBoxes) => prevBoxes.filter((box) => box.id !== id)); // Remove box with matching id
-  };
-
   return (
     <View style={styles.container}>
       <View
@@ -41,10 +38,9 @@ export default function MovableRectangles({
               box.width * (scaledDimensions.width / imageDimensions.width), // Scaled Width
               box.height * (scaledDimensions.height / imageDimensions.height), // Scaled Height
             ]}
-            index={box.id} // Use box.id as the index
+            index={index}
             setBoxes={setBoxes}
-            isDraggable={true}
-            onBoxRemove={() => onBoxRemove(box.id)} // Pass the correct ID
+            isDraggable={true} 
           />
         ))}
       </View>

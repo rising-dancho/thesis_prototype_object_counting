@@ -6,9 +6,9 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import Svg, { Rect, Text as SvgText } from 'react-native-svg';
-import { StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable } from 'react-native';
 
-const DragBox = ({ box, index, setBoxes, isDraggable, onBoxRemove }) => {
+const DragBox = ({ box, index, setBoxes, isDraggable }) => {
   const translateX = useSharedValue(box[0]);
   const translateY = useSharedValue(box[1]);
 
@@ -30,18 +30,16 @@ const DragBox = ({ box, index, setBoxes, isDraggable, onBoxRemove }) => {
       translateY.value = withSpring(translateY.value);
     });
 
+  const onBoxRemove = () => {
+    setBoxes((prevBoxes) => prevBoxes.filter((_, i) => i !== index));
+  };
+
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
       { translateX: translateX.value },
       { translateY: translateY.value },
     ],
   }));
-
-  const handleRemove = () => {
-    if (onBoxRemove) {
-      onBoxRemove(box.id); // Pass the box.id to the removal function
-    }
-  };
 
   return (
     <GestureDetector gesture={isDraggable ? panGesture : Gesture.Tap()}>
@@ -68,7 +66,7 @@ const DragBox = ({ box, index, setBoxes, isDraggable, onBoxRemove }) => {
           </SvgText>
         </Svg>
         {/* Button to remove the box */}
-        <Pressable style={styles.closeButton} onPress={handleRemove}>
+        <Pressable style={styles.closeButton} onPress={onBoxRemove}>
           <SvgText fontSize="18" fontWeight="bold">
             ✖
           </SvgText>
