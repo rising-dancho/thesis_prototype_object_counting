@@ -1,8 +1,7 @@
 import cv2
 import imutils
 import numpy as np
-import matplotlib.pyplot as plt
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify
 import io
 from PIL import Image
 from flask_cors import CORS
