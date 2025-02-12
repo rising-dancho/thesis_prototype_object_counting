@@ -65,7 +65,7 @@ def run_yolo_onnx(image):
 
 
 @app.route("/object-detection", methods=["POST"])
-def automatic_process_image():
+def detect_objects():
     try:
         if "image" not in request.files:
             return jsonify({"error": "No file uploaded"}), 400
