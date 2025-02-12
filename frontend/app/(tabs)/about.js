@@ -13,13 +13,11 @@ import * as ImagePicker from 'expo-image-picker';
 import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 
 const ImageUpload = () => {
-  const [response, setResponse] = useState(null);
-
   const [selectedImage, setSelectedImage] = useState(undefined);
-
+  const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
-  const [boxes, setBoxes] = useState([]); // Holds the bounding boxes
-  const [imageDimensions, setImageDimensions] = useState(null); // Holds image dimensions
+  const [boxes, setBoxes] = useState([]);
+  const [imageDimensions, setImageDimensions] = useState(null);
 
   const handleSubmit = async () => {
     if (!selectedImage) {
@@ -49,20 +47,9 @@ const ImageUpload = () => {
           headers: { 'Content-Type': 'multipart/form-data' },
         }
       );
+
       setResponse(res.data);
-      console.log(res.data.bounding_boxes); // box coordinates
-      console.log(res.data);
-      console.log(res.data.image_dimensions.height); // image dimension
-      console.log(res.data.image_dimensions.width);
-
-      // Call addBox for each bounding box in the response
-      res.data.bounding_boxes.forEach((box) => {
-        setBoxes((prevBoxes) => [
-          ...prevBoxes,
-          { x: box[0], y: box[1], width: box[2], height: box[3] }, // Add each box
-        ]);
-      });
-
+      setBoxes(res.data.bounding_boxes);
       setError(null);
     } catch (err) {
       setError('Error uploading image: ' + err.message);
@@ -71,39 +58,42 @@ const ImageUpload = () => {
   };
 
   const selectImage = async () => {
-    try {
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
-        allowsEditing: true,
-        quality: 1,
-      });
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      setError('Permission to access gallery is required.');
+      return;
+    }
 
-      if (!result.canceled) {
-        const selectedAsset = result.assets[0].uri;
-        const { width, height } = result.assets[0];
-        setSelectedImage(selectedAsset);
-        setImageDimensions({ width, height });
-        setError(null);
-      } else {
-        setError('You did not select any image.');
-      }
-    } catch (err) {
-      setError('Error selecting image: ' + err.message);
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const selectedAsset = result.assets[0].uri;
+      const { width, height } = result.assets[0];
+      console.log('Selected image:', selectedAsset);
+      setSelectedImage(selectedAsset);
+      setImageDimensions({ width, height });
+      setError(null);
+    } else {
+      setError('You did not select any image.');
     }
   };
-
-  // Scale the bounding box coordinates relative to the image size
   const scaleBoxCoordinates = (box) => {
-    if (imageDimensions) {
-      const { width: imgWidth, height: imgHeight } = imageDimensions;
-      return {
-        x: (box.x / imgWidth) * imageDimensions.width, // Adjust to image's displayed width
-        y: (box.y / imgHeight) * imageDimensions.height, // Adjust to image's displayed height
-        width: (box.width / imgWidth) * imageDimensions.width, // Adjust to image's displayed width
-        height: (box.height / imgHeight) * imageDimensions.height, // Adjust to image's displayed height
-      };
-    }
-    return box;
+    if (!imageDimensions) return box;
+
+    const displayedWidth = 200;
+    const displayedHeight =
+      (imageDimensions.height / imageDimensions.width) * displayedWidth;
+
+    return {
+      x: (box.x / imageDimensions.width) * displayedWidth,
+      y: (box.y / imageDimensions.height) * displayedHeight,
+      width: (box.width / imageDimensions.width) * displayedWidth,
+      height: (box.height / imageDimensions.height) * displayedHeight,
+    };
   };
 
   return (
@@ -122,54 +112,56 @@ const ImageUpload = () => {
         <View>
           <Text style={styles.subtitle}>Processed Image:</Text>
 
-          <View style={styles.imageContainer}>
+          <View
+            style={[
+              styles.imageContainer,
+              {
+                width: 200,
+                height:
+                  (imageDimensions?.height / imageDimensions?.width) * 200,
+              },
+            ]}
+          >
             <Image
-              source={{
-                uri: `data:image/png;base64,${response.processed_image}`,
-              }}
+              source={{ uri: selectedImage }}
               style={{
-                width: imageDimensions?.width,
-                height: imageDimensions?.height,
-                resizeMode: 'contain', // Ensures image is contained within bounds
+                width: 200,
+                height:
+                  (imageDimensions?.height / imageDimensions?.width) * 200,
               }}
             />
-            {/* SVG component to draw the boxes */}
-            {imageDimensions && (
-              <Svg
-                height={imageDimensions.height}
-                width={imageDimensions.width}
-                style={styles.svg}
-              >
-                {boxes.map((box, index) => {
-                  const scaledBox = scaleBoxCoordinates(box);
-                  return (
-                    <Fragment key={index}>
-                      {/* Bounding Box */}
-                      <Rect
-                        x={scaledBox.x}
-                        y={scaledBox.y}
-                        width={scaledBox.width}
-                        height={scaledBox.height}
-                        stroke="#00FF00"
-                        fill="transparent"
-                        strokeWidth="3"
-                      />
-                      {/* Object Number */}
-                      <SvgText
-                        x={scaledBox.x + scaledBox.width / 2}
-                        y={scaledBox.y + scaledBox.height / 2}
-                        fill="#122FBA"
-                        fontSize="32"
-                        fontWeight="bold"
-                        textAnchor="middle"
-                      >
-                        {index + 1}
-                      </SvgText>
-                    </Fragment>
-                  );
-                })}
-              </Svg>
-            )}
+            <Svg
+              height={(imageDimensions?.height / imageDimensions?.width) * 200}
+              width={200}
+              style={styles.svg}
+            >
+              {boxes.map((box, index) => {
+                const scaledBox = scaleBoxCoordinates(box);
+                return (
+                  <Fragment key={index}>
+                    <Rect
+                      x={scaledBox.x}
+                      y={scaledBox.y}
+                      width={scaledBox.width}
+                      height={scaledBox.height}
+                      stroke="red"
+                      fill="transparent"
+                      strokeWidth="2"
+                    />
+                    <SvgText
+                      x={scaledBox.x + scaledBox.width / 2}
+                      y={scaledBox.y - 5}
+                      fill="white"
+                      fontSize="14"
+                      fontWeight="bold"
+                      textAnchor="middle"
+                    >
+                      {index + 1}
+                    </SvgText>
+                  </Fragment>
+                );
+              })}
+            </Svg>
           </View>
 
           <Text style={styles.objectCount}>
