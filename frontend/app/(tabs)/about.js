@@ -13,7 +13,7 @@ import * as ImagePicker from 'expo-image-picker';
 import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 
 const ImageUpload = () => {
-  const [selectedImage, setSelectedImage] = useState(undefined);
+  const [selectedImage, setSelectedImage] = useState(null);
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
   const [boxes, setBoxes] = useState([]);
@@ -47,9 +47,15 @@ const ImageUpload = () => {
           headers: { 'Content-Type': 'multipart/form-data' },
         }
       );
-
       setResponse(res.data);
-      setBoxes(res.data.bounding_boxes);
+      setBoxes(
+        res.data.bounding_boxes.map((box) => ({
+          x: box[0],
+          y: box[1],
+          width: box[2],
+          height: box[3],
+        }))
+      );
       setError(null);
     } catch (err) {
       setError('Error uploading image: ' + err.message);
@@ -73,27 +79,12 @@ const ImageUpload = () => {
     if (!result.canceled) {
       const selectedAsset = result.assets[0].uri;
       const { width, height } = result.assets[0];
-      console.log('Selected image:', selectedAsset);
       setSelectedImage(selectedAsset);
       setImageDimensions({ width, height });
       setError(null);
     } else {
       setError('You did not select any image.');
     }
-  };
-  const scaleBoxCoordinates = (box) => {
-    if (!imageDimensions) return box;
-
-    const displayedWidth = 200;
-    const displayedHeight =
-      (imageDimensions.height / imageDimensions.width) * displayedWidth;
-
-    return {
-      x: (box.x / imageDimensions.width) * displayedWidth,
-      y: (box.y / imageDimensions.height) * displayedHeight,
-      width: (box.width / imageDimensions.width) * displayedWidth,
-      height: (box.height / imageDimensions.height) * displayedHeight,
-    };
   };
 
   return (
@@ -105,69 +96,55 @@ const ImageUpload = () => {
         onPress={handleSubmit}
         disabled={!selectedImage}
       />
-
       {error && <Text style={styles.error}>{error}</Text>}
 
       {response && (
-        <View>
-          <Text style={styles.subtitle}>Processed Image:</Text>
-
-          <View
-            style={[
-              styles.imageContainer,
-              {
-                width: 200,
-                height:
-                  (imageDimensions?.height / imageDimensions?.width) * 200,
-              },
-            ]}
-          >
-            <Image
-              source={{ uri: selectedImage }}
-              style={{
-                width: 200,
-                height:
-                  (imageDimensions?.height / imageDimensions?.width) * 200,
-              }}
-            />
-            <Svg
-              height={(imageDimensions?.height / imageDimensions?.width) * 200}
-              width={200}
-              style={styles.svg}
-            >
-              {boxes.map((box, index) => {
-                const scaledBox = scaleBoxCoordinates(box);
-                return (
+        <ScrollView horizontal>
+          <ScrollView>
+            <View style={styles.imageContainer}>
+              <Image
+                source={{ uri: selectedImage }}
+                style={{
+                  width: imageDimensions?.width,
+                  height: imageDimensions?.height,
+                }}
+              />
+              <Svg
+                height={imageDimensions?.height}
+                width={imageDimensions?.width}
+                style={{ position: 'absolute', top: 0, left: 0 }}
+              >
+                {boxes.map((box, index) => (
                   <Fragment key={index}>
                     <Rect
-                      x={scaledBox.x}
-                      y={scaledBox.y}
-                      width={scaledBox.width}
-                      height={scaledBox.height}
-                      stroke="red"
+                      x={box.x}
+                      y={box.y}
+                      width={box.width}
+                      height={box.height}
+                      stroke="green"
                       fill="transparent"
-                      strokeWidth="2"
+                      strokeWidth="8"
                     />
                     <SvgText
-                      x={scaledBox.x + scaledBox.width / 2}
-                      y={scaledBox.y - 5}
-                      fill="white"
-                      fontSize="14"
+                      x={box.x + box.width / 2}
+                      y={box.y + box.height / 2}
+                      fill="black"
+                      fontSize="24"
                       fontWeight="bold"
                       textAnchor="middle"
+                      alignmentBaseline="middle"
                     >
                       {index + 1}
                     </SvgText>
                   </Fragment>
-                );
-              })}
-            </Svg>
-          </View>
-
-          <Text style={styles.objectCount}>
-            Object Count: {response.object_count}
-          </Text>
-        </View>
+                ))}
+              </Svg>
+              <Text style={styles.objectCount}>
+                Object Count: {response.object_count}
+              </Text>
+            </View>
+          </ScrollView>
+        </ScrollView>
       )}
     </ScrollView>
   );
@@ -190,32 +167,9 @@ const styles = StyleSheet.create({
     color: 'red',
     marginTop: 10,
   },
-  image: {
-    width: 200,
-    height: 200,
-    marginTop: 10,
-  },
   imageContainer: {
     position: 'relative',
     marginTop: 20,
-  },
-  objectCount: {
-    fontSize: 18,
-    marginTop: 10,
-  },
-  boundingBoxTitle: {
-    fontSize: 18,
-    marginTop: 10,
-  },
-  subtitle: {
-    fontSize: 20,
-    marginTop: 20,
-  },
-  svg: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    zIndex: 999,
   },
 });
 

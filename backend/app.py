@@ -97,7 +97,7 @@ def detect_objects():
                     "object_count": object_count,
                     "message": "Image processed successfully!",
                     "image_dimensions": {"width": width, "height": height},
-                    "processed_image": img_base64,
+                    # "processed_image": img_base64,
                     "bounding_boxes": bounding_boxes,
                 }
             ),
