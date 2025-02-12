@@ -18,6 +18,7 @@ const ImageUpload = () => {
   const [error, setError] = useState(null);
   const [boxes, setBoxes] = useState([]);
   const [imageDimensions, setImageDimensions] = useState(null);
+  const [displayedSize, setDisplayedSize] = useState(null);
 
   const handleSubmit = async () => {
     if (!selectedImage) {
@@ -87,6 +88,11 @@ const ImageUpload = () => {
     }
   };
 
+  const onImageLayout = (event) => {
+    const { width, height } = event.nativeEvent.layout;
+    setDisplayedSize({ width, height });
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Upload Image for Processing</Text>
@@ -99,52 +105,55 @@ const ImageUpload = () => {
       {error && <Text style={styles.error}>{error}</Text>}
 
       {response && (
-        <ScrollView horizontal>
-          <ScrollView>
-            <View style={styles.imageContainer}>
-              <Image
-                source={{ uri: selectedImage }}
-                style={{
-                  width: imageDimensions?.width,
-                  height: imageDimensions?.height,
-                }}
-              />
-              <Svg
-                height={imageDimensions?.height}
-                width={imageDimensions?.width}
-                style={{ position: 'absolute', top: 0, left: 0 }}
-              >
-                {boxes.map((box, index) => (
-                  <Fragment key={index}>
-                    <Rect
-                      x={box.x}
-                      y={box.y}
-                      width={box.width}
-                      height={box.height}
-                      stroke="green"
-                      fill="transparent"
-                      strokeWidth="8"
-                    />
-                    <SvgText
-                      x={box.x + box.width / 2}
-                      y={box.y + box.height / 2}
-                      fill="black"
-                      fontSize="24"
-                      fontWeight="bold"
-                      textAnchor="middle"
-                      alignmentBaseline="middle"
-                    >
-                      {index + 1}
-                    </SvgText>
-                  </Fragment>
-                ))}
-              </Svg>
-              <Text style={styles.objectCount}>
-                Object Count: {response.object_count}
-              </Text>
-            </View>
-          </ScrollView>
-        </ScrollView>
+        <View style={styles.imageContainer}>
+          <Image
+            source={{ uri: selectedImage }}
+            style={{
+              width: displayedSize?.width || 300,
+              height: displayedSize?.height || 300,
+              resizeMode: 'contain',
+            }}
+            onLayout={onImageLayout}
+          />
+          <Svg
+            height={displayedSize?.height}
+            width={displayedSize?.width}
+            style={{ position: 'absolute', top: 0, left: 0 }}
+          >
+            {boxes.map((box, index) => {
+              const scaleX = displayedSize?.width / imageDimensions?.width;
+              const scaleY = displayedSize?.height / imageDimensions?.height;
+
+              return (
+                <Fragment key={index}>
+                  <Rect
+                    x={box.x * scaleX}
+                    y={box.y * scaleY}
+                    width={box.width * scaleX}
+                    height={box.height * scaleY}
+                    stroke="green"
+                    fill="transparent"
+                    strokeWidth="2"
+                  />
+                  <SvgText
+                    x={(box.x + box.width / 2) * scaleX}
+                    y={(box.y + box.height / 2) * scaleY}
+                    fill="white"
+                    fontSize="18"
+                    fontWeight="bold"
+                    textAnchor="middle"
+                    alignmentBaseline="central"
+                  >
+                    {index + 1}
+                  </SvgText>
+                </Fragment>
+              );
+            })}
+          </Svg>
+          <Text style={styles.objectCount}>
+            Object Count: {response.object_count}
+          </Text>
+        </View>
       )}
     </ScrollView>
   );
@@ -170,6 +179,10 @@ const styles = StyleSheet.create({
   imageContainer: {
     position: 'relative',
     marginTop: 20,
+  },
+  objectCount: {
+    fontSize: 18,
+    marginTop: 10,
   },
 });
 

@@ -35,8 +35,8 @@ def run_yolo_onnx(image):
         x1, y1, x2, y2, conf, cls = det[:6]
 
         # Normalize confidence (if needed)
-        if conf > 1:  # Model might return confidence as percentage
-            conf /= 100.0
+        # if conf > 1:  # Model might return confidence as percentage
+        #     conf /= 100.0
 
         if conf >= 0.75:  # Ensure proper threshold check
             object_count += 1
