@@ -42,7 +42,7 @@ const ImageUpload = () => {
 
     try {
       const res = await axios.post(
-        'http://localhost:5000/image-processing',
+        'https://objectdetection-b2afgyctf0bsgrd4.southeastasia-01.azurewebsites.net/image-processing',
         formData,
         {
           headers: { 'Content-Type': 'multipart/form-data' },
@@ -133,12 +133,12 @@ const ImageUpload = () => {
                     height={box.height * scaleY}
                     stroke="green"
                     fill="transparent"
-                    strokeWidth="2"
+                    strokeWidth="5"
                   />
                   <SvgText
                     x={(box.x + box.width / 2) * scaleX}
                     y={(box.y + box.height / 2) * scaleY}
-                    fill="white"
+                    fill="blue"
                     fontSize="18"
                     fontWeight="bold"
                     textAnchor="middle"

@@ -152,7 +152,7 @@ export default function Index() {
 
       // Upload image to the server
       const res = await axios.post(
-        'http://localhost:5000/image-processing',
+        'https://objectdetection-b2afgyctf0bsgrd4.southeastasia-01.azurewebsites.net/image-processing',
         formData,
         {
           headers: { 'Content-Type': 'multipart/form-data' },
