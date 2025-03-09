@@ -42,7 +42,7 @@ const ImageUpload = () => {
 
     try {
       const res = await axios.post(
-        'https://objectdetection-b2afgyctf0bsgrd4.southeastasia-01.azurewebsites.net/image-processing',
+        'http://127.0.0.1:5000/object-detection',
         formData,
         {
           headers: { 'Content-Type': 'multipart/form-data' },
