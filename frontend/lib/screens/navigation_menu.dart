@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:image_picker_demo/screens/tensorflow/tensorflow_lite.dart';
-import 'package:image_picker_demo/screens/opencv/opencv.dart';
+import 'package:techtags/screens/tensorflow/tensorflow_lite.dart';
+import 'package:techtags/screens/opencv/opencv.dart';
 
 class NavigationMenu extends StatelessWidget {
   const NavigationMenu({super.key});
