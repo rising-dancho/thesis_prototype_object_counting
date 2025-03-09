@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:image_picker_demo/logic/tensorflow/photo_viewer.dart';
+import 'package:techtags/logic/tensorflow/photo_viewer.dart';
 import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';

@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker_demo/logic/tensorflow/object_painter.dart';
+import 'package:techtags/logic/tensorflow/object_painter.dart';
 import 'package:photo_view/photo_view.dart';
 import 'dart:ui' as ui; // Import ui for image handling
 import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tectags_flutter/widgets/custom_scaffold.dart';
+import 'package:techtags/widgets/custom_scaffold.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});

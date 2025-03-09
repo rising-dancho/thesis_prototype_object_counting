@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:tectags_flutter/widgets/custom_scaffold.dart';
-
-import '../theme/theme.dart';
+import 'package:techtags/screens/navigation_menu.dart';
+import 'package:techtags/theme/theme.dart';
+import 'package:techtags/widgets/custom_scaffold.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -129,24 +129,30 @@ class _LoginScreenState extends State<LoginScreen> {
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                   onPressed: () {
-                       if (_formLogInKey.currentState!.validate()) {
-                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Processing Data'),
-                      ),
+                  onPressed: () {
+                    // if (_formLogInKey.currentState!.validate()) {
+                    //   ScaffoldMessenger.of(context).showSnackBar(
+                    //     const SnackBar(
+                    //       content: Text('Processing Data'),
+                    //     ),
+                    //   );
+                    // }
+
+                    // Navigate to HomeScreen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => NavigationMenu()),
                     );
-                   }
-                 },
-                 child: const Text(
-                 'LOGIN',
-                 style: TextStyle(
-                fontFamily: 'Roboto', 
-                fontWeight: FontWeight.bold,  
-                fontSize: 20.0,
+                  },
+                  child: const Text(
+                    'LOGIN',
+                    style: TextStyle(
+                      fontFamily: 'Roboto',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20.0,
+                    ),
                   ),
-                 ),
-               ),
+                ),
               ),
             ),
             const SizedBox(height: 25.0),

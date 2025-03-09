@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:tectags_flutter/widgets/custom_scaffold.dart';
-import 'package:tectags_flutter/widgets/fade_route.dart';
-import 'package:tectags_flutter/screens/welcome_screen.dart';
+import 'package:techtags/widgets/custom_scaffold.dart';
+import 'package:techtags/widgets/fade_route.dart';
+import 'package:techtags/screens/welcome_screen.dart';
 
 
 class SplashScreen extends StatefulWidget {
