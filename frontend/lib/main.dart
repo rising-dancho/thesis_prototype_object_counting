@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:techtags/screens/navigation/navigation_menu.dart';
-// import 'package:techtags/screens/splash_screen.dart';
+import 'package:techtags/screens/splash_screen.dart';
 import 'package:techtags/theme/theme.dart';
 
 void main() {
@@ -16,8 +16,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'TecTags App',
       theme: lightMode,
-      // home: SplashScreen(),
-      home: NavigationMenu(),
+      home: SplashScreen(),
+      // home: NavigationMenu(),
     );
   }
 }
