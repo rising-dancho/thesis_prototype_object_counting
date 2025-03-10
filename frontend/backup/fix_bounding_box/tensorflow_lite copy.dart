@@ -46,6 +46,13 @@
 //     // loadModel();
 //   }
 
+//   Future<void> loadImageForDrawing(File imageFile) async {
+//     final data = await imageFile.readAsBytes();
+//     final codec = await ui.instantiateImageCodec(data);
+//     final frame = await codec.getNextFrame();
+//     image_for_drawing = frame.image;
+//   }
+
 //   // OBJECT DETECTION
 //   // loadModel() async {
 //   //   final modelPath = await getModelPath('assets/ml/checkpoint_epoch_1.tflite');
@@ -123,7 +130,6 @@
 //       image_for_drawing = decodedImage; // Now image is a ui.Image
 //     });
 //   }
-
 //   // END
 
 //   @override
@@ -215,11 +221,15 @@
 //                       : PhotoViewer(
 //                           imageFile: _selectedImage!,
 //                           imageForDrawing: image_for_drawing,
-//                           objects: objects,
 //                           editableBoundingBoxes: editableBoundingBoxes,
 //                           onNewBox: (Rect box) {
 //                             setState(() {
 //                               editableBoundingBoxes.add(box);
+//                             });
+//                           },
+//                           onRemoveBox: (int index) {
+//                             setState(() {
+//                               editableBoundingBoxes.removeAt(index);
 //                             });
 //                           },
 //                           isAddingBox: isAddingBox,
