@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:techtags/screens/navigation_menu.dart';
+import 'package:techtags/screens/navigation/navigation_menu.dart';
 import 'package:techtags/theme/theme.dart';
 import 'package:techtags/widgets/custom_scaffold.dart';
 
