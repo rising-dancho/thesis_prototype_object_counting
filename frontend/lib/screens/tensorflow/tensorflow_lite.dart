@@ -123,7 +123,6 @@ class _TensorflowLiteState extends State<TensorflowLite> {
       image_for_drawing = decodedImage; // Now image is a ui.Image
     });
   }
-
   // END
 
   @override

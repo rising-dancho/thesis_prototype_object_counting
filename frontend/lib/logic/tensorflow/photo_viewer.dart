@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:techtags/logic/tensorflow/object_painter.dart';
 import 'package:photo_view/photo_view.dart';
 import 'dart:ui' as ui; // Import ui for image handling
-import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart';
 
 class PhotoViewer extends StatefulWidget {
   final File imageFile;
@@ -106,7 +105,6 @@ class _PhotoViewerState extends State<PhotoViewer> {
               ? Center(child: CircularProgressIndicator())
               : CustomPaint(
                   painter: ObjectPainter(
-                    objectList: widget.objects.cast<DetectedObject>(),
                     imageFile: widget.imageForDrawing!,
                     editableBoundingBoxes: widget.editableBoundingBoxes,
                   ),
