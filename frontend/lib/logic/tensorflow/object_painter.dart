@@ -1,14 +1,11 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart';
 
 class ObjectPainter extends CustomPainter {
-  final List<DetectedObject> objectList;
   final List<Rect> editableBoundingBoxes; 
   final ui.Image imageFile;
 
   ObjectPainter({
-    required this.objectList,
     required this.imageFile,
     required this.editableBoundingBoxes, 
   });
@@ -35,73 +32,27 @@ class ObjectPainter extends CustomPainter {
       offsetX = (size.width - drawWidth) / 2;
     }
 
-    // ✅ Now, drawWidth and drawHeight are defined, so no error
     double scaleX = drawWidth / imageFile.width;
     double scaleY = drawHeight / imageFile.height;
 
     canvas.drawImageRect(
       imageFile,
-      Rect.fromLTWH(
-          0, 0, imageFile.width.toDouble(), imageFile.height.toDouble()),
+      Rect.fromLTWH(0, 0, imageFile.width.toDouble(), imageFile.height.toDouble()),
       Rect.fromLTWH(offsetX, offsetY, drawWidth, drawHeight),
-      Paint()
-        ..filterQuality = FilterQuality.high, // Ensure high-quality scaling
+      Paint()..filterQuality = FilterQuality.high, // Ensure high-quality scaling
     );
 
     // Dynamic stroke width calculation
     final double minStroke = 2.0;
     final double maxStroke = 10.0;
-    final double strokeWidth =
-        ((size.width + size.height) / 200).clamp(minStroke, maxStroke);
+    final double strokeWidth = ((size.width + size.height) / 200).clamp(minStroke, maxStroke);
 
-    final boxPaint = Paint()
-      ..color = Colors.green
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth;
-
-    // 🎯 **Draw detected bounding boxes**
-    for (DetectedObject detectedObject in objectList) {
-      final rect = detectedObject.boundingBox;
-      final scaledRect = Rect.fromLTRB(
-        offsetX + (rect.left * scaleX),
-        offsetY + (rect.top * scaleY),
-        offsetX + (rect.right * scaleX),
-        offsetY + (rect.bottom * scaleY),
-      );
-
-      canvas.drawRect(scaledRect, boxPaint);
-
-      // Draw label text
-      for (Label label in detectedObject.labels) {
-        final textSpan = TextSpan(
-          text:
-              "${label.text} (${(label.confidence * 100).toStringAsFixed(1)}%)",
-          style: TextStyle(
-            fontSize: strokeWidth * 5.5,
-            color: Colors.white,
-            backgroundColor: Colors.blue,
-          ),
-        );
-
-        final textPainter = TextPainter(
-          text: textSpan,
-          textAlign: TextAlign.left,
-          textDirection: TextDirection.ltr,
-        );
-
-        textPainter.layout();
-        textPainter.paint(canvas,
-            Offset(scaledRect.left, scaledRect.top - textPainter.height - 2));
-        break;
-      }
-    }
-
-    // 🎯 **Draw manually added bounding boxes**
     final manualBoxPaint = Paint()
       ..color = Colors.red // Manually added boxes in red
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
 
+    // 🎯 **Draw only manually added bounding boxes**
     for (Rect box in editableBoundingBoxes) {
       final scaledBox = Rect.fromLTRB(
         offsetX + (box.left * scaleX),
@@ -115,9 +66,7 @@ class ObjectPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant ObjectPainter oldDelegate) {
-    return oldDelegate.objectList != objectList ||
-        oldDelegate.imageFile != imageFile ||
-        oldDelegate.editableBoundingBoxes !=
-            editableBoundingBoxes; // 👈 Check for changes
+    return oldDelegate.imageFile != imageFile ||
+        oldDelegate.editableBoundingBoxes != editableBoundingBoxes; // 👈 Only check editable boxes
   }
 }
