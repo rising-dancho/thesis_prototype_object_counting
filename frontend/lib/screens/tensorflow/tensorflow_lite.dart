@@ -31,6 +31,11 @@ class _TensorflowLiteState extends State<TensorflowLite> {
   bool isAddingBox = false;
   bool isRemovingBox = false;
 
+  // FOR LABELS
+  String timestamp = "";
+  // variable for whatever is typed in the TextField
+  final TextEditingController titleController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -145,6 +150,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
       _selectedImage = File(pickedFile.path);
       setState(() {
         _selectedImage;
+        timestamp = DateTime.now().toString(); // Store timestamp
       });
       doObjectDetection();
     }
@@ -157,6 +163,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
       _selectedImage = File(pickedFile.path);
       setState(() {
         _selectedImage;
+        timestamp = DateTime.now().toString(); // Store timestamp
       });
       doObjectDetection();
     }
@@ -168,6 +175,8 @@ class _TensorflowLiteState extends State<TensorflowLite> {
       image_for_drawing = null; // Clear this to prevent null check errors
       objects = []; // Also clear detected objects
       isAddingBox = false;
+      titleController.clear();
+      timestamp = "";
     });
   }
 
@@ -234,6 +243,8 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                           },
                           isAddingBox: isAddingBox,
                           isRemovingBox: isRemovingBox,
+                          timestamp: timestamp,
+                          titleController: titleController,
                         ),
                 ),
               ),
@@ -248,6 +259,10 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
+                    controller: titleController, // Assign controller
+                    onChanged: (value) {
+                      setState(() {}); // Update UI when text changes
+                    },
                     decoration: InputDecoration(
                       hintText: "Enter file name",
                       filled: true,

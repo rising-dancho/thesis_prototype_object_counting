@@ -81,7 +81,7 @@ class _OpenCVState extends State<OpenCV> {
     if (selectedImage != null) {
       setState(() {
         _selectedImage = File(selectedImage.path);
-        timestamp = DateTime.now().toString(); // Store timestamp
+        timestamp = DateTime.now().toString(); 
         boxes.clear(); // Reset boxes when a new image is selected
       });
     }
@@ -202,6 +202,7 @@ class _OpenCVState extends State<OpenCV> {
                                   ),
                                 ),
                               ),
+                              
                             // ** Total Bounding Boxes Counter (Upper Right) **
                             Positioned(
                               top: 10, // Adjust for positioning
