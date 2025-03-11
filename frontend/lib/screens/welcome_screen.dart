@@ -11,33 +11,33 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
-      child: Column(
-        children: [
-          Flexible(
-            flex: 8,
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                vertical: 0,
-                horizontal: 40.0,
-              ),
-              child: Center(
-                child: Image.asset(
-                  'assets/images/tectags_logo_nobg.png', 
-                  width: 250, 
-                  height: 250, 
+      child: SafeArea(
+        child: Column(
+          children: [
+            Flexible(
+              flex: 8,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 0,
+                  horizontal: 40.0,
+                ),
+                child: Center(
+                  child: Image.asset(
+                    'assets/images/tectags_logo_nobg.png',
+                    width: 250,
+                    height: 250,
+                  ),
                 ),
               ),
             ),
-          ),
-          Flexible(
-            flex: 1,
-            child: Align(
+            Spacer(),
+            Align(
               alignment: Alignment.bottomRight,
               child: Row(
                 children: [
                   Expanded(
                     child: WelcomeButton(
-                      buttonText: 'LOG IN',
+                      buttonText: 'Log In',
                       onTap: LoginScreen(),
                       color: Colors.transparent,
                       textColor: Colors.white,
@@ -45,7 +45,7 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                   Expanded(
                     child: WelcomeButton(
-                      buttonText: 'REGISTER',
+                      buttonText: 'Register',
                       onTap: const SignUpScreen(),
                       color: Colors.white,
                       textColor: lightColorScheme.primary,
@@ -54,8 +54,8 @@ class WelcomeScreen extends StatelessWidget {
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
