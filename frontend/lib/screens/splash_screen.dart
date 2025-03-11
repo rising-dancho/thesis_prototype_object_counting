@@ -4,7 +4,6 @@ import 'package:techtags/widgets/custom_scaffold.dart';
 import 'package:techtags/widgets/fade_route.dart';
 import 'package:techtags/screens/welcome_screen.dart';
 
-
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -17,7 +16,9 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     Timer(const Duration(seconds: 5), () {
-      Navigator.of(context).pushReplacement(FadeRoute(page: const WelcomeScreen()));
+      Navigator.of(
+        context,
+      ).pushReplacement(FadeRoute(page: const WelcomeScreen()));
     });
   }
 
