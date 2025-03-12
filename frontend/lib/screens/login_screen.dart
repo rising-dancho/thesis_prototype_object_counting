@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:techtags/screens/navigation/navigation_menu.dart';
 import 'package:techtags/widgets/custom_scaffold.dart';
 import 'package:techtags/screens/signup_screen.dart';
 
@@ -124,21 +125,26 @@ class _LoginScreenState extends State<LoginScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    if (_formLogInKey.currentState!.validate()) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Processing Data')),
-                      );
-                    }
+                    // if (_formLogInKey.currentState!.validate()) {
+                    //   ScaffoldMessenger.of(context).showSnackBar(
+                    //     const SnackBar(content: Text('Processing Data')),
+                    //   );
+                    // }
+                    
+                    // GO TO THE NAVIGATION MENU
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (e) => const NavigationMenu()),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        Colors.blue,
+                    backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
                     shadowColor: Colors.grey,
                     elevation: 5,
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                     shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   child: const Text(
