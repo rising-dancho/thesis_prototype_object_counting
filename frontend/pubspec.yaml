@@ -37,14 +37,18 @@ dependencies:
   image_picker: ^1.1.2
   photo_view: ^0.15.0
   get: ^4.7.2
-  dio: ^5.8.0+1
   screenshot: ^3.0.0
   path_provider: ^2.1.5
   uuid: ^4.5.1
-  flutter_svg: ^2.0.17
   google_mlkit_object_detection: ^0.14.0
   path: ^1.9.0
   image_gallery_saver_plus: ^4.0.1
+  firebase_core: ^3.12.1
+  cloud_firestore: ^5.6.5
+  firebase_auth: ^5.5.1
+  
+  
+  
 
 
 dev_dependencies:

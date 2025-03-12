@@ -1,8 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:screenshot/screenshot.dart';
 import 'package:techtags/logic/tensorflow/photo_viewer.dart';
 import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart';
 import 'package:flutter/services.dart';
@@ -18,7 +16,6 @@ class TensorflowLite extends StatefulWidget {
 }
 
 class _TensorflowLiteState extends State<TensorflowLite> {
-  ScreenshotController screenshotController = ScreenshotController();
   // Image galler and camera variables
   File? _selectedImage;
   late ImagePicker imagePicker;
@@ -72,40 +69,6 @@ class _TensorflowLiteState extends State<TensorflowLite> {
   //   );
   //   objectDetector = ObjectDetector(options: options);
   // }
-
-  /// **Save Screenshot to Gallery**
-  Future<void> saveImage(BuildContext context) async {
-    try {
-      final Uint8List? screenShot = await screenshotController.capture();
-      if (!mounted)
-        return; // Prevents calling ScaffoldMessenger on a disposed widget
-
-      if (screenShot == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Failed to capture screenshot")),
-        );
-        return;
-      }
-
-      final result = await ImageGallerySaverPlus.saveImage(screenShot,
-          name: "screenshot_${DateTime.now().millisecondsSinceEpoch}.png");
-
-      if (result["isSuccess"]) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Image saved in gallery")),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Image not saved")),
-        );
-      }
-    } catch (e) {
-      print("Error saving image: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("An error occurred while saving")),
-      );
-    }
-  }
 
   Future<String> getModelPath(String asset) async {
     final path = '${(await getApplicationSupportDirectory()).path}/$asset';
@@ -264,27 +227,24 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                           size: 120,
                           color: Colors.grey[500],
                         )
-                      : Screenshot(
-                          controller: screenshotController, // Wrap entire Stack
-                          child: PhotoViewer(
-                            imageFile: _selectedImage!,
-                            imageForDrawing: image_for_drawing,
-                            editableBoundingBoxes: editableBoundingBoxes,
-                            onNewBox: (Rect box) {
-                              setState(() {
-                                editableBoundingBoxes.add(box);
-                              });
-                            },
-                            onRemoveBox: (int index) {
-                              setState(() {
-                                editableBoundingBoxes.removeAt(index);
-                              });
-                            },
-                            isAddingBox: isAddingBox,
-                            isRemovingBox: isRemovingBox,
-                            timestamp: timestamp,
-                            titleController: titleController,
-                          ),
+                      : PhotoViewer(
+                          imageFile: _selectedImage!,
+                          imageForDrawing: image_for_drawing,
+                          editableBoundingBoxes: editableBoundingBoxes,
+                          onNewBox: (Rect box) {
+                            setState(() {
+                              editableBoundingBoxes.add(box);
+                            });
+                          },
+                          onRemoveBox: (int index) {
+                            setState(() {
+                              editableBoundingBoxes.removeAt(index);
+                            });
+                          },
+                          isAddingBox: isAddingBox,
+                          isRemovingBox: isRemovingBox,
+                          timestamp: timestamp,
+                          titleController: titleController,
                         ),
                 ),
               ),
@@ -323,7 +283,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                       icon: Icon(Icons.close),
                       onPressed: toggleRemovingMode,
                     ),
-                    IconButton(icon: Icon(Icons.save), onPressed: () => saveImage(context)),
+                    IconButton(icon: Icon(Icons.save), onPressed: () {}),
                   ],
                 ),
               ]

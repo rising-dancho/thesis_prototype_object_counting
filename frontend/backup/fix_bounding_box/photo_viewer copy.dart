@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 
 class PhotoViewer extends StatefulWidget {
+  final String timestamp;
   final File imageFile;
   final ui.Image? imageForDrawing; // ✅ Add this parameter
   final List<Rect> editableBoundingBoxes;
@@ -11,6 +12,7 @@ class PhotoViewer extends StatefulWidget {
   final Function(int) onRemoveBox;
   final bool isAddingBox;
   final bool isRemovingBox;
+  final TextEditingController titleController;
 
   const PhotoViewer({
     super.key,
@@ -21,6 +23,8 @@ class PhotoViewer extends StatefulWidget {
     required this.onRemoveBox,
     required this.isAddingBox,
     required this.isRemovingBox,
+    required this.timestamp,
+    required this.titleController,
   });
 
   @override
@@ -32,6 +36,9 @@ class _PhotoViewerState extends State<PhotoViewer> {
   int? draggingBoxIndex;
   Offset? dragStart;
 
+  // FOR LABELS
+  late String timestamp;
+
   double scaleX = 1.0; // ✅ Scaling factors
   double scaleY = 1.0;
   double offsetX = 0.0; // ✅ Offset for centering image
@@ -41,6 +48,7 @@ class _PhotoViewerState extends State<PhotoViewer> {
   void initState() {
     super.initState();
     boundingBoxes = List.from(widget.editableBoundingBoxes);
+    timestamp = widget.timestamp; // ✅ Initialize from widget
     WidgetsBinding.instance
         .addPostFrameCallback((_) => _calculateScaling()); // ✅ Run after layout
   }
@@ -63,7 +71,6 @@ class _PhotoViewerState extends State<PhotoViewer> {
             ),
 
             /// Bounding Boxes Over the Image
-            // Bounding Boxes Over the Image
             ...boundingBoxes.asMap().entries.map((entry) {
               int index = entry.key;
               Rect box = entry.value;
@@ -74,7 +81,7 @@ class _PhotoViewerState extends State<PhotoViewer> {
                 width: box.width * scaleX,
                 height: box.height * scaleY,
                 child: Stack(
-                  alignment: Alignment.center, // Center the text inside the box
+                  alignment: Alignment.center,
                   children: [
                     GestureDetector(
                       onPanStart: (details) {
@@ -105,18 +112,17 @@ class _PhotoViewerState extends State<PhotoViewer> {
                       child: Container(
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.green, width: 2),
-                          color: Colors.green.withOpacity(0.2),
+                          color: Colors.green.withOpacity(0.4),
                         ),
                       ),
                     ),
                     Positioned(
                       child: Text(
-                        '${index + 1}', // Display box number (1-based index)
+                        '${index + 1}', // Display box number
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 18,
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          // backgroundColor: Colors.black.withOpacity(0.5),
                         ),
                       ),
                     ),
@@ -131,21 +137,21 @@ class _PhotoViewerState extends State<PhotoViewer> {
                 child: GestureDetector(
                   onTapDown: (details) {
                     setState(() {
-                      double boxWidth = 100, boxHeight = 100; // Default size
+                      double boxWidth = 100, boxHeight = 100;
 
                       if (boundingBoxes.isNotEmpty) {
-                        // Copy the size of the first detected box
+                        // Copy size from first box
                         boxWidth = boundingBoxes.first.width;
                         boxHeight = boundingBoxes.first.height;
                       }
 
                       final newBox = Rect.fromLTWH(
                         ((details.localPosition.dx - offsetX) / scaleX) -
-                            (boxWidth / 2), // Centered X
+                            (boxWidth / 2),
                         ((details.localPosition.dy - offsetY) / scaleY) -
-                            (boxHeight / 2), // Centered Y
-                        boxWidth, // Match existing box width
-                        boxHeight, // Match existing box height
+                            (boxHeight / 2),
+                        boxWidth,
+                        boxHeight,
                       );
 
                       boundingBoxes.add(newBox);
@@ -153,6 +159,59 @@ class _PhotoViewerState extends State<PhotoViewer> {
                     });
                   },
                   child: Container(color: Colors.transparent),
+                ),
+              ),
+
+            /// **Title (Upper Left)**
+            if (widget.titleController.text.isNotEmpty)
+              Positioned(
+                top: 10, // Adjust as needed
+                left: 10,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Color.fromRGBO(0, 0, 0, 0.7),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                     widget.titleController.text, // Display input text
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                ),
+              ),
+
+            /// **Total Bounding Boxes Counter (Upper Right)**
+            Positioned(
+              top: 10,
+              right: 10,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.7),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Total Count: ${boundingBoxes.length}',
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
+            ),
+
+            /// **Timestamp (Lower Left)**
+            if (timestamp.isNotEmpty)
+              Positioned(
+                bottom: 10,
+                left: 10,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.7),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    widget.timestamp, // ✅ Display timestamp
+                    style: TextStyle(color: Colors.white, fontSize: 14),
+                  ),
                 ),
               ),
           ],
