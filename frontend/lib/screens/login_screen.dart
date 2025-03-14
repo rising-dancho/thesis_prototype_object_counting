@@ -11,7 +11,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _formLogInKey = GlobalKey<FormState>();
+  // final _formLogInKey = GlobalKey<FormState>();
   bool rememberPassword = true;
 
   @override
@@ -158,6 +158,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
+
             const SizedBox(height: 25.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,

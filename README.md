@@ -5,6 +5,8 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 ## Get started
 
+HELLO!
+
 1. Enter inside the correct folder
    
     ```bash
