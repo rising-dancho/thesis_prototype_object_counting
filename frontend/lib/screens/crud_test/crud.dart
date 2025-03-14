@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:techtags/screens/crud_test/crud_functions/create.dart';
+
 
 class Crud extends StatefulWidget {
   const Crud({super.key});
@@ -23,6 +25,27 @@ class _CrudState extends State<Crud> {
             children: [
               Expanded(
                 child: Column(
+
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                        onPressed: () {
+                          // GO TO THE NAVIGATION MENU
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (e) => const CreateData()),
+                          );
+                        },
+                        child: const Text("CREATE")),
+                    const SizedBox(height: 10),
+                    ElevatedButton(onPressed: () {}, child: const Text("READ")),
+                    const SizedBox(height: 10),
+                    ElevatedButton(
+                        onPressed: () {}, child: const Text("UPDATE")),
+                    const SizedBox(height: 10),
+
                   children: [
                     ElevatedButton(
                         onPressed: () {}, child: const Text("CREATE")),
@@ -30,6 +53,7 @@ class _CrudState extends State<Crud> {
                         onPressed: () {}, child: const Text("READ")),
                     ElevatedButton(
                         onPressed: () {}, child: const Text("UPDATE")),
+
                     ElevatedButton(
                         onPressed: () {}, child: const Text("DELETE")),
                   ],
