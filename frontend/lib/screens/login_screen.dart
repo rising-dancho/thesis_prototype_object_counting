@@ -11,7 +11,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _formLogInKey = GlobalKey<FormState>();
+  // final _formLogInKey = GlobalKey<FormState>();
   bool rememberPassword = true;
 
   @override

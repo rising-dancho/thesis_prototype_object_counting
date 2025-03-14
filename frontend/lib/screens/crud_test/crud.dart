@@ -25,6 +25,7 @@ class _CrudState extends State<Crud> {
             children: [
               Expanded(
                 child: Column(
+
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -44,6 +45,15 @@ class _CrudState extends State<Crud> {
                     ElevatedButton(
                         onPressed: () {}, child: const Text("UPDATE")),
                     const SizedBox(height: 10),
+
+                  children: [
+                    ElevatedButton(
+                        onPressed: () {}, child: const Text("CREATE")),
+                    ElevatedButton(
+                        onPressed: () {}, child: const Text("READ")),
+                    ElevatedButton(
+                        onPressed: () {}, child: const Text("UPDATE")),
+
                     ElevatedButton(
                         onPressed: () {}, child: const Text("DELETE")),
                   ],

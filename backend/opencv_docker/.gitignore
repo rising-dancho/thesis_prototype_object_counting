@@ -1,0 +1,32 @@
+# Python-related files
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+pyvenv.cfg
+
+# Ignore backend-specific Python cache
+backend/__pycache__/
+
+# Ignore virtual environments
+.venv/
+venv/
+env/
+
+# Ignore site-packages if using a relative path
+Lib/site-packages/
+
+# OS or IDE-specific files
+.DS_Store
+*.log
+
+# IDE-specific files (e.g., for VSCode)
+.vscode/
+
+# Windows image file caches
+Thumbs.db
+
+# Environment Variable
+.env

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "986490060313",
+    "project_id": "object-detection-tensorf-63890",
+    "storage_bucket": "object-detection-tensorf-63890.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:986490060313:android:03ab3fca77d011d826b488",
+        "android_client_info": {
+          "package_name": "com.adfinem.tectags"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-la_lUsNA_uL6N0DYCKQnwlT-9c7Su0I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
