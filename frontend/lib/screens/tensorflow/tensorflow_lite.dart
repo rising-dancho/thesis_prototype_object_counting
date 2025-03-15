@@ -77,8 +77,9 @@ class _TensorflowLiteState extends State<TensorflowLite> {
   Future<void> saveImage(BuildContext context) async {
     try {
       final Uint8List? screenShot = await screenshotController.capture();
-      if (!mounted)
+      if (!mounted) {
         return; // Prevents calling ScaffoldMessenger on a disposed widget
+      }
 
       if (screenShot == null) {
         ScaffoldMessenger.of(context).showSnackBar(

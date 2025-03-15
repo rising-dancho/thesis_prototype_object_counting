@@ -15,31 +15,46 @@ app.use(
 
 const productData = [];
 
-// Root Route - Show a message when visiting "/"
+// WELCOME ROUTE "/"
 app.get('/', (req, res) => {
   res.send('Welcome to the Express API! 🚀');
 });
 
-// POST REQUEST
+// POST API
 app.post('/api/add_product', (req, res) => {
   console.log('DATA FROM FRONTEND', req.body);
 
-  // "pdata" means product data : an object containing product information
-  const pdata = {
+  // "entry" means a single product data : an object containing this product's information
+  const entry = {
     id: productData.length + 1,
     pname: req.body.pname,
     pprice: req.body.pprice,
     pdesc: req.body.pdesc,
   };
 
-  productData.push(pdata);
-  console.log('PROCESSED DATA', pdata);
+  productData.push(entry);
+  console.log('PROCESSED DATA', entry);
 
   res.status(200).send({
     status_code: 200,
     message: 'Product added successfully!',
-    product: pdata,
+    product: entry,
   });
+});
+
+// GET API
+app.get('/api/get_product', (req, res) => {
+  if (productData.length > 0) {
+    res.status(200).send({
+      status_code: 200,
+      products: productData,
+    });
+  } else {
+    res.status(200).send({
+      status_code: 200,
+      products: [],
+    });
+  }
 });
 
 app.listen(2000, () => {

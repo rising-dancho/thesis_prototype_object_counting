@@ -48,7 +48,7 @@ class _CreateDataState extends State<CreateData> {
                 "pdesc": descController.text,
               };
 
-              API.addproduct(data);
+              API.addProduct(data);
             }, child: const Text("Create Data"))
           ],
         ),
