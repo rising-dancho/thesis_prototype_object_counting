@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:techtags/screens/crud_test/model/product_model.dart';
 
 class API {
   static const baseUrl = "http://192.168.1.10:2000/api/";
@@ -32,6 +33,8 @@ class API {
 
   // GET REQUEST
   static getProduct() async {
+    List<Product> products = [];
+
     var url = Uri.parse("${baseUrl}get_product");
 
     try {
@@ -39,9 +42,19 @@ class API {
 
       if (res.statusCode == 200) {
         var data = jsonDecode(res.body);
-        debugPrint(data);
+        // debugPrint(data);
 
-      } else {}
+        data["products"].forEach((value) => {
+              products.add(Product(
+                  name: value["pname"],
+                  price: value["pprice"],
+                  desc: value["pdesc"]))
+            });
+
+        return products;
+      } else {
+        return [];
+      }
     } catch (e) {
       debugPrint(e.toString());
     }
