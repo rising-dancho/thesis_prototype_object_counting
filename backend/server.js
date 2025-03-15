@@ -22,7 +22,7 @@ app.get('/', (req, res) => {
 
 // POST REQUEST
 app.post('/api/add_product', (req, res) => {
-  console.log('RESULT', req.body);
+  console.log('DATA FROM FRONTEND', req.body);
 
   // "pdata" means product data : an object containing product information
   const pdata = {
@@ -33,7 +33,7 @@ app.post('/api/add_product', (req, res) => {
   };
 
   productData.push(pdata);
-  console.log('PRODUCT DATA', pdata);
+  console.log('PROCESSED DATA', pdata);
 
   res.status(200).send({
     status_code: 200,
