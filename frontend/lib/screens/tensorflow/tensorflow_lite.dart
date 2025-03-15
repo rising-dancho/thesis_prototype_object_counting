@@ -100,7 +100,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
         );
       }
     } catch (e) {
-      print("Error saving image: $e");
+      debugPrint("Error saving image: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("An error occurred while saving")),
       );
@@ -121,23 +121,23 @@ class _TensorflowLiteState extends State<TensorflowLite> {
 
   doObjectDetection() async {
     if (_selectedImage == null) {
-      print("No image selected!");
+      debugPrint("No image selected!");
       return;
     }
 
-    print("Starting object detection...");
+    debugPrint("Starting object detection...");
     InputImage inputImage = InputImage.fromFile(_selectedImage!);
 
     // Get detected objects
     List<DetectedObject> detectedObjects =
         await objectDetector.processImage(inputImage);
-    print("Objects detected: ${detectedObjects.length}");
+    debugPrint("Objects detected: ${detectedObjects.length}");
 
-    // Print all bounding boxes BEFORE adding them to the list
-    print("\nBounding Boxes BEFORE Processing:");
+    // debugPrint all bounding boxes BEFORE adding them to the list
+    debugPrint("\nBounding Boxes BEFORE Processing:");
     for (int i = 0; i < detectedObjects.length; i++) {
       final rect = detectedObjects[i].boundingBox;
-      print(
+      debugPrint(
           "Box $i: Left=${rect.left}, Top=${rect.top}, Right=${rect.right}, Bottom=${rect.bottom}");
     }
 
@@ -148,11 +148,11 @@ class _TensorflowLiteState extends State<TensorflowLite> {
           .toList(); // ✅ Ensure ML-detected boxes are editable
     });
 
-    // Print bounding boxes AFTER being added to editableBoundingBoxes
-    print("\nBounding Boxes AFTER Processing:");
+    // debugPrint bounding boxes AFTER being added to editableBoundingBoxes
+    debugPrint("\nBounding Boxes AFTER Processing:");
     for (int i = 0; i < editableBoundingBoxes.length; i++) {
       final rect = editableBoundingBoxes[i];
-      print(
+      debugPrint(
           "Editable Box $i: Left=${rect.left}, Top=${rect.top}, Right=${rect.right}, Bottom=${rect.bottom}");
     }
 
