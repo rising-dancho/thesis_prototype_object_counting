@@ -7,10 +7,11 @@
   "type": "commonjs",
   "main": "server.js",
   "scripts": {
-    "dev":"node server.js",
+    "dev": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.21.2"
   }
 }

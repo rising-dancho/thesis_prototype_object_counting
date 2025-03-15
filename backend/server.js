@@ -2,6 +2,9 @@ const express = require('express');
 
 const app = express();
 
+const cors = require('cors');
+app.use(cors());
+
 app.use(express.json());
 
 app.use(
@@ -11,6 +14,11 @@ app.use(
 );
 
 const productData = [];
+
+// Root Route - Show a message when visiting "/"
+app.get('/', (req, res) => {
+  res.send('Welcome to the Express API! 🚀');
+});
 
 // POST REQUEST
 app.post('/api/add_product', (req, res) => {
