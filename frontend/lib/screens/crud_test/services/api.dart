@@ -63,13 +63,22 @@ class API {
 
   // UPDATE REQUEST
   static updateProduct(id, body) async {
-    var url = Uri.parse("${baseUrl}update_product/:$id");
+    var url = Uri.parse("${baseUrl}update_product/$id");
 
-    final res = await http.put(url, body: body);
-    if (res.statusCode == 200) {
-      debugPrint(jsonDecode(res.body));
-    } else {
-      debugPrint("Failed to update data");
+    try {
+      final res = await http.put(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(body),
+      );
+
+      if (res.statusCode == 200) {
+        debugPrint(jsonDecode(res.body).toString());
+      } else {
+        debugPrint("Failed to update data");
+      }
+    } catch (e) {
+      debugPrint("Error: $e");
     }
   }
 }

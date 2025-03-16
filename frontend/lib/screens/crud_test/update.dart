@@ -31,6 +31,8 @@ class UpdateScreen extends StatelessWidget {
                     subtitle: Text("${pdata[index].desc}"),
                     trailing: IconButton(
                         onPressed: () {
+                          debugPrint(
+                              "EDITING THIS PRODUCT: ${pdata[index].toString()}"); // Debug
                           // GO TO EDIT SCREEN
                           Navigator.push(
                             context,
