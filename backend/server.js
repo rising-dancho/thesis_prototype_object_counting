@@ -1,131 +1,114 @@
 const express = require('express');
+const cors = require('cors');
+const { MongoClient, ServerApiVersion } = require('mongodb');
+require('dotenv').config(); // For environment variables
 
 const app = express();
-
-const cors = require('cors');
 app.use(cors());
-
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.use(
-  express.urlencoded({
-    extended: true,
-  })
-);
+const uri = process.env.MONGO_URI; // Load from .env file
+const client = new MongoClient(uri, {
+  serverApi: ServerApiVersion.v1,
+});
 
-const productData = [];
+async function connectDB() {
+  try {
+    await client.connect();
+    console.log('✅ Connected to MongoDB');
+  } catch (error) {
+    console.error('❌ MongoDB connection failed:', error);
+  }
+}
+connectDB();
+
+const db = client.db('tectags'); // Replace with your actual database name
+const productsCollection = db.collection('products');
 
 // WELCOME ROUTE "/"
 app.get('/', (req, res) => {
   res.send('Welcome to the Express API! 🚀');
 });
 
-// POST API
-app.post('/api/add_product', (req, res) => {
-  console.log('DATA FROM FRONTEND', req.body);
+// POST API - Add Product
+app.post('/api/add_product', async (req, res) => {
+  try {
+    const entry = {
+      pname: req.body.pname,
+      pprice: req.body.pprice,
+      pdesc: req.body.pdesc,
+    };
 
-  // "entry" means a single product data : an object containing this product's information
-  const entry = {
-    id: productData.length + 1,
-    pname: req.body.pname,
-    pprice: req.body.pprice,
-    pdesc: req.body.pdesc,
-  };
-
-  productData.push(entry);
-  console.log('PROCESSED DATA', entry);
-
-  res.status(200).send({
-    status_code: 200,
-    message: 'Product added successfully!',
-    product: entry,
-  });
-});
-
-// GET API
-app.get('/api/get_product', (req, res) => {
-  if (productData.length > 0) {
+    const result = await productsCollection.insertOne(entry);
     res.status(200).send({
       status_code: 200,
-      products: productData,
+      message: 'Product added successfully!',
+      product: result.ops[0],
     });
-  } else {
-    res.status(200).send({
-      status: 'SUCCESS!',
-      message: 'Product updated successfully!',
-    });
+  } catch (error) {
+    res.status(500).send({ message: 'Error adding product', error });
   }
 });
 
-// UPDATE API - ":id" is the route "parameter"
-app.put('/api/update_product/:id', (req, res) => {
-  let id = parseInt(req.params.id, 10); // Convert to base 10 integer
-
-  if (isNaN(id)) {
-    return res.status(400).send({ message: 'Invalid product ID!' });
+// GET API - Fetch All Products
+app.get('/api/get_product', async (req, res) => {
+  try {
+    const products = await productsCollection.find().toArray();
+    res.status(200).send({
+      status_code: 200,
+      products,
+    });
+  } catch (error) {
+    res.status(500).send({ message: 'Error fetching products', error });
   }
+});
 
-  let index = productData.findIndex((product) => product.id === id);
+// UPDATE API
+app.put('/api/update_product/:id', async (req, res) => {
+  const id = req.params.id;
 
-  if (index === -1) {
-    return res.status(404).send({ message: 'Product not found!' });
-  }
+  try {
+    const updatedProduct = await productsCollection.findOneAndUpdate(
+      { _id: new require('mongodb').ObjectId(id) },
+      { $set: req.body },
+      { returnDocument: 'after' }
+    );
 
-  console.log(`\n🔄 Updating Product ID: ${id}`);
-  console.log('📌 Before Update:', productData[index]);
-
-  // Log changes
-  console.log('✅ Changes:');
-  for (let key in req.body) {
-    if (productData[index][key] !== req.body[key]) {
-      console.log(
-        `   - ${key}: "${productData[index][key]}" ➝ "${req.body[key]}"`
-      );
+    if (!updatedProduct.value) {
+      return res.status(404).send({ message: 'Product not found!' });
     }
+
+    res.status(200).send({
+      status_code: 200,
+      message: 'Product updated successfully!',
+      product: updatedProduct.value,
+    });
+  } catch (error) {
+    res.status(500).send({ message: 'Error updating product', error });
   }
-
-  // Preserve original ID while updating
-  productData[index] = { ...productData[index], ...req.body };
-
-  console.log('📌 After Update:', productData[index]);
-
-  res.status(200).send({
-    status_code: 200,
-    message: 'Product updated successfully!',
-    product: productData[index],
-  });
 });
 
 // DELETE API
-app.delete('/api/delete_product/:id', (req, res) => {
-  let id = parseInt(req.params.id, 10); // Convert to integer (base 10)
+app.delete('/api/delete_product/:id', async (req, res) => {
+  const id = req.params.id;
 
-  if (isNaN(id)) {
-    return res.status(400).send({ message: 'Invalid product ID!' });
+  try {
+    const result = await productsCollection.deleteOne({
+      _id: new require('mongodb').ObjectId(id),
+    });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).send({ message: 'Product not found!' });
+    }
+
+    res.status(204).send({ message: 'Product deleted successfully!' });
+  } catch (error) {
+    res.status(500).send({ message: 'Error deleting product', error });
   }
-
-  let index = productData.findIndex((product) => product.id === id);
-
-  // Prevents deleting the wrong product by checking index !== -1 before calling splice.
-  if (index === -1) {
-    return res.status(404).send({ message: 'Product not found!' });
-  }
-
-  console.log(`🗑️ Deleting Product ID: ${id}`);
-  console.log('📌 Product Data Before Deletion:', productData);
-
-  let deletedProduct = productData.splice(index, 1)[0]; // Remove the product and store it
-
-  console.log('✅ Deleted Product:', deletedProduct);
-  console.log('📌 Product Data After Deletion:', productData);
-
-  res.status(204).send({
-    status_code: 204,
-    message: 'Product deleted successfully!',
-    deleted_product: deletedProduct, // Return deleted product for reference
-  });
 });
 
+// Start Server
 app.listen(2000, () => {
-  console.log('Connected to server at 2000');
+  console.log('🚀 Server running on port 2000');
 });
