@@ -81,7 +81,7 @@ class _OpenCVState extends State<OpenCV> {
     if (selectedImage != null) {
       setState(() {
         _selectedImage = File(selectedImage.path);
-        timestamp = DateTime.now().toString(); 
+        timestamp = DateTime.now().toString();
         boxes.clear(); // Reset boxes when a new image is selected
       });
     }
@@ -103,12 +103,22 @@ class _OpenCVState extends State<OpenCV> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("OpenCV")),
+      appBar: AppBar(
+        title: Text("OpenCV"),
+        backgroundColor: const Color.fromARGB(255, 5, 158, 133),
+        titleTextStyle: TextStyle(
+          color: const Color.fromARGB(
+              255, 255, 255, 255), // Set your desired color here
+          fontSize: 20, // Optionally adjust the font size
+        ),
+      ),
       body: Container(
-        padding: EdgeInsets.all(16),
-        color: Colors.green[300],
-        width: double.infinity,
-        height: double.infinity,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/images/tectags_bg.png"),
+            fit: BoxFit.cover, // Ensures the image covers the entire background
+          ),
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -121,10 +131,10 @@ class _OpenCVState extends State<OpenCV> {
                       child: Container(
                         width: double.infinity,
                         height: double.infinity,
-                        margin: const EdgeInsets.all(8),
+                        margin: const EdgeInsets.all(40),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
-                          color: Colors.white,
+                          color: const Color.fromARGB(255, 223, 223, 223),
                         ),
                         child: Icon(
                           Icons.add_photo_alternate_outlined,
@@ -196,13 +206,14 @@ class _OpenCVState extends State<OpenCV> {
                                     color: Color.fromRGBO(0, 0, 0, 0.7),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: Text(titleController.text, // Display input text
+                                  child: Text(
+                                    titleController.text, // Display input text
                                     style: TextStyle(
                                         color: Colors.white, fontSize: 16),
                                   ),
                                 ),
                               ),
-                              
+
                             // ** Total Bounding Boxes Counter (Upper Right) **
                             Positioned(
                               top: 10, // Adjust for positioning
@@ -249,11 +260,53 @@ class _OpenCVState extends State<OpenCV> {
             ),
             if (_selectedImage == null) ...[
               ElevatedButton(
-                onPressed: imageGallery,
-                onLongPress: useCamera,
-                child: const Text("Choose/Capture"),
+                style: ElevatedButton.styleFrom(
+                  textStyle: TextStyle(
+                    fontSize: 16, // Optionally adjust the font size
+                  ),
+                  backgroundColor:
+                      const Color.fromARGB(255, 5, 158, 133), // Set your desired background color here
+                  foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+                  shadowColor: Colors.grey,
+                  padding: EdgeInsets.symmetric(horizontal: 118, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: BorderSide(
+                      color: const Color.fromARGB(255, 3, 168, 146), // Set the border color
+                      width: 2,
+                    ),
+                  ),
+                ),
+                onPressed: useCamera,
+                child: const Text("Capture"),
               ),
             ],
+            const SizedBox(height: 15.0),
+            if (_selectedImage == null) ...[
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  textStyle: TextStyle(
+                    fontSize: 16, // Optionally adjust the font size
+                  ),
+                  backgroundColor: const Color.fromARGB(255, 255, 255,
+                      255), // Set your desired background color here
+                  foregroundColor: const Color.fromARGB(255, 0, 0, 0),
+                  shadowColor: Colors.grey,
+                  padding: EdgeInsets.symmetric(horizontal: 85, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: BorderSide(
+                      color: const Color.fromARGB(
+                          255, 5, 158, 133), // Set the border color
+                      width: 2,
+                    ),
+                  ),
+                ),
+                onPressed: imageGallery,
+                child: const Text("Choose an image"),
+              ),
+            ],
+            const SizedBox(height: 15.0),
             if (_selectedImage != null) ...[
               Padding(
                 padding: const EdgeInsets.all(8.0),
