@@ -59,15 +59,36 @@ app.get('/api/get_product', (req, res) => {
 
 // UPDATE API - ":id" is the route "parameter"
 app.put('/api/update_product/:id', (req, res) => {
-  let id = req.params.id * 1; //converting to integer
-  let productToUpdate = productData.find((product) => product.id === id); // find the product that matches the incoming id from the parameter
+  let id = req.params.id * 1; // Convert to integer
+  let productToUpdate = productData.find((product) => product.id === id);
   let index = productData.indexOf(productToUpdate);
 
-  productData[index] = req.body; // replace the data inside the db with the incoming data that the user sent
+  if (!productToUpdate) {
+    return res.status(404).send({ message: 'Product not found!' });
+  }
+
+  console.log(`\n🔄 Updating Product ID: ${id}`);
+  console.log('📌 Before Update:', productToUpdate);
+
+  // Log changes
+  console.log('✅ Changes:');
+  for (let key in req.body) {
+    if (productToUpdate[key] !== req.body[key]) {
+      console.log(
+        `   - ${key}: "${productToUpdate[key]}" ➝ "${req.body[key]}"`
+      );
+    }
+  }
+
+  // Replace the data in the array with the new data
+  productData[index] = req.body;
+
+  console.log('📌 After Update:', productData[index]);
 
   res.status(200).send({
     status_code: 200,
-    products: [],
+    message: 'Product updated successfully!',
+    product: productData[index],
   });
 });
 
