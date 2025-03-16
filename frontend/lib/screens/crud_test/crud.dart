@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:techtags/screens/crud_test/crud_functions/create.dart';
-import 'package:techtags/screens/crud_test/fetch.dart';
-import 'package:techtags/screens/crud_test/update.dart';
-
+import 'package:techtags/screens/crud_test/crud_functions/delete.dart';
+import 'package:techtags/screens/crud_test/crud_functions/get.dart';
+import 'package:techtags/screens/crud_test/crud_functions/update.dart';
 
 class Crud extends StatefulWidget {
   const Crud({super.key});
@@ -41,14 +41,16 @@ class _CrudState extends State<Crud> {
                         },
                         child: const Text("CREATE")),
                     const SizedBox(height: 10),
-                    ElevatedButton(onPressed:() {
-                           // GO TO CREATE SCREEN
+                    ElevatedButton(
+                        onPressed: () {
+                          // GO TO CREATE SCREEN
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (e) => const FetchData()),
                           );
-                        }, child: const Text("READ")),
+                        },
+                        child: const Text("READ")),
                     const SizedBox(height: 10),
                     ElevatedButton(
                         onPressed: () {
@@ -57,10 +59,18 @@ class _CrudState extends State<Crud> {
                             MaterialPageRoute(
                                 builder: (e) => const UpdateScreen()),
                           );
-                        }, child: const Text("UPDATE")),
+                        },
+                        child: const Text("UPDATE")),
                     const SizedBox(height: 10),
                     ElevatedButton(
-                        onPressed: () {}, child: const Text("DELETE")),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (e) => const DeleteScreen()),
+                          );
+                        },
+                        child: const Text("DELETE")),
                   ],
                 ),
               ),

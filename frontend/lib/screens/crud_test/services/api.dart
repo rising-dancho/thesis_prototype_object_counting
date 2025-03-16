@@ -81,4 +81,17 @@ class API {
       debugPrint("Error: $e");
     }
   }
+
+  // DELETE REQUEST
+  static deleteProduct(id) async {
+    var url = Uri.parse("${baseUrl}delete_product/$id");
+
+    final res = await http.delete(url);
+
+    if (res.statusCode == 204) {
+      debugPrint(jsonDecode(res.body));
+    } else {
+      debugPrint("Failed to delete");
+    }
+  }
 }

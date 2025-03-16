@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:techtags/screens/crud_test/crud.dart';
 import 'package:techtags/screens/crud_test/services/api.dart';
 
 class CreateData extends StatefulWidget {
@@ -41,15 +42,21 @@ class _CreateDataState extends State<CreateData> {
             SizedBox(
               height: 20,
             ),
-            ElevatedButton(onPressed: (){
-              var data = {
-                "pname": nameController.text,
-                "pprice": priceController.text,
-                "pdesc": descController.text,
-              };
+            ElevatedButton(
+                onPressed: () {
+                  var data = {
+                    "pname": nameController.text,
+                    "pprice": priceController.text,
+                    "pdesc": descController.text,
+                  };
 
-              API.addProduct(data);
-            }, child: const Text("Create Data"))
+                  API.addProduct(data);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (e) => const Crud()),
+                  );
+                },
+                child: const Text("Create Data"))
           ],
         ),
       ),

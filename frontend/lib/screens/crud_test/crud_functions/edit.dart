@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:techtags/screens/crud_test/crud.dart';
 import 'package:techtags/screens/crud_test/model/product_model.dart';
 import 'package:techtags/screens/crud_test/services/api.dart';
 
@@ -55,6 +56,10 @@ class _EditScreenState extends State<EditScreen> {
                     "pdesc": descController.text,
                     "id": widget.data.id,
                   });
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (e) => const Crud()),
+                  );
                 },
                 child: const Text("Update Data"))
           ],

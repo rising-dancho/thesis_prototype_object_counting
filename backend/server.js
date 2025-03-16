@@ -59,29 +59,33 @@ app.get('/api/get_product', (req, res) => {
 
 // UPDATE API - ":id" is the route "parameter"
 app.put('/api/update_product/:id', (req, res) => {
-  let id = req.params.id * 1; // Convert to integer
-  let productToUpdate = productData.find((product) => product.id === id);
-  let index = productData.indexOf(productToUpdate);
+  let id = parseInt(req.params.id, 10); // Convert to base 10 integer
 
-  if (!productToUpdate) {
+  if (isNaN(id)) {
+    return res.status(400).send({ message: 'Invalid product ID!' });
+  }
+
+  let index = productData.findIndex((product) => product.id === id);
+
+  if (index === -1) {
     return res.status(404).send({ message: 'Product not found!' });
   }
 
   console.log(`\n🔄 Updating Product ID: ${id}`);
-  console.log('📌 Before Update:', productToUpdate);
+  console.log('📌 Before Update:', productData[index]);
 
   // Log changes
   console.log('✅ Changes:');
   for (let key in req.body) {
-    if (productToUpdate[key] !== req.body[key]) {
+    if (productData[index][key] !== req.body[key]) {
       console.log(
-        `   - ${key}: "${productToUpdate[key]}" ➝ "${req.body[key]}"`
+        `   - ${key}: "${productData[index][key]}" ➝ "${req.body[key]}"`
       );
     }
   }
 
-  // Replace the data in the array with the new data
-  productData[index] = req.body;
+  // Preserve original ID while updating
+  productData[index] = { ...productData[index], ...req.body };
 
   console.log('📌 After Update:', productData[index]);
 
@@ -89,6 +93,36 @@ app.put('/api/update_product/:id', (req, res) => {
     status_code: 200,
     message: 'Product updated successfully!',
     product: productData[index],
+  });
+});
+
+// DELETE API
+app.delete('/api/delete_product/:id', (req, res) => {
+  let id = parseInt(req.params.id, 10); // Convert to integer (base 10)
+
+  if (isNaN(id)) {
+    return res.status(400).send({ message: 'Invalid product ID!' });
+  }
+
+  let index = productData.findIndex((product) => product.id === id);
+
+  // Prevents deleting the wrong product by checking index !== -1 before calling splice.
+  if (index === -1) {
+    return res.status(404).send({ message: 'Product not found!' });
+  }
+
+  console.log(`🗑️ Deleting Product ID: ${id}`);
+  console.log('📌 Product Data Before Deletion:', productData);
+
+  let deletedProduct = productData.splice(index, 1)[0]; // Remove the product and store it
+
+  console.log('✅ Deleted Product:', deletedProduct);
+  console.log('📌 Product Data After Deletion:', productData);
+
+  res.status(204).send({
+    status_code: 204,
+    message: 'Product deleted successfully!',
+    deleted_product: deletedProduct, // Return deleted product for reference
   });
 });
 
