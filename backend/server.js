@@ -51,10 +51,24 @@ app.get('/api/get_product', (req, res) => {
     });
   } else {
     res.status(200).send({
-      status_code: 200,
-      products: [],
+      status: 'SUCCESS!',
+      message: 'Product updated successfully!',
     });
   }
+});
+
+// UPDATE API - ":id" is the route "parameter"
+app.put('/api/update_product/:id', (req, res) => {
+  let id = req.params.id * 1; //converting to integer
+  let productToUpdate = productData.find((product) => product.id === id); // find the product that matches the incoming id from the parameter
+  let index = productData.indexOf(productToUpdate);
+
+  productData[index] = req.body; // replace the data inside the db with the incoming data that the user sent
+
+  res.status(200).send({
+    status_code: 200,
+    products: [],
+  });
 });
 
 app.listen(2000, () => {

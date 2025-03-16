@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:techtags/screens/crud_test/crud_functions/create.dart';
 import 'package:techtags/screens/crud_test/fetch.dart';
+import 'package:techtags/screens/crud_test/update.dart';
 
 
 class Crud extends StatefulWidget {
@@ -31,7 +32,7 @@ class _CrudState extends State<Crud> {
                   children: [
                     ElevatedButton(
                         onPressed: () {
-                          // GO TO THE NAVIGATION MENU
+                          // GO TO CREATE SCREEN
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -41,7 +42,7 @@ class _CrudState extends State<Crud> {
                         child: const Text("CREATE")),
                     const SizedBox(height: 10),
                     ElevatedButton(onPressed:() {
-                          // GO TO THE NAVIGATION MENU
+                           // GO TO CREATE SCREEN
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -50,7 +51,13 @@ class _CrudState extends State<Crud> {
                         }, child: const Text("READ")),
                     const SizedBox(height: 10),
                     ElevatedButton(
-                        onPressed: () {}, child: const Text("UPDATE")),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (e) => const UpdateScreen()),
+                          );
+                        }, child: const Text("UPDATE")),
                     const SizedBox(height: 10),
                     ElevatedButton(
                         onPressed: () {}, child: const Text("DELETE")),

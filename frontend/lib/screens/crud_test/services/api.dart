@@ -46,6 +46,7 @@ class API {
 
         data["products"].forEach((value) => {
               products.add(Product(
+                  id: value["id"],
                   name: value["pname"],
                   price: value["pprice"],
                   desc: value["pdesc"]))
@@ -57,6 +58,18 @@ class API {
       }
     } catch (e) {
       debugPrint(e.toString());
+    }
+  }
+
+  // UPDATE REQUEST
+  static updateProduct(id, body) async {
+    var url = Uri.parse("${baseUrl}update_product/:$id");
+
+    final res = await http.put(url, body: body);
+    if (res.statusCode == 200) {
+      debugPrint(jsonDecode(res.body));
+    } else {
+      debugPrint("Failed to update data");
     }
   }
 }

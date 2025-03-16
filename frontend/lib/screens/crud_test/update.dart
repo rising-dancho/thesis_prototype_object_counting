@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:techtags/screens/crud_test/edit.dart';
 import 'package:techtags/screens/crud_test/model/product_model.dart';
 import 'package:techtags/screens/crud_test/services/api.dart';
 
-class FetchData extends StatelessWidget {
-  const FetchData({super.key});
+class UpdateScreen extends StatelessWidget {
+  const UpdateScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("CRUD")),
+      appBar: AppBar(
+        title: Text("Update data"),
+      ),
       body: FutureBuilder(
         future: API.getProduct(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -26,7 +29,18 @@ class FetchData extends StatelessWidget {
                     leading: Icon(Icons.storage),
                     title: Text("${pdata[index].name}"),
                     subtitle: Text("${pdata[index].desc}"),
-                    trailing: Text("₱ ${pdata[index].price}"),
+                    trailing: IconButton(
+                        onPressed: () {
+                          // GO TO EDIT SCREEN
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (e) => EditScreen(
+                                      data: pdata[index],
+                                    )),
+                          );
+                        },
+                        icon: const Icon(Icons.edit)),
                   );
                 });
           }
