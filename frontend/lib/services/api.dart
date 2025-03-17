@@ -38,8 +38,10 @@ class API {
   }
 
   // POST REQUEST: LOGIN
-  static loginUser(Map<String, dynamic> userData) async {
-    debugPrint(jsonEncode(userData)); // Debugging
+  static Future<Map<String, dynamic>?> loginUser(
+      Map<String, dynamic> userData) async {
+    debugPrint("Sending request to: ${baseUrl}login");
+    debugPrint("Request body: ${jsonEncode(userData)}");
 
     var url = Uri.parse("${baseUrl}login");
 
@@ -50,14 +52,21 @@ class API {
         body: jsonEncode(userData),
       );
 
+      debugPrint("Response Code: ${res.statusCode}");
+      debugPrint("Response Body: ${res.body}");
+
       if (res.statusCode == 200) {
+        // Use 200 for successful login
         var data = jsonDecode(res.body.toString());
-        debugPrint(data.toString());
+        debugPrint("Success: $data");
+        return data; // Return the response data
       } else {
-        debugPrint("Failed to get response");
+        debugPrint("Failed: ${res.body}");
+        return null; // Return null if the request fails
       }
     } catch (error) {
       debugPrint("Error: $error");
+      return null; // Return null if an exception occurs
     }
   }
 }

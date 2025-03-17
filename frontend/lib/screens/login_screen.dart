@@ -156,22 +156,65 @@ class _LoginScreenState extends State<LoginScreen> {
                       "password": passwordController.text,
                     };
 
-                    var response = await API.loginUser(data);
+                    var response;
+                    try {
+                      response = await API.loginUser(data);
+                      print("API Response: $response"); // Debug log
+                    } catch (e) {
+                      print("Error during login: $e"); // Debug log
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Login failed. Please try again.')),
+                      );
+                      return;
+                    }
+
+                    // Check if response is null
+                    if (response == null) {
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content:
+                                Text('Server error: No response received')),
+                      );
+                      return;
+                    }
+
+                    // Check for errors in the response
+                    if (response.containsKey('error') &&
+                        response['error'] != null) {
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(response['error'])),
+                      );
+                      return;
+                    }
+
+                    // Check for token in the response
                     if (response.containsKey('token')) {
                       await saveToken(response['token']);
-                    }
 
-                    if (response.containsKey('message')) {
+                      if (!mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(response['message'])),
+                        SnackBar(
+                            content: Text(
+                                response['message'] ?? 'Login Successful!')),
+                      );
+
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const NavigationMenu()),
+                      );
+                    } else {
+                      // Handle case where token is missing
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Login failed. Token not received.')),
                       );
                     }
-
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const NavigationMenu()),
-                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
