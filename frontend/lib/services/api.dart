@@ -6,8 +6,10 @@ class API {
   static const baseUrl = "http://192.168.1.10:2000/api/";
 
   // POST REQUEST: REGISTRATION
-  static registerUser(Map<String, dynamic> userData) async {
-    debugPrint(jsonEncode(userData));
+  static Future<Map<String, dynamic>?> registerUser(
+      Map<String, dynamic> userData) async {
+    debugPrint("Sending request to: ${baseUrl}register");
+    debugPrint("Request body: ${jsonEncode(userData)}");
 
     var url = Uri.parse("${baseUrl}register");
 
@@ -24,11 +26,14 @@ class API {
       if (res.statusCode == 201) {
         var data = jsonDecode(res.body.toString());
         debugPrint("Success: $data");
+        return data; // Return the response data
       } else {
         debugPrint("Failed: ${res.body}");
+        return null; // Return null if the request fails
       }
     } catch (error) {
       debugPrint("Error: $error");
+      return null; // Return null if an exception occurs
     }
   }
 

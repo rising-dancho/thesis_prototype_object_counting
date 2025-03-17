@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:techtags/screens/navigation/navigation_menu.dart';
 import 'package:techtags/services/api.dart';
 import 'package:techtags/widgets/custom_scaffold.dart';
@@ -16,6 +17,26 @@ class _LoginScreenState extends State<LoginScreen> {
 
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    testSaveToken();
+  }
+
+  Future<void> saveToken(String token) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('auth_token', token);
+      debugPrint("Token saved successfully: $token"); // Debug log
+    } catch (e) {
+      debugPrint("Error saving token: $e"); // Debug log
+    }
+  }
+
+  Future<void> testSaveToken() async {
+    await saveToken("test_token");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,11 +156,22 @@ class _LoginScreenState extends State<LoginScreen> {
                       "password": passwordController.text,
                     };
 
-                    await API.loginUser(data);
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(builder: (e) => const NavigationMenu()),
-                    // );
+                    var response = await API.loginUser(data);
+                    if (response.containsKey('token')) {
+                      await saveToken(response['token']);
+                    }
+
+                    if (response.containsKey('message')) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(response['message'])),
+                      );
+                    }
+
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const NavigationMenu()),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
