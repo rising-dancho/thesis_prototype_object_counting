@@ -111,7 +111,7 @@ class _OpenCVState extends State<OpenCV> {
               255, 255, 255, 255), // Set your desired color here
           fontSize: 20, // Optionally adjust the font size
         ),
-        // automaticallyImplyLeading: false, // Disable the back button
+        automaticallyImplyLeading: false, // Disable the back button
       ),
       body: Container(
         decoration: BoxDecoration(

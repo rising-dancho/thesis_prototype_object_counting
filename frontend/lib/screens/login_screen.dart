@@ -21,7 +21,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    testSaveToken();
   }
 
   Future<void> saveToken(String token) async {
@@ -32,10 +31,6 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       debugPrint("Error saving token: $e"); // Debug log
     }
-  }
-
-  Future<void> testSaveToken() async {
-    await saveToken("test_token");
   }
 
   @override

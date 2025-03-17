@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:techtags/screens/navigation/navigation_menu.dart';
 import 'package:techtags/widgets/custom_scaffold.dart';
 import 'package:techtags/widgets/fade_route.dart';
 import 'package:techtags/screens/welcome_screen.dart';
@@ -12,13 +14,41 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  bool _isLoading = true;
+
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 5), () {
-      Navigator.of(
-        context,
-      ).pushReplacement(FadeRoute(page: const WelcomeScreen()));
+    Timer(const Duration(seconds: 4), () {
+      checkTokenAndRedirect(); // Check for token on startup
+    });
+  }
+
+  // AUTO LOGIN IF TOKEN EXISTS IN THE SHAREDPREFERENCE
+  Future<void> checkTokenAndRedirect() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    if (token != null && token.isNotEmpty) {
+      // Token exists, redirect to NavigationMenu
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const NavigationMenu()),
+        );
+      }
+    } else {
+      // No token, redirect to WelcomeScreen
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          FadeRoute(page: const WelcomeScreen()),
+        );
+      }
+    }
+
+    setState(() {
+      _isLoading = false; // Stop loading
     });
   }
 
@@ -39,6 +69,11 @@ class _SplashScreenState extends State<SplashScreen> {
                 height: 250,
               ),
             ),
+            if (_isLoading)
+              const Padding(
+                padding: EdgeInsets.only(top: 20.0),
+                child: CircularProgressIndicator(),
+              ),
           ],
         ),
       ),

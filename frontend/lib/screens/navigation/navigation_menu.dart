@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:techtags/screens/logout_screen.dart';
 import 'package:techtags/screens/opencv/opencv.dart';
 import 'package:techtags/screens/tensorflow/tensorflow_lite.dart';
 // import '../../../backup/crud_test/crud.dart';
@@ -32,6 +33,10 @@ class NavigationMenu extends StatelessWidget {
                 // label: "CRUD",
                 label: "OpenCV",
               ),
+              NavigationDestination(
+                icon: Icon(Icons.logout, color: Colors.grey),
+                label: "Logout",
+              ),
             ],
           )),
     );
@@ -45,5 +50,5 @@ class NavigationController extends GetxController {
       0.obs; // would only rerender whatever is inside obx
 
   // final screens = [TensorflowLite(), Crud()];
-  final screens = [TensorflowLite(), OpenCV()];
+  final screens = [TensorflowLite(), OpenCV(), LogoutScreen()];
 }
