@@ -21,16 +21,32 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
+    loadRememberPassword().then((value) {
+      setState(() {
+        rememberPassword = value;
+      });
+    });
   }
 
-  Future<void> saveToken(String token) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('auth_token', token);
-      debugPrint("Token saved successfully: $token"); // Debug log
-    } catch (e) {
-      debugPrint("Error saving token: $e"); // Debug log
+  Future<void> saveToken(String token, bool rememberPassword) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (rememberPassword) {
+      await prefs.setString('auth_token', token); // Save token
+      debugPrint("Token saved successfully: $token");
+    } else {
+      await prefs.remove('auth_token'); // Remove token
+      debugPrint("Token removed");
     }
+  }
+
+  Future<void> saveRememberPassword(bool rememberPassword) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('remember_password', rememberPassword);
+  }
+
+  Future<bool> loadRememberPassword() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('remember_password') ?? true; // Default to true
   }
 
   @override
@@ -125,10 +141,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   Checkbox(
                     value: rememberPassword,
-                    onChanged: (bool? value) {
+                    onChanged: (bool? value) async {
                       setState(() {
                         rememberPassword = value!;
                       });
+                      await saveRememberPassword(value!); // Save the setting
                     },
                     activeColor: const Color.fromARGB(255, 5, 57, 230),
                   ),
@@ -154,9 +171,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     var response;
                     try {
                       response = await API.loginUser(data);
-                      print("API Response: $response"); // Debug log
+                      debugPrint("API Response: $response"); // Debug log
                     } catch (e) {
-                      print("Error during login: $e"); // Debug log
+                      debugPrint("Error during login: $e"); // Debug log
                       if (!mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -188,7 +205,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     // Check for token in the response
                     if (response.containsKey('token')) {
-                      await saveToken(response['token']);
+                      await saveToken(response['token'],
+                          rememberPassword); // Pass rememberPassword
 
                       if (!mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
