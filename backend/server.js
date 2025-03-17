@@ -47,17 +47,17 @@ app.get('/protected', (req, res) => {
 // REGISTRATION
 app.post('/api/register', async (req, res) => {
   try {
-    const { password, username, fullName } = req.body;
+    const { password, email, fullName } = req.body;
 
     // Validate input
-    if (!username || !password || !fullName) {
+    if (!email || !password || !fullName) {
       return res
         .status(400)
         .json({ message: 'Username, password, and full name are required.' });
     }
 
-    // Check if username already exists
-    const existingUser = await User.findOne({ username });
+    // Check if email already exists
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'Username is already taken.' });
     }
@@ -68,7 +68,7 @@ app.post('/api/register', async (req, res) => {
 
     // THIS IS WHAT WILL BE SAVED TO MONGODB
     let newUser = new User({
-      username: username,
+      email: email,
       hashedPassword: hashedPassword,
       fullName: fullName,
     });
@@ -93,13 +93,13 @@ app.post('/api/register', async (req, res) => {
 
 // LOGIN
 app.post('/api/login', async (req, res) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
-  const existingUser = await User.findOne({ username: username });
+  const existingUser = await User.findOne({ email: email });
 
   // if user does not exist throw an error
   if (!existingUser) {
-    return res.status(400).json({ message: 'Incorrect username or password.' });
+    return res.status(400).json({ message: 'Incorrect email or password.' });
   }
 
   // compare the incoming password against the password in the database
@@ -110,7 +110,7 @@ app.post('/api/login', async (req, res) => {
 
   // if password does not match throw an error
   if (!validPassword) {
-    return res.status(400).json({ message: 'Incorrect username or password.' });
+    return res.status(400).json({ message: 'Incorrect email or password.' });
   }
 
   // IF LOGIN IS SUCCESSFUL: CREATE A TOKEN
