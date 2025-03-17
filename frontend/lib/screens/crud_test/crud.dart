@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:techtags/screens/crud_test/crud_functions/create.dart';
+
 import 'package:techtags/screens/crud_test/crud_functions/delete.dart';
 import 'package:techtags/screens/crud_test/crud_functions/get.dart';
 import 'package:techtags/screens/crud_test/crud_functions/update.dart';
+
 
 class Crud extends StatefulWidget {
   const Crud({super.key});
@@ -32,7 +34,9 @@ class _CrudState extends State<Crud> {
                   children: [
                     ElevatedButton(
                         onPressed: () {
+
                           // GO TO CREATE SCREEN
+
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -41,6 +45,7 @@ class _CrudState extends State<Crud> {
                         },
                         child: const Text("CREATE")),
                     const SizedBox(height: 10),
+
                     ElevatedButton(
                         onPressed: () {
                           // GO TO CREATE SCREEN
@@ -71,6 +76,7 @@ class _CrudState extends State<Crud> {
                           );
                         },
                         child: const Text("DELETE")),
+
                   ],
                 ),
               ),

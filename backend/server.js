@@ -1,4 +1,5 @@
 const express = require('express');
+
 const cors = require('cors');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 require('dotenv').config(); // For environment variables
@@ -111,4 +112,11 @@ app.delete('/api/delete_product/:id', async (req, res) => {
 // Start Server
 app.listen(2000, () => {
   console.log('🚀 Server running on port 2000');
+
+
+const app = express();
+
+app.listen(2000, () => {
+  console.log('Connected to server at 2000');
+
 });

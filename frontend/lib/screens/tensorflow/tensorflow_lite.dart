@@ -1,8 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:screenshot/screenshot.dart';
 import 'package:techtags/logic/tensorflow/photo_viewer.dart';
 import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart';
 import 'package:flutter/services.dart';
@@ -18,7 +16,6 @@ class TensorflowLite extends StatefulWidget {
 }
 
 class _TensorflowLiteState extends State<TensorflowLite> {
-  ScreenshotController screenshotController = ScreenshotController();
   // Image galler and camera variables
   File? _selectedImage;
   late ImagePicker imagePicker;
@@ -73,6 +70,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
   //   objectDetector = ObjectDetector(options: options);
   // }
 
+
   /// **Save Screenshot to Gallery**
   Future<void> saveImage(BuildContext context) async {
     try {
@@ -91,6 +89,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
       debugPrint("Error saving image: $e");
     }
   }
+
 
   Future<String> getModelPath(String asset) async {
     final path = '${(await getApplicationSupportDirectory()).path}/$asset';
@@ -259,6 +258,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                           size: 120,
                           color: Colors.grey[500],
                         )
+
                       : Screenshot(
                           controller: screenshotController, // Wrap entire Stack
                           child: PhotoViewer(
@@ -280,6 +280,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                             timestamp: timestamp,
                             titleController: titleController,
                           ),
+
                         ),
                 ),
               ),
@@ -362,9 +363,11 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                       icon: Icon(Icons.close),
                       onPressed: toggleRemovingMode,
                     ),
+
                     IconButton(
                         icon: Icon(Icons.save),
                         onPressed: () => saveImage(context)),
+
                   ],
                 ),
               ]

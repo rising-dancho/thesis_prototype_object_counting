@@ -1,3 +1,7 @@
+
+
+
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -56,10 +60,12 @@ class API {
       } else {
         return [];
       }
+
     } catch (e) {
       debugPrint(e.toString());
     }
   }
+
 
   // UPDATE REQUEST
   static updateProduct(id, body) async {
@@ -94,4 +100,5 @@ class API {
       debugPrint("Failed to delete");
     }
   }
+
 }
