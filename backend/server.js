@@ -37,12 +37,6 @@ app.get('/', (req, res) => {
 });
 
 // LOGIN & REGISTRATION -------------
-// PROTECTED
-app.get('/protected', (req, res) => {
-  res.send(
-    'AAAND HIS NAME IS JOHN CENA!! ten tenen ten!! YOU CANT SEE ME!!?! ten tenen ten !! (unless you are logged in)'
-  );
-});
 
 // REGISTRATION
 app.post('/api/register', async (req, res) => {
@@ -53,13 +47,13 @@ app.post('/api/register', async (req, res) => {
     if (!email || !password || !fullName) {
       return res
         .status(400)
-        .json({ message: 'Username, password, and full name are required.' });
+        .json({ message: 'Email, password, and full name are required.' });
     }
 
     // Check if email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'Username is already taken.' });
+      return res.status(400).json({ message: 'Email is already in use.' });
     }
 
     // Hash password
