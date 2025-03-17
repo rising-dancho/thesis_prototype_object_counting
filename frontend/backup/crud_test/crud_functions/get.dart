@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:techtags/screens/crud_test/model/product_model.dart';
-import 'package:techtags/screens/crud_test/services/api.dart';
+import '../model/product_model.dart';
+import '../services/api.dart';
 
 class FetchData extends StatelessWidget {
   const FetchData({super.key});

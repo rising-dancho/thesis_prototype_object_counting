@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:techtags/screens/crud_test/crud_functions/edit.dart';
-import 'package:techtags/screens/crud_test/model/product_model.dart';
-import 'package:techtags/screens/crud_test/services/api.dart';
+import 'edit.dart';
+import '../model/product_model.dart';
+import '../services/api.dart';
 
 class UpdateScreen extends StatelessWidget {
   const UpdateScreen({super.key});

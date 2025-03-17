@@ -51,7 +51,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 3.0),
                   child: TextFormField(
-                    controller: fullNameController,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter Full Name';
@@ -78,7 +77,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 3.0),
                   child: TextFormField(
-                    controller: emailController,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter Email';
@@ -130,6 +128,38 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 20.0),
+                // Padding(
+                //   padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                //   child: TextFormField(
+                //     controller: confirmPasswordController,
+                //     obscureText: true,
+                //     obscuringCharacter: '*',
+                //     validator: (value) {
+                //       if (value == null || value.isEmpty) {
+                //         return 'Please confirm your Password';
+                //       }
+                //       if (value != passwordController.text) {
+                //         return 'Passwords do not match';
+                //       }
+                //       return null;
+                //     },
+                //     decoration: InputDecoration(
+                //       label: const Text('Confirm Password'),
+                //       hintText: 'Re-enter Password',
+                //       hintStyle: const TextStyle(color: Colors.black26),
+                //       fillColor: Colors.grey[200],
+                //       filled: true,
+                //       border: OutlineInputBorder(
+                //         borderSide: const BorderSide(color: Colors.black12),
+                //         borderRadius: BorderRadius.circular(20),
+                //       ),
+                //       enabledBorder: const OutlineInputBorder(
+                //         borderSide: BorderSide(color: Colors.black12),
+                //       ),
+                //     ),
+                //   ),
+                // ),
                 const SizedBox(height: 30.0),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 3.0),
@@ -143,14 +173,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           "fullName": fullNameController.text,
                         };
 
-                        debugPrint(data.toString());
-
                         await API.registerUser(data);
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //       builder: (e) => const NavigationMenu()),
-                        // );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (e) => const NavigationMenu()),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,

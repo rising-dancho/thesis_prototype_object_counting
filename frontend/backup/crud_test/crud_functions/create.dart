@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:techtags/screens/crud_test/crud.dart';
-import 'package:techtags/screens/crud_test/services/api.dart';
+import '../crud.dart';
+import '../services/api.dart';
 
 class CreateData extends StatefulWidget {
   const CreateData({super.key});

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:techtags/screens/crud_test/model/product_model.dart';
+import '../model/product_model.dart';
 
 class API {
   static const baseUrl = "http://192.168.1.10:2000/api/";

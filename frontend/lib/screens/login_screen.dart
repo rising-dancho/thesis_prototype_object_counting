@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:techtags/screens/navigation/navigation_menu.dart';
+import 'package:techtags/services/api.dart';
 import 'package:techtags/widgets/custom_scaffold.dart';
 import 'package:techtags/screens/signup_screen.dart';
 
@@ -11,8 +12,10 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // final _formLogInKey = GlobalKey<FormState>();
   bool rememberPassword = true;
+
+  var emailController = TextEditingController();
+  var passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: TextFormField(
+                controller: emailController,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter Email';
@@ -72,6 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: TextFormField(
+                controller: passwordController,
                 obscureText: true,
                 obscuringCharacter: '*',
                 validator: (value) {
@@ -124,18 +129,17 @@ class _LoginScreenState extends State<LoginScreen> {
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // if (_formLogInKey.currentState!.validate()) {
-                    //   ScaffoldMessenger.of(context).showSnackBar(
-                    //     const SnackBar(content: Text('Processing Data')),
-                    //   );
-                    // }
-                    
-                    // GO TO THE NAVIGATION MENU
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (e) => const NavigationMenu()),
-                    );
+                  onPressed: () async {
+                    var data = {
+                      "email": emailController.text,
+                      "password": passwordController.text,
+                    };
+
+                    await API.loginUser(data);
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(builder: (e) => const NavigationMenu()),
+                    // );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
@@ -158,7 +162,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
-
             const SizedBox(height: 25.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:techtags/screens/crud_test/crud.dart';
-import 'package:techtags/screens/crud_test/model/product_model.dart';
-import 'package:techtags/screens/crud_test/services/api.dart';
+import '../crud.dart';
+import '../model/product_model.dart';
+import '../services/api.dart';
 
 class EditScreen extends StatefulWidget {
   final Product data;
