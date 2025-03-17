@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 require('dotenv').config(); // Load environment variables
 
 const app = express();
@@ -9,7 +10,10 @@ app.use(cors());
 
 const Product = require('./schema/product');
 const User = require('./schema/user');
-const user = require('./schema/user');
+
+const createToken = (id) => {
+  return jwt.sign({ _id: id }, process.env.SECRET, { expiresIn: '14d' });
+};
 
 // Middleware TO PARSE JSON body
 app.use(express.json());
@@ -33,6 +37,7 @@ app.get('/', (req, res) => {
 });
 
 // LOGIN & REGISTRATION -------------
+// PROTECTED
 app.get('/protected', (req, res) => {
   res.send(
     'AAAND HIS NAME IS JOHN CENA!! ten tenen ten!! YOU CANT SEE ME!!?! ten tenen ten !! (unless you are logged in)'
@@ -58,17 +63,25 @@ app.post('/api/register', async (req, res) => {
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12);
+    const saltRounds = 12; // number of rounds for  randomization
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+    // THIS IS WHAT WILL BE SAVED TO MONGODB
     let newUser = new User({
       username: username,
       hashedPassword: hashedPassword,
       fullName: fullName,
     });
 
+    // SAVE THE USER TO THE DATABASE
     await newUser.save();
+
+    // AFTER SAVING: create JWT for remembering sessions
+    const token = createToken(newUser._id);
+
     res.status(201).json({
       message: 'Registration successful!',
+      token: token,
     });
   } catch (error) {
     res.status(500).json({
@@ -90,15 +103,20 @@ app.post('/api/login', async (req, res) => {
   }
 
   // compare the incoming password against the password in the database
-  const validPassword = await bcrypt.compare(password, existingUser.hashedPassword);
+  const validPassword = await bcrypt.compare(
+    password,
+    existingUser.hashedPassword
+  );
 
   // if password does not match throw an error
   if (!validPassword) {
     return res.status(400).json({ message: 'Incorrect username or password.' });
   }
 
+  // IF LOGIN IS SUCCESSFUL: CREATE A TOKEN
   if (validPassword) {
-    return res.status(200).send({ message: 'Login Successful!' });
+    const token = createToken(existingUser._id);
+    return res.status(200).json({ message: 'Login Successful!', token: token });
   }
 });
 
