@@ -44,13 +44,14 @@ class API {
         var data = jsonDecode(res.body);
         // debugPrint(data);
 
-        data["products"].forEach((value) => {
-              products.add(Product(
-                  id: value["id"],
-                  name: value["pname"],
-                  price: value["pprice"],
-                  desc: value["pdesc"]))
-            });
+        for (var value in (data as List)) {
+          products.add(Product(
+            id: value["_id"], // MongoDB returns "_id" as a String
+            name: value["pname"],
+            price: value["pprice"],
+            desc: value["pdesc"],
+          ));
+        }
 
         return products;
       } else {
