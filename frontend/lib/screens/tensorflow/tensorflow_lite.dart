@@ -82,13 +82,28 @@ class _TensorflowLiteState extends State<TensorflowLite> {
       }
 
       if (screenShot == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to capture screenshot")),
+        );
         return;
       }
 
-      await ImageGallerySaverPlus.saveImage(screenShot,
+      final result = await ImageGallerySaverPlus.saveImage(screenShot,
           name: "screenshot_${DateTime.now().millisecondsSinceEpoch}.png");
+      if (result["isSuccess"]) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Image saved in gallery")),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Image not saved")),
+        );
+      }
     } catch (e) {
       debugPrint("Error saving image: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("An error occurred while saving")),
+      );
     }
   }
 
