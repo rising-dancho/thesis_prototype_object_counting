@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:techtags/screens/crud_test/crud.dart';
+// import 'package:techtags/screens/crud_test/crud.dart';
+import 'package:techtags/screens/opencv/opencv.dart';
 import 'package:techtags/screens/tensorflow/tensorflow_lite.dart';
 // import 'package:techtags/screens/opencv/opencv.dart';
 
@@ -28,7 +29,8 @@ class NavigationMenu extends StatelessWidget {
               ),
               NavigationDestination(
                 icon: Icon(Icons.spoke, color: Colors.grey),
-                label: "CRUD",
+                // label: "OpenCV",
+                label: "OpenCV",
               ),
             ],
           )),
@@ -42,5 +44,6 @@ class NavigationController extends GetxController {
   final Rx<int> selectedIndex =
       0.obs; // would only rerender whatever is inside obx
 
-  final screens = [TensorflowLite(), Crud()];
+  // final screens = [TensorflowLite(), Crud()];
+  final screens = [TensorflowLite(), OpenCV()];
 }

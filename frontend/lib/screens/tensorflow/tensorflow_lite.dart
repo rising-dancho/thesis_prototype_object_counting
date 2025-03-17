@@ -24,7 +24,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
   late ImagePicker imagePicker;
   // EXPLANATION about ui.Image:
   // In Flutter, ui.Image (from dart:ui) is an in-memory representation of an image that allows direct manipulation in a Canvas via CustomPainter. Unlike Image.file or Image.asset, which are widgets for displaying images in the UI, ui.Image is specifically used for low-level drawing operations.
-  ui.Image? image_for_drawing;
+  ui.Image? imageForDrawing;
 
   // initialize object detector
   late ObjectDetector objectDetector;
@@ -58,7 +58,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
     final data = await imageFile.readAsBytes();
     final codec = await ui.instantiateImageCodec(data);
     final frame = await codec.getNextFrame();
-    image_for_drawing = frame.image;
+    imageForDrawing = frame.image;
   }
 
   // OBJECT DETECTION
@@ -82,29 +82,13 @@ class _TensorflowLiteState extends State<TensorflowLite> {
       }
 
       if (screenShot == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Failed to capture screenshot")),
-        );
         return;
       }
 
-      final result = await ImageGallerySaverPlus.saveImage(screenShot,
+      await ImageGallerySaverPlus.saveImage(screenShot,
           name: "screenshot_${DateTime.now().millisecondsSinceEpoch}.png");
-
-      if (result["isSuccess"]) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Image saved in gallery")),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Image not saved")),
-        );
-      }
     } catch (e) {
       debugPrint("Error saving image: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("An error occurred while saving")),
-      );
     }
   }
 
@@ -170,7 +154,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
     ui.Image decodedImage = await decodeImageFromList(imageBytes);
 
     setState(() {
-      image_for_drawing = decodedImage; // Now image is a ui.Image
+      imageForDrawing = decodedImage; // Now image is a ui.Image
     });
   }
   // END
@@ -210,7 +194,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
   void reset() {
     setState(() {
       _selectedImage = null;
-      image_for_drawing = null; // Clear this to prevent null check errors
+      imageForDrawing = null; // Clear this to prevent null check errors
       objects = []; // Also clear detected objects
       isAddingBox = false;
       titleController.clear();
@@ -239,12 +223,23 @@ class _TensorflowLiteState extends State<TensorflowLite> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text("Tensorflow Lite")),
+        appBar: AppBar(
+          title: const Text("Tensorflow Lite"),
+          backgroundColor: const Color.fromARGB(255, 10, 125, 170),
+          titleTextStyle: TextStyle(
+            color: const Color.fromARGB(
+                255, 255, 255, 255), // Set your desired color here
+            fontSize: 20, // Optionally adjust the font size
+          ),
+        ),
         body: Container(
-          padding: EdgeInsets.all(16),
-          color: Colors.blue[300],
-          width: double.infinity,
-          height: double.infinity,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/images/tectags_bg.png"),
+              fit: BoxFit
+                  .cover, // Ensures the image covers the entire background
+            ),
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -253,13 +248,12 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                 child: Container(
                   width: double
                       .infinity, // Makes the container expand horizontally
-                  margin: const EdgeInsets.all(8),
+                  margin: const EdgeInsets.all(40),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    color: Colors
-                        .white, // Adds a background to prevent weird scaling issues
+                    color: const Color.fromARGB(255, 223, 223, 223),
                   ),
-                  child: image_for_drawing == null
+                  child: imageForDrawing == null
                       ? Icon(
                           Icons.add_photo_alternate_outlined,
                           size: 120,
@@ -269,7 +263,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                           controller: screenshotController, // Wrap entire Stack
                           child: PhotoViewer(
                             imageFile: _selectedImage!,
-                            imageForDrawing: image_for_drawing,
+                            imageForDrawing: imageForDrawing,
                             editableBoundingBoxes: editableBoundingBoxes,
                             onNewBox: (Rect box) {
                               setState(() {
@@ -291,10 +285,54 @@ class _TensorflowLiteState extends State<TensorflowLite> {
               ),
               if (_selectedImage == null) ...[
                 ElevatedButton(
-                  onPressed: imageGallery,
-                  onLongPress: useCamera,
-                  child: const Text("Choose/Capture"),
+                  style: ElevatedButton.styleFrom(
+                    textStyle: TextStyle(
+                      fontSize: 16, // Optionally adjust the font size
+                    ),
+                    backgroundColor: const Color.fromARGB(255, 10, 125,
+                        170), // Set your desired background color here
+                    foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+                    shadowColor: Colors.grey,
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 118, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      side: BorderSide(
+                        color: const Color.fromARGB(
+                            255, 3, 130, 168), // Set the border color
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                  onPressed: useCamera,
+                  child: const Text("Capture"),
                 ),
+              ],
+              const SizedBox(height: 15.0),
+              if (_selectedImage == null) ...[
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    textStyle: TextStyle(
+                      fontSize: 16, // Optionally adjust the font size
+                    ),
+                    backgroundColor: const Color.fromARGB(255, 255, 255,
+                        255), // Set your desired background color here
+                    foregroundColor: const Color.fromARGB(255, 0, 0, 0),
+                    shadowColor: Colors.grey,
+                    padding: EdgeInsets.symmetric(horizontal: 85, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      side: BorderSide(
+                        color: const Color.fromARGB(
+                            255, 3, 130, 168), // Set the border color
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                  onPressed: imageGallery,
+                  child: const Text("Choose an image"),
+                ),
+                SizedBox(height: 15.0), // <-- Adds spacing below the button
               ],
               if (_selectedImage != null) ...[
                 Padding(
@@ -324,7 +362,9 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                       icon: Icon(Icons.close),
                       onPressed: toggleRemovingMode,
                     ),
-                    IconButton(icon: Icon(Icons.save), onPressed: () => saveImage(context)),
+                    IconButton(
+                        icon: Icon(Icons.save),
+                        onPressed: () => saveImage(context)),
                   ],
                 ),
               ]

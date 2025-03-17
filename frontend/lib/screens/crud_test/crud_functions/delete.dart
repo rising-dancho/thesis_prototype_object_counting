@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:techtags/screens/crud_test/crud.dart';
 import 'package:techtags/screens/crud_test/model/product_model.dart';
 import 'package:techtags/screens/crud_test/services/api.dart';
 
