@@ -9,6 +9,7 @@ app.use(cors());
 
 const Product = require('./schema/product');
 const User = require('./schema/user');
+const user = require('./schema/user');
 
 // Middleware TO PARSE JSON body
 app.use(express.json());
@@ -31,13 +32,14 @@ app.get('/', (req, res) => {
   res.send('Welcome to the Express API! 🚀');
 });
 
-// LOGIN AND REGISTER
-app.get('/secret', (req, res) => {
+// LOGIN & REGISTRATION -------------
+app.get('/protected', (req, res) => {
   res.send(
-    'THIS IS SECRET! YOU CANT SEE ME!!?! ten tenen ten!! ten tenen ten (unless you are logged in)'
+    'AAAND HIS NAME IS JOHN CENA!! ten tenen ten!! YOU CANT SEE ME!!?! ten tenen ten !! (unless you are logged in)'
   );
 });
 
+// REGISTRATION
 app.post('/api/register', async (req, res) => {
   try {
     const { password, username, fullName } = req.body;
@@ -76,7 +78,31 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-// STORING DATA TO THE DATABASE
+// LOGIN
+app.post('/api/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  const existingUser = await User.findOne({ username: username });
+
+  // if user does not exist throw an error
+  if (!existingUser) {
+    return res.status(400).json({ message: 'Incorrect username or password.' });
+  }
+
+  // compare the incoming password against the password in the database
+  const validPassword = await bcrypt.compare(password, existingUser.hashedPassword);
+
+  // if password does not match throw an error
+  if (!validPassword) {
+    return res.status(400).json({ message: 'Incorrect username or password.' });
+  }
+
+  if (validPassword) {
+    return res.status(200).send({ message: 'Login Successful!' });
+  }
+});
+
+// STORING DATA -------------
 
 // POST API
 app.post('/api/add_product', async (req, res) => {
