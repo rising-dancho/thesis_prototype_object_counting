@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 require('dotenv').config(); // Load environment variables
 
 const app = express();
@@ -7,15 +8,16 @@ const cors = require('cors');
 app.use(cors());
 
 const Product = require('./schema/product');
+const User = require('./schema/user');
 
+// Middleware TO PARSE JSON body
 app.use(express.json());
+// URLENCODED WOULD ALLOW US TO GET ACCESS TO : req.body
 app.use(
   express.urlencoded({
     extended: true,
   })
 );
-
-const productData = [];
 
 // 🛢️ Connect to MongoDB using Mongoose
 mongoose.set('strictQuery', true);
@@ -28,6 +30,53 @@ mongoose
 app.get('/', (req, res) => {
   res.send('Welcome to the Express API! 🚀');
 });
+
+// LOGIN AND REGISTER
+app.get('/secret', (req, res) => {
+  res.send(
+    'THIS IS SECRET! YOU CANT SEE ME!!?! ten tenen ten!! ten tenen ten (unless you are logged in)'
+  );
+});
+
+app.post('/api/register', async (req, res) => {
+  try {
+    const { password, username, fullName } = req.body;
+
+    // Validate input
+    if (!username || !password || !fullName) {
+      return res
+        .status(400)
+        .json({ message: 'Username, password, and full name are required.' });
+    }
+
+    // Check if username already exists
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Username is already taken.' });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    let newUser = new User({
+      username: username,
+      hashedPassword: hashedPassword,
+      fullName: fullName,
+    });
+
+    await newUser.save();
+    res.status(201).json({
+      message: 'Registration successful!',
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Something went wrong.',
+      error: error.message,
+    });
+  }
+});
+
+// STORING DATA TO THE DATABASE
 
 // POST API
 app.post('/api/add_product', async (req, res) => {
@@ -119,6 +168,7 @@ app.delete('/api/delete_product/:id', async (req, res) => {
   }
 });
 
-app.listen(2000, () => {
-  console.log('Connected to server at 2000');
+const PORT = 2000;
+app.listen(PORT, () => {
+  console.log(`Connected to server at ${PORT}`);
 });
