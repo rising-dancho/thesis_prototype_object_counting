@@ -188,7 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                             content:
-                                Text('Server error: No response received')),
+                                Text('Incorrect email or password.')),
                       );
                       return;
                     }

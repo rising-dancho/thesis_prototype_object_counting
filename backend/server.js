@@ -87,30 +87,39 @@ app.post('/api/register', async (req, res) => {
 
 // LOGIN
 app.post('/api/login', async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  const existingUser = await User.findOne({ email: email });
+    const existingUser = await User.findOne({ email: email });
 
-  // if user does not exist throw an error
-  if (!existingUser) {
-    return res.status(400).json({ message: 'Incorrect email or password.' });
-  }
+    // if user does not exist throw an error
+    if (!existingUser) {
+      return res.status(400).json({ message: 'Incorrect email or password.' });
+    }
 
-  // compare the incoming password against the password in the database
-  const validPassword = await bcrypt.compare(
-    password,
-    existingUser.hashedPassword
-  );
+    // compare the incoming password against the password in the database
+    const validPassword = await bcrypt.compare(
+      password,
+      existingUser.hashedPassword
+    );
 
-  // if password does not match throw an error
-  if (!validPassword) {
-    return res.status(400).json({ message: 'Incorrect email or password.' });
-  }
+    // if password does not match throw an error
+    if (!validPassword) {
+      return res.status(400).json({ message: 'Incorrect email or password.' });
+    }
 
-  // IF LOGIN IS SUCCESSFUL: CREATE A TOKEN
-  if (validPassword) {
-    const token = createToken(existingUser._id);
-    return res.status(200).json({ message: 'Login Successful!', token: token });
+    // IF LOGIN IS SUCCESSFUL: CREATE A TOKEN
+    if (validPassword) {
+      const token = createToken(existingUser._id);
+      return res
+        .status(200)
+        .json({ message: 'Login Successful!', token: token });
+    }
+  } catch (error) {
+    console.error('❌ Login error:', error);
+    return res
+      .status(500)
+      .json({ message: 'Internal server error', error: error.message });
   }
 });
 
