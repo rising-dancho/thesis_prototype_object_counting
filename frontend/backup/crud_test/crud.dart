@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:techtags/screens/crud_test/crud_functions/create.dart';
-import 'package:techtags/screens/crud_test/crud_functions/delete.dart';
-import 'package:techtags/screens/crud_test/crud_functions/get.dart';
-import 'package:techtags/screens/crud_test/crud_functions/update.dart';
+import 'crud_functions/create.dart';
+import 'crud_functions/delete.dart';
+import 'crud_functions/get.dart';
+import 'crud_functions/update.dart';
 
 class Crud extends StatefulWidget {
   const Crud({super.key});

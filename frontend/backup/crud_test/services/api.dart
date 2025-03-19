@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:techtags/screens/crud_test/model/product_model.dart';
+import '../model/product_model.dart';
 
 class API {
   static const baseUrl = "http://192.168.1.10:2000/api/";
@@ -44,13 +44,14 @@ class API {
         var data = jsonDecode(res.body);
         // debugPrint(data);
 
-        data["products"].forEach((value) => {
-              products.add(Product(
-                  id: value["id"],
-                  name: value["pname"],
-                  price: value["pprice"],
-                  desc: value["pdesc"]))
-            });
+        for (var value in (data as List)) {
+          products.add(Product(
+            id: value["_id"], // MongoDB returns "_id" as a String
+            name: value["pname"],
+            price: value["pprice"],
+            desc: value["pdesc"],
+          ));
+        }
 
         return products;
       } else {
