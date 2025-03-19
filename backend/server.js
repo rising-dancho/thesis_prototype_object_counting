@@ -85,7 +85,7 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-// LOGIN
+// LOGIN + ACTIVITY LOGGING
 app.post('/api/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -111,6 +111,13 @@ app.post('/api/login', async (req, res) => {
     // IF LOGIN IS SUCCESSFUL: CREATE A TOKEN
     if (validPassword) {
       const token = createToken(existingUser._id);
+
+      // Log the login activity
+      await Activity.create({
+        userId: existingUser._id,
+        action: 'Logged In',
+      });
+
       return res
         .status(200)
         .json({ message: 'Login Successful!', token: token });
@@ -122,6 +129,49 @@ app.post('/api/login', async (req, res) => {
       .json({ message: 'Internal server error', error: error.message });
   }
 });
+
+app.get('/api/activity_log', async (req, res) => {
+  try {
+    const logs = await Activity.find()
+      .populate('userId', 'fullName email')
+      .sort({ timestamp: -1 });
+
+    res.status(200).json(logs);
+  } catch (error) {
+    console.error('❌ Error retrieving activity logs:', error);
+    res
+      .status(500)
+      .json({
+        message: 'Error retrieving activity logs',
+        error: error.message,
+      });
+  }
+});
+
+// app.post('/api/count_objects', async (req, res) => {
+//   try {
+//     const { userId, objectCount } = req.body;
+
+//     if (!userId || objectCount === undefined) {
+//       return res
+//         .status(400)
+//         .json({ message: 'User ID and object count are required' });
+//     }
+
+//     // Log the counting activity
+//     await Activity.create({
+//       userId: userId,
+//       action: 'Counted Objects',
+//       objectCount: objectCount,
+//     });
+
+//     res.status(200).json({ message: 'Object count logged successfully' });
+//   } catch (error) {
+//     res
+//       .status(500)
+//       .json({ message: 'Error logging object count', error: error.message });
+//   }
+// });
 
 // STORING DATA -------------
 

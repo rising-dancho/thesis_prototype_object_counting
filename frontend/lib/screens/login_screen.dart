@@ -168,7 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       "password": passwordController.text,
                     };
 
-                    var response;
+                    Map<String, dynamic>? response;
                     try {
                       response = await API.loginUser(data);
                       debugPrint("API Response: $response"); // Debug log

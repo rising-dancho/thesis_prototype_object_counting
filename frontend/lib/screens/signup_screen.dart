@@ -174,7 +174,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               "fullName": fullNameController.text,
                             };
 
-                            var response;
+                            Map<String, dynamic>? response;
                             try {
                               response = await API.registerUser(data);
                               debugPrint("API Response: $response"); // Debug log
