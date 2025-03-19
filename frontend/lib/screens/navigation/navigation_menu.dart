@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:techtags/screens/activity_logs/activity_logs.dart';
 import 'package:techtags/screens/logout_screen.dart';
-import 'package:techtags/screens/opencv/opencv.dart';
 import 'package:techtags/screens/tensorflow/tensorflow_lite.dart';
 // import '../../../backup/crud_test/crud.dart';
 // import 'package:techtags/screens/opencv/opencv.dart';
