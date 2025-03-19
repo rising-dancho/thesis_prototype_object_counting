@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class API {
   static const baseUrl = "http://192.168.1.10:2000/api/";
@@ -56,13 +57,19 @@ class API {
       debugPrint("Response Body: ${res.body}");
 
       if (res.statusCode == 200) {
-        // Use 200 for successful login
         var data = jsonDecode(res.body.toString());
-        debugPrint("Success: $data");
+        debugPrint("SUCCESS: $data");
+        // Save userId to local storage (SharedPreferences)
+        // EXTRACT TOKEN AND USER ID
+        String userId = data['userId'];
+
+        // THEN SAVE to SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('userId', userId);
         return data; // Return the response data
       } else {
         debugPrint("Failed: ${res.body}");
-        // CONVERT THE RESPONSE FROM SERVER FIRST FROM JSON to STRING 
+        // CONVERT THE RESPONSE FROM SERVER FIRST FROM JSON to STRING
         var errorData = jsonDecode(res.body); // Convert response body to JSON
         String errorMessage = errorData['message'];
         return {
@@ -74,6 +81,33 @@ class API {
       return {
         "error": "Network error: $error"
       }; // Return null if an exception occurs
+    }
+  }
+
+  // Fetch activity logs
+  static Future<List<Map<String, dynamic>>?> fetchActivityLogs(
+      String userId) async {
+    debugPrint(
+        "📡 Fetching activity logs from: ${baseUrl}activity_logs/$userId");
+
+    var url = Uri.parse("${baseUrl}activity_logs/$userId");
+
+    try {
+      final res = await http.get(url);
+
+      debugPrint("Response Code: ${res.statusCode}");
+      debugPrint("Response Body: ${res.body}");
+
+      if (res.statusCode == 200) {
+        List<dynamic> data = jsonDecode(res.body);
+        return List<Map<String, dynamic>>.from(data);
+      } else {
+        debugPrint("❌ Failed to fetch logs: ${res.body}");
+        return null;
+      }
+    } catch (error) {
+      debugPrint("⚠️ Error fetching logs: $error");
+      return null;
     }
   }
 }

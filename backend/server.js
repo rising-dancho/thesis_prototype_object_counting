@@ -10,6 +10,7 @@ app.use(cors());
 
 const Product = require('./schema/product');
 const User = require('./schema/user');
+const Activity = require('./schema/activity');
 
 const createToken = (id) => {
   return jwt.sign({ _id: id }, process.env.SECRET, { expiresIn: '14d' });
@@ -120,7 +121,11 @@ app.post('/api/login', async (req, res) => {
 
       return res
         .status(200)
-        .json({ message: 'Login Successful!', token: token });
+        .json({
+          message: 'Login Successful!',
+          token: token,
+          userId: existingUser._id,
+        });
     }
   } catch (error) {
     console.error('❌ Login error:', error);
@@ -130,21 +135,20 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-app.get('/api/activity_log', async (req, res) => {
+// GET USER ACTIVITY LOGS
+app.get('/api/activity_logs/:userId', async (req, res) => {
   try {
-    const logs = await Activity.find()
-      .populate('userId', 'fullName email')
-      .sort({ timestamp: -1 });
+    const { userId } = req.params;
 
-    res.status(200).json(logs);
+    // Fetch all activities for the given user
+    const activities = await Activity.find({ userId }).sort({ createdAt: -1 });
+
+    res.status(200).json(activities);
   } catch (error) {
-    console.error('❌ Error retrieving activity logs:', error);
+    console.error('❌ Error fetching activity logs:', error);
     res
       .status(500)
-      .json({
-        message: 'Error retrieving activity logs',
-        error: error.message,
-      });
+      .json({ message: 'Internal server error', error: error.message });
   }
 });
 

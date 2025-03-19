@@ -8,6 +8,7 @@ class LogoutScreen extends StatelessWidget {
   Future<void> logout(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token'); // Remove the jasonwebtoken (JWT)
+    await prefs.remove('userId'); // Remove the user id
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const LoginScreen()),
