@@ -112,7 +112,8 @@ class _PhotoViewerState extends State<PhotoViewer> {
                       child: Container(
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.green, width: 2),
-                          color: Colors.green.withOpacity(0.4),
+                          color: Colors.green.withAlpha((0.4 * 255)
+                              .toInt()), // Change this to your preferred highlight color,
                         ),
                       ),
                     ),
@@ -174,7 +175,7 @@ class _PhotoViewerState extends State<PhotoViewer> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                     widget.titleController.text, // Display input text
+                    widget.titleController.text, // Display input text
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                 ),
@@ -187,7 +188,8 @@ class _PhotoViewerState extends State<PhotoViewer> {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.7),
+                  color: Colors.black.withAlpha((0.7 * 255)
+                      .toInt()), // Change this to your preferred highlight color,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -205,7 +207,8 @@ class _PhotoViewerState extends State<PhotoViewer> {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.7),
+                    color: Colors.black.withAlpha((0.7 * 255)
+                        .toInt()), // Change this to your preferred highlight color,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -266,7 +269,7 @@ class _PhotoViewerState extends State<PhotoViewer> {
         offsetY = offsetY;
       });
 
-      print(
+      debugPrint(
           "ScaleX: $scaleX, ScaleY: $scaleY, OffsetX: $offsetX, OffsetY: $offsetY");
     }
   }

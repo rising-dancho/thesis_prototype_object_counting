@@ -111,6 +111,7 @@ class _OpenCVState extends State<OpenCV> {
               255, 255, 255, 255), // Set your desired color here
           fontSize: 20, // Optionally adjust the font size
         ),
+        automaticallyImplyLeading: false, // Disable the back button
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -264,15 +265,16 @@ class _OpenCVState extends State<OpenCV> {
                   textStyle: TextStyle(
                     fontSize: 16, // Optionally adjust the font size
                   ),
-                  backgroundColor:
-                      const Color.fromARGB(255, 5, 158, 133), // Set your desired background color here
+                  backgroundColor: const Color.fromARGB(255, 5, 158,
+                      133), // Set your desired background color here
                   foregroundColor: const Color.fromARGB(255, 255, 255, 255),
                   shadowColor: Colors.grey,
                   padding: EdgeInsets.symmetric(horizontal: 118, vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                     side: BorderSide(
-                      color: const Color.fromARGB(255, 3, 168, 146), // Set the border color
+                      color: const Color.fromARGB(
+                          255, 3, 168, 146), // Set the border color
                       width: 2,
                     ),
                   ),
@@ -305,8 +307,8 @@ class _OpenCVState extends State<OpenCV> {
                 onPressed: imageGallery,
                 child: const Text("Choose an image"),
               ),
+              SizedBox(height: 15.0), // <-- Adds spacing below the button
             ],
-            const SizedBox(height: 15.0),
             if (_selectedImage != null) ...[
               Padding(
                 padding: const EdgeInsets.all(8.0),
