@@ -12,34 +12,43 @@ class NavigationMenu extends StatelessWidget {
 
     return Scaffold(
       body: Obx(() => controller.screens[controller.selectedIndex.value]),
-      bottomNavigationBar: Obx(() => NavigationBar(
-            height: 80,
-            elevation: 0,
-            selectedIndex: controller.selectedIndex.value,
-            onDestinationSelected: (index) =>
-                controller.selectedIndex.value = index,
-             indicatorColor:
-                Colors.blue.withOpacity(0.2),
-            destinations: [
-              NavigationDestination(
-                icon: Icon(Icons.polyline, color: Colors.grey),
-                label: "Tensorflow Lite",
+      bottomNavigationBar: Obx(() => NavigationBarTheme(
+            data: NavigationBarThemeData(
+              indicatorColor: Colors.blue.withOpacity(0.2),
+              labelTextStyle: MaterialStateProperty.resolveWith<TextStyle>(
+                (Set<MaterialState> states) {
+                  if (states.contains(MaterialState.selected)) {
+                    return const TextStyle(color: Color.fromARGB(255, 255, 255, 255));
+                  }
+                  return const TextStyle(color: Color.fromARGB(255, 255, 255, 255));
+                },
               ),
-              NavigationDestination(
-                icon: Icon(Icons.spoke, color: Colors.grey),
-                label: "OpenCV",
-              ),
-            ],
+            ),
+            child: NavigationBar(
+              height: 80,
+              elevation: 0,
+              backgroundColor: const Color.fromARGB(255, 5, 45, 90),
+              selectedIndex: controller.selectedIndex.value,
+              onDestinationSelected: (index) =>
+                  controller.selectedIndex.value = index,
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.polyline),
+                  label: "Tensorflow Lite",
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.spoke),
+                  label: "OpenCV",
+                ),
+              ],
+            ),
           )),
     );
   }
 }
 
-// dl getx package:  flutter pub add get
-// manage navigation menu without using Stateful widget classes
 class NavigationController extends GetxController {
-  final Rx<int> selectedIndex =
-      0.obs; // would only rerender whatever is inside obx
+  final Rx<int> selectedIndex = 0.obs;
 
   final screens = [TensorflowLite(), OpenCV()];
 }
