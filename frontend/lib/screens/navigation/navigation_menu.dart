@@ -16,30 +16,42 @@ class NavigationMenu extends StatelessWidget {
 
     return Scaffold(
       body: Obx(() => controller.screens[controller.selectedIndex.value]),
-      bottomNavigationBar: Obx(() => NavigationBar(
+      bottomNavigationBar: Obx(
+        () => NavigationBarTheme(
+          data: NavigationBarThemeData(
+            indicatorColor: Colors.blue.withOpacity(0.2),
+            labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>(
+              (Set<WidgetState> states) {
+                if (states.contains(WidgetState.selected)) {
+                  return const TextStyle(
+                      color: Color.fromARGB(255, 255, 255, 255));
+                }
+
+                return const TextStyle(
+                    color: Color.fromARGB(255, 255, 255, 255));
+              },
+            ),
+          ),
+          child: NavigationBar(
             height: 80,
             elevation: 0,
+            backgroundColor: const Color.fromARGB(255, 5, 45, 90),
             selectedIndex: controller.selectedIndex.value,
             onDestinationSelected: (index) =>
                 controller.selectedIndex.value = index,
-            indicatorColor: Colors.blue.withAlpha((0.5 * 255)
-                .toInt()), // Change this to your preferred highlight color
-            destinations: [
+            destinations: const [
               NavigationDestination(
-                icon: Icon(Icons.polyline, color: Colors.grey),
+                icon: Icon(Icons.polyline),
                 label: "Tensorflow Lite",
               ),
               NavigationDestination(
-                icon: Icon(Icons.bar_chart, color: Colors.grey),
-                label: "Activity Logs",
-                // label: "OpenCV",
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.logout, color: Colors.grey),
-                label: "Logout",
+                icon: Icon(Icons.spoke),
+                label: "OpenCV",
               ),
             ],
-          )),
+          ),
+        ),
+      ),
     );
   }
 }
