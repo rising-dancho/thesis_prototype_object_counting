@@ -1,10 +1,19 @@
 # ObjectCounting-Prototype 🧪
 
-## frontend: 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A new Flutter project.
 
-## Get started
+## Getting Started
 
+This project is a starting point for a Flutter application.
+
+A few resources to get you started if this is your first Flutter project:
+
+- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev/), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.
 
 1. Enter inside the correct folder
    
@@ -15,13 +24,13 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 3. Install dependencies
 
    ```bash
-   npm install
+   flutter pub get
    ```
 
 4. Start the app
 
    ```bash
-    npx expo start
+    flutter run
    ```
 
 ****
