@@ -31,7 +31,9 @@ class ActivityLog {
     // HUMAN READABLE TIMESTAMP
     // Example output: "Mar 20, 2025 • 06:22 PM"
     String formattedTimestamp =
-        DateFormat('MMM d, y • hh:mm a').format(manilaTime);
+        // DateFormat('MMM d, y • hh:mm a').format(manilaTime);
+        DateFormat.yMEd().add_jms().format(manilaTime);
+
 
     return ActivityLog(
       userId: json['userId'] ?? 'Unknown ID', // ✅ Handle missing userId
