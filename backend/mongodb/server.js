@@ -140,17 +140,28 @@ app.get('/api/activity_logs/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
 
-    // Fetch all activities for the given user
-    const activities = await Activity.find({ userId }).sort({ createdAt: -1 });
+    // Fetch all activities and populate userId to get both userId and fullName
+    const activities = await Activity.find({ userId })
+      .populate('userId', 'fullName') // ✅ Fetch only fullName from User model
+      .sort({ createdAt: -1 });
 
-    res.status(200).json(activities);
+    // Format response to explicitly include userId
+    const formattedActivities = activities.map(activity => ({
+      _id: activity._id,
+      userId: activity.userId?._id, // ✅ Explicitly include userId
+      fullName: activity.userId?.fullName ?? "Unknown User", // ✅ Include fullName
+      action: activity.action,
+      objectCount: activity.objectCount,
+      timestamp: activity.createdAt, // ✅ Keep the timestamp
+    }));
+
+    res.status(200).json(formattedActivities);
   } catch (error) {
     console.error('❌ Error fetching activity logs:', error);
-    res
-      .status(500)
-      .json({ message: 'Internal server error', error: error.message });
+    res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 });
+
 
 // app.post('/api/count_objects', async (req, res) => {
 //   try {

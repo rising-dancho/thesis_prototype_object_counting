@@ -4,13 +4,15 @@ import 'package:techtags/screens/navigation/side_menu.dart';
 import 'package:techtags/services/api.dart';
 
 class ActivityLog {
-  final String userName;
+  final String userId; // ✅ Store userId
+  final String fullName; // ✅ Store fullName
   final String action;
   final int? objectCount;
   final String timestamp;
 
   ActivityLog({
-    required this.userName,
+    required this.userId,
+    required this.fullName,
     required this.action,
     this.objectCount,
     required this.timestamp,
@@ -18,13 +20,12 @@ class ActivityLog {
 
   factory ActivityLog.fromJson(Map<String, dynamic> json) {
     return ActivityLog(
-      userName: json['userId'] is Map<String, dynamic>
-          ? json['userId']['fullName']
-          : "Unknown User",
+      userId: json['userId'] ?? 'Unknown ID', // ✅ Handle missing userId
+      fullName: json['fullName'] ?? 'Unknown User', // ✅ Handle missing fullName
       action: json['action'],
       objectCount: json['objectCount'],
-      timestamp: json['timestamp'] ??
-          json['createdAt'], // ✅ Use `createdAt` as fallback
+      timestamp:
+          json['timestamp'] ?? json['createdAt'], // ✅ Fallback to createdAt
     );
   }
 }
@@ -103,24 +104,25 @@ class _ActivityLogsState extends State<ActivityLogs> {
         scrollDirection: Axis.horizontal,
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: DataTable(
-              columns: const [
-                DataColumn(label: Text('User')),
-                DataColumn(label: Text('Action')),
-                DataColumn(label: Text('Objects Counted')),
-                DataColumn(label: Text('Timestamp')),
-              ],
-              rows: activityLogs.map((log) {
-                return DataRow(cells: [
-                  DataCell(Text(log.userName)),
-                  DataCell(Text(log.action)),
-                  DataCell(Text(log.objectCount?.toString() ?? 'N/A')),
-                  DataCell(Text(log.timestamp)),
-                ]);
-              }).toList(),
-            ),
-          ),
+              padding: const EdgeInsets.all(8),
+              child: DataTable(
+                columns: const [
+                  DataColumn(label: Text('User ID')),
+                  DataColumn(label: Text('Full Name')),
+                  DataColumn(label: Text('Action')),
+                  DataColumn(label: Text('Objects Counted')),
+                  DataColumn(label: Text('Timestamp')),
+                ],
+                rows: activityLogs.map((log) {
+                  return DataRow(cells: [
+                    DataCell(Text(log.userId)), // ✅ Show user ID
+                    DataCell(Text(log.fullName)), // ✅ Show full name
+                    DataCell(Text(log.action)),
+                    DataCell(Text(log.objectCount?.toString() ?? 'N/A')),
+                    DataCell(Text(log.timestamp)),
+                  ]);
+                }).toList(),
+              )),
         ),
       ),
     );
