@@ -25,10 +25,13 @@ class ActivityLog {
     DateTime rawTimestamp =
         DateTime.parse(json['timestamp'] ?? json['createdAt']);
 
+    // CONVERT TO MANILA TIME ZONE (UTC+8)
+    DateTime manilaTime = rawTimestamp.toLocal(); // Ensure it's local first
+
     // HUMAN READABLE TIMESTAMP
     // Example output: "Mar 20, 2025 • 06:22 PM"
     String formattedTimestamp =
-        DateFormat('MMM d, y • hh:mm a').format(rawTimestamp);
+        DateFormat('MMM d, y • hh:mm a').format(manilaTime);
 
     return ActivityLog(
       userId: json['userId'] ?? 'Unknown ID', // ✅ Handle missing userId
