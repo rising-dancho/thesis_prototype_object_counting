@@ -45,7 +45,7 @@ class NavigationMenu extends StatelessWidget {
               ),
               NavigationDestination(
                 icon: Icon(Icons.bar_chart),
-                label: "Activity Kigs",
+                label: "Activity Logs",
               ),
             ],
           ),
