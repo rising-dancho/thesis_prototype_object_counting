@@ -10,8 +10,6 @@ import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
-import 'package:techtags/screens/navigation/navigation_menu.dart';
-import 'package:techtags/screens/login_screen.dart';
 import 'dart:ui' as ui;
 
 class TensorflowLite extends StatefulWidget {

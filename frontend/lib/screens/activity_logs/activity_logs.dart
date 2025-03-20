@@ -81,7 +81,16 @@ class _ActivityLogsState extends State<ActivityLogs> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Activity Logs")),
+      appBar: AppBar(
+        title: const Text("Activity Logs"),
+        backgroundColor: const Color.fromARGB(255, 5, 158, 133),
+        titleTextStyle: TextStyle(
+          color: const Color.fromARGB(
+              255, 255, 255, 255), // Set your desired color here
+          fontSize: 20, // Optionally adjust the font size
+        ),
+        automaticallyImplyLeading: false,
+      ),
       body: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: SingleChildScrollView(
