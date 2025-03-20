@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:techtags/screens/activity_logs/activity_logs.dart';
-import 'package:techtags/screens/logout_screen.dart';
+// import '../../../backup/logout_screen.dart';
 import 'package:techtags/screens/tensorflow/tensorflow_lite.dart';
 // import '../../../backup/crud_test/crud.dart';
 // import 'package:techtags/screens/opencv/opencv.dart';
@@ -59,5 +59,8 @@ class NavigationController extends GetxController {
   final Rx<int> selectedIndex = 0.obs;
 
   // final screens = [TensorflowLite(), Crud()];
-  final screens = [TensorflowLite(), ActivityLogs(), LogoutScreen()];
+  final screens = [
+    TensorflowLite(),
+    ActivityLogs(),
+  ];
 }

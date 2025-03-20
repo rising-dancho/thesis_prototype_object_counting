@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:techtags/screens/login_screen.dart';
-import 'package:techtags/screens/navigation/navigation_menu.dart';
+import 'package:techtags/screens/navigation/side_menu.dart';
 import 'package:techtags/services/api.dart';
 
 class ActivityLog {
@@ -85,83 +84,21 @@ class _ActivityLogsState extends State<ActivityLogs> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Activity Logs"),
-        backgroundColor: const Color.fromARGB(255, 5, 158, 133),
-        titleTextStyle: TextStyle(
-          color: const Color.fromARGB(
-              255, 255, 255, 255), // Set your desired color here
-          fontSize: 20, // Optionally adjust the font size
-        ),
+        backgroundColor: const Color.fromARGB(255, 5, 45, 90),
+        foregroundColor: const Color.fromARGB(255, 255, 255, 255),
         automaticallyImplyLeading: false,
+        actions: [
+          Builder(
+            builder: (context) => IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openEndDrawer();
+              },
+            ),
+          ),
+        ],
       ),
-      endDrawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Color.fromARGB(255, 5, 45, 90),
-              ),
-              child: Container(
-                alignment: Alignment.center,
-                child: Image.asset(
-                  'assets/images/tectags_logo_nobg.png', // Replace with your logo's asset path
-
-                  width: 120, // Set your desired width
-
-                  height: 120, // Set your desired height
-
-                  fit: BoxFit
-                      .contain, // Adjusts the image to fit within the specified dimensions
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text('Home'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => NavigationMenu()),
-                );
-              },
-            ),
-            const Divider(
-              height: 20,
-              thickness: 1,
-              indent: 20,
-              endIndent: 20,
-              color: Color.fromARGB(255, 82, 81, 81),
-            ),
-            ListTile(
-              leading: const Icon(Icons.history),
-              title: const Text('Activity Logs'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => NavigationMenu()),
-                );
-              },
-            ),
-            const Divider(
-              height: 20,
-              thickness: 1,
-              indent: 20,
-              endIndent: 20,
-              color: Color.fromARGB(255, 82, 81, 81),
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Logout'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
+      endDrawer: const SideMenu(), // Using the extracted drawer
       body: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: SingleChildScrollView(
