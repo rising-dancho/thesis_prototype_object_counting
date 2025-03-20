@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:techtags/screens/navigation/side_menu.dart';
 import 'package:techtags/services/api.dart';
@@ -8,7 +9,8 @@ class ActivityLog {
   final String fullName; // ✅ Store fullName
   final String action;
   final int? objectCount;
-  final String timestamp;
+  final String
+      timestamp; // Now holds: intl: ^0.18.1 a more human readable formatted time
 
   ActivityLog({
     required this.userId,
@@ -19,13 +21,22 @@ class ActivityLog {
   });
 
   factory ActivityLog.fromJson(Map<String, dynamic> json) {
+    // Parse the timestamp into DateTime
+    DateTime rawTimestamp =
+        DateTime.parse(json['timestamp'] ?? json['createdAt']);
+
+    // HUMAN READABLE TIMESTAMP
+    // Example output: "Mar 20, 2025 • 06:22 PM"
+    String formattedTimestamp =
+        DateFormat('MMM d, y • hh:mm a').format(rawTimestamp);
+
     return ActivityLog(
       userId: json['userId'] ?? 'Unknown ID', // ✅ Handle missing userId
       fullName: json['fullName'] ?? 'Unknown User', // ✅ Handle missing fullName
       action: json['action'],
       objectCount: json['objectCount'],
       timestamp:
-          json['timestamp'] ?? json['createdAt'], // ✅ Fallback to createdAt
+          formattedTimestamp, // Use formatted time ?? json['createdAt'], // ✅ Fallback to createdAt
     );
   }
 }
