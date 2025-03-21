@@ -5,7 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class API {
   // static const baseUrl = "http://192.168.1.10:2000/api/"; // FOR TESTING
-  static const baseUrl = "https://thesis-prototype-object-counting.vercel.app/api/";
+  static const baseUrl =
+      "https://thesis-prototype-object-counting.vercel.app/api/";
 
   // POST REQUEST: REGISTRATION
   static Future<Map<String, dynamic>?> registerUser(
@@ -108,6 +109,18 @@ class API {
       }
     } catch (error) {
       debugPrint("⚠️ Error fetching logs: $error");
+      return null;
+    }
+  }
+
+  // Fetch activity logs
+  static Future<List<dynamic>?> fetchAllActivityLogs() async {
+    final response = await http.get(Uri.parse('$baseUrl/activity_logs'));
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      debugPrint("❌ Failed to fetch activity logs: ${response.body}");
       return null;
     }
   }

@@ -34,7 +34,6 @@ class ActivityLog {
         // DateFormat('MMM d, y • hh:mm a').format(manilaTime);
         DateFormat.yMEd().add_jms().format(manilaTime);
 
-
     return ActivityLog(
       userId: json['userId'] ?? 'Unknown ID', // ✅ Handle missing userId
       fullName: json['fullName'] ?? 'Unknown User', // ✅ Handle missing fullName
@@ -76,7 +75,7 @@ class _ActivityLogsState extends State<ActivityLogs> {
       return;
     }
     // FETCH USER DATA AND DISPLAY ON THE ACTIVITY LOGS SCREEN
-    final logsData = await API.fetchActivityLogs(userId);
+    final logsData = await API.fetchAllActivityLogs();
     if (logsData != null) {
       setState(() {
         activityLogs = logsData

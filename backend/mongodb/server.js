@@ -119,13 +119,11 @@ app.post('/api/login', async (req, res) => {
         action: 'Logged In',
       });
 
-      return res
-        .status(200)
-        .json({
-          message: 'Login Successful!',
-          token: token,
-          userId: existingUser._id,
-        });
+      return res.status(200).json({
+        message: 'Login Successful!',
+        token: token,
+        userId: existingUser._id,
+      });
     }
   } catch (error) {
     console.error('❌ Login error:', error);
@@ -135,7 +133,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// GET USER ACTIVITY LOGS
+// GET USER ACTIVITY LOGS PER USERID
 app.get('/api/activity_logs/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
@@ -146,10 +144,10 @@ app.get('/api/activity_logs/:userId', async (req, res) => {
       .sort({ createdAt: -1 });
 
     // Format response to explicitly include userId
-    const formattedActivities = activities.map(activity => ({
+    const formattedActivities = activities.map((activity) => ({
       _id: activity._id,
       userId: activity.userId?._id, // ✅ Explicitly include userId
-      fullName: activity.userId?.fullName ?? "Unknown User", // ✅ Include fullName
+      fullName: activity.userId?.fullName ?? 'Unknown User', // ✅ Include fullName
       action: activity.action,
       objectCount: activity.objectCount,
       timestamp: activity.createdAt, // ✅ Keep the timestamp
@@ -157,11 +155,42 @@ app.get('/api/activity_logs/:userId', async (req, res) => {
 
     res.status(200).json(formattedActivities);
   } catch (error) {
-    console.error('❌ Error fetching activity logs:', error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    console.error('❌ Error fetching activity logs per user:', error);
+    res
+      .status(500)
+      .json({ message: 'Internal server error', error: error.message });
   }
 });
 
+// GET ALL USER ACTIVITY LOGS
+app.get('/api/activity_logs/', async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Fetch all activities and populate userId to get both userId and fullName
+    const activities = await Activity.find() // JUST REMOVE THE FILTER TO GET ALL ACTIVITIES
+      .populate('userId', 'fullName') // Fetch fullName from User model
+      .sort({ createdAt: -1 }); // Sort latest first
+
+    // Format response to explicitly include userId
+    const formattedActivities = activities.map((activity) => ({
+      _id: activity._id,
+      userId: activity.userId?._id, // ✅ Explicitly include userId
+      fullName: activity.userId?.fullName ?? 'Unknown User', // ✅ Include fullName
+      action: activity.action,
+      objectCount: activity.objectCount,
+      timestamp: activity.createdAt, // ✅ Keep the timestamp
+    }));
+
+    res.status(200).json(formattedActivities);
+  } catch (error) {
+    console.error('❌ Error fetching all activity logs:', error);
+
+    res
+      .status(500)
+      .json({ message: 'Internal server error', error: error.message });
+  }
+});
 
 // app.post('/api/count_objects', async (req, res) => {
 //   try {
