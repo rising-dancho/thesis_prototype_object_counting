@@ -23,9 +23,9 @@ class SplashScreenState extends State<SplashScreen>
   void initState() {
     controller = AnimationController(
       vsync: this, // 'this' refers to the SingleTickerProviderStateMixin
-      duration: Duration(seconds: 20), // SECONDS TO COMPLETE ANIMATION 1 CYCLE
+      duration: Duration(seconds: 20), // SECONDS TO COMPLETE 1 ANIMATION CYCLE
     )..addListener(() {
-        setState(() {});
+        setState(() {}); // Rebuild UI every frame for smooth animation
       });
     controller.repeat(reverse: true);
     super.initState();
@@ -87,20 +87,25 @@ class SplashScreenState extends State<SplashScreen>
                 height: 250,
               ),
             ),
+            Expanded(child: SizedBox()),
             if (_isLoading)
               Padding(
-                padding: const EdgeInsets.only(top: 20.0),
+                padding: const EdgeInsets.fromLTRB(0, 30, 0, 30),
                 child: SizedBox(
-                  width: 200,
+                  width: 100,
                   child: LinearProgressIndicator(
-                    backgroundColor: Color(0xFF001C35), // Light gray background
+                    backgroundColor: Color(0xFFF7F7F7), // Light gray background
                     valueColor:
                         // CUSTOMIZE PROGRESS BAR COLOR: 0xFF[hex_color_code]
-                        AlwaysStoppedAnimation<Color>(Color(0xFF146E9E)),
-                    minHeight: 5, // Make it slightly thicker
+                        AlwaysStoppedAnimation<Color>(Colors.grey),
+                    minHeight: 2, // Make it slightly thicker
                   ),
                 ),
               ),
+            SizedBox(
+              height: 50,
+            ),
+            // Expanded(child: SizedBox()),
           ],
         ),
       ),
