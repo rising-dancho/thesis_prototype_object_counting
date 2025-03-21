@@ -127,7 +127,7 @@ class _ActivityLogsState extends State<ActivityLogs> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                    padding: const EdgeInsets.only(left: 20),
+                    padding: const EdgeInsets.only(left: 24),
                     child: Row(children: [
                       const Text("Show All Users' Logs"),
                       const SizedBox(
@@ -147,8 +147,9 @@ class _ActivityLogsState extends State<ActivityLogs> {
                             Colors.green, // 🟢 Color of the track when ON
                         inactiveThumbColor:
                             Colors.white, // ⚪ Color of the thumb when OFF
-                        inactiveTrackColor:
-                            Colors.black54, // ⚫ Color of the track when OFF
+                        inactiveTrackColor: Colors.black54.withAlpha(
+                            (0.25 * 255)
+                                .toInt()), // ⚫ Color of the track when OFF
                       ),
                     ])),
                 DataTable(

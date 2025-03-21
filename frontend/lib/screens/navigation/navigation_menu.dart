@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:techtags/screens/activity_logs/activity_logs.dart';
+import 'package:techtags/screens/inventory/stock_manager.dart';
 // import '../../../backup/logout_screen.dart';
 import 'package:techtags/screens/tensorflow/tensorflow_lite.dart';
 // import '../../../backup/crud_test/crud.dart';
@@ -18,7 +19,7 @@ class NavigationMenu extends StatelessWidget {
       bottomNavigationBar: Obx(
         () => NavigationBarTheme(
           data: NavigationBarThemeData(
-            indicatorColor: Colors.blue.withOpacity(0.2),
+            indicatorColor: Colors.blue.withAlpha((0.2 * 255).toInt()),
             labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>(
               (Set<WidgetState> states) {
                 if (states.contains(WidgetState.selected)) {
@@ -44,6 +45,10 @@ class NavigationMenu extends StatelessWidget {
                 label: "Tensorflow Lite",
               ),
               NavigationDestination(
+                icon: Icon(Icons.inventory),
+                label: "Inventory",
+              ),
+              NavigationDestination(
                 icon: Icon(Icons.history),
                 label: "Activity Logs",
               ),
@@ -59,8 +64,5 @@ class NavigationController extends GetxController {
   final Rx<int> selectedIndex = 0.obs;
 
   // final screens = [TensorflowLite(), Crud()];
-  final screens = [
-    TensorflowLite(),
-    ActivityLogs(),
-  ];
+  final screens = [TensorflowLite(), StockManager(), ActivityLogs()];
 }
