@@ -44,7 +44,7 @@ class NavigationMenu extends StatelessWidget {
                 label: "Tensorflow Lite",
               ),
               NavigationDestination(
-                icon: Icon(Icons.bar_chart),
+                icon: Icon(Icons.history),
                 label: "Activity Logs",
               ),
             ],

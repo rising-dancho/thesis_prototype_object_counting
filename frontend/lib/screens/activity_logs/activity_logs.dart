@@ -54,6 +54,7 @@ class ActivityLogs extends StatefulWidget {
 
 class _ActivityLogsState extends State<ActivityLogs> {
   List<ActivityLog> activityLogs = [];
+  bool showAllLogs = false; // Default: Show only current user's logs
 
   @override
   void initState() {
@@ -74,8 +75,11 @@ class _ActivityLogsState extends State<ActivityLogs> {
       debugPrint("❌ User ID not found in SharedPreferences");
       return;
     }
-    // FETCH USER DATA AND DISPLAY ON THE ACTIVITY LOGS SCREEN
-    final logsData = await API.fetchAllActivityLogs();
+
+    // FETCH ALL ACTIVITY LOGS OR PER USER
+    final logsData = showAllLogs
+        ? await API.fetchAllActivityLogs() // Fetch all users' logs
+        : await API.fetchActivityLogs(userId); // Fetch only current user's logs
     if (logsData != null) {
       setState(() {
         activityLogs = logsData
@@ -118,26 +122,54 @@ class _ActivityLogsState extends State<ActivityLogs> {
       body: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: SingleChildScrollView(
-          child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: DataTable(
-                columns: const [
-                  DataColumn(label: Text('User ID')),
-                  DataColumn(label: Text('Full Name')),
-                  DataColumn(label: Text('Action')),
-                  DataColumn(label: Text('Objects Counted')),
-                  DataColumn(label: Text('Timestamp')),
-                ],
-                rows: activityLogs.map((log) {
-                  return DataRow(cells: [
-                    DataCell(Text(log.userId)), // ✅ Show user ID
-                    DataCell(Text(log.fullName)), // ✅ Show full name
-                    DataCell(Text(log.action)),
-                    DataCell(Text(log.objectCount?.toString() ?? 'N/A')),
-                    DataCell(Text(log.timestamp)),
-                  ]);
-                }).toList(),
-              )),
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                    padding: const EdgeInsets.only(left: 20),
+                    child: Row(children: [
+                      const Text("Show All Users' Logs"),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Switch(
+                        value: showAllLogs,
+                        onChanged: (value) {
+                          setState(() {
+                            showAllLogs = value;
+                            _loadActivityLogs(); // Reload data when toggling
+                          });
+                        },
+                        activeColor:
+                            Colors.white, // 🟢 Color of the thumb when ON
+                        activeTrackColor:
+                            Colors.green, // 🟢 Color of the track when ON
+                        inactiveThumbColor:
+                            Colors.white, // ⚪ Color of the thumb when OFF
+                        inactiveTrackColor:
+                            Colors.black54, // ⚫ Color of the track when OFF
+                      ),
+                    ])),
+                DataTable(
+                  columns: const [
+                    DataColumn(label: Text('User ID')),
+                    DataColumn(label: Text('Full Name')),
+                    DataColumn(label: Text('Action')),
+                    DataColumn(label: Text('Objects Counted')),
+                    DataColumn(label: Text('Timestamp')),
+                  ],
+                  rows: activityLogs.map((log) {
+                    return DataRow(cells: [
+                      DataCell(Text(log.userId)), // ✅ Show user ID
+                      DataCell(Text(log.fullName)), // ✅ Show full name
+                      DataCell(Text(log.action)),
+                      DataCell(Text(log.objectCount?.toString() ?? 'N/A')),
+                      DataCell(Text(log.timestamp)),
+                    ]);
+                  }).toList(),
+                ),
+              ]),
         ),
       ),
     );

@@ -25,7 +25,7 @@ class SideMenu extends StatelessWidget {
         children: [
           DrawerHeader(
             decoration: const BoxDecoration(
-              color: Color.fromARGB(255, 5, 45, 90),  
+              color: Color.fromARGB(255, 5, 45, 90),
             ),
             child: Container(
               alignment: Alignment.center,
@@ -47,18 +47,8 @@ class SideMenu extends StatelessWidget {
               );
             },
           ),
-          // ListTile(
-          //   leading: const Icon(Icons.history),
-          //   title: const Text('Activity Logs'),
-          //   onTap: () {
-          //     Navigator.pushReplacement(
-          //       context,
-          //       MaterialPageRoute(builder: (context) => const ActivityLogs( )),
-          //     );
-          //   },
-          // ),
           ListTile(
-            leading: const Icon(Icons.history),
+            leading: const Icon(Icons.person_2),
             title: const Text('Edit Profile'),
             onTap: () {
               // Navigator.pushReplacement(
