@@ -10,18 +10,36 @@ class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  _SplashScreenState createState() => _SplashScreenState();
+  SplashScreenState createState() => SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController controller;
+
   bool _isLoading = true;
 
   @override
   void initState() {
+    controller = AnimationController(
+      vsync: this, // 'this' refers to the SingleTickerProviderStateMixin
+      duration: Duration(seconds: 20), // SECONDS TO COMPLETE ANIMATION 1 CYCLE
+    )..addListener(() {
+        setState(() {});
+      });
+    controller.repeat(reverse: true);
     super.initState();
+
+    // DURATION OF THE SPLASH SCREEN
     Timer(const Duration(seconds: 4), () {
       checkTokenAndRedirect(); // Check for token on startup
     });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   // AUTO LOGIN IF TOKEN EXISTS IN THE SHAREDPREFERENCE
@@ -70,9 +88,18 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             if (_isLoading)
-              const Padding(
-                padding: EdgeInsets.only(top: 20.0),
-                child: CircularProgressIndicator(),
+              Padding(
+                padding: const EdgeInsets.only(top: 20.0),
+                child: SizedBox(
+                  width: 200,
+                  child: LinearProgressIndicator(
+                    backgroundColor: Color(0xFF001C35), // Light gray background
+                    valueColor:
+                        // CUSTOMIZE PROGRESS BAR COLOR: 0xFF[hex_color_code]
+                        AlwaysStoppedAnimation<Color>(Color(0xFF146E9E)),
+                    minHeight: 5, // Make it slightly thicker
+                  ),
+                ),
               ),
           ],
         ),
