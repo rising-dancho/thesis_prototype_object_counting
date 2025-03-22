@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:techtags/screens/navigation/side_menu.dart';
 
 class StockManager extends StatefulWidget {
   const StockManager({super.key});
@@ -13,9 +14,9 @@ class _StockManagerState extends State<StockManager> {
   Map<String, int> stockCounts = {
     "Cement": 100,
     "Sand": 100,
-    "Hollow blocks": 100,
+    "Hollow Blocks": 100,
     "Plywood": 100,
-    "Deform bar": 100,
+    "Deform Bar": 100,
   };
 
   TextEditingController itemController = TextEditingController();
@@ -48,7 +49,6 @@ class _StockManagerState extends State<StockManager> {
   }
 
   void saveStockToMongoDB() async {
-    // Replace with your MongoDB connection logic
     var response = await http.post(
       Uri.parse("http://yourserver.com/api/stocks"),
       headers: {"Content-Type": "application/json"},
@@ -59,80 +59,105 @@ class _StockManagerState extends State<StockManager> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // Input fields for adding new stock category
-        Row(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Inventory"),
+        backgroundColor: const Color.fromARGB(255, 5, 45, 90),
+        foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+        automaticallyImplyLeading: false,
+        actions: [
+          Builder(
+            builder: (context) => IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openEndDrawer();
+              },
+            ),
+          ),
+        ],
+      ),
+      endDrawer: const SideMenu(),
+      body: Padding(
+        padding: EdgeInsets.all(8),
+        child: Column(
           children: [
-            Expanded(
-              child: TextField(
-                controller: itemController,
-                decoration: InputDecoration(labelText: "Stock Category"),
+            // Input fields for adding new stock category
+            Padding(
+              padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: itemController,
+                      decoration: InputDecoration(labelText: "Stock Category"),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: TextField(
+                      controller: countController,
+                      decoration: InputDecoration(labelText: "Stock Count"),
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: addStockItem,
+                  ),
+                ],
               ),
             ),
-            SizedBox(width: 10),
+
+            SizedBox(height: 10),
+
+            // List of stocks with editable values
             Expanded(
-              child: TextField(
-                controller: countController,
-                decoration: InputDecoration(labelText: "Stock Count"),
-                keyboardType: TextInputType.number,
+              child: ListView(
+                children: stockCounts.keys.map((item) {
+                  return ListTile(
+                    title: Text(item),
+                    subtitle: Text("Expected Count: ${stockCounts[item]}"),
+                    trailing: IconButton(
+                      icon: Icon(Icons.edit),
+                      onPressed: () {
+                        // Open a dialog to edit stock count
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            TextEditingController editController =
+                                TextEditingController(
+                                    text: stockCounts[item].toString());
+                            return AlertDialog(
+                              title: Text("Edit $item Stock"),
+                              content: TextField(
+                                controller: editController,
+                                keyboardType: TextInputType.number,
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    int? newCount =
+                                        int.tryParse(editController.text);
+                                    if (newCount != null) {
+                                      updateStock(item, newCount);
+                                    }
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text("Save"),
+                                )
+                              ],
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  );
+                }).toList(),
               ),
-            ),
-            IconButton(
-              icon: Icon(Icons.add),
-              onPressed: addStockItem,
             ),
           ],
         ),
-
-        SizedBox(height: 10),
-
-        // List of stocks with editable values
-        Expanded(
-          child: ListView(
-            children: stockCounts.keys.map((item) {
-              return ListTile(
-                title: Text(item),
-                subtitle: Text("Expected Count: ${stockCounts[item]}"),
-                trailing: IconButton(
-                  icon: Icon(Icons.edit),
-                  onPressed: () {
-                    // Open a dialog to edit stock count
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        TextEditingController editController =
-                            TextEditingController(
-                                text: stockCounts[item].toString());
-                        return AlertDialog(
-                          title: Text("Edit $item Stock"),
-                          content: TextField(
-                            controller: editController,
-                            keyboardType: TextInputType.number,
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                int? newCount =
-                                    int.tryParse(editController.text);
-                                if (newCount != null) {
-                                  updateStock(item, newCount);
-                                }
-                                Navigator.pop(context);
-                              },
-                              child: Text("Save"),
-                            )
-                          ],
-                        );
-                      },
-                    );
-                  },
-                ),
-              );
-            }).toList(),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

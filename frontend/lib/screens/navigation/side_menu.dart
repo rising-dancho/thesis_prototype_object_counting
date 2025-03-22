@@ -49,13 +49,40 @@ class SideMenu extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.person_2),
-            title: const Text('Edit Profile'),
+            title: const Text('Profile'),
             onTap: () {
               // Navigator.pushReplacement(
               //   context,
               //   MaterialPageRoute(builder: (context) => const ActivityLogs()),
               // );
             },
+          ),
+          ListTile(
+            leading: const Icon(Icons.menu_book),
+            title: const Text('Guide'),
+            onTap: () {
+              // Navigator.pushReplacement(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => const ActivityLogs()),
+              // );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: const Text('About'),
+            onTap: () {
+              // Navigator.pushReplacement(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => const ActivityLogs()),
+              // );
+            },
+          ),
+          const Divider(
+            height: 20,
+            thickness: 1,
+            indent: 20,
+            endIndent: 20,
+            color: Color.fromARGB(255, 82, 81, 81),
           ),
           ListTile(
             leading: const Icon(Icons.spoke),
@@ -66,13 +93,6 @@ class SideMenu extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => const OpenCV()),
               );
             },
-          ),
-          const Divider(
-            height: 20,
-            thickness: 1,
-            indent: 20,
-            endIndent: 20,
-            color: Color.fromARGB(255, 82, 81, 81),
           ),
           ListTile(
             leading: const Icon(Icons.logout),

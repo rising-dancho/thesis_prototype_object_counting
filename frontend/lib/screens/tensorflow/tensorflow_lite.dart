@@ -241,7 +241,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Tensorflow Lite"),
+          title: const Text("Tectags AutoCount"),
           backgroundColor: const Color.fromARGB(255, 5, 45, 90),
           foregroundColor: const Color.fromARGB(255, 255, 255, 255),
           automaticallyImplyLeading: false,

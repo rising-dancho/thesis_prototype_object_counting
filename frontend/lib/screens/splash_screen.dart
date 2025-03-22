@@ -92,7 +92,7 @@ class SplashScreenState extends State<SplashScreen>
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 30, 0, 30),
                 child: SizedBox(
-                  width: 100,
+                  width: 60,
                   child: LinearProgressIndicator(
                     backgroundColor: Color(0xFFF7F7F7), // Light gray background
                     valueColor:

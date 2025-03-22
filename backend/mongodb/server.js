@@ -192,30 +192,6 @@ app.get('/api/activity_logs/', async (req, res) => {
   }
 });
 
-// app.post('/api/count_objects', async (req, res) => {
-//   try {
-//     const { userId, objectCount } = req.body;
-
-//     if (!userId || objectCount === undefined) {
-//       return res
-//         .status(400)
-//         .json({ message: 'User ID and object count are required' });
-//     }
-
-//     // Log the counting activity
-//     await Activity.create({
-//       userId: userId,
-//       action: 'Counted Objects',
-//       objectCount: objectCount,
-//     });
-
-//     res.status(200).json({ message: 'Object count logged successfully' });
-//   } catch (error) {
-//     res
-//       .status(500)
-//       .json({ message: 'Error logging object count', error: error.message });
-//   }
-// });
 
 // STORING DATA -------------
 
