@@ -17,8 +17,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'TecTags App',
       theme: lightMode,
-      // home: SplashScreen(),
-      home: NavigationMenu(),
+      home: SplashScreen(),
+      // home: NavigationMenu(),
     );
   }
 }
