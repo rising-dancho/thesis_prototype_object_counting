@@ -11,6 +11,7 @@ import 'package:path/path.dart';
 import 'dart:ui' as ui;
 
 import 'package:techtags/screens/navigation/side_menu.dart';
+import 'package:techtags/services/api.dart';
 
 class TensorflowLite extends StatefulWidget {
   const TensorflowLite({super.key});
@@ -134,6 +135,32 @@ class _TensorflowLiteState extends State<TensorflowLite> {
     List<DetectedObject> detectedObjects =
         await objectDetector.processImage(inputImage);
     debugPrint("Objects detected: ${detectedObjects.length}");
+
+    // Filter only required stock items
+
+    Map<String, int> detectedCounts = {
+      "Cement": 0,
+      "Sand": 0,
+      "Hollow blocks": 0,
+      "Plywood": 0,
+      "Deform bar": 0,
+    };
+
+    for (var obj in detectedObjects) {
+      String label = obj.labels.isNotEmpty ? obj.labels.first.text : "Unknown";
+      if (detectedCounts.containsKey(label)) {
+        detectedCounts[label] = detectedCounts[label]! + 1;
+      }
+    }
+
+    // Save detection counts to MongoDB
+    var response = await API.saveDetectedObjects(detectedCounts);
+
+    if (response.statusCode == 200) {
+      debugPrint("Successfully saved detections.");
+    } else {
+      debugPrint("Failed to save detections: ${response.body}");
+    }
 
     // debugPrint all bounding boxes BEFORE adding them to the list
     debugPrint("\nBounding Boxes BEFORE Processing:");

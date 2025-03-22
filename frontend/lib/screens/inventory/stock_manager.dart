@@ -1,7 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:techtags/screens/navigation/side_menu.dart';
+import 'package:techtags/services/api.dart';
 
 class StockManager extends StatefulWidget {
   const StockManager({super.key});
@@ -11,6 +10,29 @@ class StockManager extends StatefulWidget {
 }
 
 class _StockManagerState extends State<StockManager> {
+  TextEditingController itemController = TextEditingController();
+  TextEditingController countController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    fetchStockData();
+  }
+
+  void fetchStockData() async {
+    Map<String, int>? data = await API.fetchStockFromMongoDB();
+
+    if (data != null && data.isNotEmpty) {
+      setState(() {
+        stockCounts = data;
+      });
+    } else {
+      debugPrint(
+          "No stock data found in the database. Saving default values...");
+      await API.saveStockToMongoDB(stockCounts);
+    }
+  }
+
   Map<String, int> stockCounts = {
     "Cement": 100,
     "Sand": 100,
@@ -18,9 +40,6 @@ class _StockManagerState extends State<StockManager> {
     "Plywood": 100,
     "Deform Bar": 100,
   };
-
-  TextEditingController itemController = TextEditingController();
-  TextEditingController countController = TextEditingController();
 
   void addStockItem() {
     String itemName = itemController.text.trim();
@@ -32,7 +51,7 @@ class _StockManagerState extends State<StockManager> {
       });
 
       // Call function to save to MongoDB
-      saveStockToMongoDB();
+      API.saveStockToMongoDB(stockCounts);
 
       itemController.clear();
       countController.clear();
@@ -45,16 +64,7 @@ class _StockManagerState extends State<StockManager> {
     });
 
     // Call function to update in MongoDB
-    saveStockToMongoDB();
-  }
-
-  void saveStockToMongoDB() async {
-    var response = await http.post(
-      Uri.parse("http://yourserver.com/api/stocks"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(stockCounts),
-    );
-    debugPrint("Stock saved: ${response.body}");
+    API.saveStockToMongoDB(stockCounts);
   }
 
   @override
@@ -83,7 +93,7 @@ class _StockManagerState extends State<StockManager> {
           children: [
             // Input fields for adding new stock category
             Padding(
-              padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+              padding: EdgeInsets.fromLTRB(20, 10, 0, 10),
               child: Row(
                 children: [
                   Expanded(

@@ -8,9 +8,9 @@ const app = express();
 const cors = require('cors');
 app.use(cors());
 
-const Stock = require('../models/Stock');
-const User = require('./schema/user');
-const Activity = require('./schema/activity');
+const Product = require('../schema/product');
+const User = require('../schema/user');
+const Activity = require('../schema/activity');
 
 const createToken = (id) => {
   return jwt.sign({ _id: id }, process.env.SECRET, { expiresIn: '14d' });
@@ -192,46 +192,9 @@ app.get('/api/activity_logs/', async (req, res) => {
   }
 });
 
-// NUMBER OF STOCKS and DETECTIONS DATA -------------
+// STORING DATA -------------
 
-// Save stock categories
-app.post('/stocks', async (req, res) => {
-  try {
-    const stocks = Object.keys(req.body).map((item) => ({
-      item,
-      expectedCount: req.body[item],
-    }));
 
-    await Stock.deleteMany({});
-    await Stock.insertMany(stocks);
-
-    res.json({ message: 'Stock updated' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Save detected objects
-app.post('/detections', async (req, res) => {
-  try {
-    for (let item in req.body) {
-      await Stock.findOneAndUpdate(
-        { item },
-        { detectedCount: req.body[item] },
-        { upsert: true }
-      );
-    }
-    res.json({ message: 'Detections updated' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Get all stock
-app.get('/stocks', async (req, res) => {
-  const stocks = await Stock.find();
-  res.json(stocks);
-});
 
 const PORT = 2000;
 app.listen(PORT, () => {
