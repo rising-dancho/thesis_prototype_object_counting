@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const stockSchema = new mongoose.Schema({
   item: String,
-  totalStockCount: Number,
+  expectedCount: Number,
   detectedCount: { type: Number, default: 0 },
 });
 
