@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 
-import 'package:techtags/screens/opencv/opencv.dart';
+import 'package:tectags/screens/opencv/opencv.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {

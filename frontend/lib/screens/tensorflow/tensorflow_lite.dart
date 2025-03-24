@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:screenshot/screenshot.dart';
-import 'package:techtags/logic/tensorflow/photo_viewer.dart';
+import 'package:tectags/logic/tensorflow/photo_viewer.dart';
 import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 import 'dart:ui' as ui;
 
-import 'package:techtags/screens/navigation/side_menu.dart';
+import 'package:tectags/screens/navigation/side_menu.dart';
 
 class TensorflowLite extends StatefulWidget {
   const TensorflowLite({super.key});

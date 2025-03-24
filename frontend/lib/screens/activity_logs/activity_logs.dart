@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:techtags/screens/navigation/side_menu.dart';
-import 'package:techtags/services/api.dart';
+import 'package:tectags/screens/navigation/side_menu.dart';
+import 'package:tectags/services/api.dart';
 
 class ActivityLog {
   final String userId; // ✅ Store userId

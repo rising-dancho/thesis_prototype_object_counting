@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:techtags/screens/login_screen.dart';
+import 'package:tectags/screens/login_screen.dart';
 
 class LogoutScreen extends StatelessWidget {
   const LogoutScreen({super.key});

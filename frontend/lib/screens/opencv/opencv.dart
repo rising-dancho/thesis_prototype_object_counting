@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:techtags/logic/opencv/opencv_photo_viewer.dart';
+import 'package:tectags/logic/opencv/opencv_photo_viewer.dart';
 import 'dart:io';
 import 'package:screenshot/screenshot.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:techtags/screens/navigation/side_menu.dart';
+import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:uuid/uuid.dart';
 
 class OpenCV extends StatefulWidget {

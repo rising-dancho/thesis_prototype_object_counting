@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:techtags/screens/login_screen.dart';
-import 'package:techtags/screens/signup_screen.dart';
-import 'package:techtags/theme/theme.dart';
-import 'package:techtags/widgets/custom_scaffold.dart';
-import 'package:techtags/widgets/welcome_button.dart';
+import 'package:tectags/screens/login_screen.dart';
+import 'package:tectags/screens/signup_screen.dart';
+import 'package:tectags/theme/theme.dart';
+import 'package:tectags/widgets/custom_scaffold.dart';
+import 'package:tectags/widgets/welcome_button.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});

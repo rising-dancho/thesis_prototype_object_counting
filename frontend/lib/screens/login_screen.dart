@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:techtags/screens/navigation/navigation_menu.dart';
-import 'package:techtags/services/api.dart';
-import 'package:techtags/widgets/custom_scaffold.dart';
-import 'package:techtags/screens/signup_screen.dart';
+import 'package:tectags/screens/navigation/navigation_menu.dart';
+import 'package:tectags/services/api.dart';
+import 'package:tectags/widgets/custom_scaffold.dart';
+import 'package:tectags/screens/signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:techtags/screens/login_screen.dart';
-import 'package:techtags/screens/navigation/navigation_menu.dart';
-import 'package:techtags/screens/opencv/opencv.dart';
+import 'package:tectags/screens/login_screen.dart';
+import 'package:tectags/screens/navigation/navigation_menu.dart';
+import 'package:tectags/screens/opencv/opencv.dart';
 
 class SideMenu extends StatelessWidget {
   const SideMenu({super.key});

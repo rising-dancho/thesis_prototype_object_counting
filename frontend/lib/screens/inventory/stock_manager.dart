@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:techtags/screens/navigation/side_menu.dart';
-import 'package:techtags/services/api.dart';
+import 'package:tectags/screens/navigation/side_menu.dart';
+import 'package:tectags/services/api.dart';
 
 class StockManager extends StatefulWidget {
   const StockManager({super.key});
