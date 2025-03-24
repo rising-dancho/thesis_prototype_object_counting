@@ -11,6 +11,7 @@ import 'package:path/path.dart';
 import 'dart:ui' as ui;
 
 import 'package:tectags/screens/navigation/side_menu.dart';
+import 'package:tectags/services/api.dart';
 
 class TensorflowLite extends StatefulWidget {
   const TensorflowLite({super.key});
@@ -41,9 +42,14 @@ class _TensorflowLiteState extends State<TensorflowLite> {
   // variable for whatever is typed in the TextField
   final TextEditingController titleController = TextEditingController();
 
+  // FOR THE DROPDOWN
+  List<String> stockList = [];
+  String? _selectedStock;
+
   @override
   void initState() {
     super.initState();
+    loadStockData();
     imagePicker = ImagePicker();
     // USE DEFAULT PRETRAINED MODEL: load initial pretrained object detector
     // EXPLANATION: https://pub.dev/packages/google_mlkit_object_detection#create-an-instance-of-objectdetector
@@ -54,6 +60,17 @@ class _TensorflowLiteState extends State<TensorflowLite> {
     // initialize object detector inside initState (REQUIRED)
     objectDetector = ObjectDetector(options: options);
     // loadModel();
+  }
+
+  // STOCK DATA FOR THE DROPDOWN
+  Future<void> loadStockData() async {
+    var fetchedStocks = await API.fetchStockFromMongoDB();
+
+    if (fetchedStocks != null) {
+      setState(() {
+        stockList = fetchedStocks.keys.toList();
+      });
+    }
   }
 
   Future<void> loadImageForDrawing(File imageFile) async {
@@ -361,20 +378,30 @@ class _TensorflowLiteState extends State<TensorflowLite> {
               ],
               if (_selectedImage != null) ...[
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextField(
-                    controller: titleController, // Assign controller
-                    onChanged: (value) {
-                      setState(() {}); // Update UI when text changes
-                    },
-                    decoration: InputDecoration(
-                      hintText: "Enter file name",
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
+                    padding: const EdgeInsets.all(8.0),
+                    // DROPDOWN THAT FETCHES STOCKS FROM MONGODB
+                    child: DropdownButtonFormField<String>(
+                      value: _selectedStock,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _selectedStock = newValue!;
+                          titleController.text = _selectedStock!;
+                        });
+                      },
+                      items: stockList
+                          .map<DropdownMenuItem<String>>((String stock) {
+                        return DropdownMenuItem<String>(
+                          value: stock,
+                          child: Text(stock),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                        hintText: "Select a stock",
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(),
+                      ),
+                    )),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
