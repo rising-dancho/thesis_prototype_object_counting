@@ -8,9 +8,9 @@ const app = express();
 const cors = require('cors');
 app.use(cors());
 
-const Stock = require('./schema/stock');
+const Product = require('./schema/product');
 const User = require('./schema/user');
-const Activity = require('. /schema/activity');
+const Activity = require('./schema/activity');
 
 const createToken = (id) => {
   return jwt.sign({ _id: id }, process.env.SECRET, { expiresIn: '14d' });
@@ -165,6 +165,8 @@ app.get('/api/activity_logs/:userId', async (req, res) => {
 // GET ALL USER ACTIVITY LOGS
 app.get('/api/activity_logs/', async (req, res) => {
   try {
+    const { userId } = req.params;
+
     // Fetch all activities and populate userId to get both userId and fullName
     const activities = await Activity.find() // JUST REMOVE THE FILTER TO GET ALL ACTIVITIES
       .populate('userId', 'fullName') // Fetch fullName from User model
@@ -190,51 +192,124 @@ app.get('/api/activity_logs/', async (req, res) => {
   }
 });
 
-// NUMBER OF STOCKS and DETECTIONS DATA -------------
+// app.post('/api/count_objects', async (req, res) => {
+//   try {
+//     const { userId, objectCount } = req.body;
 
-// Save stock categories
-app.post('/api/stocks', async (req, res) => {
+//     if (!userId || objectCount === undefined) {
+//       return res
+//         .status(400)
+//         .json({ message: 'User ID and object count are required' });
+//     }
+
+//     // Log the counting activity
+//     await Activity.create({
+//       userId: userId,
+//       action: 'Counted Objects',
+//       objectCount: objectCount,
+//     });
+
+//     res.status(200).json({ message: 'Object count logged successfully' });
+//   } catch (error) {
+//     res
+//       .status(500)
+//       .json({ message: 'Error logging object count', error: error.message });
+//   }
+// });
+
+// STORING DATA -------------
+
+// POST API
+app.post('/api/add_product', async (req, res) => {
+  console.log('DATA FROM FRONTEND', req.body);
+
+  let data = new Product(req.body);
+
   try {
-    const stocks = Object.keys(req.body).map((item) => ({
-      item,
-      expectedCount: req.body[item],
-    }));
-
-    await Stock.deleteMany({});
-    await Stock.insertMany(stocks);
-
-    res.json({ message: 'Stock updated' });
+    let dataToStore = await data.save();
+    res.status(200).json({
+      message: 'Product added successfully!',
+      product: dataToStore,
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({
+      status: error.message,
+    });
   }
 });
 
-// Save detected objects
-app.post('/api/detections', async (req, res) => {
+// GET ALL API
+app.get('/api/get_product/', async (req, res) => {
   try {
-    for (let item in req.body) {
-      await Stock.findOneAndUpdate(
-        { item },
-        { detectedCount: req.body[item] },
-        { upsert: true }
-      );
+    let data = await Product.find();
+    console.log('📦 Retrieved Data:', data);
+    res.status(200).json(data);
+  } catch (error) {
+    console.error('❌ Error Retrieving Data:', error);
+    res.status(500).json(error.message);
+  }
+});
+
+// GET BY ID API
+app.get('/api/get_product/:id', async (req, res) => {
+  try {
+    let data = await Product.findById(req.params.id);
+    console.log(`🔍 Data for ID ${req.params.id}:`, data);
+    res.status(200).json(data);
+  } catch (error) {
+    console.error('❌ Error Retrieving Data:', error);
+    res.status(500).json(error.message);
+  }
+});
+
+// UPDATE API - ":id" is the route "parameter"
+app.put('/api/update_product/:id', async (req, res) => {
+  let id = req.params.id;
+  let updatedData = req.body;
+
+  // ✅ Ensure update fields are correct
+  if (!updatedData.pname && !updatedData.pprice && !updatedData.pdesc) {
+    return res.status(400).json({ error: 'No valid fields to update' });
+  }
+
+  try {
+    const data = await Product.findByIdAndUpdate(
+      id,
+      { $set: updatedData }, // 🔥 Use $set to force update
+      { new: true } // Return the updated document
+    );
+
+    if (!data) {
+      return res.status(404).json({ error: 'Product not found' });
     }
-    res.json({ message: 'Detections updated' });
+
+    console.log(`🔄 Updated Product (ID: ${id}):`, data);
+    res.status(200).json(data);
   } catch (error) {
+    console.error('❌ Error Updating Data:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// Get all stock
-app.get('/api/stocks', async (req, res) => {
-  const stocks = await Stock.find();
-  res.json(stocks);
+// DELETE API
+app.delete('/api/delete_product/:id', async (req, res) => {
+  let id = req.params.id;
+  try {
+    const data = await Product.findByIdAndDelete(id);
+
+    console.log('DATA:', data);
+    res.json({
+      status: `Deleted the product ${
+        data ? data.pname : 'Unknown'
+      } from database`,
+    });
+  } catch (error) {
+    console.error('❌ Error Deleting Data:', error);
+    res.send(error.message);
+  }
 });
 
 const PORT = 2000;
 app.listen(PORT, () => {
   console.log(`Connected to server at ${PORT}`);
-  if (!process.env.SECRET) {
-    throw new Error('❌ SECRET key is missing in environment variables!');
-  }
 });
