@@ -8,9 +8,9 @@ const app = express();
 const cors = require('cors');
 app.use(cors());
 
-const Product = require('./schema/product');
-const User = require('./schema/user');
-const Activity = require('./schema/activity');
+const Stock = require('../schema/stock');
+const User = require('../schema/user');
+const Activity = require('../schema/activity');
 
 const createToken = (id) => {
   return jwt.sign({ _id: id }, process.env.SECRET, { expiresIn: '14d' });
@@ -192,121 +192,45 @@ app.get('/api/activity_logs/', async (req, res) => {
   }
 });
 
-// app.post('/api/count_objects', async (req, res) => {
-//   try {
-//     const { userId, objectCount } = req.body;
+// NUMBER OF STOCKS and DETECTIONS DATA -------------
 
-//     if (!userId || objectCount === undefined) {
-//       return res
-//         .status(400)
-//         .json({ message: 'User ID and object count are required' });
-//     }
-
-//     // Log the counting activity
-//     await Activity.create({
-//       userId: userId,
-//       action: 'Counted Objects',
-//       objectCount: objectCount,
-//     });
-
-//     res.status(200).json({ message: 'Object count logged successfully' });
-//   } catch (error) {
-//     res
-//       .status(500)
-//       .json({ message: 'Error logging object count', error: error.message });
-//   }
-// });
-
-// STORING DATA -------------
-
-// POST API
-app.post('/api/add_product', async (req, res) => {
-  console.log('DATA FROM FRONTEND', req.body);
-
-  let data = new Product(req.body);
-
+// Save stock categories
+app.post('/api/stocks', async (req, res) => {
   try {
-    let dataToStore = await data.save();
-    res.status(200).json({
-      message: 'Product added successfully!',
-      product: dataToStore,
-    });
+    const stocks = Object.keys(req.body).map((item) => ({
+      item,
+      expectedCount: req.body[item],
+    }));
+
+    await Stock.deleteMany({});
+    await Stock.insertMany(stocks);
+
+    res.json({ message: 'Stock updated' });
   } catch (error) {
-    res.status(400).json({
-      status: error.message,
-    });
-  }
-});
-
-// GET ALL API
-app.get('/api/get_product/', async (req, res) => {
-  try {
-    let data = await Product.find();
-    console.log('📦 Retrieved Data:', data);
-    res.status(200).json(data);
-  } catch (error) {
-    console.error('❌ Error Retrieving Data:', error);
-    res.status(500).json(error.message);
-  }
-});
-
-// GET BY ID API
-app.get('/api/get_product/:id', async (req, res) => {
-  try {
-    let data = await Product.findById(req.params.id);
-    console.log(`🔍 Data for ID ${req.params.id}:`, data);
-    res.status(200).json(data);
-  } catch (error) {
-    console.error('❌ Error Retrieving Data:', error);
-    res.status(500).json(error.message);
-  }
-});
-
-// UPDATE API - ":id" is the route "parameter"
-app.put('/api/update_product/:id', async (req, res) => {
-  let id = req.params.id;
-  let updatedData = req.body;
-
-  // ✅ Ensure update fields are correct
-  if (!updatedData.pname && !updatedData.pprice && !updatedData.pdesc) {
-    return res.status(400).json({ error: 'No valid fields to update' });
-  }
-
-  try {
-    const data = await Product.findByIdAndUpdate(
-      id,
-      { $set: updatedData }, // 🔥 Use $set to force update
-      { new: true } // Return the updated document
-    );
-
-    if (!data) {
-      return res.status(404).json({ error: 'Product not found' });
-    }
-
-    console.log(`🔄 Updated Product (ID: ${id}):`, data);
-    res.status(200).json(data);
-  } catch (error) {
-    console.error('❌ Error Updating Data:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// DELETE API
-app.delete('/api/delete_product/:id', async (req, res) => {
-  let id = req.params.id;
+// Save detected objects
+app.post('/api/detections', async (req, res) => {
   try {
-    const data = await Product.findByIdAndDelete(id);
-
-    console.log('DATA:', data);
-    res.json({
-      status: `Deleted the product ${
-        data ? data.pname : 'Unknown'
-      } from database`,
-    });
+    for (let item in req.body) {
+      await Stock.findOneAndUpdate(
+        { item },
+        { detectedCount: req.body[item] },
+        { upsert: true }
+      );
+    }
+    res.json({ message: 'Detections updated' });
   } catch (error) {
-    console.error('❌ Error Deleting Data:', error);
-    res.send(error.message);
+    res.status(500).json({ error: error.message });
   }
+});
+
+// Get all stock
+app.get('/api/stocks', async (req, res) => {
+  const stocks = await Stock.find();
+  res.json(stocks);
 });
 
 const PORT = 2000;
