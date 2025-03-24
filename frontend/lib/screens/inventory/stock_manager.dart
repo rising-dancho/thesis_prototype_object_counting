@@ -133,87 +133,116 @@ class _StockManagerState extends State<StockManager> {
                       itemBuilder: (context, index) {
                         String item = stockCounts.keys.elementAt(index);
                         int count = stockCounts[item] ?? 0;
-                        return ListTile(
-                          title: Text(item),
-                          subtitle: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text("Current: 55"),
-                              Expanded(child: SizedBox()),
-                              Text("Total: $count"),
-                            ],
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: Icon(Icons.edit),
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      TextEditingController editController =
-                                          TextEditingController(
-                                              text: count.toString());
-                                      return AlertDialog(
-                                        title: Text("Edit $item Stock"),
-                                        content: TextField(
-                                          controller: editController,
-                                          keyboardType: TextInputType.number,
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () {
-                                              int? newCount = int.tryParse(
-                                                  editController.text);
-                                              if (newCount != null) {
-                                                updateStock(item, newCount);
-                                              }
-                                              Navigator.pop(context);
-                                            },
-                                            child: Text("Save"),
-                                          )
-                                        ],
-                                      );
-                                    },
-                                  );
-                                },
+                        return Padding(
+                          padding: EdgeInsets.fromLTRB(
+                              0, 0, 0, 10), // Adds space at the bottom
+                          child: Container(
+                            padding: EdgeInsets.fromLTRB(20, 5, 10, 5),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(color: Colors.grey.shade300),
                               ),
-                              IconButton(
-                                icon: Icon(Icons.delete),
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      title: Text("Delete $item?"),
-                                      content: Text(
-                                          "Are you sure you want to remove this stock item?"),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context),
-                                          child: Text("Cancel"),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            deleteStockItem(item);
-                                            Navigator.pop(context);
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    item,
+                                    textAlign: TextAlign.start,
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                Text("Current: 55", textAlign: TextAlign.start),
+                                Expanded(child: SizedBox()),
+                                Text("Total: $count", textAlign: TextAlign.end),
+                                Row(
+                                  children: [
+                                    IconButton(
+                                      icon: Icon(Icons.edit),
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            TextEditingController
+                                                editController =
+                                                TextEditingController(
+                                                    text: count.toString());
+                                            return AlertDialog(
+                                              title: Text("Edit $item Stock"),
+                                              content: TextField(
+                                                controller: editController,
+                                                keyboardType:
+                                                    TextInputType.number,
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    int? newCount =
+                                                        int.tryParse(
+                                                            editController
+                                                                .text);
+                                                    if (newCount != null) {
+                                                      updateStock(
+                                                          item, newCount);
+                                                    }
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: Text("Save"),
+                                                )
+                                              ],
+                                            );
                                           },
-                                          child: Text("Delete",
-                                              style:
-                                                  TextStyle(color: Colors.red)),
-                                        ),
-                                      ],
+                                        );
+                                      },
                                     ),
-                                  );
-                                },
-                              ),
-                            ],
+                                    IconButton(
+                                      icon: Icon(Icons.delete),
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) => AlertDialog(
+                                            title: Text("Delete $item?"),
+                                            content: Text(
+                                                "Are you sure you want to remove this stock item?"),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () =>
+                                                    Navigator.pop(context),
+                                                child: Text("Cancel",
+                                                    style: TextStyle(
+                                                        color:
+                                                            Colors.grey[600])),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  deleteStockItem(item);
+                                                  Navigator.pop(context);
+                                                },
+                                                child: Text("Delete",
+                                                    style: TextStyle(
+                                                        color:
+                                                            Colors.red[400])),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         );
                       },
                     ),
             ),
+            SizedBox(height: 50),
           ],
         ),
       ),
