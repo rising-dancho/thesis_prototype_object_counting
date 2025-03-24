@@ -123,7 +123,33 @@ class _ActivityLogsState extends State<ActivityLogs> {
       ),
       endDrawer: const SideMenu(), // Using the extracted drawer
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 24, top: 12, bottom: 0),
+            child: Row(
+              children: [
+                const Text("Show All Users' Logs"),
+                const SizedBox(width: 10),
+                Switch(
+                  value: showAllLogs,
+                  onChanged: (value) {
+                    setState(() {
+                      showAllLogs = value;
+                      _loadActivityLogs(); // Reload data when toggling
+                    });
+                  },
+                  activeColor: Colors.white,
+                  activeTrackColor: Colors.green,
+                  inactiveThumbColor: Colors.white,
+                  inactiveTrackColor:
+                      Colors.black54.withAlpha((0.25 * 255).toInt()),
+                ),
+              ],
+            ),
+          ),
+
+          // ✅ Scrollable content stays below
           Expanded(
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -132,27 +158,6 @@ class _ActivityLogsState extends State<ActivityLogs> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 24),
-                      child: Row(children: [
-                        const Text("Show All Users' Logs"),
-                        const SizedBox(width: 10),
-                        Switch(
-                          value: showAllLogs,
-                          onChanged: (value) {
-                            setState(() {
-                              showAllLogs = value;
-                              _loadActivityLogs(); // Reload data when toggling
-                            });
-                          },
-                          activeColor: Colors.white,
-                          activeTrackColor: Colors.green,
-                          inactiveThumbColor: Colors.white,
-                          inactiveTrackColor:
-                              Colors.black54.withAlpha((0.25 * 255).toInt()),
-                        ),
-                      ]),
-                    ),
                     DataTable(
                       columns: const [
                         DataColumn(label: Text('User ID')),
@@ -176,6 +181,7 @@ class _ActivityLogsState extends State<ActivityLogs> {
               ),
             ),
           ),
+
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(
