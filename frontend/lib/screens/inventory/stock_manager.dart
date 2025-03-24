@@ -67,6 +67,14 @@ class _StockManagerState extends State<StockManager> {
     API.saveStockToMongoDB(stockCounts);
   }
 
+  void deleteStockItem(String item) {
+    setState(() {
+      stockCounts.remove(item);
+    });
+
+    API.deleteStockFromMongoDB(item);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -130,41 +138,77 @@ class _StockManagerState extends State<StockManager> {
                           subtitle: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
+                              Text("Current: 55"),
+                              Expanded(child: SizedBox()),
                               Text("Total: $count"),
                             ],
                           ),
-                          trailing: IconButton(
-                            icon: Icon(Icons.edit),
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  TextEditingController editController =
-                                      TextEditingController(
-                                          text: count.toString());
-                                  return AlertDialog(
-                                    title: Text("Edit $item Stock"),
-                                    content: TextField(
-                                      controller: editController,
-                                      keyboardType: TextInputType.number,
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          int? newCount =
-                                              int.tryParse(editController.text);
-                                          if (newCount != null) {
-                                            updateStock(item, newCount);
-                                          }
-                                          Navigator.pop(context);
-                                        },
-                                        child: Text("Save"),
-                                      )
-                                    ],
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.edit),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      TextEditingController editController =
+                                          TextEditingController(
+                                              text: count.toString());
+                                      return AlertDialog(
+                                        title: Text("Edit $item Stock"),
+                                        content: TextField(
+                                          controller: editController,
+                                          keyboardType: TextInputType.number,
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              int? newCount = int.tryParse(
+                                                  editController.text);
+                                              if (newCount != null) {
+                                                updateStock(item, newCount);
+                                              }
+                                              Navigator.pop(context);
+                                            },
+                                            child: Text("Save"),
+                                          )
+                                        ],
+                                      );
+                                    },
                                   );
                                 },
-                              );
-                            },
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.delete),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: Text("Delete $item?"),
+                                      content: Text(
+                                          "Are you sure you want to remove this stock item?"),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                          child: Text("Cancel"),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            deleteStockItem(item);
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text("Delete",
+                                              style:
+                                                  TextStyle(color: Colors.red)),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
                           ),
                         );
                       },

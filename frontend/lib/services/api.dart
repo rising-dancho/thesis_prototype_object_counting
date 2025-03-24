@@ -194,4 +194,19 @@ class API {
       return null;
     }
   }
+
+  static Future<void> deleteStockFromMongoDB(String itemName) async {
+    try {
+      var response = await http.delete(Uri.parse("${baseUrl}stocks/$itemName"));
+
+      if (response.statusCode == 200) {
+        debugPrint("Stock deleted: ${response.body}");
+      } else {
+        debugPrint(
+            "Failed to delete stock: ${response.statusCode} - ${response.body}");
+      }
+    } catch (e) {
+      debugPrint("Error deleting stock: $e");
+    }
+  }
 }

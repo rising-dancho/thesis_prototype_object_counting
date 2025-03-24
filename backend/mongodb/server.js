@@ -249,6 +249,16 @@ app.post('/api/detections', async (req, res) => {
   }
 });
 
+app.delete('/api/stocks/:item', async (req, res) => {
+  try {
+    const itemName = req.params.item;
+    await Stock.deleteOne({ item: itemName });
+    res.json({ message: `Deleted ${itemName} successfully` });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get all stock
 app.get('/api/stocks', async (req, res) => {
   const stocks = await Stock.find();
