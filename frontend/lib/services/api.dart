@@ -140,17 +140,18 @@ class API {
 
   static Future<void> saveStockToMongoDB(Map<String, int> stockCounts) async {
     try {
+      var stocks = stockCounts.map((key, value) => MapEntry(key, value));
+
       var response = await http.post(
         Uri.parse("${baseUrl}stocks"),
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode(stockCounts),
+        body: jsonEncode(stocks),
       );
 
       if (response.statusCode == 200) {
-        debugPrint("Stock saved: ${response.body}");
+        debugPrint("Stock saved successfully: ${response.body}");
       } else {
-        debugPrint(
-            "Failed to save stock: ${response.statusCode} - ${response.body}");
+        debugPrint("Failed to save stock: ${response.body}");
       }
     } catch (e) {
       debugPrint("Error saving stock: $e");
@@ -173,16 +174,16 @@ class API {
 
         Map<String, int> stockData = {};
         for (var item in jsonData) {
-          if (item.containsKey("name") && item.containsKey("quantity")) {
-            String itemName = item["name"].toString();
-            int quantity = item["quantity"] is int
-                ? item["quantity"]
-                : int.tryParse(item["quantity"].toString()) ?? 0;
+          if (item.containsKey("item") && item.containsKey("expectedCount")) {
+            String itemName = item["item"];
+            int quantity = item["expectedCount"] is int
+                ? item["expectedCount"]
+                : int.tryParse(item["expectedCount"].toString()) ?? 0;
             stockData[itemName] = quantity;
           }
         }
 
-        debugPrint("Parsed Stock Data: $stockData");
+        debugPrint("Fetched Stock Data: $stockData");
         return stockData;
       } else {
         debugPrint("Failed to fetch stock: ${response.body}");

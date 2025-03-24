@@ -220,15 +220,14 @@ app.get('/api/activity_logs/', async (req, res) => {
 // Save stock categories
 app.post('/api/stocks', async (req, res) => {
   try {
-    const stocks = Object.keys(req.body).map((item) => ({
-      item,
-      expectedCount: req.body[item],
-    }));
-
-    await Stock.deleteMany({});
-    await Stock.insertMany(stocks);
-
-    res.json({ message: 'Stock updated' });
+    for (const item in req.body) {
+      await Stock.findOneAndUpdate(
+        { item },
+        { expectedCount: req.body[item] },
+        { upsert: true }
+      );
+    }
+    res.json({ message: 'Stock updated successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
