@@ -100,27 +100,58 @@ class _StockManagerState extends State<StockManager> {
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.fromLTRB(20, 10, 0, 10),
+              padding: EdgeInsets.fromLTRB(10, 10, 0, 10),
               child: Row(
                 children: [
                   Expanded(
-                    child: TextField(
+                    child: TextFormField(
                       controller: itemController,
-                      decoration: InputDecoration(labelText: "Stock Category"),
+                      decoration: InputDecoration(
+                        labelText: 'Stock Category',
+                        filled: true,
+                        fillColor: Color(0xFFF9FAF3),
+                        border: OutlineInputBorder(),
+                      ),
                     ),
                   ),
                   SizedBox(width: 10),
                   Expanded(
-                    child: TextField(
+                    child: TextFormField(
                       controller: countController,
-                      decoration: InputDecoration(labelText: "Stock Count"),
                       keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: 'Stock Count',
+                        filled: true,
+                        fillColor: Color(0xFFF9FAF3),
+                        border: OutlineInputBorder(),
+                        // keyboardType: TextInputType.number,
+                      ),
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(Icons.add),
-                    onPressed: addStockItem,
-                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Color.fromARGB(
+                            255, 3, 130, 168), // Background color
+                        borderRadius:
+                            BorderRadius.circular(10), // Adds rounded corners
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha((0.2 * 255).toInt()),
+                            blurRadius: 5,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: IconButton(
+                        icon: Icon(Icons.add,
+                            color: Colors.white,
+                            size: 24), // Custom icon size & color
+                        onPressed: addStockItem,
+                      ),
+                    ),
+                  )
                 ],
               ),
             ),
@@ -149,17 +180,32 @@ class _StockManagerState extends State<StockManager> {
                               children: [
                                 Expanded(
                                   flex: 2,
-                                  child: Text(
-                                    item,
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            item,
+                                            textAlign: TextAlign.start,
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
+                                      ),
+                                      Text("Current: 55",
+                                          textAlign: TextAlign.start),
+                                    ],
                                   ),
                                 ),
-                                Text("Current: 55", textAlign: TextAlign.start),
-                                Expanded(child: SizedBox()),
-                                Text("Total: $count", textAlign: TextAlign.end),
+                                Padding(
+                                    padding: EdgeInsets.only(right: 15),
+                                    child: Text("Total: $count")),
                                 Row(
                                   children: [
                                     IconButton(
