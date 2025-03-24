@@ -13,11 +13,15 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  final _formKey = GlobalKey<FormState>();
-  var emailController = TextEditingController();
-  var passwordController = TextEditingController();
-  // var confirmPasswordController = TextEditingController();
-  var fullNameController = TextEditingController();
+  final _formSignUpKey = GlobalKey<FormState>();
+  final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+
+  bool _passwordVisible = false;
+  bool _confirmPasswordVisible = false;
 
   @override
   void initState() {
@@ -40,6 +44,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   @override
+  void dispose() {
+    _fullNameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
@@ -51,9 +64,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
       child: SafeArea(
         child: CustomScaffold(
           child: SingleChildScrollView(
-            padding: EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
             child: Form(
-              key: _formKey,
+              key: _formSignUpKey,
               child: Column(
                 children: [
                   const SizedBox(height: 10),
@@ -63,38 +76,32 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     height: 200,
                   ),
                   const SizedBox(height: 10),
-                  Text(
+                  const Text(
                     'Create your account',
                     style: TextStyle(
                       fontSize: 20.0,
                       fontWeight: FontWeight.w900,
-                      color: Color.fromARGB(255, 255, 255, 255),
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 40.0),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 3.0),
                     child: TextFormField(
-                      controller: fullNameController,
+                      controller: _fullNameController,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter Full Name';
+                          return 'Please enter your full name';
                         }
                         return null;
                       },
                       decoration: InputDecoration(
-                        label: const Text('Full Name'),
-                        hintText: 'Enter Full Name',
+                        labelText: 'Full Name',
+                        hintText: 'Enter your full name',
                         hintStyle: const TextStyle(color: Colors.black26),
-                        fillColor: Colors.grey[200],
+                        fillColor: Colors.white,
                         filled: true,
-                        border: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.black12),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        enabledBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.black12),
-                        ),
+                        border: InputBorder.none,
                       ),
                     ),
                   ),
@@ -102,32 +109,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 3.0),
                     child: TextFormField(
-                      controller: emailController,
-                      // VALID EMAILS ONLY!
+                      controller: _emailController,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter Email';
-                        }
-                        if (!RegExp(
-                                r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
-                            .hasMatch(value)) {
-                          return 'Enter a valid email';
+                          return 'Please enter your email';
                         }
                         return null;
                       },
                       decoration: InputDecoration(
-                        label: const Text('Email'),
-                        hintText: 'Enter Email',
+                        labelText: 'Email',
+                        hintText: 'Enter your email',
                         hintStyle: const TextStyle(color: Colors.black26),
-                        fillColor: Colors.grey[200],
+                        fillColor: Colors.white,
                         filled: true,
-                        border: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.black12),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        enabledBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.black12),
-                        ),
+                        border: InputBorder.none,
                       ),
                     ),
                   ),
@@ -135,27 +130,72 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 3.0),
                     child: TextFormField(
-                      controller: passwordController,
-                      obscureText: true,
+                      controller: _passwordController,
+                      obscureText: !_passwordVisible,
                       obscuringCharacter: '*',
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter Password';
+                          return 'Please enter a password';
                         }
                         return null;
                       },
                       decoration: InputDecoration(
-                        label: const Text('Password'),
-                        hintText: 'Enter Password',
+                        labelText: 'Password',
+                        hintText: 'Enter your password',
                         hintStyle: const TextStyle(color: Colors.black26),
-                        fillColor: Colors.grey[200],
+                        fillColor: const Color.fromARGB(255, 255, 255, 255),
                         filled: true,
-                        border: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.black12),
-                          borderRadius: BorderRadius.circular(20),
+                        border: InputBorder.none,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _passwordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _passwordVisible = !_passwordVisible;
+                            });
+                          },
                         ),
-                        enabledBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.black12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20.0),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                    child: TextFormField(
+                      controller: _confirmPasswordController,
+                      obscureText: !_confirmPasswordVisible,
+                      obscuringCharacter: '*',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please confirm your password';
+                        }
+                        if (value != _passwordController.text) {
+                          return 'Passwords do not match';
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Confirm Password',
+                        hintText: 'Re-enter your password',
+                        hintStyle: const TextStyle(color: Colors.black26),
+                        fillColor: const Color.fromARGB(255, 255, 255, 255),
+                        filled: true,
+                        border: InputBorder.none,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _confirmPasswordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _confirmPasswordVisible =
+                                  !_confirmPasswordVisible;
+                            });
+                          },
                         ),
                       ),
                     ),
@@ -167,17 +207,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
+                          if (_formSignUpKey.currentState!.validate()) {
                             var data = {
-                              "email": emailController.text,
-                              "password": passwordController.text,
-                              "fullName": fullNameController.text,
+                              "email": _emailController.text,
+                              "password": _passwordController.text,
+                              "fullName": _fullNameController.text,
                             };
 
                             Map<String, dynamic>? response;
                             try {
                               response = await API.registerUser(data);
-                              debugPrint("API Response: $response"); // Debug log
+                              debugPrint(
+                                  "API Response: $response"); // Debug log
                             } catch (e) {
                               debugPrint(
                                   "Error during registration: $e"); // Debug log
@@ -222,9 +263,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                         'Registration Successful!')),
                               );
 
-                              emailController.clear();
-                              passwordController.clear();
-                              fullNameController.clear();
+                              _emailController.clear();
+                              _passwordController.clear();
+                              _fullNameController.clear();
 
                               Navigator.pushReplacement(
                                 context,
