@@ -12,22 +12,7 @@ class StockManager extends StatefulWidget {
 class _StockManagerState extends State<StockManager> {
   TextEditingController itemController = TextEditingController();
   TextEditingController countController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    fetchStockData();
-  }
-
-  void fetchStockData() async {
-    Map<String, int>? data = await API.fetchStockFromMongoDB();
-
-    if (data != null) {
-      setState(() {
-        stockCounts = data;
-      });
-    }
-  }
+  Map<String, int> stockCounts = {};
 
   // BACKUP
   // Map<String, int> stockCounts = {
@@ -38,7 +23,25 @@ class _StockManagerState extends State<StockManager> {
   //   "Deform Bar": 100,
   // };
 
-  Map<String, int> stockCounts = {};
+  @override
+  void initState() {
+    super.initState();
+    fetchStockData();
+  }
+
+  void fetchStockData() async {
+    Map<String, int>? data = await API.fetchStockFromMongoDB();
+
+    debugPrint("Fetched Stock Data: $data"); // Debug print
+
+    if (data != null && mounted) {
+      setState(() {
+        stockCounts = data;
+      });
+
+      debugPrint("Updated StockCounts: $stockCounts"); // Debug print
+    }
+  }
 
   void addStockItem() {
     String itemName = itemController.text.trim();
@@ -49,7 +52,6 @@ class _StockManagerState extends State<StockManager> {
         stockCounts[itemName] = itemCount;
       });
 
-      // Call function to save to MongoDB
       API.saveStockToMongoDB(stockCounts);
 
       itemController.clear();
@@ -62,7 +64,6 @@ class _StockManagerState extends State<StockManager> {
       stockCounts[item] = newCount;
     });
 
-    // Call function to update in MongoDB
     API.saveStockToMongoDB(stockCounts);
   }
 
@@ -72,7 +73,7 @@ class _StockManagerState extends State<StockManager> {
       appBar: AppBar(
         title: const Text("Inventory"),
         backgroundColor: const Color.fromARGB(255, 5, 45, 90),
-        foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+        foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
         actions: [
           Builder(
@@ -90,7 +91,6 @@ class _StockManagerState extends State<StockManager> {
         padding: EdgeInsets.all(8),
         child: Column(
           children: [
-            // Input fields for adding new stock category
             Padding(
               padding: EdgeInsets.fromLTRB(20, 10, 0, 10),
               child: Row(
@@ -116,61 +116,59 @@ class _StockManagerState extends State<StockManager> {
                 ],
               ),
             ),
-
             SizedBox(height: 10),
-
-            // List of stocks with editable values
             Expanded(
-              child: ListView(
-                children: stockCounts.keys.map((item) {
-                  return ListTile(
-                    title: Text(item),
-                    subtitle: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text("Current: 55"),
-                        Expanded(child: SizedBox()),
-                        Text("Total: ${stockCounts[item]}")
-                      ],
-                    ),
-                    trailing: IconButton(
-                      icon: Icon(Icons.edit),
-                      onPressed: () {
-                        // Open a dialog to edit stock count
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            TextEditingController editController =
-                                TextEditingController(
-                                    text: stockCounts[item].toString());
-                            return AlertDialog(
-                              title: Text("Edit $item Stock"),
-                              content: TextField(
-                                controller: editController,
-                                keyboardType: TextInputType.number,
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    int? newCount =
-                                        int.tryParse(editController.text);
-                                    if (newCount != null) {
-                                      updateStock(item, newCount);
-                                    }
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text("Save"),
-                                )
-                              ],
-                            );
-                          },
+              child: stockCounts.isEmpty
+                  ? Center(child: Text("No stock available."))
+                  : ListView.builder(
+                      itemCount: stockCounts.length,
+                      itemBuilder: (context, index) {
+                        String item = stockCounts.keys.elementAt(index);
+                        int count = stockCounts[item] ?? 0;
+                        return ListTile(
+                          title: Text(item),
+                          subtitle: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text("Total: $count"),
+                            ],
+                          ),
+                          trailing: IconButton(
+                            icon: Icon(Icons.edit),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  TextEditingController editController =
+                                      TextEditingController(
+                                          text: count.toString());
+                                  return AlertDialog(
+                                    title: Text("Edit $item Stock"),
+                                    content: TextField(
+                                      controller: editController,
+                                      keyboardType: TextInputType.number,
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          int? newCount =
+                                              int.tryParse(editController.text);
+                                          if (newCount != null) {
+                                            updateStock(item, newCount);
+                                          }
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text("Save"),
+                                      )
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                          ),
                         );
                       },
                     ),
-                  );
-                }).toList(),
-              ),
             ),
           ],
         ),

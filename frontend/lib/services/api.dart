@@ -129,7 +129,7 @@ class API {
   static Future<http.Response> saveDetectedObjects(
       Map<String, int> detectedCounts) async {
     var response = await http.post(
-      Uri.parse("$baseUrl/detections"),
+      Uri.parse("${baseUrl}detections"),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode(detectedCounts),
     );
@@ -141,7 +141,7 @@ class API {
   static Future<void> saveStockToMongoDB(Map<String, int> stockCounts) async {
     try {
       var response = await http.post(
-        Uri.parse("$baseUrl/api/stocks"),
+        Uri.parse("${baseUrl}stocks"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(stockCounts),
       );
@@ -159,12 +159,30 @@ class API {
 
   static Future<Map<String, int>?> fetchStockFromMongoDB() async {
     try {
-      var response = await http.get(Uri.parse("$baseUrl/api/stocks"));
+      var response = await http.get(Uri.parse("${baseUrl}stocks"));
+
+      debugPrint("Stock API Response: ${response.body}"); // Debug print
 
       if (response.statusCode == 200) {
-        Map<String, int> stockData =
-            Map<String, int>.from(jsonDecode(response.body));
-        debugPrint("Stock fetched: $stockData");
+        List<dynamic> jsonData = jsonDecode(response.body);
+
+        if (jsonData.isEmpty) {
+          debugPrint("Stock response is empty.");
+          return null;
+        }
+
+        Map<String, int> stockData = {};
+        for (var item in jsonData) {
+          if (item.containsKey("name") && item.containsKey("quantity")) {
+            String itemName = item["name"].toString();
+            int quantity = item["quantity"] is int
+                ? item["quantity"]
+                : int.tryParse(item["quantity"].toString()) ?? 0;
+            stockData[itemName] = quantity;
+          }
+        }
+
+        debugPrint("Parsed Stock Data: $stockData");
         return stockData;
       } else {
         debugPrint("Failed to fetch stock: ${response.body}");

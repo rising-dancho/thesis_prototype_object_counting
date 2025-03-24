@@ -81,19 +81,22 @@ class _ActivityLogsState extends State<ActivityLogs> {
         ? await API.fetchAllActivityLogs() // Fetch all users' logs
         : await API.fetchActivityLogs(userId); // Fetch only current user's logs
     if (logsData != null) {
-      setState(() {
-        activityLogs = logsData
-            .map((log) {
-              try {
-                return ActivityLog.fromJson(log);
-              } catch (e) {
-                debugPrint("❌ Error parsing log: $log \n Exception: $e");
-                return null;
-              }
-            })
-            .whereType<ActivityLog>()
-            .toList();
-      });
+      if (mounted) {
+        // ✅ Prevent updating state if widget is disposed
+        setState(() {
+          activityLogs = logsData
+              .map((log) {
+                try {
+                  return ActivityLog.fromJson(log);
+                } catch (e) {
+                  debugPrint("❌ Error parsing log: $log \n Exception: $e");
+                  return null;
+                }
+              })
+              .whereType<ActivityLog>()
+              .toList();
+        });
+      }
     } else {
       debugPrint("❌ No logs retrieved");
     }
