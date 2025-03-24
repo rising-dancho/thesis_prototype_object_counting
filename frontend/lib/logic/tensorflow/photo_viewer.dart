@@ -172,6 +172,7 @@ class _PhotoViewerState extends State<PhotoViewer> {
                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: Color.fromRGBO(0, 0, 0, 0.7),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     widget.titleController.text, // Display input text
