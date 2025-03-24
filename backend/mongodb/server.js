@@ -8,7 +8,6 @@ const app = express();
 const cors = require('cors');
 app.use(cors());
 
-const Stock = require('../models/Stock');
 const Product = require('./schema/product');
 const User = require('./schema/user');
 const Activity = require('./schema/activity');
@@ -308,47 +307,6 @@ app.delete('/api/delete_product/:id', async (req, res) => {
     console.error('❌ Error Deleting Data:', error);
     res.send(error.message);
   }
-});
-
-// NUMBER OF STOCKS and DETECTIONS DATA -------------
-
-// Save stock categories
-app.post('/api/stocks', async (req, res) => {
-  try {
-    const stocks = Object.keys(req.body).map((item) => ({
-      item,
-      expectedCount: req.body[item],
-    }));
-
-    await Stock.deleteMany({});
-    await Stock.insertMany(stocks);
-
-    res.json({ message: 'Stock updated' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Save detected objects
-app.post('/api/detections', async (req, res) => {
-  try {
-    for (let item in req.body) {
-      await Stock.findOneAndUpdate(
-        { item },
-        { detectedCount: req.body[item] },
-        { upsert: true }
-      );
-    }
-    res.json({ message: 'Detections updated' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Get all stock
-app.get('/api/stocks', async (req, res) => {
-  const stocks = await Stock.find();
-  res.json(stocks);
 });
 
 const PORT = 2000;
