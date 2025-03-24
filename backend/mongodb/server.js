@@ -29,22 +29,7 @@ app.use(
 mongoose.set('strictQuery', true);
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(async () => {
-    console.log('✅ Connected to MongoDB via Mongoose');
-
-    // Check if stock exists, if not, add default stock
-    const stockExists = await Stock.countDocuments();
-    if (stockExists === 0) {
-      console.log('📦 Seeding default stock...');
-      await Stock.insertMany([
-        { item: 'Cement', expectedCount: 100 },
-        { item: 'Sand', expectedCount: 100 },
-        { item: 'Hollow Blocks', expectedCount: 100 },
-        { item: 'Plywood', expectedCount: 100 },
-        { item: 'Deform Bar', expectedCount: 100 },
-      ]);
-    }
-  })
+  .then(() => console.log('✅ Connected to MongoDB via Mongoose'))
   .catch((err) => console.error('❌ MongoDB connection failed:', err));
 
 // WELCOME ROUTE "/"

@@ -22,24 +22,23 @@ class _StockManagerState extends State<StockManager> {
   void fetchStockData() async {
     Map<String, int>? data = await API.fetchStockFromMongoDB();
 
-    if (data != null && data.isNotEmpty) {
+    if (data != null) {
       setState(() {
         stockCounts = data;
       });
-    } else {
-      debugPrint(
-          "No stock data found in the database. Saving default values...");
-      await API.saveStockToMongoDB(stockCounts);
     }
   }
 
-  Map<String, int> stockCounts = {
-    "Cement": 100,
-    "Sand": 100,
-    "Hollow Blocks": 100,
-    "Plywood": 100,
-    "Deform Bar": 100,
-  };
+  // BACKUP
+  // Map<String, int> stockCounts = {
+  //   "Cement": 100,
+  //   "Sand": 100,
+  //   "Hollow Blocks": 100,
+  //   "Plywood": 100,
+  //   "Deform Bar": 100,
+  // };
+
+  Map<String, int> stockCounts = {};
 
   void addStockItem() {
     String itemName = itemController.text.trim();
