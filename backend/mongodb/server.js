@@ -9,7 +9,7 @@ const cors = require('cors');
 app.use(cors());
 
 const Stock = require('../models/Stock');
-// const Product = require('./schema/product');
+const Product = require('./schema/product');
 const User = require('./schema/user');
 const Activity = require('./schema/activity');
 
