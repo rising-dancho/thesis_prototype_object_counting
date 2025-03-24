@@ -8,9 +8,9 @@ const app = express();
 const cors = require('cors');
 app.use(cors());
 
-const Stock = require('../schema/stock');
-const User = require('../schema/user');
-const Activity = require('../schema/activity');
+const Stock = require('./schema/stock');
+const User = require('./schema/user');
+const Activity = require('. /schema/activity');
 
 const createToken = (id) => {
   return jwt.sign({ _id: id }, process.env.SECRET, { expiresIn: '14d' });
@@ -165,8 +165,6 @@ app.get('/api/activity_logs/:userId', async (req, res) => {
 // GET ALL USER ACTIVITY LOGS
 app.get('/api/activity_logs/', async (req, res) => {
   try {
-    const { userId } = req.params;
-
     // Fetch all activities and populate userId to get both userId and fullName
     const activities = await Activity.find() // JUST REMOVE THE FILTER TO GET ALL ACTIVITIES
       .populate('userId', 'fullName') // Fetch fullName from User model
@@ -236,4 +234,7 @@ app.get('/api/stocks', async (req, res) => {
 const PORT = 2000;
 app.listen(PORT, () => {
   console.log(`Connected to server at ${PORT}`);
+  if (!process.env.SECRET) {
+    throw new Error('❌ SECRET key is missing in environment variables!');
+  }
 });
