@@ -124,4 +124,55 @@ class API {
       return null;
     }
   }
+
+  // SAVE DETECTED OBJECTS TO MONGODB
+  static Future<http.Response> saveDetectedObjects(
+      Map<String, int> detectedCounts) async {
+    var response = await http.post(
+      Uri.parse("$baseUrl/detections"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(detectedCounts),
+    );
+
+    debugPrint("Detections saved: ${response.body}");
+    return response; // ✅ Return response so it can be awaited properly
+  }
+
+  static Future<void> saveStockToMongoDB(Map<String, int> stockCounts) async {
+    try {
+      var response = await http.post(
+        Uri.parse("$baseUrl/api/stocks"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(stockCounts),
+      );
+
+      if (response.statusCode == 200) {
+        debugPrint("Stock saved: ${response.body}");
+      } else {
+        debugPrint(
+            "Failed to save stock: ${response.statusCode} - ${response.body}");
+      }
+    } catch (e) {
+      debugPrint("Error saving stock: $e");
+    }
+  }
+
+  static Future<Map<String, int>?> fetchStockFromMongoDB() async {
+    try {
+      var response = await http.get(Uri.parse("$baseUrl/api/stocks"));
+
+      if (response.statusCode == 200) {
+        Map<String, int> stockData =
+            Map<String, int>.from(jsonDecode(response.body));
+        debugPrint("Stock fetched: $stockData");
+        return stockData;
+      } else {
+        debugPrint("Failed to fetch stock: ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      debugPrint("Error fetching stock: $e");
+      return null;
+    }
+  }
 }

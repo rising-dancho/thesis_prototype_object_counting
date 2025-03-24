@@ -119,58 +119,79 @@ class _ActivityLogsState extends State<ActivityLogs> {
         ],
       ),
       endDrawer: const SideMenu(), // Using the extracted drawer
-      body: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: SingleChildScrollView(
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                    padding: const EdgeInsets.only(left: 20),
-                    child: Row(children: [
-                      const Text("Show All Users' Logs"),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Switch(
-                        value: showAllLogs,
-                        onChanged: (value) {
-                          setState(() {
-                            showAllLogs = value;
-                            _loadActivityLogs(); // Reload data when toggling
-                          });
-                        },
-                        activeColor:
-                            Colors.white, // 🟢 Color of the thumb when ON
-                        activeTrackColor:
-                            Colors.green, // 🟢 Color of the track when ON
-                        inactiveThumbColor:
-                            Colors.white, // ⚪ Color of the thumb when OFF
-                        inactiveTrackColor:
-                            Colors.black54, // ⚫ Color of the track when OFF
-                      ),
-                    ])),
-                DataTable(
-                  columns: const [
-                    DataColumn(label: Text('User ID')),
-                    DataColumn(label: Text('Full Name')),
-                    DataColumn(label: Text('Action')),
-                    DataColumn(label: Text('Objects Counted')),
-                    DataColumn(label: Text('Timestamp')),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 24),
+                      child: Row(children: [
+                        const Text("Show All Users' Logs"),
+                        const SizedBox(width: 10),
+                        Switch(
+                          value: showAllLogs,
+                          onChanged: (value) {
+                            setState(() {
+                              showAllLogs = value;
+                              _loadActivityLogs(); // Reload data when toggling
+                            });
+                          },
+                          activeColor: Colors.white,
+                          activeTrackColor: Colors.green,
+                          inactiveThumbColor: Colors.white,
+                          inactiveTrackColor:
+                              Colors.black54.withAlpha((0.25 * 255).toInt()),
+                        ),
+                      ]),
+                    ),
+                    DataTable(
+                      columns: const [
+                        DataColumn(label: Text('User ID')),
+                        DataColumn(label: Text('Full Name')),
+                        DataColumn(label: Text('Action')),
+                        DataColumn(label: Text('Objects Counted')),
+                        DataColumn(label: Text('Timestamp')),
+                      ],
+                      rows: activityLogs.map((log) {
+                        return DataRow(cells: [
+                          DataCell(Text(log.userId)),
+                          DataCell(Text(log.fullName)),
+                          DataCell(Text(log.action)),
+                          DataCell(Text(log.objectCount?.toString() ?? 'N/A')),
+                          DataCell(Text(log.timestamp)),
+                        ]);
+                      }).toList(),
+                    ),
                   ],
-                  rows: activityLogs.map((log) {
-                    return DataRow(cells: [
-                      DataCell(Text(log.userId)), // ✅ Show user ID
-                      DataCell(Text(log.fullName)), // ✅ Show full name
-                      DataCell(Text(log.action)),
-                      DataCell(Text(log.objectCount?.toString() ?? 'N/A')),
-                      DataCell(Text(log.timestamp)),
-                    ]);
-                  }).toList(),
                 ),
-              ]),
-        ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                textStyle: TextStyle(fontSize: 16),
+                backgroundColor: const Color.fromARGB(255, 10, 125, 170),
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 118, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(
+                      color: const Color.fromARGB(255, 3, 130, 168), width: 2),
+                ),
+              ),
+              onPressed: () {},
+              child: const Text("Generate Reports"),
+            ),
+          ),
+        ],
       ),
     );
   }
