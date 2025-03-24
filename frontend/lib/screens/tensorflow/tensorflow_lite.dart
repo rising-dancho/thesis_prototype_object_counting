@@ -290,7 +290,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                 child: Container(
                   width: double
                       .infinity, // Makes the container expand horizontally
-                  margin: const EdgeInsets.all(40),
+                  margin: const EdgeInsets.fromLTRB(22, 40, 22, 42),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     color: const Color.fromARGB(255, 223, 223, 223),
