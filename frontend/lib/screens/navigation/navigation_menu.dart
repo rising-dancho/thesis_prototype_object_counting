@@ -3,8 +3,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:tectags/screens/activity_logs/activity_logs.dart';
 import 'package:tectags/screens/inventory/stock_manager.dart';
-// import '../../../backup/logout_screen.dart';
 import 'package:tectags/screens/tensorflow/tensorflow_lite.dart';
+// import '../../../backup/logout_screen.dart';
 // import '../../../backup/crud_test/crud.dart';
 // import 'package:techtags/screens/opencv/opencv.dart';
 

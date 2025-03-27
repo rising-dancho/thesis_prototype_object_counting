@@ -12,6 +12,7 @@ import 'dart:ui' as ui;
 
 import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:tectags/services/api.dart';
+import 'package:tectags/services/shared_prefs_service.dart';
 
 class TensorflowLite extends StatefulWidget {
   const TensorflowLite({super.key});
@@ -62,6 +63,24 @@ class _TensorflowLiteState extends State<TensorflowLite> {
     // loadModel();
   }
 
+  // SEND OBJECT COUNT TO THE BACKEND
+  void logObjectCount(String userId, String item, int countedAmount) async {
+    var response = await API.logStockCurrentCount(userId, item, countedAmount);
+
+    if (response != null) {
+      debugPrint("✅ OBJECT COUNT LOGGED successfully: $response");
+    } else {
+      debugPrint("❌ Failed to log object count.");
+    }
+  }
+
+  void updateDatabaseWithObjectCount(String userId, String item) {
+    debugPrint(
+        "📌 Updating Database: User = $userId, Item = $item, Count = ${editableBoundingBoxes.length}");
+    int detectedCount = editableBoundingBoxes.length;
+    logObjectCount(userId, item, detectedCount);
+  }
+
   // STOCK DATA FOR THE DROPDOWN
   Future<void> loadStockData() async {
     var fetchedStocks = await API.fetchStockFromMongoDB();
@@ -93,12 +112,11 @@ class _TensorflowLiteState extends State<TensorflowLite> {
   // }
 
   /// **Save Screenshot to Gallery**
+  /// THIS WOULD ALSO SAVE COUNTED OBJECT TO THE DATABASE (WILL SHOW IN THE ACTIVITY LOGS)
   Future<void> saveImage(BuildContext context) async {
     try {
       final Uint8List? screenShot = await screenshotController.capture();
-      if (!mounted) {
-        return; // Prevents calling ScaffoldMessenger on a disposed widget
-      }
+      if (!mounted) return;
 
       if (screenShot == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -107,26 +125,44 @@ class _TensorflowLiteState extends State<TensorflowLite> {
         return;
       }
 
-      final result = await ImageGallerySaverPlus.saveImage(screenShot,
-          name: "screenshot_${DateTime.now().millisecondsSinceEpoch}.png");
+      final result = await ImageGallerySaverPlus.saveImage(
+        screenShot,
+        name: "screenshot_${DateTime.now().millisecondsSinceEpoch}.png",
+      );
+
       if (result["isSuccess"]) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Image saved in gallery")),
         );
+
+        // 🔥 Log detected object count to the backend
+        if (_selectedStock != null) {
+          String? userId =
+              await SharedPrefsService.getUserId(); // ✅ Directly get the userId
+
+          if (userId != null) {
+            var response = await API.logStockCurrentCount(
+              userId,
+              _selectedStock!,
+              editableBoundingBoxes.length, // Detected count
+            );
+
+            if (response != null) {
+              debugPrint("✅ Object count logged: $response");
+            } else {
+              debugPrint("❌ Failed to log object count.");
+            }
+          } else {
+            debugPrint("❌ User ID not found, cannot log data.");
+          }
+        } else {
+          debugPrint("⚠️ No stock selected, skipping log.");
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Image not saved")),
         );
       }
-
-      // if (_selectedStock != null) {
-      //   await API.saveDetectedObjects({
-      //     "item": _selectedStock, // Store selected stock name
-      //     "detectedCount": editableBoundingBoxes.length // Store detected count
-      //   });
-      // } else {
-      //   debugPrint("No stock selected, cannot save data.");
-      // }
     } catch (e) {
       debugPrint("Error saving image: $e");
       ScaffoldMessenger.of(context).showSnackBar(
@@ -396,6 +432,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                           _selectedStock = newValue!;
                           titleController.text = _selectedStock!;
                         });
+                        debugPrint("✅ Selected Stock: $_selectedStock");
                       },
                       items: stockList
                           .map<DropdownMenuItem<String>>((String stock) {

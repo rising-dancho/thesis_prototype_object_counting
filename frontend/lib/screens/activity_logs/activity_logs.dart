@@ -60,21 +60,7 @@ class _ActivityLogsState extends State<ActivityLogs> {
   void initState() {
     super.initState();
     _loadActivityLogs();
-    // logObjectCount();
   }
-  
-  // // SEND OBJECT COUNT TO THE BACKEND
-  // void logObjectCount(
-  //     String userId, String item, int countedAmount) async {
-  //   var response =
-  //       await API.logStockCurrentCount(userId, item, countedAmount);
-
-  //   if (response != null) {
-  //     debugPrint("✅ OBJECT COUNT LOGGED successfully: $response");
-  //   } else {
-  //     debugPrint("❌ Failed to log object count.");
-  //   }
-  // }
 
   Future<String?> getUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

@@ -252,17 +252,19 @@ app.post('/api/count_objects', async (req, res) => {
         .json({ message: `Stock item '${item}' not found` });
     }
 
-    // Log the activity in an Activity collection
+    // ✅ Update the stock's detectedCount in MongoDB
+    await Stock.updateOne(
+      { item: item },
+      { $set: { detectedCount: countedAmount } }
+    );
+
+    // ✅ Log the activity and associate it with the stock
     await Activity.create({
       userId,
-      action: `Counted ${countedAmount} of ${item}`,
-      stockId: stock._id,
+      action: `Updated count for ${item}`,
+      stockId: stock._id, // ✅ Associate stock item
       countedAmount,
     });
-
-    // Update the stock's detectedCount
-    stock.detectedCount += countedAmount;
-    await stock.save();
 
     res.status(200).json({
       message: 'Object count logged and stock updated successfully',
