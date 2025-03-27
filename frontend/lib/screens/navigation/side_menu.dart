@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tectags/screens/login_screen.dart';
 import 'package:tectags/screens/navigation/navigation_menu.dart';
-import 'package:tectags/screens/opencv/opencv.dart';
+import 'package:tectags/services/shared_prefs_service.dart';
 
 class SideMenu extends StatelessWidget {
   const SideMenu({super.key});
 
   Future<void> logout(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('auth_token'); // Remove the jasonwebtoken (JWT)
-    await prefs.remove('userId'); // Remove the user id
+    await SharedPrefsService.clearUserId(); // Clear user ID
+    await SharedPrefsService.clearToken(); // Clear token for remembering login state
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const LoginScreen()),

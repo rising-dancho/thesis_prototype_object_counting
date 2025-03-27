@@ -17,15 +17,20 @@ class SharedPrefsService {
     return prefs.getString('userId'); // Returns null if not found
   }
 
-  // static Future<void> saveUserId(String userId) async {
-  //   final prefs = await _getPrefs();
-  //   await prefs.setString('userId', userId);
-  // }
+  static Future<void> saveUserId(String userId) async {
+    final prefs = await _getPrefs();
+    await prefs.setString('userId', userId);
+  }
 
-  // static Future<void> clearUserId() async {
-  //   final prefs = await _getPrefs();
-  //   await prefs.remove('userId');
-  // }
+  static Future<void> clearUserId() async {
+    final prefs = await _getPrefs();
+    await prefs.remove('userId');
+  }
+
+  static Future<void> clearToken() async {
+    final prefs = await _getPrefs();
+    await prefs.remove('auth_token'); // Properly removes the token
+  }
 
   // Save the token conditionally (for login)
   static Future<void> saveToken(String token, bool rememberPassword) async {

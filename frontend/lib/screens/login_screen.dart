@@ -218,6 +218,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                 response['token'],
                                 rememberPassword); // Pass rememberPassword
 
+                            // Save userId in SharedPreferences
+
+                            if (response.containsKey('userId')) {
+                              await SharedPrefsService.saveUserId(
+                                  response['userId']);
+                            }
+
                             if (!mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
