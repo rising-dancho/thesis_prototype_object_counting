@@ -86,7 +86,7 @@ class API {
     }
   }
 
-  // Fetch activity logs
+  // Fetch activity logs per USER ID
   static Future<List<Map<String, dynamic>>?> fetchActivityLogs(
       String userId) async {
     debugPrint(
@@ -113,7 +113,7 @@ class API {
     }
   }
 
-  // Fetch activity logs
+  // Fetch ALL activity logs
   static Future<List<dynamic>?> fetchAllActivityLogs() async {
     final response = await http.get(Uri.parse('$baseUrl/activity_logs'));
 
@@ -125,17 +125,39 @@ class API {
     }
   }
 
-  // SAVE DETECTED OBJECTS TO MONGODB
-  static Future<http.Response> saveDetectedObjects(
-      Map<String, int> detectedCounts) async {
-    var response = await http.post(
-      Uri.parse("${baseUrl}detections"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(detectedCounts),
-    );
+  static Future<Map<String, dynamic>?> stockCurrentCount(
+      String userId, String stockItem, int countedAmount) async {
+    var url = Uri.parse("${baseUrl}count_objects");
 
-    debugPrint("Detections saved: ${response.body}");
-    return response; // ✅ Return response so it can be awaited properly
+    Map<String, dynamic> requestBody = {
+      "userId": userId,
+      "stockItem": stockItem,
+      "countedAmount": countedAmount,
+    };
+
+    debugPrint("🔄 Sending request to: $url");
+    debugPrint("📦 Request body: ${jsonEncode(requestBody)}");
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(requestBody),
+      );
+
+      debugPrint("📝 Response Code: ${response.statusCode}");
+      debugPrint("📝 Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body); // Return the response data
+      } else {
+        debugPrint("❌ Failed to log object count: ${response.body}");
+        return null;
+      }
+    } catch (error) {
+      debugPrint("⚠️ Error logging object count: $error");
+      return null;
+    }
   }
 
   static Future<void> saveStockToMongoDB(Map<String, int> stockCounts) async {
@@ -209,4 +231,18 @@ class API {
       debugPrint("Error deleting stock: $e");
     }
   }
+
+  // // SAVE DETECTED OBJECTS TO MONGODB
+  // static Future<http.Response> saveDetectedObjects(
+  //     Map<String, dynamic> detectedCounts) async {
+  //   // Accept dynamic values
+  //   var response = await http.post(
+  //     Uri.parse("${baseUrl}detections"),
+  //     headers: {"Content-Type": "application/json"},
+  //     body: jsonEncode(detectedCounts),
+  //   );
+
+  //   debugPrint("Detections saved: ${response.body}");
+  //   return response;
+  // }
 }

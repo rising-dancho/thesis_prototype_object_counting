@@ -138,27 +138,30 @@ app.get('/api/activity_logs/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
 
-    // Fetch all activities and populate userId to get both userId and fullName
+    // Fetch all activities with user and stock info
     const activities = await Activity.find({ userId })
-      .populate('userId', 'fullName') // ✅ Fetch only fullName from User model
+      .populate('userId', 'fullName') // Get user's full name
+      .populate('stockId', 'item expectedCount detectedCount') // Get stock details
       .sort({ createdAt: -1 });
 
-    // Format response to explicitly include userId
+    // Format response
     const formattedActivities = activities.map((activity) => ({
       _id: activity._id,
       userId: activity.userId?._id, // ✅ Explicitly include userId
       fullName: activity.userId?.fullName ?? 'Unknown User', // ✅ Include fullName
       action: activity.action,
-      objectCount: activity.objectCount,
+      stockItem: activity.stockId?.item ?? 'N/A', // Get stock item name
+      countedAmount: activity.countedAmount,
+      expectedStock: activity.stockId?.expectedCount ?? 0,
+      detectedStock: activity.stockId?.detectedCount ?? 0,
       timestamp: activity.createdAt, // ✅ Keep the timestamp
     }));
-
     res.status(200).json(formattedActivities);
   } catch (error) {
     console.error('❌ Error fetching activity logs per user:', error);
     res
       .status(500)
-      .json({ message: 'Internal server error', error: error.message });
+      .json({ message: 'Error fetching activity logs', error: error.message });
   }
 });
 
@@ -190,30 +193,38 @@ app.get('/api/activity_logs/', async (req, res) => {
   }
 });
 
-// app.post('/api/count_objects', async (req, res) => {
-//   try {
-//     const { userId, objectCount } = req.body;
+// LOGGING OBJECTS COUNTED
+app.post('/api/count_objects', async (req, res) => {
+  try {
+    const { userId, stockItem, countedAmount } = req.body;
 
-//     if (!userId || objectCount === undefined) {
-//       return res
-//         .status(400)
-//         .json({ message: 'User ID and object count are required' });
-//     }
+    if (!userId || !stockItem || countedAmount === undefined) {
+      return res
+        .status(400)
+        .json({ message: 'User ID, stock item, and count are required' });
+    }
 
-//     // Log the counting activity
-//     await Activity.create({
-//       userId: userId,
-//       action: 'Counted Objects',
-//       objectCount: objectCount,
-//     });
+    // Find the stock item
+    const stock = await Stock.findOne({ item: stockItem });
+    if (!stock) {
+      return res.status(404).json({ message: 'Stock item not found' });
+    }
 
-//     res.status(200).json({ message: 'Object count logged successfully' });
-//   } catch (error) {
-//     res
-//       .status(500)
-//       .json({ message: 'Error logging object count', error: error.message });
-//   }
-// });
+    // Log the activity with stock reference
+    await Activity.create({
+      userId,
+      action: `Counted ${countedAmount} of ${stockItem}`,
+      stockId: stock._id, // Store reference to stock
+      countedAmount,
+    });
+
+    res.status(200).json({ message: 'Object count logged successfully' });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: 'Error logging object count', error: error.message });
+  }
+});
 
 // NUMBER OF STOCKS and DETECTIONS DATA -------------
 
@@ -228,22 +239,6 @@ app.post('/api/stocks', async (req, res) => {
       );
     }
     res.json({ message: 'Stock updated successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Save detected objects
-app.post('/api/detections', async (req, res) => {
-  try {
-    for (let item in req.body) {
-      await Stock.findOneAndUpdate(
-        { item },
-        { detectedCount: req.body[item] },
-        { upsert: true }
-      );
-    }
-    res.json({ message: 'Detections updated' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -269,3 +264,26 @@ const PORT = 2000;
 app.listen(PORT, () => {
   console.log(`Connected to server at ${PORT}`);
 });
+
+// // Save detected objects
+// app.post('/api/detections', async (req, res) => {
+//   try {
+//     const { item, detectedCount } = req.body; // Extract item and count
+
+//     if (!item || detectedCount === undefined) {
+//       return res
+//         .status(400)
+//         .json({ message: 'Item and detected count are required' });
+//     }
+
+//     await Stock.findOneAndUpdate(
+//       { item }, // Find stock by item name
+//       { $set: { detectedCount } }, // Update detected count
+//       { upsert: true, new: true } // Create new if not found
+//     );
+
+//     res.json({ message: 'Detections updated successfully' });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });

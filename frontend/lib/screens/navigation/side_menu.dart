@@ -84,16 +84,16 @@ class SideMenu extends StatelessWidget {
             endIndent: 20,
             color: Color.fromARGB(255, 82, 81, 81),
           ),
-          ListTile(
-            leading: const Icon(Icons.spoke),
-            title: const Text('Beta Feature (OpenCV)'),
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const OpenCV()),
-              );
-            },
-          ),
+          // ListTile(
+          //   leading: const Icon(Icons.spoke),
+          //   title: const Text('Beta Feature (OpenCV)'),
+          //   onTap: () {
+          //     Navigator.pushReplacement(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => const OpenCV()),
+          //     );
+          //   },
+          // ),
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Logout'),

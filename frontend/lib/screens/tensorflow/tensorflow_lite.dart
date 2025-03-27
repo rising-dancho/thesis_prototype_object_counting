@@ -118,6 +118,15 @@ class _TensorflowLiteState extends State<TensorflowLite> {
           SnackBar(content: Text("Image not saved")),
         );
       }
+
+      // if (_selectedStock != null) {
+      //   await API.saveDetectedObjects({
+      //     "item": _selectedStock, // Store selected stock name
+      //     "detectedCount": editableBoundingBoxes.length // Store detected count
+      //   });
+      // } else {
+      //   debugPrint("No stock selected, cannot save data.");
+      // }
     } catch (e) {
       debugPrint("Error saving image: $e");
       ScaffoldMessenger.of(context).showSnackBar(
@@ -258,7 +267,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Tensorflow Lite"),
+          title: const Text("Tegtags AutoCount"),
           backgroundColor: const Color.fromARGB(255, 5, 45, 90),
           foregroundColor: const Color.fromARGB(255, 255, 255, 255),
           automaticallyImplyLeading: false,

@@ -53,13 +53,29 @@ class ActivityLogs extends StatefulWidget {
 }
 
 class _ActivityLogsState extends State<ActivityLogs> {
-  List<ActivityLog> activityLogs = [];
+  List<ActivityLog> activityLogs = []; // ACTIVITY LOGS ARE SAVED IN THIS ARRAY
   bool showAllLogs = false; // Default: Show only current user's logs
 
   @override
   void initState() {
     super.initState();
     _loadActivityLogs();
+    logObjectCount();
+  }
+
+  void logObjectCount() async {
+    String userId = "yourUserId"; // Replace with actual userId
+    String stockItem = "Rice"; // Replace with actual stock item
+    int countedAmount = 5; // Replace with actual counted amount
+
+    var response =
+        await API.stockCurrentCount(userId, stockItem, countedAmount);
+
+    if (response != null) {
+      debugPrint("✅ Object count logged successfully: $response");
+    } else {
+      debugPrint("❌ Failed to log object count.");
+    }
   }
 
   Future<String?> getUserId() async {
@@ -67,6 +83,7 @@ class _ActivityLogsState extends State<ActivityLogs> {
     return prefs.getString('userId'); // Returns null if not found
   }
 
+  // ACTIVITY LOGS ARE FETCHED FROM THE BACKEND USING THE USERID SAVED IN THE LOCAL STORAGE
   Future<void> _loadActivityLogs() async {
     final userId = await getUserId(); // Await the userId
     debugPrint(" Retrieved userId: $userId");
@@ -123,7 +140,8 @@ class _ActivityLogsState extends State<ActivityLogs> {
       ),
       endDrawer: const SideMenu(), // Using the extracted drawer
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Padding(
             padding: const EdgeInsets.only(left: 24, top: 12, bottom: 0),
@@ -197,7 +215,7 @@ class _ActivityLogsState extends State<ActivityLogs> {
                 ),
               ),
               onPressed: () {},
-              child: const Text("Generate Reports"),
+              child: const Text("Generate"),
             ),
           ),
         ],
