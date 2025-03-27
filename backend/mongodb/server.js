@@ -193,39 +193,6 @@ app.get('/api/activity_logs/', async (req, res) => {
   }
 });
 
-// LOGGING OBJECTS COUNTED
-app.post('/api/count_objects', async (req, res) => {
-  try {
-    const { userId, stockItem, countedAmount } = req.body;
-
-    if (!userId || !stockItem || countedAmount === undefined) {
-      return res
-        .status(400)
-        .json({ message: 'User ID, stock item, and count are required' });
-    }
-
-    // Find the stock item
-    const stock = await Stock.findOne({ item: stockItem });
-    if (!stock) {
-      return res.status(404).json({ message: 'Stock item not found' });
-    }
-
-    // Log the activity with stock reference
-    await Activity.create({
-      userId,
-      action: `Counted ${countedAmount} of ${stockItem}`,
-      stockId: stock._id, // Store reference to stock
-      countedAmount,
-    });
-
-    res.status(200).json({ message: 'Object count logged successfully' });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: 'Error logging object count', error: error.message });
-  }
-});
-
 // NUMBER OF STOCKS and DETECTIONS DATA -------------
 
 // Save stock categories
@@ -263,6 +230,40 @@ app.get('/api/stocks', async (req, res) => {
 const PORT = 2000;
 app.listen(PORT, () => {
   console.log(`Connected to server at ${PORT}`);
+});
+
+// LOGGING OBJECTS COUNTED
+app.post('/api/count_objects', async (req, res) => {
+  try {
+    const { userId, stockItem, countedAmount } = req.body;
+
+    if (!userId || !stockItem || countedAmount === undefined) {
+      return res
+        .status(400)
+        .json({ message: 'User ID, stock item, and count are required' });
+    }
+
+    // Find the stock item
+    const stock = await Stock.findOne({ item: stockItem });
+    if (!stock) {
+      return res.status(404).json({ message: 'Stock item not found' });
+    }
+
+    // Log the activity with stock reference
+    await Activity.create({
+      userId,
+      action: `Counted ${countedAmount} of ${stockItem}`,
+      stockId: stock._id, // Store reference to stock
+      stockItem: stock.stockItem, // Show stock item
+      countedAmount,
+    });
+
+    res.status(200).json({ message: 'Object count logged successfully' });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: 'Error logging object count', error: error.message });
+  }
 });
 
 // // Save detected objects

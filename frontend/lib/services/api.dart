@@ -125,41 +125,6 @@ class API {
     }
   }
 
-  static Future<Map<String, dynamic>?> stockCurrentCount(
-      String userId, String stockItem, int countedAmount) async {
-    var url = Uri.parse("${baseUrl}count_objects");
-
-    Map<String, dynamic> requestBody = {
-      "userId": userId,
-      "stockItem": stockItem,
-      "countedAmount": countedAmount,
-    };
-
-    debugPrint("🔄 Sending request to: $url");
-    debugPrint("📦 Request body: ${jsonEncode(requestBody)}");
-
-    try {
-      final response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(requestBody),
-      );
-
-      debugPrint("📝 Response Code: ${response.statusCode}");
-      debugPrint("📝 Response Body: ${response.body}");
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body); // Return the response data
-      } else {
-        debugPrint("❌ Failed to log object count: ${response.body}");
-        return null;
-      }
-    } catch (error) {
-      debugPrint("⚠️ Error logging object count: $error");
-      return null;
-    }
-  }
-
   static Future<void> saveStockToMongoDB(Map<String, int> stockCounts) async {
     try {
       var stocks = stockCounts.map((key, value) => MapEntry(key, value));
@@ -229,6 +194,41 @@ class API {
       }
     } catch (e) {
       debugPrint("Error deleting stock: $e");
+    }
+  }
+
+  static Future<Map<String, dynamic>?> logStockCurrentCount(
+      String userId, String stockItem, int countedAmount) async {
+    var url = Uri.parse("${baseUrl}count_objects");
+
+    Map<String, dynamic> requestBody = {
+      "userId": userId,
+      "stockItem": stockItem,
+      "countedAmount": countedAmount,
+    };
+
+    debugPrint("🔄 Sending request to: $url");
+    debugPrint("📦 Request body: ${jsonEncode(requestBody)}");
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(requestBody),
+      );
+
+      debugPrint("📝 Response Code: ${response.statusCode}");
+      debugPrint("📝 Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body); // Return the response data
+      } else {
+        debugPrint("❌ Failed to log object count: ${response.body}");
+        return null;
+      }
+    } catch (error) {
+      debugPrint("⚠️ Error logging object count: $error");
+      return null;
     }
   }
 

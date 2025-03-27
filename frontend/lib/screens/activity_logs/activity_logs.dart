@@ -69,7 +69,7 @@ class _ActivityLogsState extends State<ActivityLogs> {
     int countedAmount = 5; // Replace with actual counted amount
 
     var response =
-        await API.stockCurrentCount(userId, stockItem, countedAmount);
+        await API.logStockCurrentCount(userId, stockItem, countedAmount);
 
     if (response != null) {
       debugPrint("✅ Object count logged successfully: $response");
