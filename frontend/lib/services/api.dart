@@ -203,7 +203,7 @@ class API {
 
     Map<String, dynamic> requestBody = {
       "userId": userId,
-      "stockItem": stockItem,
+      "item": stockItem,
       "countedAmount": countedAmount,
     };
 

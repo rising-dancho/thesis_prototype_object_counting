@@ -62,17 +62,15 @@ class _ActivityLogsState extends State<ActivityLogs> {
     _loadActivityLogs();
     logObjectCount();
   }
-
-  void logObjectCount() async {
-    String userId = "yourUserId"; // Replace with actual userId
-    String stockItem = "Rice"; // Replace with actual stock item
-    int countedAmount = 5; // Replace with actual counted amount
-
+  
+  // SEND OBJECT COUNT TO THE BACKEND
+  void logObjectCount(
+      String userId, String item, int countedAmount) async {
     var response =
-        await API.logStockCurrentCount(userId, stockItem, countedAmount);
+        await API.logStockCurrentCount(userId, item, countedAmount);
 
     if (response != null) {
-      debugPrint("✅ Object count logged successfully: $response");
+      debugPrint("✅ OBJECT COUNT LOGGED successfully: $response");
     } else {
       debugPrint("❌ Failed to log object count.");
     }

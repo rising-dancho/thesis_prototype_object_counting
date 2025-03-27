@@ -8,9 +8,9 @@ const app = express();
 const cors = require('cors');
 app.use(cors());
 
-const Stock = require('./schema/stock');
-const User = require('./schema/user');
-const Activity = require('./schema/activity');
+const Stock = require('../../backend/mongodb/schema/stock');
+const User = require('../../backend/mongodb/schema/user');
+const Activity = require('../../backend/mongodb/schema/activity');
 
 const createToken = (id) => {
   return jwt.sign({ _id: id }, process.env.SECRET, { expiresIn: '14d' });
@@ -150,7 +150,7 @@ app.get('/api/activity_logs/:userId', async (req, res) => {
       userId: activity.userId?._id, // ✅ Explicitly include userId
       fullName: activity.userId?.fullName ?? 'Unknown User', // ✅ Include fullName
       action: activity.action,
-      item: activity.stockId?.item ?? 'N/A', // Get stock item name
+      stockItem: activity.stockId?.item ?? 'N/A', // Get stock item name
       countedAmount: activity.countedAmount,
       expectedStock: activity.stockId?.expectedCount ?? 0,
       detectedStock: activity.stockId?.detectedCount ?? 0,
@@ -232,45 +232,66 @@ app.listen(PORT, () => {
   console.log(`Connected to server at ${PORT}`);
 });
 
+
 app.post('/api/count_objects', async (req, res) => {
   try {
-    // Extract values from request body
-    const { userId, item, countedAmount } = req.body;
+    const { userId, stockItem, countedAmount } = req.body;
 
-    // Ensure required values are present
-    if (!userId || !item || countedAmount === undefined) {
+    if (!userId || !stockItem || countedAmount === undefined) {
       return res
         .status(400)
         .json({ message: 'User ID, stock item, and count are required' });
     }
 
-    // Find the stock item in the database
-    const stock = await Stock.findOne({ item: item });
+    // Find the stock item
+    const stock = await Stock.findOne({ item: stockItem });
     if (!stock) {
       return res
         .status(404)
-        .json({ message: `Stock item '${item}' not found` });
+        .json({ message: `Stock item '${stockItem}' not found` });
     }
 
-    // Log the activity in an Activity collection
+    // Log the activity
     await Activity.create({
       userId,
-      action: `Counted ${countedAmount} of ${item}`,
+      action: `Counted ${countedAmount} of ${stockItem}`,
       stockId: stock._id,
       countedAmount,
     });
 
-    // Update the stock's detectedCount
+    // Update detectedCount
     stock.detectedCount += countedAmount;
     await stock.save();
 
-    res.status(200).json({
-      message: 'Object count logged and stock updated successfully',
-    });
+    res
+      .status(200)
+      .json({ message: 'Object count logged and stock updated successfully' });
   } catch (error) {
-    res.status(500).json({
-      message: 'Error logging object count',
-      error: error.message,
-    });
+    res
+      .status(500)
+      .json({ message: 'Error logging object count', error: error.message });
   }
 });
+
+// // Save detected objects
+// app.post('/api/detections', async (req, res) => {
+//   try {
+//     const { item, detectedCount } = req.body; // Extract item and count
+
+//     if (!item || detectedCount === undefined) {
+//       return res
+//         .status(400)
+//         .json({ message: 'Item and detected count are required' });
+//     }
+
+//     await Stock.findOneAndUpdate(
+//       { item }, // Find stock by item name
+//       { $set: { detectedCount } }, // Update detected count
+//       { upsert: true, new: true } // Create new if not found
+//     );
+
+//     res.json({ message: 'Detections updated successfully' });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });

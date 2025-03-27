@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tectags/screens/login_screen.dart';
 import 'package:tectags/screens/navigation/navigation_menu.dart';
 import 'package:tectags/services/api.dart';
+import 'package:tectags/services/shared_prefs_service.dart';
 import 'package:tectags/widgets/custom_scaffold.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -26,21 +26,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   void initState() {
     super.initState();
-    testSaveToken();
-  }
-
-  Future<void> saveToken(String token) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('auth_token', token);
-      debugPrint("Token saved successfully: $token"); // Debug log
-    } catch (e) {
-      debugPrint("Error saving token: $e"); // Debug log
-    }
-  }
-
-  Future<void> testSaveToken() async {
-    await saveToken("test_token");
   }
 
   @override
@@ -254,7 +239,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                             // Check for token in the response
                             if (response.containsKey('token')) {
-                              await saveToken(response['token']);
+                              await SharedPrefsService.saveTokenWithoutCheck(
+                                  response['token']);
 
                               if (!mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
