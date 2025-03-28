@@ -9,7 +9,7 @@ class ActivityLog {
   final String userId; // ✅ Store userId
   final String fullName; // ✅ Store fullName
   final String action;
-  final int? objectCount;
+  final int? countedAmount;
   final String
       timestamp; // Now holds: intl: ^0.18.1 a more human readable formatted time
 
@@ -18,7 +18,7 @@ class ActivityLog {
     required this.userId,
     required this.fullName,
     required this.action,
-    this.objectCount,
+    this.countedAmount,
     required this.timestamp,
   });
 
@@ -37,13 +37,12 @@ class ActivityLog {
         DateFormat.yMEd().add_jms().format(manilaTime);
 
     return ActivityLog(
-      id: json['id'] ?? 'Unknown ID', // Extract the ACTIVITY ID
-      userId: json['userId'] ?? 'Unknown ID', // ✅ Handle missing userId
-      fullName: json['fullName'] ?? 'Unknown User', // ✅ Handle missing fullName
-      action: json['action'],
-      objectCount: json['countedAmount'],
-      timestamp:
-          formattedTimestamp, // Use formatted time ?? json['createdAt'], // ✅ Fallback to createdAt
+      id: json['_id'] ?? 'Unknown ID', // ✅ Fix: Use _id instead of id
+      userId: json['userId'] ?? 'Unknown ID',
+      fullName: json['fullName'] ?? 'Unknown User',
+      action: json['action'] ?? 'Unknown Action',
+      countedAmount: json['countedAmount'] ?? 0, // ✅ Fallback to 0 if null
+      timestamp: formattedTimestamp,
     );
   }
 
@@ -107,13 +106,13 @@ class _ActivityLogsState extends State<ActivityLogs> {
           activityLogs = logsData
               .map((log) {
                 try {
-                  // Ensure objectCount is properly parsed
+                  // Ensure countedAmount is properly parsed
                   final parsedLog = ActivityLog.fromJson(log);
                   debugPrint("RAW LOG DATA: $log");
 
                   // Log object count for debugging
                   debugPrint(
-                      "COUNTED OBJECT Parsed log: ID=${parsedLog.id}, Object Count=${parsedLog.objectCount}");
+                      "COUNTED OBJECT Parsed log: ID=${parsedLog.id}, Object Count=${parsedLog.countedAmount}");
 
                   return parsedLog;
                 } catch (e) {
@@ -201,7 +200,7 @@ class _ActivityLogsState extends State<ActivityLogs> {
                           DataCell(Text(log.userId)),
                           DataCell(Text(log.fullName)),
                           DataCell(Text(log.action)),
-                          DataCell(Text(log.objectCount?.toString() ?? 'N/A')),
+                          DataCell(Text(log.countedAmount?.toString() ?? 'N/A')),
                           DataCell(Text(log.timestamp)),
                         ]);
                       }).toList(),
