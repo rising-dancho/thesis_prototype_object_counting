@@ -200,7 +200,7 @@ class _ActivityLogsState extends State<ActivityLogs> {
                           DataCell(Text(log.userId)),
                           DataCell(Text(log.fullName)),
                           DataCell(Text(log.action)),
-                          DataCell(Text(log.countedAmount?.toString() ?? 'N/A')),
+                          DataCell(Text(log.countedAmount == 0 ? ' ' : log.countedAmount.toString())),
                           DataCell(Text(log.timestamp)),
                         ]);
                       }).toList(),

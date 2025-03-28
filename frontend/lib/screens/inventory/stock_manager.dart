@@ -12,7 +12,7 @@ class StockManager extends StatefulWidget {
 class _StockManagerState extends State<StockManager> {
   TextEditingController itemController = TextEditingController();
   TextEditingController countController = TextEditingController();
-  Map<String, int> stockCounts = {};
+  Map<String, Map<String, int>> stockCounts = {};
 
   // BACKUP
   // Map<String, int> stockCounts = {
@@ -29,17 +29,14 @@ class _StockManagerState extends State<StockManager> {
     fetchStockData();
   }
 
-  void fetchStockData() async {
-    Map<String, int>? data = await API.fetchStockFromMongoDB();
-
-    debugPrint("Fetched Stock Data: $data"); // Debug print
-
+  Future<void> fetchStockData() async {
+    Map<String, Map<String, int>>? data = await API.fetchStockFromMongoDB();
+    debugPrint("Fetched Stock Data: $data");
     if (data != null && mounted) {
       setState(() {
         stockCounts = data;
       });
-
-      debugPrint("Updated StockCounts: $stockCounts"); // Debug print
+      debugPrint("Updated StockCounts: $stockCounts");
     }
   }
 
@@ -49,7 +46,10 @@ class _StockManagerState extends State<StockManager> {
 
     if (itemName.isNotEmpty && itemCount != null) {
       setState(() {
-        stockCounts[itemName] = itemCount;
+        stockCounts[itemName] = {
+          "detectedCount": 0, // Default value
+          "expectedCount": itemCount, // Set expected count
+        };
       });
 
       API.saveStockToMongoDB(stockCounts);
@@ -60,18 +60,17 @@ class _StockManagerState extends State<StockManager> {
   }
 
   void updateStock(String item, int newCount) {
-    setState(() {
-      stockCounts[item] = newCount;
-    });
+    if (stockCounts.containsKey(item)) {
+      setState(() {
+        stockCounts[item]?["expectedCount"] = newCount;
+      });
 
-    API.saveStockToMongoDB(stockCounts);
+      API.saveStockToMongoDB(stockCounts);
+    }
   }
 
   void deleteStockItem(String item) {
-    setState(() {
-      stockCounts.remove(item);
-    });
-
+    setState(() => stockCounts.remove(item));
     API.deleteStockFromMongoDB(item);
   }
 
@@ -163,10 +162,13 @@ class _StockManagerState extends State<StockManager> {
                       itemCount: stockCounts.length,
                       itemBuilder: (context, index) {
                         String item = stockCounts.keys.elementAt(index);
-                        int count = stockCounts[item] ?? 0;
+                        int detectedCount =
+                            stockCounts[item]?["detectedCount"] ?? 0;
+                        int expectedCount =
+                            stockCounts[item]?["expectedCount"] ?? 0;
+
                         return Padding(
-                          padding: EdgeInsets.fromLTRB(
-                              0, 0, 0, 10), // Adds space at the bottom
+                          padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
                           child: Container(
                             padding: EdgeInsets.fromLTRB(20, 5, 10, 5),
                             decoration: BoxDecoration(
@@ -193,94 +195,90 @@ class _StockManagerState extends State<StockManager> {
                                             item,
                                             textAlign: TextAlign.start,
                                             style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold),
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                         ],
                                       ),
-                                      Text("Current: 55",
-                                          textAlign: TextAlign.start),
+                                      Text(
+                                        "Current: $detectedCount",
+                                        textAlign: TextAlign.start,
+                                      ),
                                     ],
                                   ),
                                 ),
                                 Padding(
-                                    padding: EdgeInsets.only(right: 15),
-                                    child: Text("Total: $count")),
-                                Row(
-                                  children: [
-                                    IconButton(
-                                      icon: Icon(Icons.edit),
-                                      onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            TextEditingController
-                                                editController =
-                                                TextEditingController(
-                                                    text: count.toString());
-                                            return AlertDialog(
-                                              title: Text("Edit $item Stock"),
-                                              content: TextField(
-                                                controller: editController,
-                                                keyboardType:
-                                                    TextInputType.number,
-                                              ),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () {
-                                                    int? newCount =
-                                                        int.tryParse(
-                                                            editController
-                                                                .text);
-                                                    if (newCount != null) {
-                                                      updateStock(
-                                                          item, newCount);
-                                                    }
-                                                    Navigator.pop(context);
-                                                  },
-                                                  child: Text("Save"),
-                                                )
-                                              ],
-                                            );
-                                          },
-                                        );
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.delete),
-                                      onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) => AlertDialog(
-                                            title: Text("Delete $item?"),
-                                            content: Text(
-                                                "Are you sure you want to remove this stock item?"),
+                                  padding: EdgeInsets.only(right: 15),
+                                  child: Text("Total: $expectedCount"),
+                                ),
+                                Row(children: [
+                                  IconButton(
+                                    icon: Icon(Icons.edit),
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          TextEditingController editController =
+                                              TextEditingController(
+                                                  text: expectedCount.toString());
+                                          return AlertDialog(
+                                            title: Text("Edit $item Stock"),
+                                            content: TextField(
+                                              controller: editController,
+                                              keyboardType:
+                                                  TextInputType.number,
+                                            ),
                                             actions: [
                                               TextButton(
-                                                onPressed: () =>
-                                                    Navigator.pop(context),
-                                                child: Text("Cancel",
-                                                    style: TextStyle(
-                                                        color:
-                                                            Colors.grey[600])),
-                                              ),
-                                              TextButton(
                                                 onPressed: () {
-                                                  deleteStockItem(item);
+                                                  int? newCount = int.tryParse(
+                                                      editController.text);
+                                                  if (newCount != null) {
+                                                    updateStock(item, newCount);
+                                                  }
                                                   Navigator.pop(context);
                                                 },
-                                                child: Text("Delete",
-                                                    style: TextStyle(
-                                                        color:
-                                                            Colors.red[400])),
-                                              ),
+                                                child: Text("Save"),
+                                              )
                                             ],
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.delete),
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: Text("Delete $item?"),
+                                          content: Text(
+                                              "Are you sure you want to remove this stock item?"),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context),
+                                              child: Text("Cancel",
+                                                  style: TextStyle(
+                                                      color: Colors.grey[600])),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                deleteStockItem(item);
+                                                Navigator.pop(context);
+                                              },
+                                              child: Text("Delete",
+                                                  style: TextStyle(
+                                                      color: Colors.red[400])),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ]),
                               ],
                             ),
                           ),

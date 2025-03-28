@@ -125,14 +125,17 @@ class API {
     }
   }
 
-  static Future<void> saveStockToMongoDB(Map<String, int> stockCounts) async {
+  static Future<void> saveStockToMongoDB(
+      Map<String, Map<String, int>> stockCounts) async {
     try {
-      var stocks = stockCounts.map((key, value) => MapEntry(key, value));
+      // Convert nested Map<String, Map<String, int>> into a flat Map<String, int>
+      Map<String, int> formattedStocks = stockCounts
+          .map((key, value) => MapEntry(key, value["expectedCount"] ?? 0));
 
       var response = await http.post(
         Uri.parse("${baseUrl}stocks"),
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode(stocks),
+        body: jsonEncode(formattedStocks), // Flattened stock data
       );
 
       if (response.statusCode == 200) {
@@ -145,28 +148,28 @@ class API {
     }
   }
 
-  static Future<Map<String, int>?> fetchStockFromMongoDB() async {
+  static Future<Map<String, Map<String, int>>?> fetchStockFromMongoDB() async {
     try {
       var response = await http.get(Uri.parse("${baseUrl}stocks"));
 
-      debugPrint("Stock API Response: ${response.body}"); // Debug print
+      debugPrint("Stock API Response: ${response.body}");
 
       if (response.statusCode == 200) {
         List<dynamic> jsonData = jsonDecode(response.body);
 
-        if (jsonData.isEmpty) {
-          debugPrint("Stock response is empty.");
-          return null;
-        }
-
-        Map<String, int> stockData = {};
+        Map<String, Map<String, int>> stockData = {};
         for (var item in jsonData) {
-          if (item.containsKey("item") && item.containsKey("expectedCount")) {
+          if (item.containsKey("item") &&
+              item.containsKey("detectedCount") &&
+              item.containsKey("expectedCount")) {
             String itemName = item["item"];
-            int quantity = item["expectedCount"] is int
-                ? item["expectedCount"]
-                : int.tryParse(item["expectedCount"].toString()) ?? 0;
-            stockData[itemName] = quantity;
+            int detectedCount = item["detectedCount"] ?? 0;
+            int expectedCount = item["expectedCount"] ?? 0;
+
+            stockData[itemName] = {
+              "detectedCount": detectedCount,
+              "expectedCount": expectedCount,
+            };
           }
         }
 
