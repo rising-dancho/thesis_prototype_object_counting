@@ -232,17 +232,29 @@ class API {
     }
   }
 
-  // // SAVE DETECTED OBJECTS TO MONGODB
-  // static Future<http.Response> saveDetectedObjects(
-  //     Map<String, dynamic> detectedCounts) async {
-  //   // Accept dynamic values
-  //   var response = await http.post(
-  //     Uri.parse("${baseUrl}detections"),
-  //     headers: {"Content-Type": "application/json"},
-  //     body: jsonEncode(detectedCounts),
-  //   );
+  // Fetch activity details by activityId
+  static Future<Map<String, dynamic>?> fetchActivityById(
+      String activityId) async {
+    debugPrint(
+        "📡 Fetching activity details from: ${baseUrl}activity/$activityId");
 
-  //   debugPrint("Detections saved: ${response.body}");
-  //   return response;
-  // }
+    var url = Uri.parse("${baseUrl}activity/$activityId");
+
+    try {
+      final res = await http.get(url);
+
+      debugPrint("Response Code: ${res.statusCode}");
+      debugPrint("Response Body: ${res.body}");
+
+      if (res.statusCode == 200) {
+        return jsonDecode(res.body);
+      } else {
+        debugPrint("❌ Failed to fetch activity details: ${res.body}");
+        return null;
+      }
+    } catch (error) {
+      debugPrint("⚠️ Error fetching activity details: $error");
+      return null;
+    }
+  }
 }

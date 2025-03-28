@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tectags/screens/navigation/navigation_menu.dart';
 import 'package:tectags/services/shared_prefs_service.dart';
 import 'package:tectags/widgets/custom_scaffold.dart';
@@ -47,7 +46,7 @@ class SplashScreenState extends State<SplashScreen>
     final hasToken = await SharedPrefsService.hasValidToken();
 
     if (hasToken) {
-// Token exists, redirect to NavigationMenu
+      // Token exists, redirect to NavigationMenu
       if (mounted) {
         Navigator.pushReplacement(
           context,
@@ -55,7 +54,7 @@ class SplashScreenState extends State<SplashScreen>
         );
       }
     } else {
-// No token, redirect to WelcomeScreen
+      // No token, redirect to WelcomeScreen
       if (mounted) {
         Navigator.pushReplacement(
           context,

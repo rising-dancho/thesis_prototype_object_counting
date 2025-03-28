@@ -5,6 +5,7 @@ import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:tectags/services/api.dart';
 
 class ActivityLog {
+  final String id; // FOR FETCHING SINGLE ACTIVITY BY USER
   final String userId; // ✅ Store userId
   final String fullName; // ✅ Store fullName
   final String action;
@@ -13,6 +14,7 @@ class ActivityLog {
       timestamp; // Now holds: intl: ^0.18.1 a more human readable formatted time
 
   ActivityLog({
+    required this.id, // FOR FETCHING SINGLE ACTIVITY BY USER
     required this.userId,
     required this.fullName,
     required this.action,
@@ -35,6 +37,7 @@ class ActivityLog {
         DateFormat.yMEd().add_jms().format(manilaTime);
 
     return ActivityLog(
+      id: json['id'] ?? 'Unknown ID', // Extract the ACTIVITY ID
       userId: json['userId'] ?? 'Unknown ID', // ✅ Handle missing userId
       fullName: json['fullName'] ?? 'Unknown User', // ✅ Handle missing fullName
       action: json['action'],
@@ -43,6 +46,9 @@ class ActivityLog {
           formattedTimestamp, // Use formatted time ?? json['createdAt'], // ✅ Fallback to createdAt
     );
   }
+
+  // WHAT IS A FACTORY: https://chatgpt.com/share/67e6097f-8c94-8000-940d-5ecd8c54bb09
+  // THIS FACTORY HELPS CONVERT THE JSON RECEIVED FROM API RESPONSE INTO A FLUTTER OBJECT
 }
 
 class ActivityLogs extends StatefulWidget {
@@ -60,25 +66,21 @@ class _ActivityLogsState extends State<ActivityLogs> {
   void initState() {
     super.initState();
     _loadActivityLogs();
-    // logObjectCount();
   }
-  
-  // // SEND OBJECT COUNT TO THE BACKEND
-  // void logObjectCount(
-  //     String userId, String item, int countedAmount) async {
-  //   var response =
-  //       await API.logStockCurrentCount(userId, item, countedAmount);
-
-  //   if (response != null) {
-  //     debugPrint("✅ OBJECT COUNT LOGGED successfully: $response");
-  //   } else {
-  //     debugPrint("❌ Failed to log object count.");
-  //   }
-  // }
 
   Future<String?> getUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('userId'); // Returns null if not found
+  }
+
+  // FETCH SINGLE ACTIVITY BY A USER
+  Future<void> fetchActivityDetails(String activityId) async {
+    var activity = await API.fetchActivityById(activityId);
+    if (activity != null) {
+      debugPrint("Activity Details: $activity");
+    } else {
+      debugPrint("Failed to fetch activity details.");
+    }
   }
 
   // ACTIVITY LOGS ARE FETCHED FROM THE BACKEND USING THE USERID SAVED IN THE LOCAL STORAGE
@@ -91,10 +93,13 @@ class _ActivityLogsState extends State<ActivityLogs> {
       return;
     }
 
+    debugPrint("Fetching logs... Show all logs: $showAllLogs");
+
     // FETCH ALL ACTIVITY LOGS OR PER USER
     final logsData = showAllLogs
         ? await API.fetchAllActivityLogs() // Fetch all users' logs
         : await API.fetchActivityLogs(userId); // Fetch only current user's logs
+
     if (logsData != null) {
       if (mounted) {
         // ✅ Prevent updating state if widget is disposed
@@ -111,6 +116,7 @@ class _ActivityLogsState extends State<ActivityLogs> {
               .whereType<ActivityLog>()
               .toList();
         });
+        debugPrint("✅ Logs updated: ${activityLogs.length} logs");
       }
     } else {
       debugPrint("❌ No logs retrieved");

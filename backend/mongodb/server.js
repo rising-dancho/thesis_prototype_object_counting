@@ -133,66 +133,6 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// GET USER ACTIVITY LOGS PER USERID
-app.get('/api/activity_logs/:userId', async (req, res) => {
-  try {
-    const { userId } = req.params;
-
-    // Fetch all activities with user and stock info
-    const activities = await Activity.find({ userId })
-      .populate('userId', 'fullName') // Get user's full name
-      .populate('stockId', 'item expectedCount detectedCount') // Get stock details
-      .sort({ createdAt: -1 });
-
-    // Format response
-    const formattedActivities = activities.map((activity) => ({
-      _id: activity._id,
-      userId: activity.userId?._id, // ✅ Explicitly include userId
-      fullName: activity.userId?.fullName ?? 'Unknown User', // ✅ Include fullName
-      action: activity.action,
-      item: activity.stockId?.item ?? 'N/A', // Get stock item name
-      countedAmount: activity.countedAmount,
-      expectedStock: activity.stockId?.expectedCount ?? 0,
-      detectedStock: activity.stockId?.detectedCount ?? 0,
-      timestamp: activity.createdAt, // ✅ Keep the timestamp
-    }));
-    res.status(200).json(formattedActivities);
-  } catch (error) {
-    console.error('❌ Error fetching activity logs per user:', error);
-    res
-      .status(500)
-      .json({ message: 'Error fetching activity logs', error: error.message });
-  }
-});
-
-// GET ALL USER ACTIVITY LOGS
-app.get('/api/activity_logs/', async (req, res) => {
-  try {
-    // Fetch all activities and populate userId to get both userId and fullName
-    const activities = await Activity.find() // JUST REMOVE THE FILTER TO GET ALL ACTIVITIES
-      .populate('userId', 'fullName') // Fetch fullName from User model
-      .sort({ createdAt: -1 }); // Sort latest first
-
-    // Format response to explicitly include userId
-    const formattedActivities = activities.map((activity) => ({
-      _id: activity._id,
-      userId: activity.userId?._id, // ✅ Explicitly include userId
-      fullName: activity.userId?.fullName ?? 'Unknown User', // ✅ Include fullName
-      action: activity.action,
-      objectCount: activity.objectCount,
-      timestamp: activity.createdAt, // ✅ Keep the timestamp
-    }));
-
-    res.status(200).json(formattedActivities);
-  } catch (error) {
-    console.error('❌ Error fetching all activity logs:', error);
-
-    res
-      .status(500)
-      .json({ message: 'Internal server error', error: error.message });
-  }
-});
-
 // NUMBER OF STOCKS and DETECTIONS DATA -------------
 
 // Save stock categories
@@ -252,17 +192,19 @@ app.post('/api/count_objects', async (req, res) => {
         .json({ message: `Stock item '${item}' not found` });
     }
 
-    // Log the activity in an Activity collection
+    // ✅ Update the stock's detectedCount in MongoDB
+    await Stock.updateOne(
+      { item: item },
+      { $set: { detectedCount: countedAmount } }
+    );
+
+    // ✅ Log the activity and associate it with the stock
     await Activity.create({
       userId,
-      action: `Counted ${countedAmount} of ${item}`,
-      stockId: stock._id,
+      action: `Updated count for ${item}`,
+      stockId: stock._id, // ✅ Associate stock item
       countedAmount,
     });
-
-    // Update the stock's detectedCount
-    stock.detectedCount += countedAmount;
-    await stock.save();
 
     res.status(200).json({
       message: 'Object count logged and stock updated successfully',
@@ -274,3 +216,94 @@ app.post('/api/count_objects', async (req, res) => {
     });
   }
 });
+
+// GET COUNTED OBJECT BY SPECIFIC USER
+app.get('/api/activity/:activityId', async (req, res) => {
+  try {
+    const { activityId } = req.params;
+    const activity = await Activity.findById(activityId).populate(
+      'stockId',
+      'item'
+    );
+
+    if (!activity) {
+      return res.status(404).json({ message: 'Activity not found' });
+    }
+
+    res.status(200).json({
+      _id: activity._id,
+      userId: activity.userId,
+      action: activity.action,
+      item: activity.stockId?.item ?? 'N/A',
+      countedAmount: activity.countedAmount,
+      timestamp: activity.createdAt,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Error fetching activity details',
+      error: error.message,
+    });
+  }
+});
+
+// GET [ALL] USER ACTIVITY LOGS PER USERID
+app.get('/api/activity_logs/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Fetch all activities with user and stock info
+    const activities = await Activity.find({ userId })
+      .populate('userId', 'fullName') // Get user's full name
+      .populate('stockId', 'item expectedCount detectedCount') // Get stock details
+      .sort({ createdAt: -1 });
+
+    // Format response
+    const formattedActivities = activities.map((activity) => ({
+      _id: activity._id,
+      userId: activity.userId?._id, // ✅ Explicitly include userId
+      fullName: activity.userId?.fullName ?? 'Unknown User', // ✅ Include fullName
+      action: activity.action,
+      item: activity.stockId?.item ?? 'N/A', // Get stock item name
+      countedAmount: activity.countedAmount,
+      expectedStock: activity.stockId?.expectedCount ?? 0,
+      detectedStock: activity.stockId?.detectedCount ?? 0,
+      timestamp: activity.createdAt, // ✅ Keep the timestamp
+    }));
+    res.status(200).json(formattedActivities);
+  } catch (error) {
+    console.error('❌ Error fetching activity logs per user:', error);
+    res
+      .status(500)
+      .json({ message: 'Error fetching activity logs', error: error.message });
+  }
+});
+
+// GET ALL USER ACTIVITY LOGS
+app.get('/api/activity_logs/', async (req, res) => {
+  try {
+    // Fetch all activities and populate userId to get both userId and fullName
+    const activities = await Activity.find() // JUST REMOVE THE FILTER TO GET ALL ACTIVITIES
+      .populate('userId', 'fullName') // Fetch fullName from User model
+      .sort({ createdAt: -1 }); // Sort latest first
+
+    // Format response to explicitly include userId
+    const formattedActivities = activities.map((activity) => ({
+      _id: activity._id,
+      userId: activity.userId?._id, // ✅ Explicitly include userId
+      fullName: activity.userId?.fullName ?? 'Unknown User', // ✅ Include fullName
+      action: activity.action,
+      objectCount: activity.objectCount,
+      timestamp: activity.createdAt, // ✅ Keep the timestamp
+    }));
+
+    res.status(200).json(formattedActivities);
+  } catch (error) {
+    console.error('❌ Error fetching all activity logs:', error);
+
+    res
+      .status(500)
+      .json({ message: 'Internal server error', error: error.message });
+  }
+});
+
+// EXPLANATION ON ABOUT ACTIVITY LOGS PER USERID AND ALL ACTIVITY LOGS PER USER: https://chatgpt.com/share/67e6097f-8c94-8000-940d-5ecd8c54bb09
