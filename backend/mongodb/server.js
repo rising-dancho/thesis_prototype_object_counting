@@ -292,7 +292,7 @@ app.get('/api/activity_logs/', async (req, res) => {
       userId: activity.userId?._id, // ✅ Explicitly include userId
       fullName: activity.userId?.fullName ?? 'Unknown User', // ✅ Include fullName
       action: activity.action,
-      objectCount: activity.objectCount,
+      objectCount: activity.countedAmount,
       timestamp: activity.createdAt, // ✅ Keep the timestamp
     }));
 
