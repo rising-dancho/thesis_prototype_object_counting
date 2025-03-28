@@ -41,7 +41,7 @@ class ActivityLog {
       userId: json['userId'] ?? 'Unknown ID', // ✅ Handle missing userId
       fullName: json['fullName'] ?? 'Unknown User', // ✅ Handle missing fullName
       action: json['action'],
-      objectCount: json['objectCount'],
+      objectCount: json['countedAmount'],
       timestamp:
           formattedTimestamp, // Use formatted time ?? json['createdAt'], // ✅ Fallback to createdAt
     );
@@ -107,7 +107,15 @@ class _ActivityLogsState extends State<ActivityLogs> {
           activityLogs = logsData
               .map((log) {
                 try {
-                  return ActivityLog.fromJson(log);
+                  // Ensure objectCount is properly parsed
+                  final parsedLog = ActivityLog.fromJson(log);
+                  debugPrint("RAW LOG DATA: $log");
+
+                  // Log object count for debugging
+                  debugPrint(
+                      "COUNTED OBJECT Parsed log: ID=${parsedLog.id}, Object Count=${parsedLog.objectCount}");
+
+                  return parsedLog;
                 } catch (e) {
                   debugPrint("❌ Error parsing log: $log \n Exception: $e");
                   return null;
