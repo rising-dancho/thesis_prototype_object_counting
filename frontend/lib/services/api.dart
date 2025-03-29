@@ -86,36 +86,52 @@ class API {
     }
   }
 
-  // INVENTORY
+  // Fetch activity logs per USER ID
+  static Future<List<Map<String, dynamic>>?> fetchActivityLogs(
+      String userId) async {
+    debugPrint(
+        "📡 Fetching activity logs from: ${baseUrl}activity_logs/$userId");
+
+    var url = Uri.parse("${baseUrl}activity_logs/$userId");
+
+    try {
+      final res = await http.get(url);
+
+      debugPrint("Response Code: ${res.statusCode}");
+      debugPrint("Response Body: ${res.body}");
+
+      if (res.statusCode == 200) {
+        List<dynamic> data = jsonDecode(res.body);
+        return List<Map<String, dynamic>>.from(data);
+      } else {
+        debugPrint("❌ Failed to fetch logs: ${res.body}");
+        return null;
+      }
+    } catch (error) {
+      debugPrint("⚠️ Error fetching logs: $error");
+      return null;
+    }
+  }
+
+  // Fetch ALL activity logs
+  static Future<List<dynamic>?> fetchAllActivityLogs() async {
+    final response = await http.get(Uri.parse('$baseUrl/activity_logs'));
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      debugPrint("❌ Failed to fetch activity logs: ${response.body}");
+      return null;
+    }
+  }
+
   static Future<void> saveStockToMongoDB(
       Map<String, Map<String, int>> stockCounts) async {
     try {
-      // Fetch existing stock data
-      Map<String, Map<String, int>>? existingStock =
-          await fetchStockFromMongoDB();
+      // Convert nested Map<String, Map<String, int>> into a flat Map<String, int>
+      Map<String, int> formattedStocks = stockCounts
+          .map((key, value) => MapEntry(key, value["expectedCount"] ?? 0));
 
-      if (existingStock == null) {
-        debugPrint("Error: Failed to fetch existing stock data.");
-        return;
-      }
-
-      // Compute the new detected count by subtracting from the current detected count
-      Map<String, int> formattedStocks = {};
-      stockCounts.forEach((key, value) {
-        int expected = value["expectedCount"] ?? 0;
-        int currentDetected = existingStock[key]?["detectedCount"] ??
-            expected; // Default to expected if no detected count exists
-
-        // Update the detected count by deducting the latest detected value
-        int updatedDetectedCount =
-            currentDetected - (value["detectedCount"] ?? 0);
-
-        formattedStocks[key] = updatedDetectedCount < 0
-            ? 0
-            : updatedDetectedCount; // Prevent negative values
-      });
-
-      // Send updated detected counts to the backend
       var response = await http.post(
         Uri.parse("${baseUrl}stocks"),
         headers: {"Content-Type": "application/json"},
@@ -132,7 +148,6 @@ class API {
     }
   }
 
-  // INVENTORY
   static Future<Map<String, Map<String, int>>?> fetchStockFromMongoDB() async {
     try {
       var response = await http.get(Uri.parse("${baseUrl}stocks"));
@@ -170,26 +185,21 @@ class API {
     }
   }
 
-  // INVENTORY
-  static Future<bool> deleteStockFromMongoDB(String itemName) async {
+  static Future<void> deleteStockFromMongoDB(String itemName) async {
     try {
       var response = await http.delete(Uri.parse("${baseUrl}stocks/$itemName"));
 
       if (response.statusCode == 200) {
         debugPrint("Stock deleted: ${response.body}");
-        return true;
       } else {
         debugPrint(
             "Failed to delete stock: ${response.statusCode} - ${response.body}");
-        return false;
       }
     } catch (e) {
       debugPrint("Error deleting stock: $e");
-      return false;
     }
   }
 
-  // ACTIVITY LOGS
   static Future<Map<String, dynamic>?> logStockCurrentCount(
       String userId, String stockItem, int countedAmount) async {
     var url = Uri.parse("${baseUrl}count_objects");
@@ -225,7 +235,6 @@ class API {
     }
   }
 
-  // ACTIVITY LOGS
   // Fetch activity details by activityId
   static Future<Map<String, dynamic>?> fetchActivityById(
       String activityId) async {
@@ -248,45 +257,6 @@ class API {
       }
     } catch (error) {
       debugPrint("⚠️ Error fetching activity details: $error");
-      return null;
-    }
-  }
-
-  // Fetch activity logs per USER ID
-  static Future<List<Map<String, dynamic>>?> fetchActivityLogs(
-      String userId) async {
-    debugPrint(
-        "📡 Fetching activity logs from: ${baseUrl}activity_logs/$userId");
-
-    var url = Uri.parse("${baseUrl}activity_logs/$userId");
-
-    try {
-      final res = await http.get(url);
-
-      debugPrint("Response Code: ${res.statusCode}");
-      debugPrint("Response Body: ${res.body}");
-
-      if (res.statusCode == 200) {
-        List<dynamic> data = jsonDecode(res.body);
-        return List<Map<String, dynamic>>.from(data);
-      } else {
-        debugPrint("❌ Failed to fetch logs: ${res.body}");
-        return null;
-      }
-    } catch (error) {
-      debugPrint("⚠️ Error fetching logs: $error");
-      return null;
-    }
-  }
-
-  // Fetch ALL activity logs
-  static Future<List<dynamic>?> fetchAllActivityLogs() async {
-    final response = await http.get(Uri.parse('$baseUrl/activity_logs'));
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      debugPrint("❌ Failed to fetch activity logs: ${response.body}");
       return null;
     }
   }
