@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:tectags/services/api.dart';
+import 'dart:math';
 
 class StockManager extends StatefulWidget {
   const StockManager({super.key});
@@ -69,9 +70,13 @@ class _StockManagerState extends State<StockManager> {
     }
   }
 
-  void deleteStockItem(String item) {
-    setState(() => stockCounts.remove(item));
-    API.deleteStockFromMongoDB(item);
+  void deleteStockItem(String item) async {
+    bool success = await API.deleteStockFromMongoDB(item);
+    if (success) {
+      setState(() => stockCounts.remove(item));
+    } else {
+      debugPrint("Failed to delete $item from database.");
+    }
   }
 
   @override
@@ -202,7 +207,7 @@ class _StockManagerState extends State<StockManager> {
                                         ],
                                       ),
                                       Text(
-                                        "Current: $detectedCount",
+                                        "Current: ${max(expectedCount - detectedCount, 0)}",
                                         textAlign: TextAlign.start,
                                       ),
                                     ],
@@ -221,7 +226,8 @@ class _StockManagerState extends State<StockManager> {
                                         builder: (context) {
                                           TextEditingController editController =
                                               TextEditingController(
-                                                  text: expectedCount.toString());
+                                                  text:
+                                                      expectedCount.toString());
                                           return AlertDialog(
                                             title: Text("Edit $item Stock"),
                                             content: TextField(
