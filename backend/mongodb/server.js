@@ -34,7 +34,7 @@ mongoose
 
 // WELCOME ROUTE "/"
 app.get('/', (req, res) => {
-  res.send('FIXING BACKEND LOGIC! 🚀');
+  res.send('Welcome to Express API! 🚀');
 });
 
 // LOGIN & REGISTRATION -------------
