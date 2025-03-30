@@ -206,6 +206,8 @@ app.get('/api/activity/:activityId', async (req, res) => {
       return res.status(404).json({ message: 'Activity not found' });
     }
 
+    console.log('🔍 Full Activity Data:', activity); // Debugging log
+
     res.status(200).json({
       _id: activity._id,
       userId: activity.userId,
@@ -215,6 +217,7 @@ app.get('/api/activity/:activityId', async (req, res) => {
       timestamp: activity.createdAt,
     });
   } catch (error) {
+    console.error('❌ Error:', error);
     res.status(500).json({
       message: 'Error fetching activity details',
       error: error.message,
