@@ -99,6 +99,13 @@ class _ActivityLogsState extends State<ActivityLogs> {
         ? await API.fetchAllActivityLogs() // Fetch all users' logs
         : await API.fetchActivityLogs(userId); // Fetch only current user's logs
 
+    debugPrint("WHAT IS THE API Response DOES IT WORK: $logsData");
+    if (logsData != null) {
+      logsData.forEach((log) => debugPrint("📜 Raw Log Data THIS IS IN THE ACTIVITY LOG WIDGET: $log"));
+    } else {
+      debugPrint("❌ LOGS DATA IS NULL or not a List: $logsData");
+    }
+
     if (logsData != null) {
       if (mounted) {
         // ✅ Prevent updating state if widget is disposed
@@ -192,7 +199,7 @@ class _ActivityLogsState extends State<ActivityLogs> {
                         DataColumn(label: Text('User ID')),
                         DataColumn(label: Text('Full Name')),
                         DataColumn(label: Text('Action')),
-                        DataColumn(label: Text('Total Sold')),
+                        DataColumn(label: Text('Counted Amount')),
                         DataColumn(label: Text('Timestamp')),
                       ],
                       rows: activityLogs.map((log) {
@@ -200,7 +207,9 @@ class _ActivityLogsState extends State<ActivityLogs> {
                           DataCell(Text(log.userId)),
                           DataCell(Text(log.fullName)),
                           DataCell(Text(log.action)),
-                          DataCell(Text(log.countedAmount == 0 ? ' ' : log.countedAmount.toString())),
+                          // DataCell(Text(log.countedAmount == 0 ? ' ' : log.countedAmount.toString())),
+                          DataCell(
+                              Text(log.countedAmount?.toString() ?? 'N/A')),
                           DataCell(Text(log.timestamp)),
                         ]);
                       }).toList(),
