@@ -192,7 +192,7 @@ class _ActivityLogsState extends State<ActivityLogs> {
                         DataColumn(label: Text('User ID')),
                         DataColumn(label: Text('Full Name')),
                         DataColumn(label: Text('Action')),
-                        DataColumn(label: Text('Objects Counted')),
+                        DataColumn(label: Text('Total Sold')),
                         DataColumn(label: Text('Timestamp')),
                       ],
                       rows: activityLogs.map((log) {
