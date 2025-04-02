@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:techtags/screens/login_screen.dart';
-import 'package:techtags/widgets/custom_scaffold.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tectags/screens/login_screen.dart';
+import 'package:tectags/screens/navigation/navigation_menu.dart';
+import 'package:tectags/services/api.dart';
+import 'package:tectags/widgets/custom_scaffold.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -19,6 +22,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   bool _passwordVisible = false;
   bool _confirmPasswordVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    testSaveToken();
+  }
+
+  Future<void> saveToken(String token) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('auth_token', token);
+      debugPrint("Token saved successfully: $token"); // Debug log
+    } catch (e) {
+      debugPrint("Error saving token: $e"); // Debug log
+    }
+  }
+
+  Future<void> testSaveToken() async {
+    await saveToken("test_token");
+  }
 
   @override
   void dispose() {
@@ -76,7 +99,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         labelText: 'Full Name',
                         hintText: 'Enter your full name',
                         hintStyle: const TextStyle(color: Colors.black26),
-                        fillColor: const Color.fromARGB(255, 255, 255, 255),
+                        fillColor: Colors.white,
                         filled: true,
                         border: InputBorder.none,
                       ),
@@ -97,7 +120,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         labelText: 'Email',
                         hintText: 'Enter your email',
                         hintStyle: const TextStyle(color: Colors.black26),
-                        fillColor: const Color.fromARGB(255, 255, 255, 255),
+                        fillColor: Colors.white,
                         filled: true,
                         border: InputBorder.none,
                       ),
@@ -183,11 +206,82 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     child: SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (_formSignUpKey.currentState!.validate()) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Processing Data')),
-                            );
+                            var data = {
+                              "email": _emailController.text,
+                              "password": _passwordController.text,
+                              "fullName": _fullNameController.text,
+                            };
+
+                            Map<String, dynamic>? response;
+                            try {
+                              response = await API.registerUser(data);
+                              debugPrint(
+                                  "API Response: $response"); // Debug log
+                            } catch (e) {
+                              debugPrint(
+                                  "Error during registration: $e"); // Debug log
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text(
+                                        'Registration failed. Please try again.')),
+                              );
+                              return;
+                            }
+
+                            // Check if response is null
+                            if (response == null) {
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text(
+                                        'Server error: No response received')),
+                              );
+                              return;
+                            }
+
+                            // Check for errors in the response
+                            if (response.containsKey('error') &&
+                                response['error'] != null) {
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(response['error'])),
+                              );
+                              return;
+                            }
+
+                            // Check for token in the response
+                            if (response.containsKey('token')) {
+                              await saveToken(response['token']);
+
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text(response['message'] ??
+                                        'Registration Successful!')),
+                              );
+
+                              _emailController.clear();
+                              _passwordController.clear();
+                              _fullNameController.clear();
+
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const NavigationMenu()),
+                              );
+                            } else {
+                              // Handle case where token is missing
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text(
+                                        'Registration failed. Token not received.')),
+                              );
+                            }
                           }
                         },
                         style: ElevatedButton.styleFrom(

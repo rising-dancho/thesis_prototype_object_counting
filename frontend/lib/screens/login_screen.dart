@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:techtags/widgets/custom_scaffold.dart';
-import 'package:techtags/screens/signup_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tectags/screens/navigation/navigation_menu.dart';
+import 'package:tectags/services/api.dart';
+import 'package:tectags/widgets/custom_scaffold.dart';
+import 'package:tectags/screens/signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,16 +22,48 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscureText = true;
 
   @override
-  void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
-    super.dispose();
+
+  void initState() {
+    super.initState();
+    loadRememberPassword().then((value) {
+      setState(() {
+        rememberPassword = value;
+      });
+    });
   }
 
   void _togglePasswordVisibility() {
     setState(() {
       _obscureText = !_obscureText;
     });
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> saveToken(String token, bool rememberPassword) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (rememberPassword) {
+      await prefs.setString('auth_token', token); // Save token
+      debugPrint("Token saved successfully: $token");
+    } else {
+      await prefs.remove('auth_token'); // Remove token
+      debugPrint("Token removed");
+    }
+  }
+
+  Future<void> saveRememberPassword(bool rememberPassword) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('remember_password', rememberPassword);
+  }
+
+  Future<bool> loadRememberPassword() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('remember_password') ?? true; // Default to true
   }
 
   @override
@@ -132,10 +167,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       Checkbox(
                         value: rememberPassword,
-                        onChanged: (bool? value) {
+                        onChanged: (bool? value) async {
                           setState(() {
-                            rememberPassword = value ?? true;
+                            rememberPassword = value!;
                           });
+                          await saveRememberPassword(
+                              value!); // Save the setting
                         },
                         activeColor: const Color.fromARGB(255, 5, 57, 230),
                       ),
@@ -152,14 +189,75 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         if (_formLogInKey.currentState!.validate()) {
-                          String email = emailController.text;
-                          String password = passwordController.text;
+                          var data = {
+                            "email": emailController.text,
+                            "password": passwordController.text,
+                          };
 
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Processing Data')),
-                          );
+                          Map<String, dynamic>? response;
+                          try {
+                            response = await API.loginUser(data);
+                            debugPrint("API Response: $response"); // Debug log
+                          } catch (e) {
+                            debugPrint("Error during login: $e"); // Debug log
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content:
+                                      Text('Login failed. Please try again.')),
+                            );
+                            return;
+                          }
+
+                          // Check if response is null
+                          if (response == null) {
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content:
+                                      Text('Incorrect email or password.')),
+                            );
+                            return;
+                          }
+
+                          // Check for errors in the response
+                          if (response.containsKey('error') &&
+                              response['error'] != null) {
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(response['error'])),
+                            );
+                            return;
+                          }
+
+                          // Check for token in the response
+                          if (response.containsKey('token')) {
+                            await saveToken(response['token'],
+                                rememberPassword); // Pass rememberPassword
+
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(response['message'] ??
+                                      'Login Successful!')),
+                            );
+
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const NavigationMenu()),
+                            );
+                          } else {
+                            // Handle case where token is missing
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text(
+                                      'Login failed. Token not received.')),
+                            );
+                          }
                         }
                       },
                       style: ElevatedButton.styleFrom(

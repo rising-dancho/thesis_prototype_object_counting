@@ -1,14 +1,17 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:techtags/logic/tensorflow/photo_viewer.dart';
-import 'package:techtags/screens/navigation/navigation_menu.dart';
-import 'package:techtags/screens/login_screen.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:tectags/logic/tensorflow/photo_viewer.dart';
 import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 import 'dart:ui' as ui;
+
+import 'package:tectags/screens/navigation/side_menu.dart';
+import 'package:tectags/services/api.dart';
 
 class TensorflowLite extends StatefulWidget {
   const TensorflowLite({super.key});
@@ -18,12 +21,13 @@ class TensorflowLite extends StatefulWidget {
 }
 
 class _TensorflowLiteState extends State<TensorflowLite> {
+  ScreenshotController screenshotController = ScreenshotController();
   // Image galler and camera variables
   File? _selectedImage;
   late ImagePicker imagePicker;
   // EXPLANATION about ui.Image:
   // In Flutter, ui.Image (from dart:ui) is an in-memory representation of an image that allows direct manipulation in a Canvas via CustomPainter. Unlike Image.file or Image.asset, which are widgets for displaying images in the UI, ui.Image is specifically used for low-level drawing operations.
-  ui.Image? image_for_drawing;
+  ui.Image? imageForDrawing;
 
   // initialize object detector
   late ObjectDetector objectDetector;
@@ -38,9 +42,14 @@ class _TensorflowLiteState extends State<TensorflowLite> {
   // variable for whatever is typed in the TextField
   final TextEditingController titleController = TextEditingController();
 
+  // FOR THE DROPDOWN
+  List<String> stockList = [];
+  String? _selectedStock;
+
   @override
   void initState() {
     super.initState();
+    loadStockData();
     imagePicker = ImagePicker();
     // USE DEFAULT PRETRAINED MODEL: load initial pretrained object detector
     // EXPLANATION: https://pub.dev/packages/google_mlkit_object_detection#create-an-instance-of-objectdetector
@@ -53,11 +62,22 @@ class _TensorflowLiteState extends State<TensorflowLite> {
     // loadModel();
   }
 
+  // STOCK DATA FOR THE DROPDOWN
+  Future<void> loadStockData() async {
+    var fetchedStocks = await API.fetchStockFromMongoDB();
+
+    if (fetchedStocks != null) {
+      setState(() {
+        stockList = fetchedStocks.keys.toList();
+      });
+    }
+  }
+
   Future<void> loadImageForDrawing(File imageFile) async {
     final data = await imageFile.readAsBytes();
     final codec = await ui.instantiateImageCodec(data);
     final frame = await codec.getNextFrame();
-    image_for_drawing = frame.image;
+    imageForDrawing = frame.image;
   }
 
   // OBJECT DETECTION
@@ -71,6 +91,40 @@ class _TensorflowLiteState extends State<TensorflowLite> {
   //   );
   //   objectDetector = ObjectDetector(options: options);
   // }
+
+  /// **Save Screenshot to Gallery**
+  Future<void> saveImage(BuildContext context) async {
+    try {
+      final Uint8List? screenShot = await screenshotController.capture();
+      if (!mounted) {
+        return; // Prevents calling ScaffoldMessenger on a disposed widget
+      }
+
+      if (screenShot == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to capture screenshot")),
+        );
+        return;
+      }
+
+      final result = await ImageGallerySaverPlus.saveImage(screenShot,
+          name: "screenshot_${DateTime.now().millisecondsSinceEpoch}.png");
+      if (result["isSuccess"]) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Image saved in gallery")),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Image not saved")),
+        );
+      }
+    } catch (e) {
+      debugPrint("Error saving image: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("An error occurred while saving")),
+      );
+    }
+  }
 
   Future<String> getModelPath(String asset) async {
     final path = '${(await getApplicationSupportDirectory()).path}/$asset';
@@ -86,23 +140,23 @@ class _TensorflowLiteState extends State<TensorflowLite> {
 
   doObjectDetection() async {
     if (_selectedImage == null) {
-      print("No image selected!");
+      debugPrint("No image selected!");
       return;
     }
 
-    print("Starting object detection...");
+    debugPrint("Starting object detection...");
     InputImage inputImage = InputImage.fromFile(_selectedImage!);
 
     // Get detected objects
     List<DetectedObject> detectedObjects =
         await objectDetector.processImage(inputImage);
-    print("Objects detected: ${detectedObjects.length}");
+    debugPrint("Objects detected: ${detectedObjects.length}");
 
-    // Print all bounding boxes BEFORE adding them to the list
-    print("\nBounding Boxes BEFORE Processing:");
+    // debugPrint all bounding boxes BEFORE adding them to the list
+    debugPrint("\nBounding Boxes BEFORE Processing:");
     for (int i = 0; i < detectedObjects.length; i++) {
       final rect = detectedObjects[i].boundingBox;
-      print(
+      debugPrint(
           "Box $i: Left=${rect.left}, Top=${rect.top}, Right=${rect.right}, Bottom=${rect.bottom}");
     }
 
@@ -113,11 +167,11 @@ class _TensorflowLiteState extends State<TensorflowLite> {
           .toList(); // ✅ Ensure ML-detected boxes are editable
     });
 
-    // Print bounding boxes AFTER being added to editableBoundingBoxes
-    print("\nBounding Boxes AFTER Processing:");
+    // debugPrint bounding boxes AFTER being added to editableBoundingBoxes
+    debugPrint("\nBounding Boxes AFTER Processing:");
     for (int i = 0; i < editableBoundingBoxes.length; i++) {
       final rect = editableBoundingBoxes[i];
-      print(
+      debugPrint(
           "Editable Box $i: Left=${rect.left}, Top=${rect.top}, Right=${rect.right}, Bottom=${rect.bottom}");
     }
 
@@ -134,7 +188,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
     ui.Image decodedImage = await decodeImageFromList(imageBytes);
 
     setState(() {
-      image_for_drawing = decodedImage; // Now image is a ui.Image
+      imageForDrawing = decodedImage; // Now image is a ui.Image
     });
   }
   // END
@@ -174,7 +228,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
   void reset() {
     setState(() {
       _selectedImage = null;
-      image_for_drawing = null; // Clear this to prevent null check errors
+      imageForDrawing = null; // Clear this to prevent null check errors
       objects = []; // Also clear detected objects
       isAddingBox = false;
       titleController.clear();
@@ -204,7 +258,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Tensorflow Lite"),
+          title: const Text("Tectags AutoCount"),
           backgroundColor: const Color.fromARGB(255, 5, 45, 90),
           foregroundColor: const Color.fromARGB(255, 255, 255, 255),
           automaticallyImplyLeading: false,
@@ -219,73 +273,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
             ),
           ],
         ),
-        endDrawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Color.fromARGB(255, 5, 45, 90),
-                ),
-                child: Container(
-                  alignment:
-                      Alignment.center,
-                  child: Image.asset(
-                    'assets/images/tectags_logo_nobg.png', // Replace with your logo's asset path
-                    width: 120, // Set your desired width
-                    height: 120, // Set your desired height
-                    fit: BoxFit
-                        .contain, // Adjusts the image to fit within the specified dimensions
-                  ),
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.home),
-                title: const Text('Home'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => NavigationMenu()),
-                  );
-                },
-              ),
-              const Divider(
-                height: 20,
-                thickness: 1,
-                indent: 20,
-                endIndent: 20,
-                color: Color.fromARGB(255, 82, 81, 81),
-              ),
-              ListTile(
-                leading: const Icon(Icons.history),
-                title: const Text('Activity Logs'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => NavigationMenu()),
-                  );
-                },
-              ),
-              const Divider(
-                height: 20,
-                thickness: 1,
-                indent: 20,
-                endIndent: 20,
-                color: Color.fromARGB(255, 82, 81, 81),
-              ),
-              ListTile(
-                leading: const Icon(Icons.logout),
-                title: const Text('Logout'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginScreen()),
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
+        endDrawer: const SideMenu(),
         body: Container(
           decoration: BoxDecoration(
             image: DecorationImage(
@@ -302,106 +290,115 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                 child: Container(
                   width: double
                       .infinity, // Makes the container expand horizontally
-                  margin: const EdgeInsets.all(40),
+                  margin: const EdgeInsets.fromLTRB(22, 40, 22, 42),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    color: const Color.fromARGB(255, 223, 223,
-                        223), // Adds a background to prevent weird scaling issues
+                    color: const Color.fromARGB(255, 223, 223, 223),
                   ),
-                  child: image_for_drawing == null
+                  child: imageForDrawing == null
                       ? Icon(
                           Icons.add_photo_alternate_outlined,
                           size: 120,
                           color: Colors.grey[500],
                         )
-                      : PhotoViewer(
-                          imageFile: _selectedImage!,
-                          imageForDrawing: image_for_drawing,
-                          editableBoundingBoxes: editableBoundingBoxes,
-                          onNewBox: (Rect box) {
-                            setState(() {
-                              editableBoundingBoxes.add(box);
-                            });
-                          },
-                          onRemoveBox: (int index) {
-                            setState(() {
-                              editableBoundingBoxes.removeAt(index);
-                            });
-                          },
-                          isAddingBox: isAddingBox,
-                          isRemovingBox: isRemovingBox,
-                          timestamp: timestamp,
-                          titleController: titleController,
+                      : Screenshot(
+                          controller: screenshotController, // Wrap entire Stack
+                          child: PhotoViewer(
+                            imageFile: _selectedImage!,
+                            imageForDrawing: imageForDrawing,
+                            editableBoundingBoxes: editableBoundingBoxes,
+                            onNewBox: (Rect box) {
+                              setState(() {
+                                editableBoundingBoxes.add(box);
+                              });
+                            },
+                            onRemoveBox: (int index) {
+                              setState(() {
+                                editableBoundingBoxes.removeAt(index);
+                              });
+                            },
+                            isAddingBox: isAddingBox,
+                            isRemovingBox: isRemovingBox,
+                            timestamp: timestamp,
+                            titleController: titleController,
+                          ),
                         ),
                 ),
               ),
               if (_selectedImage == null) ...[
-                ElevatedButton(
+                ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    textStyle: TextStyle(
-                      fontSize: 16, // Optionally adjust the font size
-                    ),
-                    backgroundColor: const Color.fromARGB(255, 10, 125,
-                        170), // Set your desired background color here
-                    foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-                    shadowColor: Colors.grey,
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 118, vertical: 15),
+                    textStyle: const TextStyle(fontSize: 16),
+                    backgroundColor:
+                        const Color(0xFF052D5A), 
+                    foregroundColor: Colors.white, 
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 95, vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
-                      side: BorderSide(
-                        color: const Color.fromARGB(
-                            255, 3, 130, 168), // Set the border color
+                      side: const BorderSide(
+                        color: Color(
+                            0xFF052D5A),
                         width: 2,
                       ),
                     ),
                   ),
                   onPressed: useCamera,
-                  child: const Text("Capture"),
+                  icon: const Icon(Icons.camera_alt),
+                  label: const Text("Capture photo"),
                 ),
               ],
               const SizedBox(height: 15.0),
               if (_selectedImage == null) ...[
-                ElevatedButton(
+                ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    textStyle: TextStyle(
-                      fontSize: 16, // Optionally adjust the font size
-                    ),
-                    backgroundColor: const Color.fromARGB(255, 255, 255,
-                        255), // Set your desired background color here
+                    textStyle: const TextStyle(fontSize: 16),
+                    backgroundColor:
+                        const Color.fromARGB(255, 255, 255, 255),
                     foregroundColor: const Color.fromARGB(255, 0, 0, 0),
-                    shadowColor: Colors.grey,
-                    padding: EdgeInsets.symmetric(horizontal: 85, vertical: 15),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 85, vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
-                      side: BorderSide(
-                        color: const Color.fromARGB(
-                            255, 3, 130, 168), // Set the border color
-                        width: 2,
+                      side: const BorderSide(
+                        color: Color(
+                            0xFF052D5A),
+                        width: 0,
                       ),
                     ),
                   ),
                   onPressed: imageGallery,
-                  child: const Text("Choose an image"),
+                  icon: const Icon(Icons.image),
+                  label: const Text("Choose an image"),
                 ),
+                SizedBox(height: 15.0),
               ],
-              const SizedBox(height: 15.0),
               if (_selectedImage != null) ...[
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextField(
-                    controller: titleController, // Assign controller
-                    onChanged: (value) {
-                      setState(() {}); // Update UI when text changes
-                    },
-                    decoration: InputDecoration(
-                      hintText: "Enter file name",
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
+                    padding: const EdgeInsets.all(8.0),
+                    // DROPDOWN THAT FETCHES STOCKS FROM MONGODB
+                    child: DropdownButtonFormField<String>(
+                      value: _selectedStock,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _selectedStock = newValue!;
+                          titleController.text = _selectedStock!;
+                        });
+                      },
+                      items: stockList
+                          .map<DropdownMenuItem<String>>((String stock) {
+                        return DropdownMenuItem<String>(
+                          value: stock,
+                          child: Text(stock),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                        hintText: "Select a stock",
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(),
+                      ),
+                    )),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -414,7 +411,9 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                       icon: Icon(Icons.close),
                       onPressed: toggleRemovingMode,
                     ),
-                    IconButton(icon: Icon(Icons.save), onPressed: () {}),
+                    IconButton(
+                        icon: Icon(Icons.save),
+                        onPressed: () => saveImage(context)),
                   ],
                 ),
               ]

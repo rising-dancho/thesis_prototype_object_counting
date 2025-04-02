@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:techtags/screens/navigation/navigation_menu.dart';
-import 'package:techtags/screens/splash_screen.dart';
-import 'package:techtags/screens/tensorflow/tensorflow_lite.dart';
-import 'package:techtags/theme/theme.dart';
+import 'package:tectags/screens/splash_screen.dart';
+import 'package:tectags/theme/theme.dart';
 
 void main() {
   runApp(const MyApp());

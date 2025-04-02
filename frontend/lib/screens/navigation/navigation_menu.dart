@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:techtags/screens/tensorflow/tensorflow_lite.dart';
-import 'package:techtags/screens/opencv/opencv.dart';
+import 'package:tectags/screens/activity_logs/activity_logs.dart';
+import 'package:tectags/screens/inventory/stock_manager.dart';
+import 'package:tectags/screens/tensorflow/tensorflow_lite.dart';
 
 class NavigationMenu extends StatelessWidget {
   const NavigationMenu({super.key});
@@ -12,37 +14,68 @@ class NavigationMenu extends StatelessWidget {
 
     return Scaffold(
       body: Obx(() => controller.screens[controller.selectedIndex.value]),
-      bottomNavigationBar: Obx(() => NavigationBarTheme(
-            data: NavigationBarThemeData(
-              indicatorColor: Colors.blue.withOpacity(0.2),
-              labelTextStyle: MaterialStateProperty.resolveWith<TextStyle>(
-                (Set<MaterialState> states) {
-                  if (states.contains(MaterialState.selected)) {
-                    return const TextStyle(color: Color.fromARGB(255, 255, 255, 255));
-                  }
-                  return const TextStyle(color: Color.fromARGB(255, 255, 255, 255));
-                },
+      bottomNavigationBar: Obx(
+        () => NavigationBarTheme(
+          data: NavigationBarThemeData(
+            indicatorColor: Colors.blue.withAlpha((0.2 * 255).toInt()),
+            labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>(
+              (Set<WidgetState> states) {
+                if (states.contains(WidgetState.selected)) {
+                  return const TextStyle(color: Colors.white);
+                }
+                return const TextStyle(color: Colors.white);
+              },
+            ),
+          ),
+          child: NavigationBar(
+            height: 80,
+            elevation: 0,
+            backgroundColor: const Color.fromARGB(255, 5, 45, 90),
+            selectedIndex: controller.selectedIndex.value,
+            onDestinationSelected: (index) =>
+                controller.selectedIndex.value = index,
+            destinations: [
+              NavigationDestination(
+                icon: Transform.scale(
+                  scale: 1.9,
+                  child: SvgPicture.asset(
+                    'assets/icons/count_icon.svg',
+                    width: 24,
+                    height: 24,
+                    colorFilter: const ColorFilter.mode(
+                      Color.fromRGBO(158, 158, 158, 1),
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                ),
+                selectedIcon: Transform.scale(
+                  scale: 1.9,
+                  child: SvgPicture.asset(
+                    'assets/icons/count_icon.svg',
+                    width: 24,
+                    height: 24,
+                    colorFilter: const ColorFilter.mode(
+                      Colors.white,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                ),
+                label: "Count",
               ),
-            ),
-            child: NavigationBar(
-              height: 80,
-              elevation: 0,
-              backgroundColor: const Color.fromARGB(255, 5, 45, 90),
-              selectedIndex: controller.selectedIndex.value,
-              onDestinationSelected: (index) =>
-                  controller.selectedIndex.value = index,
-              destinations: const [
-                NavigationDestination(
-                  icon: Icon(Icons.polyline),
-                  label: "Tensorflow Lite",
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.spoke),
-                  label: "OpenCV",
-                ),
-              ],
-            ),
-          )),
+              NavigationDestination(
+                icon: const Icon(Icons.warehouse, color: Colors.grey),
+                selectedIcon: const Icon(Icons.warehouse, color: Colors.white),
+                label: "Inventory",
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.list_alt, color: Colors.grey),
+                selectedIcon: const Icon(Icons.list_alt, color: Colors.white),
+                label: "Activity Logs",
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -50,5 +83,5 @@ class NavigationMenu extends StatelessWidget {
 class NavigationController extends GetxController {
   final Rx<int> selectedIndex = 0.obs;
 
-  final screens = [TensorflowLite(), OpenCV()];
+  final screens = [TensorflowLite(), StockManager(), ActivityLogs()];
 }

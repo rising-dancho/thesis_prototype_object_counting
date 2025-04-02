@@ -1,0 +1,2 @@
+MONGO_URI=mongodb+srv://josealejoperezjr:denden123@cluster0.bxz4o.mongodb.net/tectags?retryWrites=true&w=majority&appName=Cluster0
+SECRET=watehekbro
