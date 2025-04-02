@@ -4,6 +4,7 @@ import 'package:tectags/screens/login_screen.dart';
 import 'package:tectags/screens/navigation/navigation_menu.dart';
 import 'package:tectags/screens/opencv/opencv.dart';
 import 'package:tectags/screens/profile_screen.dart';
+import 'package:tectags/screens/about_screen.dart';
 
 class SideMenu extends StatelessWidget {
   const SideMenu({super.key});
@@ -31,7 +32,7 @@ class SideMenu extends StatelessWidget {
             child: Container(
               alignment: Alignment.center,
               child: Image.asset(
-                'assets/images/tectags_logo_nobg.png', // Replace with your logo's asset path
+                'assets/images/tectags_logo_nobg.png',
                 width: 120,
                 height: 120,
                 fit: BoxFit.contain,
@@ -72,10 +73,10 @@ class SideMenu extends StatelessWidget {
             leading: const Icon(Icons.info_outline),
             title: const Text('About'),
             onTap: () {
-              // Navigator.pushReplacement(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => const ActivityLogs()),
-              // );
+              Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const AboutScreen()),
+              );
             },
           ),
           const Divider(

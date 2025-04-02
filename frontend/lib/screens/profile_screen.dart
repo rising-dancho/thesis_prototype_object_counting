@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import 'package:tectags/screens/tensorflow/tensorflow_lite.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -9,20 +11,34 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final TextEditingController _emailController =
-      TextEditingController(text: 'user@example.com');
-  final TextEditingController _phoneController =
-      TextEditingController(text: '+1234567890');
-  final TextEditingController _addressController =
-      TextEditingController(text: '123 Main Street, City, Country');
+  final Map<String, TextEditingController> _controllers = {
+    'Full Name': TextEditingController(),
+    'Email': TextEditingController(),
+    'Phone': TextEditingController(),
+    'Password': TextEditingController(),
+  };
+
+  File? _profileImage; // Stores selected profile picture
+
+  // Function to pick an image
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      setState(() {
+        _profileImage = File(image.path); // Updates the profile picture
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: const Text('My Profile'),
         backgroundColor: const Color.fromARGB(255, 5, 45, 90),
-        foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+        foregroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -45,33 +61,70 @@ class _ProfileScreenState extends State<ProfileScreen> {
           padding: const EdgeInsets.all(16.0),
           children: [
             const SizedBox(height: 20),
-            const CircleAvatar(
-              radius: 50,
-              backgroundImage: AssetImage('assets/profile_picture.png'),
+
+            // Profile Picture with Edit Option
+            GestureDetector(
+              onTap: _pickImage, // Opens image picker
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundImage: _profileImage != null
+                        ? Image.file(_profileImage!).image // Corrected here
+                        : const AssetImage('assets/profile_picture.png') as ImageProvider,
+                    child: _profileImage == null
+                        ? const Icon(Icons.camera_alt, size: 30, color: Colors.white)
+                        : null,
+                  ),
+                  const SizedBox(height: 20),
+
+                  const Text(
+                    "Edit your profile",
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 255, 255, 255), 
+                      fontSize: 20, 
+                      fontFamily: 'Roboto',
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
             ),
+
             const SizedBox(height: 20),
-            _buildTextField(
-                controller: _emailController,
-                icon: Icons.email,
-                label: 'Email'),
-            _buildTextField(
-                controller: _phoneController,
-                icon: Icons.phone,
-                label: 'Phone'),
-            _buildTextField(
-                controller: _addressController,
-                icon: Icons.location_on,
-                label: 'Address'),
+
+            // Dynamic Input Fields
+            _buildTextField(label: 'Full Name', icon: Icons.person),
+            _buildTextField(label: 'Email', icon: Icons.email),
+            _buildTextField(label: 'Phone', icon: Icons.phone),
+            _buildTextField(label: 'Password', icon: Icons.lock, obscureText: true),
+
             const SizedBox(height: 20),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 5, 45, 90),
+                foregroundColor: Colors.white,
+                shadowColor: Colors.grey,
+                elevation: 5,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
               onPressed: () {
-                // Implement the save functionality here
-                // For example, save the updated information to a database or API
-                print('Email: ${_emailController.text}');
-                print('Phone: ${_phoneController.text}');
-                print('Address: ${_addressController.text}');
+                // Add save functionality
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Changes saved successfully!')),
+                );
               },
-              child: const Text('Save'),
+              child: const Text(
+                'Save changes',
+                style: TextStyle(
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15.0,
+                ),
+              ),
             ),
           ],
         ),
@@ -79,18 +132,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildTextField(
-      {required TextEditingController controller,
-      required IconData icon,
-      required String label}) {
+  Widget _buildTextField({
+    required String label,
+    required IconData icon,
+    bool obscureText = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
-        controller: controller,
+        controller: _controllers[label], // Dynamically selects the controller
+        obscureText: obscureText, // Used for password field
         decoration: InputDecoration(
-          prefixIcon: Icon(icon),
+          filled: true,
+          fillColor: Colors.grey[200],
+
+          prefixIcon: Icon(icon, color: const Color.fromARGB(255, 51, 51, 51)),
+
           labelText: label,
-          border: const OutlineInputBorder(),
+          labelStyle: const TextStyle(color: Color.fromARGB(255, 51, 51, 51)),
+
+          enabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.blue, width: 2),
+          ),
+
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.orange, width: 2),
+          ),
+
+          border: OutlineInputBorder(),
         ),
       ),
     );
