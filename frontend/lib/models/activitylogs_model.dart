@@ -1,11 +1,11 @@
 class ActivityLog {
-  final String fullName;
+  final String userName;
   final String action;
   final int countedAmount;
   final String timestamp;
 
   ActivityLog({
-    required this.fullName,
+    required this.userName,
     required this.action,
     required this.countedAmount,
     required this.timestamp,
@@ -13,13 +13,10 @@ class ActivityLog {
 
   factory ActivityLog.fromJson(Map<String, dynamic> json) {
     return ActivityLog(
-      fullName: json['fullName'] ?? 'Unknown User',
+      userName: json['fullName'] ?? 'Unknown User', 
       action: json['action'] ?? 'Unknown Action',
-      countedAmount:
-          json.containsKey('countedAmount') && json['countedAmount'] != null
-              ? json['countedAmount'] as int
-              : 0,
-      timestamp: json['createdAt'] ?? 'Unknown Time',
+      countedAmount: json['countedAmount'] ?? 0, 
+      timestamp: json['createdAt'] ?? 'Unknown Time', 
     );
   }
 }

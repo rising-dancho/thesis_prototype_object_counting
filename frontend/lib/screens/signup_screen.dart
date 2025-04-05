@@ -216,20 +216,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               return;
                             }
 
-                            // Check if response is null
-                            if (response == null) {
-                              if (!mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text(
-                                        'Server error: No response received')),
-                              );
-                              return;
-                            }
-
                             // Check for errors in the response
-                            if (response.containsKey('error') &&
-                                response['error'] != null) {
+                            if (response != null && response.containsKey('error') && response['error'] != null) {
                               if (!mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text(response['error'])),
@@ -238,7 +226,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             }
 
                             // Check for token in the response
-                            if (response.containsKey('token')) {
+                            if (response != null && response.containsKey('token')) {
                               await SharedPrefsService.saveTokenWithoutCheck(
                                   response['token']);
 

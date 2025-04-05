@@ -35,7 +35,12 @@ class _StockManagerState extends State<StockManager> {
     debugPrint("Fetched Stock Data: $data");
     debugPrint("STOCK COUNTS Data: $stockCounts");
 
-    if (data != null && mounted) {
+    if (data == null) {
+      debugPrint("⚠️ No stock data fetched.");
+      return; // Exit early if data is null
+    }
+
+    if (mounted) {
       setState(() {
         stockCounts = data.map((key, value) => MapEntry(key, {
               "availableStock": value["availableStock"] ?? 0,

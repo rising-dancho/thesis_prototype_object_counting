@@ -34,7 +34,7 @@ mongoose
 
 // WELCOME ROUTE "/"
 app.get('/', (req, res) => {
-  res.send('Welcome to Express API! 🚀');
+  res.send('FIXING BACKEND LOGIC! 🚀');
 });
 
 // LOGIN & REGISTRATION -------------
@@ -179,7 +179,7 @@ app.post('/api/count_objects', async (req, res) => {
       userId,
       action: `Updated count for ${stockName}`,
       stockId: stock._id,
-      countedAmount: sold,
+      countedAmount: activity.countedAmount ?? 0, // ✅ Ensure correct field
     });
 
     res.status(200).json({
@@ -206,18 +206,15 @@ app.get('/api/activity/:activityId', async (req, res) => {
       return res.status(404).json({ message: 'Activity not found' });
     }
 
-    console.log('🔍 Full Activity Data:', activity); // Debugging log
-
     res.status(200).json({
       _id: activity._id,
       userId: activity.userId,
       action: activity.action,
       stockName: activity.stockId?.stockName ?? 'N/A',
-      countedAmount: activity.countedAmount ?? 0, // ✅ Ensure correct field
+      countedAmount: activity.sold ?? 0, // ✅ Ensure correct field
       timestamp: activity.createdAt,
     });
   } catch (error) {
-    console.error('❌ Error:', error);
     res.status(500).json({
       message: 'Error fetching activity details',
       error: error.message,
@@ -241,7 +238,7 @@ app.get('/api/activity_logs/:userId', async (req, res) => {
       fullName: activity.userId?.fullName ?? 'Unknown User',
       action: activity.action,
       stockName: activity.stockId?.stockName ?? 'N/A',
-      countedAmount: activity.countedAmount ?? 0, // ✅ Ensure correct field
+      countedAmount: activity.countedAmount, // ✅ Ensure correct field
       totalStock: activity.stockId?.totalStock ?? 0,
       availableStock: activity.stockId?.availableStock ?? 0, // ✅ Now included
       timestamp: activity.createdAt,
@@ -272,7 +269,7 @@ app.get('/api/activity_logs/', async (req, res) => {
       userId: activity.userId?._id,
       fullName: activity.userId?.fullName ?? 'Unknown User',
       action: activity.action,
-      countedAmount: activity.countedAmount, // Remove `?? 0`
+      countedAmount: activity.sold ?? 0, // ✅ Ensure correct field
       timestamp: activity.createdAt,
     }));
 

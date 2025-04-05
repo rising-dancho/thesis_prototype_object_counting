@@ -191,19 +191,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             return;
                           }
 
-                          // Check if response is null
-                          if (response == null) {
-                            if (!mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content:
-                                      Text('Incorrect email or password.')),
-                            );
-                            return;
-                          }
-
                           // Check for errors in the response
-                          if (response.containsKey('error') &&
+                          if (response != null &&
+                              response.containsKey('error') &&
                               response['error'] != null) {
                             if (!mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -213,7 +203,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           }
 
                           // Check for token in the response
-                          if (response.containsKey('token')) {
+                          if (response != null && response.containsKey('token')) {
                             await SharedPrefsService.saveToken(
                                 response['token'],
                                 rememberPassword); // Pass rememberPassword

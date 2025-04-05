@@ -5,8 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class API {
   // static const baseUrl = "http://192.168.1.10:2000/api/"; // FOR TESTING
-  static const baseUrl =
-      "https://thesis-prototype-object-counting.vercel.app/api/";
+  static const baseUrl = "https://fix-inventory.vercel.app/api/";
 
   // POST REQUEST: REGISTRATION
   static Future<Map<String, dynamic>?> registerUser(
@@ -102,7 +101,6 @@ class API {
 
       if (res.statusCode == 200) {
         List<dynamic> data = jsonDecode(res.body);
-
         debugPrint("fetchActivityLogs Full API RESPONSE!!: $data");
         return List<Map<String, dynamic>>.from(data);
       } else {

@@ -138,26 +138,23 @@ class _TensorflowLiteState extends State<TensorflowLite> {
         // 🔥 Log detected object count to the backend
         if (_selectedStock != null) {
           debugPrint("⚠️ No stock selected, skipping log.");
-          String? userId =
-              await SharedPrefsService.getUserId(); // ✅ Directly get the userId
+          String? userId = await SharedPrefsService.getUserId();
+
           if (userId == null) {
-            debugPrint("❌ User ID not found, cannot log data.");
+            debugPrint("❌ userId is null, cannot log object count.");
+            return; // Exit the function early
           }
 
-          if (userId != null) {
-            var response = await API.logStockCurrentCount(
-              userId,
-              _selectedStock!,
-              editableBoundingBoxes.length, // Detected count
-            );
+          var response = await API.logStockCurrentCount(
+            userId,
+            _selectedStock!,
+            editableBoundingBoxes.length, // Detected count
+          );
 
-            if (response != null) {
-              debugPrint("✅ Object count logged: $response");
-            } else {
-              debugPrint("❌ Failed to log object count.");
-            }
+          if (response != null) {
+            debugPrint("✅ Object count logged: $response");
           } else {
-            debugPrint("❌ User ID not found, cannot log data.");
+            debugPrint("❌ Failed to log object count.");
           }
         } else {
           debugPrint("⚠️ No stock selected, skipping log.");
