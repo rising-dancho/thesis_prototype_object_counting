@@ -368,6 +368,13 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                             isRemovingBox: isRemovingBox,
                             timestamp: timestamp,
                             titleController: titleController,
+                            // 👇 Add this
+                            onBoxAdded: () {
+                              setState(() {
+                                isAddingBox =
+                                    false; // ✅ Auto toggle off adding mode
+                              });
+                            },
                           ),
                         ),
                 ),

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:tectags/logic/tensorflow/bounding_box_painter.dart';
 
 class PhotoViewer extends StatefulWidget {
   final String timestamp;
@@ -13,19 +14,20 @@ class PhotoViewer extends StatefulWidget {
   final bool isAddingBox;
   final bool isRemovingBox;
   final TextEditingController titleController;
+  final VoidCallback? onBoxAdded;
 
-  const PhotoViewer({
-    super.key,
-    required this.imageFile,
-    required this.imageForDrawing,
-    required this.editableBoundingBoxes,
-    required this.onNewBox,
-    required this.onRemoveBox,
-    required this.isAddingBox,
-    required this.isRemovingBox,
-    required this.timestamp,
-    required this.titleController,
-  });
+  const PhotoViewer(
+      {super.key,
+      required this.imageFile,
+      required this.imageForDrawing,
+      required this.editableBoundingBoxes,
+      required this.onNewBox,
+      required this.onRemoveBox,
+      required this.isAddingBox,
+      required this.isRemovingBox,
+      required this.timestamp,
+      required this.titleController,
+      required this.onBoxAdded});
 
   @override
   State<PhotoViewer> createState() => _PhotoViewerState();
@@ -35,6 +37,8 @@ class _PhotoViewerState extends State<PhotoViewer> {
   late List<Rect> boundingBoxes;
   int? draggingBoxIndex;
   Offset? dragStart;
+  Offset? _startPoint;
+  Rect? _tempBox;
 
   // FOR LABELS
   late String timestamp;
@@ -51,6 +55,44 @@ class _PhotoViewerState extends State<PhotoViewer> {
     timestamp = widget.timestamp; // ✅ Initialize from widget
     WidgetsBinding.instance
         .addPostFrameCallback((_) => _calculateScaling()); // ✅ Run after layout
+  }
+
+  void _onPanStart(DragStartDetails details) {
+    setState(() {
+      _startPoint = details.localPosition;
+      _tempBox = Rect.fromLTWH(
+        _startPoint!.dx - offsetX,
+        _startPoint!.dy - offsetY,
+        0,
+        0,
+      );
+    });
+  }
+
+  void _onPanUpdate(DragUpdateDetails details) {
+    setState(() {
+      if (_startPoint != null) {
+        final dx = details.localPosition.dx - _startPoint!.dx;
+        final dy = details.localPosition.dy - _startPoint!.dy;
+        _tempBox = Rect.fromLTWH(
+          _startPoint!.dx - offsetX,
+          _startPoint!.dy - offsetY,
+          dx,
+          dy,
+        );
+      }
+    });
+  }
+
+  void _onPanEnd(DragEndDetails details) {
+    setState(() {
+      if (_tempBox != null) {
+        boundingBoxes.add(_tempBox!);
+        widget.onNewBox(_tempBox!);
+      }
+      _tempBox = null;
+      widget.onBoxAdded?.call();
+    });
   }
 
   @override
@@ -84,9 +126,11 @@ class _PhotoViewerState extends State<PhotoViewer> {
                   alignment: Alignment.center,
                   children: [
                     GestureDetector(
+                      // Dragging and removing functionality here
                       onPanStart: (details) {
                         setState(() {
                           draggingBoxIndex = index;
+
                           dragStart = details.globalPosition;
                         });
                       },
@@ -98,6 +142,7 @@ class _PhotoViewerState extends State<PhotoViewer> {
                       onPanEnd: (_) {
                         setState(() {
                           draggingBoxIndex = null;
+
                           dragStart = null;
                         });
                       },
@@ -109,6 +154,31 @@ class _PhotoViewerState extends State<PhotoViewer> {
                           });
                         }
                       },
+                      // onPanStart: (details) {
+                      //   setState(() {
+                      //     draggingBoxIndex = index;
+                      //     dragStart = details.globalPosition;
+                      //   });
+                      // },
+                      // onPanUpdate: (details) {
+                      //   if (draggingBoxIndex != null && dragStart != null) {
+                      //     _moveBox(draggingBoxIndex!, details.globalPosition);
+                      //   }
+                      // },
+                      // onPanEnd: (_) {
+                      //   setState(() {
+                      //     draggingBoxIndex = null;
+                      //     dragStart = null;
+                      //   });
+                      // },
+                      // onTap: () {
+                      //   if (widget.isRemovingBox) {
+                      //     setState(() {
+                      //       boundingBoxes.removeAt(index);
+                      //       widget.onRemoveBox(index);
+                      //     });
+                      //   }
+                      // },
                       child: Container(
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.green, width: 2),
@@ -158,8 +228,27 @@ class _PhotoViewerState extends State<PhotoViewer> {
                       boundingBoxes.add(newBox);
                       widget.onNewBox(newBox);
                     });
+                    // 🧠 Notify parent to toggle off adding mode
+                    widget.onBoxAdded?.call();
                   },
                   child: Container(color: Colors.transparent),
+                ),
+              ),
+
+            // Add a New Bounding Box (Temporary Box)
+            if (widget.isAddingBox && _tempBox != null)
+              Positioned.fill(
+                child: GestureDetector(
+                  onPanStart: _onPanStart,
+                  onPanUpdate: _onPanUpdate,
+                  onPanEnd: _onPanEnd,
+                  child: CustomPaint(
+                    painter: BoundingBoxPainter(
+                        boxes: _tempBox != null
+                            ? [...boundingBoxes, _tempBox!]
+                            : boundingBoxes),
+                    child: Container(color: Colors.transparent),
+                  ),
                 ),
               ),
 
