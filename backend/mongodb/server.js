@@ -269,7 +269,7 @@ app.get('/api/activity_logs/', async (req, res) => {
       userId: activity.userId?._id,
       fullName: activity.userId?.fullName ?? 'Unknown User',
       action: activity.action,
-      countedAmount: activity.sold ?? 0, // ✅ Ensure correct field
+      countedAmount: activity.countedAmount ?? 0, // ✅ Ensure correct field
       timestamp: activity.createdAt,
     }));
 
