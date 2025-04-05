@@ -211,7 +211,7 @@ app.get('/api/activity/:activityId', async (req, res) => {
       userId: activity.userId,
       action: activity.action,
       stockName: activity.stockId?.stockName ?? 'N/A',
-      countedAmount: activity.sold ?? 0, // ✅ Ensure correct field
+      countedAmount: activity.countedAmount ?? 0, // ✅ Ensure correct field
       timestamp: activity.createdAt,
     });
   } catch (error) {
