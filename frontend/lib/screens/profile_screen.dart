@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:tectags/screens/navigation/side_menu.dart';
 import 'dart:io';
-import 'package:tectags/screens/tensorflow/tensorflow_lite.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -39,17 +39,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title: const Text('My Profile'),
         backgroundColor: const Color.fromARGB(255, 5, 45, 90),
         foregroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            // Navigate to the TensorflowLite screen
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const TensorflowLite()),
-            );
-          },
-        ),
+        automaticallyImplyLeading: false,
       ),
+      endDrawer: const SideMenu(),
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -71,18 +63,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     radius: 50,
                     backgroundImage: _profileImage != null
                         ? Image.file(_profileImage!).image // Corrected here
-                        : const AssetImage('assets/profile_picture.png') as ImageProvider,
+                        : const AssetImage('assets/profile_picture.png')
+                            as ImageProvider,
                     child: _profileImage == null
-                        ? const Icon(Icons.camera_alt, size: 30, color: Colors.white)
+                        ? const Icon(Icons.camera_alt,
+                            size: 30, color: Colors.white)
                         : null,
                   ),
                   const SizedBox(height: 20),
-
                   const Text(
                     "Edit your profile",
                     style: TextStyle(
-                      color: Color.fromARGB(255, 255, 255, 255), 
-                      fontSize: 20, 
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      fontSize: 20,
                       fontFamily: 'Roboto',
                       fontWeight: FontWeight.w500,
                     ),
@@ -97,7 +90,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _buildTextField(label: 'Full Name', icon: Icons.person),
             _buildTextField(label: 'Email', icon: Icons.email),
             _buildTextField(label: 'Phone', icon: Icons.phone),
-            _buildTextField(label: 'Password', icon: Icons.lock, obscureText: true),
+            _buildTextField(
+                label: 'Password', icon: Icons.lock, obscureText: true),
 
             const SizedBox(height: 20),
             ElevatedButton(
@@ -106,7 +100,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 foregroundColor: Colors.white,
                 shadowColor: Colors.grey,
                 elevation: 5,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -145,20 +140,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         decoration: InputDecoration(
           filled: true,
           fillColor: Colors.grey[200],
-
           prefixIcon: Icon(icon, color: const Color.fromARGB(255, 51, 51, 51)),
-
           labelText: label,
           labelStyle: const TextStyle(color: Color.fromARGB(255, 51, 51, 51)),
-
           enabledBorder: OutlineInputBorder(
             borderSide: const BorderSide(color: Colors.blue, width: 2),
           ),
-
           focusedBorder: OutlineInputBorder(
             borderSide: const BorderSide(color: Colors.orange, width: 2),
           ),
-
           border: OutlineInputBorder(),
         ),
       ),

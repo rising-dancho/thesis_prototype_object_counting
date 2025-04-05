@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:tectags/screens/tensorflow/tensorflow_lite.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -10,7 +10,7 @@ class AboutScreen extends StatelessWidget {
     {
       "name": "Jose A. Perez",
       "role": "Development Lead and Features Implementation",
-      "email": "johndoe@example.com"
+      "email": "josealejoperezjr@gmail.com"
     },
     {
       "name": "Joshua Martin A. Peralta",
@@ -19,7 +19,7 @@ class AboutScreen extends StatelessWidget {
     },
     {
       "name": "Arvin F. Eugenio",
-      "role": "Documentation/Logo",
+      "role": "Documentation and Logo",
       "email": "alexbrown@example.com"
     },
     {
@@ -46,21 +46,14 @@ class AboutScreen extends StatelessWidget {
         title: const Text('About The App'),
         backgroundColor: const Color.fromARGB(255, 5, 45, 90),
         foregroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            // Navigate to the TensorflowLite screen
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const TensorflowLite()),
-            );
-          },
-        ),
+        automaticallyImplyLeading: false,
       ),
+      endDrawer: const SideMenu(),
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/images/tectags_bg.png"), // Background image
+            image:
+                AssetImage("assets/images/tectags_bg.png"), // Background image
             fit: BoxFit.cover,
           ),
         ),
@@ -83,7 +76,7 @@ class AboutScreen extends StatelessWidget {
             const SizedBox(height: 10),
             const Center(
               child: Text(
-                "TecTags is an innovative application designed to enhance your experience with AI-powered object recognition. Our mission is to provide a seamless and interactive way to explore technology. Below, you can meet the talented developers behind this project.",
+                "TecTags is an innovative application designed to enhance your experience with AI-powered object recognition and counting. Our mission is to provide a seamless and interactive way to make use of technology to aid in day to day life. Below, you can meet the developers behind this project.",
                 style: TextStyle(
                   fontSize: 16,
                   fontFamily: 'Roboto',
@@ -97,8 +90,8 @@ class AboutScreen extends StatelessWidget {
               child: Text(
                 "Meet Our Developers",
                 style: TextStyle(
-                  fontSize: 22, 
-                  fontWeight: FontWeight.bold, 
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
                   fontFamily: 'Roboto',
                   color: Colors.white,
                 ),
@@ -118,7 +111,8 @@ class AboutScreen extends StatelessWidget {
                   contentPadding: const EdgeInsets.all(10),
                   title: Text(
                     developer["name"]!,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(
                     developer["role"]!,

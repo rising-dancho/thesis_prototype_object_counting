@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:tectags/screens/about_screen.dart';
 import 'package:tectags/screens/login_screen.dart';
 import 'package:tectags/screens/navigation/navigation_menu.dart';
+import 'package:tectags/screens/profile_screen.dart';
 import 'package:tectags/services/shared_prefs_service.dart';
 
 class SideMenu extends StatelessWidget {
@@ -8,7 +10,8 @@ class SideMenu extends StatelessWidget {
 
   Future<void> logout(BuildContext context) async {
     await SharedPrefsService.clearUserId(); // Clear user ID
-    await SharedPrefsService.clearToken(); // Clear token for remembering login state
+    await SharedPrefsService
+        .clearToken(); // Clear token for remembering login state
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -49,10 +52,10 @@ class SideMenu extends StatelessWidget {
             leading: const Icon(Icons.person_2),
             title: const Text('Profile'),
             onTap: () {
-              // Navigator.pushReplacement(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => const ActivityLogs()),
-              // );
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              );
             },
           ),
           ListTile(
@@ -69,10 +72,10 @@ class SideMenu extends StatelessWidget {
             leading: const Icon(Icons.info_outline),
             title: const Text('About'),
             onTap: () {
-              // Navigator.pushReplacement(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => const ActivityLogs()),
-              // );
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const AboutScreen()),
+              );
             },
           ),
           const Divider(
@@ -82,16 +85,6 @@ class SideMenu extends StatelessWidget {
             endIndent: 20,
             color: Color.fromARGB(255, 82, 81, 81),
           ),
-          // ListTile(
-          //   leading: const Icon(Icons.spoke),
-          //   title: const Text('Beta Feature (OpenCV)'),
-          //   onTap: () {
-          //     Navigator.pushReplacement(
-          //       context,
-          //       MaterialPageRoute(builder: (context) => const OpenCV()),
-          //     );
-          //   },
-          // ),
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Logout'),
