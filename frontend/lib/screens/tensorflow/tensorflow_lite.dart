@@ -373,53 +373,46 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                 ),
               ),
               if (_selectedImage == null) ...[
-                ElevatedButton(
+                ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    textStyle: TextStyle(
-                      fontSize: 16, // Optionally adjust the font size
-                    ),
-                    backgroundColor: const Color.fromARGB(255, 10, 125,
-                        170), // Set your desired background color here
-                    foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-                    shadowColor: Colors.grey,
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 118, vertical: 15),
+                    textStyle: const TextStyle(fontSize: 16),
+                    backgroundColor: const Color(0xFF052D5A),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 95, vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
-                      side: BorderSide(
-                        color: const Color.fromARGB(
-                            255, 3, 130, 168), // Set the border color
+                      side: const BorderSide(
+                        color: Color(0xFF052D5A),
                         width: 2,
                       ),
                     ),
                   ),
                   onPressed: useCamera,
-                  child: const Text("Capture"),
+                  icon: const Icon(Icons.camera_alt),
+                  label: const Text("Capture photo"),
                 ),
               ],
               const SizedBox(height: 15.0),
               if (_selectedImage == null) ...[
-                ElevatedButton(
+                ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    textStyle: TextStyle(
-                      fontSize: 16, // Optionally adjust the font size
-                    ),
-                    backgroundColor: const Color.fromARGB(255, 255, 255,
-                        255), // Set your desired background color here
+                    textStyle: const TextStyle(fontSize: 16),
+                    backgroundColor: const Color.fromARGB(255, 255, 255, 255),
                     foregroundColor: const Color.fromARGB(255, 0, 0, 0),
-                    shadowColor: Colors.grey,
-                    padding: EdgeInsets.symmetric(horizontal: 85, vertical: 15),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 85, vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
-                      side: BorderSide(
-                        color: const Color.fromARGB(
-                            255, 3, 130, 168), // Set the border color
-                        width: 2,
+                      side: const BorderSide(
+                        color: Color(0xFF052D5A),
+                        width: 0,
                       ),
                     ),
                   ),
                   onPressed: imageGallery,
-                  child: const Text("Choose an image"),
+                  icon: const Icon(Icons.image),
+                  label: const Text("Choose an image"),
                 ),
                 SizedBox(height: 15.0), // <-- Adds spacing below the button
               ],

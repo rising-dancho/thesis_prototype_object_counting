@@ -43,14 +43,25 @@ class NavigationMenu extends StatelessWidget {
             destinations: [
               NavigationDestination(
                 icon: Transform.scale(
-                  scale:
-                      1.9, // Adjust the scaling factor (1.0 = default, 1.5 = 50% larger)
+                  scale: 1.9,
                   child: SvgPicture.asset(
                     'assets/icons/count_icon.svg',
-                    width: 24, // Keep the original size
+                    width: 24,
                     height: 24,
-                    colorFilter: ColorFilter.mode(
-                      Colors.blue,
+                    colorFilter: const ColorFilter.mode(
+                      Color.fromRGBO(158, 158, 158, 1),
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                ),
+                selectedIcon: Transform.scale(
+                  scale: 1.9,
+                  child: SvgPicture.asset(
+                    'assets/icons/count_icon.svg',
+                    width: 24,
+                    height: 24,
+                    colorFilter: const ColorFilter.mode(
+                      Colors.white,
                       BlendMode.srcIn,
                     ),
                   ),
@@ -58,11 +69,11 @@ class NavigationMenu extends StatelessWidget {
                 label: "Count",
               ),
               NavigationDestination(
-                icon: Icon(Icons.inventory),
+                icon: Icon(Icons.warehouse),
                 label: "Inventory",
               ),
               NavigationDestination(
-                icon: Icon(Icons.history),
+                icon: Icon(Icons.list_alt),
                 label: "Activity Logs",
               ),
             ],
