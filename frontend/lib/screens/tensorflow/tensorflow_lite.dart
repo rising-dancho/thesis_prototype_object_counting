@@ -303,6 +303,9 @@ class _TensorflowLiteState extends State<TensorflowLite> {
 
   @override
   Widget build(BuildContext context) {
+    if (imageForDrawing == null) {
+      debugPrint("Error: Image for drawing is null.");
+    }
     return Scaffold(
         appBar: AppBar(
           title: const Text("Tectags AutoCount"),
