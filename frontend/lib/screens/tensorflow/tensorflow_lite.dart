@@ -308,7 +308,28 @@ class _TensorflowLiteState extends State<TensorflowLite> {
     }
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Tectags AutoCount"),
+          title: RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: 'Tec',
+                  style: TextStyle(
+                    color: const Color.fromARGB(255, 27, 211, 224),
+                    fontSize: 25.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                TextSpan(
+                  text: 'Tags',
+                  style: TextStyle(
+                    color: const Color.fromARGB(255, 29, 118, 235),
+                    fontSize: 25.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
           backgroundColor: const Color.fromARGB(255, 5, 45, 90),
           foregroundColor: const Color.fromARGB(255, 255, 255, 255),
           automaticallyImplyLeading: false,
@@ -393,7 +414,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                       side: const BorderSide(
-                        color: Color(0xFF052D5A),
+                        color: Colors.white, // White border color
                         width: 2,
                       ),
                     ),
@@ -408,15 +429,15 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     textStyle: const TextStyle(fontSize: 16),
-                    backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-                    foregroundColor: const Color.fromARGB(255, 0, 0, 0),
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xFF052D5A),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 85, vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                       side: const BorderSide(
-                        color: Color(0xFF052D5A),
-                        width: 0,
+                        color: Color(0xFF052D5A), // Dark blue border color
+                        width: 2, // Border width
                       ),
                     ),
                   ),
