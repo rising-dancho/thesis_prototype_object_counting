@@ -143,37 +143,29 @@ class _StockManagerState extends State<StockManager> {
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Color.fromARGB(
-                            255, 3, 130, 168), // Background color
-                        borderRadius:
-                            BorderRadius.circular(8), // Adds rounded corners
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withAlpha((0.2 * 255).toInt()),
-                            blurRadius: 5,
-                            offset: Offset(0, 3),
-                          ),
-                        ],
+                  const SizedBox(width: 16.0),
+                  ElevatedButton(
+                    onPressed: addStockItem,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 3, 130, 168),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
-                      child: IconButton(
-                        icon: Icon(Icons.add,
-                            color: Colors.white,
-                            size: 24), // Custom icon size & color
-                        onPressed: addStockItem,
-                      ),
+                      padding: const EdgeInsets.all(16.0),
                     ),
-                  )
+                    child: const Icon(
+                      Icons.add,
+                      color: Colors.white,
+                      size: 24.0,
+                    ),
+                  ),
                 ],
               ),
             ),
             SizedBox(height: 10),
             Expanded(
               child: stockCounts.isEmpty
-                  ? Center(child: Text("No stock available."))
+                  ? const Center(child: Text("No stock available."))
                   : ListView.builder(
                       itemCount: stockCounts.length,
                       itemBuilder: (context, index) {
