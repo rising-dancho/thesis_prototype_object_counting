@@ -91,14 +91,14 @@ class _StockManagerState extends State<StockManager> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Inventory"),
+        title: const Text("Inventory Management"),
         backgroundColor: const Color.fromARGB(255, 5, 45, 90),
         foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
         actions: [
           Builder(
             builder: (context) => IconButton(
-              icon: Icon(Icons.menu),
+              icon: const Icon(Icons.menu),
               onPressed: () {
                 Scaffold.of(context).openEndDrawer();
               },
@@ -108,11 +108,11 @@ class _StockManagerState extends State<StockManager> {
       ),
       endDrawer: const SideMenu(),
       body: Padding(
-        padding: EdgeInsets.all(8),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.fromLTRB(10, 10, 0, 10),
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: Row(
                 children: [
                   Expanded(
@@ -122,11 +122,13 @@ class _StockManagerState extends State<StockManager> {
                         labelText: 'Stock Category',
                         filled: true,
                         fillColor: Color(0xFFF9FAF3),
-                        border: OutlineInputBorder(),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
                       ),
                     ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: TextFormField(
                       controller: countController,
@@ -135,8 +137,9 @@ class _StockManagerState extends State<StockManager> {
                         labelText: 'Stock Count',
                         filled: true,
                         fillColor: Color(0xFFF9FAF3),
-                        border: OutlineInputBorder(),
-                        // keyboardType: TextInputType.number,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
                       ),
                     ),
                   ),
@@ -147,7 +150,7 @@ class _StockManagerState extends State<StockManager> {
                         color: Color.fromARGB(
                             255, 3, 130, 168), // Background color
                         borderRadius:
-                            BorderRadius.circular(10), // Adds rounded corners
+                            BorderRadius.circular(8), // Adds rounded corners
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withAlpha((0.2 * 255).toInt()),

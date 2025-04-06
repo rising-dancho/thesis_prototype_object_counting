@@ -22,7 +22,6 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscureText = true;
 
   @override
-  @override
   void initState() {
     super.initState();
 
