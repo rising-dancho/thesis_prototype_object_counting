@@ -1,43 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:tectags/screens/tensorflow/tensorflow_lite.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
-  // Developer List
   final List<Map<String, String>> developers = const [
     {
       "name": "Jose A. Perez",
-      "role": "Student/Lead Programmer",
-      "email": "johndoe@example.com"
+      "role": "Student/Information Technology"
     },
     {
       "name": "Joshua Martin A. Peralta",
-      "role": "Student/",
-      "email": "janesmith@example.com"
+      "role": "Student/Information Technology"
     },
     {
       "name": "Arvin F. Eugenio",
-      "role": "Student/",
-      "email": "alexbrown@example.com"
+      "role": "Student/Information Technology"
     },
     {
       "name": "Armand Sebastian E. Bueno",
-      "role": "Student/",
-      "email": "emilywhite@example.com"
+      "role": "Student/Information Technology"
     }
   ];
-
-  // Function to launch email
-  void _launchEmail(String email) async {
-    final Uri emailUri = Uri(scheme: 'mailto', path: email);
-    if (await canLaunchUrl(emailUri)) {
-      await launchUrl(emailUri);
-    } else {
-      debugPrint("Could not launch email client.");
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +33,6 @@ class AboutScreen extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            // Navigate to the TensorflowLite screen
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const TensorflowLite()),
@@ -60,7 +43,7 @@ class AboutScreen extends StatelessWidget {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/images/tectags_bg.png"), // Background image
+            image: AssetImage("assets/images/tectags_bg.png"),
             fit: BoxFit.cover,
           ),
         ),
@@ -81,15 +64,38 @@ class AboutScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            const Center(
-              child: Text(
-                "TecTags is an innovative application designed to enhance your experience with AI-powered object recognition. Our mission is to provide a seamless and interactive way to explore technology. Below, you can meet the talented developers behind this project.",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontFamily: 'Roboto',
-                  color: Colors.white70,
+            Center(
+              child: Image.asset(
+                'assets/images/tectags_icon.png',
+                height: 100,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Card(
+              color: Colors.transparent,
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.blueAccent, Colors.lightBlue],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                textAlign: TextAlign.center,
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  "TecTags is an innovative application designed to enhance inventory management and operational efficiency in hardware stores through AI-powered object detection. Below, meet the talented developers behind this project.",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Roboto',
+                    color: const Color.fromARGB(220, 255, 255, 255),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -97,38 +103,71 @@ class AboutScreen extends StatelessWidget {
               child: Text(
                 "Meet Our Developers",
                 style: TextStyle(
-                  fontSize: 22, 
-                  fontWeight: FontWeight.bold, 
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
                   fontFamily: 'Roboto',
                   color: Colors.white,
                 ),
               ),
             ),
             const SizedBox(height: 10),
-
-            // List of developers
+            // Developer Cards with Dividers
             ...developers.map((developer) {
-              return Card(
-                color: Colors.white.withOpacity(0.9),
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.all(10),
-                  title: Text(
-                    developer["name"]!,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              int index = developers.indexOf(developer);
+              return Column(
+                children: [
+                  Card(
+                    color: Colors.white.withOpacity(0.85),
+                    elevation: 6,
+                    margin: const EdgeInsets.symmetric(vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: const Color.fromARGB(255, 5, 45, 90),
+                            child: Text(
+                              developer["name"]![0],
+                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  developer["name"]!,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  developer["role"]!,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  subtitle: Text(
-                    developer["role"]!,
-                    style: const TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.email, color: Colors.blue),
-                    onPressed: () => _launchEmail(developer["email"]!),
-                  ),
-                ),
+                  if (index != developers.length - 1)
+                    const Divider(
+                      color: Colors.grey,
+                      height: 1,
+                      thickness: 1,
+                    ),
+                ],
               );
             }).toList(),
           ],
