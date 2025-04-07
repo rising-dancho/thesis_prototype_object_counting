@@ -152,8 +152,7 @@ class _ActivityLogsState extends State<ActivityLogs> {
         ],
       ),
       endDrawer: const SideMenu(), // Using the extracted drawer
-      body: 
-      Container(
+      body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage("assets/images/tectags_bg.png"),
@@ -230,7 +229,8 @@ class _ActivityLogsState extends State<ActivityLogs> {
                   backgroundColor: const Color(0xFF052D5A),
                   // textStyle: TextStyle(fontSize: 16),
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 118, vertical: 15),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 118, vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                     side: const BorderSide(
@@ -240,7 +240,10 @@ class _ActivityLogsState extends State<ActivityLogs> {
                   ),
                 ),
                 onPressed: () {},
-                child: const Text("Generate Reports"),
+                child: const Text(
+                  "Generate Reports",
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
           ],
