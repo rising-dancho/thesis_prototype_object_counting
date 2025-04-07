@@ -308,28 +308,35 @@ class _TensorflowLiteState extends State<TensorflowLite> {
     }
     return Scaffold(
         appBar: AppBar(
-          title: RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: 'Tec',
-                  style: TextStyle(
-                    color: const Color.fromARGB(255, 27, 211, 224),
-                    fontSize: 25.0,
-                    fontWeight: FontWeight.bold,
+          title: Row(mainAxisSize: MainAxisSize.min, children: [
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Tec',
+                    style: TextStyle(
+                      color: const Color.fromARGB(255, 27, 211, 224),
+                      fontSize: 25.0,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                TextSpan(
-                  text: 'Tags',
-                  style: TextStyle(
-                    color: const Color.fromARGB(255, 29, 118, 235),
-                    fontSize: 25.0,
-                    fontWeight: FontWeight.bold,
+                  TextSpan(
+                    text: 'Tags',
+                    style: TextStyle(
+                      color: const Color.fromARGB(255, 29, 118, 235),
+                      fontSize: 25.0,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+            SizedBox(width: 2),
+            Image.asset(
+              'assets/images/tectags_icon.png',
+              height: 40.0,
+            ),
+          ]),
           backgroundColor: const Color.fromARGB(255, 5, 45, 90),
           foregroundColor: const Color.fromARGB(255, 255, 255, 255),
           automaticallyImplyLeading: false,

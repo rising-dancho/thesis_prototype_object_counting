@@ -96,7 +96,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 5, 45, 90),
+                backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
                 shadowColor: Colors.grey,
                 elevation: 5,

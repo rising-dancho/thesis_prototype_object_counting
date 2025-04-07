@@ -69,7 +69,9 @@ class NavigationMenu extends StatelessWidget {
                 label: "Count",
               ),
               NavigationDestination(
-                icon: Icon(Icons.warehouse),
+                icon: const Icon(Icons.inventory_sharp, color: Colors.grey),
+                selectedIcon:
+                    const Icon(Icons.inventory_sharp, color: Colors.white),
                 label: "Inventory",
               ),
               NavigationDestination(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tectags/screens/navigation/side_menu.dart';
-import 'package:url_launcher/url_launcher.dart';
+// import 'package:url_launcher/url_launcher.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -30,14 +30,14 @@ class AboutScreen extends StatelessWidget {
   ];
 
   // Function to launch email
-  void _launchEmail(String email) async {
-    final Uri emailUri = Uri(scheme: 'mailto', path: email);
-    if (await canLaunchUrl(emailUri)) {
-      await launchUrl(emailUri);
-    } else {
-      debugPrint("Could not launch email client.");
-    }
-  }
+  // void _launchEmail(String email) async {
+  //   final Uri emailUri = Uri(scheme: 'mailto', path: email);
+  //   if (await canLaunchUrl(emailUri)) {
+  //     await launchUrl(emailUri);
+  //   } else {
+  //     debugPrint("Could not launch email client.");
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +120,7 @@ class AboutScreen extends StatelessWidget {
                   ),
                   trailing: IconButton(
                     icon: const Icon(Icons.email, color: Colors.blue),
-                    onPressed: () => _launchEmail(developer["email"]!),
+                    onPressed: () {},
                   ),
                 ),
               );
