@@ -82,167 +82,178 @@ class _StockManagerState extends State<StockManager> {
         ],
       ),
       endDrawer: const SideMenu(),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: itemController,
-                      decoration: InputDecoration(
-                        labelText: 'Stock Category',
-                        filled: true,
-                        fillColor: const Color.fromARGB(255, 233, 233, 233),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(
+                "assets/images/tectags_bg.png"),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: itemController,
+                        decoration: InputDecoration(
+                          labelText: 'Stock Category',
+                          filled: true,
+                          fillColor: const Color.fromARGB(255, 233, 233, 233),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 16.0),
-                  Expanded(
-                    child: TextFormField(
-                      controller: countController,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: 'Stock Count',
-                        filled: true,
-                        fillColor: const Color.fromARGB(255, 233, 233, 233),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+                    const SizedBox(width: 16.0),
+                    Expanded(
+                      child: TextFormField(
+                        controller: countController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: 'Stock Count',
+                          filled: true,
+                          fillColor: const Color.fromARGB(255, 233, 233, 233),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 16.0),
-                  ElevatedButton(
-                    onPressed: addStockItem,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 3, 130, 168),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                    const SizedBox(width: 16.0),
+                    ElevatedButton(
+                      onPressed: addStockItem,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 3, 130, 168),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        padding: const EdgeInsets.all(16.0),
                       ),
-                      padding: const EdgeInsets.all(16.0),
+                      child: const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                        size: 24.0,
+                      ),
                     ),
-                    child: const Icon(
-                      Icons.add,
-                      color: Colors.white,
-                      size: 24.0,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: stockCounts.isEmpty
-                  ? const Center(child: Text("No stock available."))
-                  : ListView.builder(
-                      itemCount: stockCounts.length,
-                      itemBuilder: (context, index) {
-                        String item = stockCounts.keys.elementAt(index);
-                        int count = stockCounts[item] ?? 0;
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 16.0),
-                          child: Card(
-                            elevation: 4.0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                            ),
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.all(16.0),
-                              title: Text(
-                                item,
-                                style: const TextStyle(
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
+              Expanded(
+                child: stockCounts.isEmpty
+                    ? const Center(child: Text("No stock available."))
+                    : ListView.builder(
+                        itemCount: stockCounts.length,
+                        itemBuilder: (context, index) {
+                          String item = stockCounts.keys.elementAt(index);
+                          int count = stockCounts[item] ?? 0;
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: Card(
+                              elevation: 4.0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.0),
                               ),
-                              subtitle: Text("Total: $count"),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.edit),
-                                    onPressed: () {
-                                      TextEditingController editController =
-                                          TextEditingController(
-                                              text: count.toString());
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return AlertDialog(
-                                            title: Text("Edit $item Stock"),
-                                            content: TextField(
-                                              controller: editController,
-                                              keyboardType:
-                                                  TextInputType.number,
-                                            ),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () {
-                                                  int? newCount =
-                                                      int.tryParse(
-                                                          editController.text);
-                                                  if (newCount != null) {
-                                                    updateStock(item, newCount);
-                                                  }
-                                                  Navigator.pop(context);
-                                                },
-                                                child: const Text("Save"),
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      );
-                                    },
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.all(16.0),
+                                title: Text(
+                                  item,
+                                  style: const TextStyle(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete),
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return AlertDialog(
-                                            title: Text("Delete $item?"),
-                                            content: const Text(
-                                                "Are you sure you want to remove this stock item?"),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () =>
-                                                    Navigator.pop(context),
-                                                child: const Text("Cancel"),
+                                ),
+                                subtitle: Text("Total: $count"),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.edit),
+                                      onPressed: () {
+                                        TextEditingController editController =
+                                            TextEditingController(
+                                                text: count.toString());
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              title: Text("Edit $item Stock"),
+                                              content: TextField(
+                                                controller: editController,
+                                                keyboardType:
+                                                    TextInputType.number,
                                               ),
-                                              TextButton(
-                                                onPressed: () {
-                                                  deleteStockItem(item);
-                                                  Navigator.pop(context);
-                                                },
-                                                child: const Text(
-                                                  "Delete",
-                                                  style: TextStyle(
-                                                    color: Colors.red,
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    int? newCount =
+                                                        int.tryParse(
+                                                            editController
+                                                                .text);
+                                                    if (newCount != null) {
+                                                      updateStock(
+                                                          item, newCount);
+                                                    }
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: const Text("Save"),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete),
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              title: Text("Delete $item?"),
+                                              content: const Text(
+                                                  "Are you sure you want to remove this stock item?"),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () =>
+                                                      Navigator.pop(context),
+                                                  child: const Text("Cancel"),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () {
+                                                    deleteStockItem(item);
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: const Text(
+                                                    "Delete",
+                                                    style: TextStyle(
+                                                      color: Colors.red,
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      );
-                                    },
-                                  ),
-                                ],
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
-            ),
-          ],
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
         ),
       ),
     );

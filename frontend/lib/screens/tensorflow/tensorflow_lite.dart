@@ -258,31 +258,40 @@ class _TensorflowLiteState extends State<TensorflowLite> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: 'Tec',
-                  style: TextStyle(
-                    color: const Color.fromARGB(255, 27, 211, 224),
-                    fontSize: 25.0,
-                    fontWeight:
-                        FontWeight.bold,
-                  ),
+          title: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'Tec',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 27, 211, 224),
+                        fontSize: 25.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextSpan(
+                      text: 'Tags',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 29, 118, 235),
+                        fontSize: 25.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
-                TextSpan(
-                  text: 'Tags',
-                  style: TextStyle(
-                    color: const Color.fromARGB(255, 29, 118, 235),
-                    fontSize: 25.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
+              ),
+              SizedBox(width: 2),
+              Image.asset(
+                'assets/images/tectags_icon.png',
+                height: 40.0,
+              ),
+            ],
           ),
-          backgroundColor: const Color.fromARGB(255, 5, 45, 90),
-          foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+          backgroundColor: Color.fromARGB(255, 5, 45, 90),
+          foregroundColor: Color.fromARGB(255, 255, 255, 255),
           automaticallyImplyLeading: false,
           actions: [
             Builder(
@@ -301,7 +310,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
             image: DecorationImage(
               image: AssetImage("assets/images/tectags_bg.png"),
               fit: BoxFit
-                  .cover, // Ensures the image covers the entire background
+                  .cover, 
             ),
           ),
           child: Column(
@@ -311,7 +320,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
               Expanded(
                 child: Container(
                   width: double
-                      .infinity, // Makes the container expand horizontally
+                      .infinity,
                   margin: const EdgeInsets.fromLTRB(22, 40, 22, 42),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),

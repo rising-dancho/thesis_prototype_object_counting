@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tectags/screens/tensorflow/tensorflow_lite.dart';
+import 'package:tectags/screens/navigation/navigation_menu.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -7,19 +7,19 @@ class AboutScreen extends StatelessWidget {
   final List<Map<String, String>> developers = const [
     {
       "name": "Jose A. Perez",
-      "role": "Student/Information Technology"
+      "role": "Development Lead and Features Implementation"
     },
     {
       "name": "Joshua Martin A. Peralta",
-      "role": "Student/Information Technology"
+      "role": "UI Conceptualization and Implementation"
     },
     {
       "name": "Arvin F. Eugenio",
-      "role": "Student/Information Technology"
+      "role": "Documentation and Logo"
     },
     {
       "name": "Armand Sebastian E. Bueno",
-      "role": "Student/Information Technology"
+      "role": "Dataset Annotation and Model Training"
     }
   ];
 
@@ -35,7 +35,7 @@ class AboutScreen extends StatelessWidget {
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const TensorflowLite()),
+              MaterialPageRoute(builder: (context) => const NavigationMenu()),
             );
           },
         ),

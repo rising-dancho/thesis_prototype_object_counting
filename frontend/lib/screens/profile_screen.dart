@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:tectags/screens/tensorflow/tensorflow_lite.dart';
+import 'package:tectags/screens/navigation/navigation_menu.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -42,10 +42,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            // Navigate to the TensorflowLite screen
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const TensorflowLite()),
+              MaterialPageRoute(builder: (context) => const NavigationMenu()),
             );
           },
         ),
@@ -102,7 +101,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 5, 45, 90),
+                backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
                 shadowColor: Colors.grey,
                 elevation: 5,
