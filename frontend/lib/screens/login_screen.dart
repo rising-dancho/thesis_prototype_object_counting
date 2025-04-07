@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tectags/screens/navigation/navigation_menu.dart';
 import 'package:tectags/services/api.dart';
+import 'package:tectags/services/shared_prefs_service.dart';
 import 'package:tectags/widgets/custom_scaffold.dart';
 import 'package:tectags/screens/signup_screen.dart';
 
@@ -22,10 +22,10 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscureText = true;
 
   @override
-
   void initState() {
     super.initState();
-    loadRememberPassword().then((value) {
+
+    SharedPrefsService.loadRememberPassword().then((value) {
       setState(() {
         rememberPassword = value;
       });
@@ -43,27 +43,6 @@ class _LoginScreenState extends State<LoginScreen> {
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
-  }
-
-  Future<void> saveToken(String token, bool rememberPassword) async {
-    final prefs = await SharedPreferences.getInstance();
-    if (rememberPassword) {
-      await prefs.setString('auth_token', token); // Save token
-      debugPrint("Token saved successfully: $token");
-    } else {
-      await prefs.remove('auth_token'); // Remove token
-      debugPrint("Token removed");
-    }
-  }
-
-  Future<void> saveRememberPassword(bool rememberPassword) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('remember_password', rememberPassword);
-  }
-
-  Future<bool> loadRememberPassword() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('remember_password') ?? true; // Default to true
   }
 
   @override
@@ -171,7 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           setState(() {
                             rememberPassword = value!;
                           });
-                          await saveRememberPassword(
+                          await SharedPrefsService.saveRememberPassword(
                               value!); // Save the setting
                         },
                         activeColor: const Color.fromARGB(255, 5, 57, 230),
@@ -211,19 +190,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             return;
                           }
 
-                          // Check if response is null
-                          if (response == null) {
-                            if (!mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content:
-                                      Text('Incorrect email or password.')),
-                            );
-                            return;
-                          }
-
                           // Check for errors in the response
-                          if (response.containsKey('error') &&
+                          if (response != null &&
+                              response.containsKey('error') &&
                               response['error'] != null) {
                             if (!mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -233,9 +202,17 @@ class _LoginScreenState extends State<LoginScreen> {
                           }
 
                           // Check for token in the response
-                          if (response.containsKey('token')) {
-                            await saveToken(response['token'],
+                          if (response != null && response.containsKey('token')) {
+                            await SharedPrefsService.saveToken(
+                                response['token'],
                                 rememberPassword); // Pass rememberPassword
+
+                            // Save userId in SharedPreferences
+
+                            if (response.containsKey('userId')) {
+                              await SharedPrefsService.saveUserId(
+                                  response['userId']);
+                            }
 
                             if (!mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(

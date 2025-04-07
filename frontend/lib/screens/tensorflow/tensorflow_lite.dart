@@ -12,6 +12,7 @@ import 'dart:ui' as ui;
 
 import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:tectags/services/api.dart';
+import 'package:tectags/services/shared_prefs_service.dart';
 
 class TensorflowLite extends StatefulWidget {
   const TensorflowLite({super.key});
@@ -62,6 +63,24 @@ class _TensorflowLiteState extends State<TensorflowLite> {
     // loadModel();
   }
 
+  // SEND OBJECT COUNT TO THE BACKEND
+  void logObjectCount(String userId, String item, int countedAmount) async {
+    var response = await API.logStockCurrentCount(userId, item, countedAmount);
+
+    if (response != null) {
+      debugPrint("✅ OBJECT COUNT LOGGED successfully: $response");
+    } else {
+      debugPrint("❌ Failed to log object count.");
+    }
+  }
+
+  void updateDatabaseWithObjectCount(String userId, String item) {
+    debugPrint(
+        "📌 Updating Database: User = $userId, Item = $item, Count = ${editableBoundingBoxes.length}");
+    int detectedCount = editableBoundingBoxes.length;
+    logObjectCount(userId, item, detectedCount);
+  }
+
   // STOCK DATA FOR THE DROPDOWN
   Future<void> loadStockData() async {
     var fetchedStocks = await API.fetchStockFromMongoDB();
@@ -93,12 +112,11 @@ class _TensorflowLiteState extends State<TensorflowLite> {
   // }
 
   /// **Save Screenshot to Gallery**
+  /// THIS WOULD ALSO SAVE COUNTED OBJECT TO THE DATABASE (WILL SHOW IN THE ACTIVITY LOGS)
   Future<void> saveImage(BuildContext context) async {
     try {
       final Uint8List? screenShot = await screenshotController.capture();
-      if (!mounted) {
-        return; // Prevents calling ScaffoldMessenger on a disposed widget
-      }
+      if (!mounted) return;
 
       if (screenShot == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -107,12 +125,40 @@ class _TensorflowLiteState extends State<TensorflowLite> {
         return;
       }
 
-      final result = await ImageGallerySaverPlus.saveImage(screenShot,
-          name: "screenshot_${DateTime.now().millisecondsSinceEpoch}.png");
+      final result = await ImageGallerySaverPlus.saveImage(
+        screenShot,
+        name: "screenshot_${DateTime.now().millisecondsSinceEpoch}.png",
+      );
+
       if (result["isSuccess"]) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Image saved in gallery")),
         );
+
+        // 🔥 Log detected object count to the backend
+        if (_selectedStock != null) {
+          debugPrint("⚠️ No stock selected, skipping log.");
+          String? userId = await SharedPrefsService.getUserId();
+
+          if (userId == null) {
+            debugPrint("❌ userId is null, cannot log object count.");
+            return; // Exit the function early
+          }
+
+          var response = await API.logStockCurrentCount(
+            userId,
+            _selectedStock!,
+            editableBoundingBoxes.length, // Detected count
+          );
+
+          if (response != null) {
+            debugPrint("✅ Object count logged: $response");
+          } else {
+            debugPrint("❌ Failed to log object count.");
+          }
+        } else {
+          debugPrint("⚠️ No stock selected, skipping log.");
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Image not saved")),
@@ -165,6 +211,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
       editableBoundingBoxes = detectedObjects
           .map((obj) => obj.boundingBox)
           .toList(); // ✅ Ensure ML-detected boxes are editable
+      debugPrint("📌 Detected Count: ${editableBoundingBoxes.length}");
     });
 
     // debugPrint bounding boxes AFTER being added to editableBoundingBoxes
@@ -256,42 +303,42 @@ class _TensorflowLiteState extends State<TensorflowLite> {
 
   @override
   Widget build(BuildContext context) {
+    if (imageForDrawing == null) {
+      debugPrint("Error: Image for drawing is null.");
+    }
     return Scaffold(
         appBar: AppBar(
-          title: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'Tec',
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 27, 211, 224),
-                        fontSize: 25.0,
-                        fontWeight: FontWeight.bold,
-                      ),
+          title: Row(mainAxisSize: MainAxisSize.min, children: [
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Tec',
+                    style: TextStyle(
+                      color: const Color.fromARGB(255, 27, 211, 224),
+                      fontSize: 25.0,
+                      fontWeight: FontWeight.bold,
                     ),
-                    TextSpan(
-                      text: 'Tags',
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 29, 118, 235),
-                        fontSize: 25.0,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  ),
+                  TextSpan(
+                    text: 'Tags',
+                    style: TextStyle(
+                      color: const Color.fromARGB(255, 29, 118, 235),
+                      fontSize: 25.0,
+                      fontWeight: FontWeight.bold,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              SizedBox(width: 2),
-              Image.asset(
-                'assets/images/tectags_icon.png',
-                height: 40.0,
-              ),
-            ],
-          ),
-          backgroundColor: Color.fromARGB(255, 5, 45, 90),
-          foregroundColor: Color.fromARGB(255, 255, 255, 255),
+            ),
+            SizedBox(width: 2),
+            Image.asset(
+              'assets/images/tectags_icon.png',
+              height: 40.0,
+            ),
+          ]),
+          backgroundColor: const Color.fromARGB(255, 5, 45, 90),
+          foregroundColor: const Color.fromARGB(255, 255, 255, 255),
           automaticallyImplyLeading: false,
           actions: [
             Builder(
@@ -310,7 +357,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
             image: DecorationImage(
               image: AssetImage("assets/images/tectags_bg.png"),
               fit: BoxFit
-                  .cover, 
+                  .cover, // Ensures the image covers the entire background
             ),
           ),
           child: Column(
@@ -320,7 +367,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
               Expanded(
                 child: Container(
                   width: double
-                      .infinity,
+                      .infinity, // Makes the container expand horizontally
                   margin: const EdgeInsets.fromLTRB(22, 40, 22, 42),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
@@ -352,6 +399,13 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                             isRemovingBox: isRemovingBox,
                             timestamp: timestamp,
                             titleController: titleController,
+                            // 👇 Add this
+                            onBoxAdded: () {
+                              setState(() {
+                                isAddingBox =
+                                    false; // ✅ Auto toggle off adding mode
+                              });
+                            },
                           ),
                         ),
                 ),
@@ -368,7 +422,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                       borderRadius: BorderRadius.circular(20),
                       side: const BorderSide(
                         color: Colors.white, // White border color
-                        width: 2, // Border width
+                        width: 2,
                       ),
                     ),
                   ),
@@ -398,7 +452,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                   icon: const Icon(Icons.image),
                   label: const Text("Choose an image"),
                 ),
-                SizedBox(height: 15.0),
+                SizedBox(height: 15.0), // <-- Adds spacing below the button
               ],
               if (_selectedImage != null) ...[
                 Padding(
@@ -411,6 +465,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                           _selectedStock = newValue!;
                           titleController.text = _selectedStock!;
                         });
+                        debugPrint("✅ Selected Stock: $_selectedStock");
                       },
                       items: stockList
                           .map<DropdownMenuItem<String>>((String stock) {

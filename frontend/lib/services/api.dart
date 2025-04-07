@@ -5,8 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class API {
   // static const baseUrl = "http://192.168.1.10:2000/api/"; // FOR TESTING
-  static const baseUrl =
-      "https://thesis-prototype-object-counting.vercel.app/api/";
+  static const baseUrl = "https://thesis-prototype-object-counting.vercel.app/api/";
 
   // POST REQUEST: REGISTRATION
   static Future<Map<String, dynamic>?> registerUser(
@@ -86,7 +85,7 @@ class API {
     }
   }
 
-  // Fetch activity logs
+  // Fetch activity logs per USER ID
   static Future<List<Map<String, dynamic>>?> fetchActivityLogs(
       String userId) async {
     debugPrint(
@@ -102,6 +101,7 @@ class API {
 
       if (res.statusCode == 200) {
         List<dynamic> data = jsonDecode(res.body);
+        debugPrint("fetchActivityLogs Full API RESPONSE!!: $data");
         return List<Map<String, dynamic>>.from(data);
       } else {
         debugPrint("❌ Failed to fetch logs: ${res.body}");
@@ -113,7 +113,7 @@ class API {
     }
   }
 
-  // Fetch activity logs
+  // Fetch ALL activity logs
   static Future<List<dynamic>?> fetchAllActivityLogs() async {
     final response = await http.get(Uri.parse('$baseUrl/activity_logs'));
 
@@ -125,27 +125,85 @@ class API {
     }
   }
 
-  // SAVE DETECTED OBJECTS TO MONGODB
-  static Future<http.Response> saveDetectedObjects(
-      Map<String, int> detectedCounts) async {
-    var response = await http.post(
-      Uri.parse("${baseUrl}detections"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(detectedCounts),
-    );
+  // Fetch activity details by activityId
+  static Future<Map<String, dynamic>?> fetchActivityById(
+      String activityId) async {
+    debugPrint(
+        "📡 Fetching activity details from: ${baseUrl}activity/$activityId");
 
-    debugPrint("Detections saved: ${response.body}");
-    return response; // ✅ Return response so it can be awaited properly
+    var url = Uri.parse("${baseUrl}activity/$activityId");
+
+    try {
+      final res = await http.get(url);
+
+      debugPrint("Response Code: ${res.statusCode}");
+      debugPrint("Response Body: ${res.body}");
+
+      if (res.statusCode == 200) {
+        return jsonDecode(res.body);
+      } else {
+        debugPrint("❌ Failed to fetch activity details: ${res.body}");
+        return null;
+      }
+    } catch (error) {
+      debugPrint("⚠️ Error fetching activity details: $error");
+      return null;
+    }
   }
 
-  static Future<void> saveStockToMongoDB(Map<String, int> stockCounts) async {
+  static Future<Map<String, dynamic>?> logStockCurrentCount(
+      String userId, String stockItem, int sold) async {
+    var url = Uri.parse("${baseUrl}count_objects");
+
+    Map<String, dynamic> requestBody = {
+      "userId": userId,
+      "stockName": stockItem,
+      "sold": sold,
+    };
+
+    debugPrint("🔄 Sending request to: $url");
+    debugPrint("📦 Request body: ${jsonEncode(requestBody)}");
+
     try {
-      var stocks = stockCounts.map((key, value) => MapEntry(key, value));
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(requestBody),
+      );
+
+      debugPrint("📝 Response Code: ${response.statusCode}");
+      debugPrint("📝 Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        debugPrint("❌ Failed to log object count: ${response.body}");
+        return null;
+      }
+    } catch (error, stacktrace) {
+      debugPrint("⚠️ Error logging object count: $error");
+      debugPrint(stacktrace.toString());
+      return null;
+    }
+  }
+
+  static Future<void> saveStockToMongoDB(
+      Map<String, Map<String, int>> stockCounts) async {
+    try {
+      List<Map<String, dynamic>> formattedStocks =
+          stockCounts.entries.map((entry) {
+        return {
+          "stockName": entry.key,
+          "totalStock": entry.value["totalStock"] ?? 0, // ✅ Fixed key
+          "sold": entry.value["sold"] ?? 0,
+          "availableStock": entry.value["availableStock"] ?? 0, // ✅ Added
+        };
+      }).toList();
 
       var response = await http.post(
         Uri.parse("${baseUrl}stocks"),
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode(stocks),
+        body: jsonEncode(formattedStocks),
       );
 
       if (response.statusCode == 200) {
@@ -158,32 +216,38 @@ class API {
     }
   }
 
-  static Future<Map<String, int>?> fetchStockFromMongoDB() async {
+  static Future<Map<String, Map<String, int>>?> fetchStockFromMongoDB() async {
     try {
       var response = await http.get(Uri.parse("${baseUrl}stocks"));
 
-      debugPrint("Stock API Response: ${response.body}"); // Debug print
+      debugPrint("Stock API Response: ${response.body}");
 
       if (response.statusCode == 200) {
         List<dynamic> jsonData = jsonDecode(response.body);
 
-        if (jsonData.isEmpty) {
-          debugPrint("Stock response is empty.");
-          return null;
-        }
-
-        Map<String, int> stockData = {};
+        Map<String, Map<String, int>> stockData = {};
         for (var item in jsonData) {
-          if (item.containsKey("item") && item.containsKey("expectedCount")) {
-            String itemName = item["item"];
-            int quantity = item["expectedCount"] is int
-                ? item["expectedCount"]
-                : int.tryParse(item["expectedCount"].toString()) ?? 0;
-            stockData[itemName] = quantity;
+          if (item.containsKey("stockName") &&
+              item.containsKey("availableStock") &&
+              item.containsKey("totalStock")) {
+            // ✅ No longer requiring "sold"
+
+            String itemName = item["stockName"];
+            int availableStock = item["availableStock"] ?? 0;
+            int totalStock = item["totalStock"] ?? 0;
+            int sold = item.containsKey("sold")
+                ? item["sold"] ?? 0
+                : 0; // ✅ Handle missing "sold"
+
+            stockData[itemName] = {
+              "availableStock": availableStock,
+              "totalStock": totalStock,
+              "sold": sold, // ✅ Ensures "sold" exists
+            };
           }
         }
 
-        debugPrint("Fetched Stock Data: $stockData");
+        debugPrint("Fetched Stock Data with Sold: $stockData");
         return stockData;
       } else {
         debugPrint("Failed to fetch stock: ${response.body}");
@@ -197,7 +261,10 @@ class API {
 
   static Future<void> deleteStockFromMongoDB(String itemName) async {
     try {
-      var response = await http.delete(Uri.parse("${baseUrl}stocks/$itemName"));
+      var encodedName =
+          Uri.encodeComponent(itemName); // ✅ Prevent issues with spaces
+      var response =
+          await http.delete(Uri.parse("${baseUrl}stocks/$encodedName"));
 
       if (response.statusCode == 200) {
         debugPrint("Stock deleted: ${response.body}");

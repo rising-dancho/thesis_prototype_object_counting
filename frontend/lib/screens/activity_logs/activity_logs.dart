@@ -5,18 +5,20 @@ import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:tectags/services/api.dart';
 
 class ActivityLog {
+  final String id; // FOR FETCHING SINGLE ACTIVITY BY USER
   final String userId; // ✅ Store userId
   final String fullName; // ✅ Store fullName
   final String action;
-  final int? objectCount;
+  final int? countedAmount;
   final String
       timestamp; // Now holds: intl: ^0.18.1 a more human readable formatted time
 
   ActivityLog({
+    required this.id, // FOR FETCHING SINGLE ACTIVITY BY USER
     required this.userId,
     required this.fullName,
     required this.action,
-    this.objectCount,
+    this.countedAmount,
     required this.timestamp,
   });
 
@@ -34,15 +36,20 @@ class ActivityLog {
         // DateFormat('MMM d, y • hh:mm a').format(manilaTime);
         DateFormat.yMEd().add_jms().format(manilaTime);
 
+    debugPrint("🧾 RAW COUNT AMOUNT in JSON: ${json['countedAmount']}");
+
     return ActivityLog(
-      userId: json['userId'] ?? 'Unknown ID', // ✅ Handle missing userId
-      fullName: json['fullName'] ?? 'Unknown User', // ✅ Handle missing fullName
-      action: json['action'],
-      objectCount: json['objectCount'],
-      timestamp:
-          formattedTimestamp, // Use formatted time ?? json['createdAt'], // ✅ Fallback to createdAt
+      id: json['_id'] ?? 'Unknown ID', // ✅ Fix: Use _id instead of id
+      userId: json['userId'] ?? 'Unknown ID',
+      fullName: json['fullName'] ?? 'Unknown User',
+      action: json['action'] ?? 'Unknown Action',
+      countedAmount: json['countedAmount'] ?? 0, // ✅ Fallback to 0 if null
+      timestamp: formattedTimestamp,
     );
   }
+
+  // WHAT IS A FACTORY: https://chatgpt.com/share/67e6097f-8c94-8000-940d-5ecd8c54bb09
+  // THIS FACTORY HELPS CONVERT THE JSON RECEIVED FROM API RESPONSE INTO A FLUTTER OBJECT
 }
 
 class ActivityLogs extends StatefulWidget {
@@ -53,7 +60,7 @@ class ActivityLogs extends StatefulWidget {
 }
 
 class _ActivityLogsState extends State<ActivityLogs> {
-  List<ActivityLog> activityLogs = [];
+  List<ActivityLog> activityLogs = []; // ACTIVITY LOGS ARE SAVED IN THIS ARRAY
   bool showAllLogs = false; // Default: Show only current user's logs
 
   @override
@@ -67,6 +74,17 @@ class _ActivityLogsState extends State<ActivityLogs> {
     return prefs.getString('userId'); // Returns null if not found
   }
 
+  // FETCH SINGLE ACTIVITY BY A USER
+  Future<void> fetchActivityDetails(String activityId) async {
+    var activity = await API.fetchActivityById(activityId);
+    if (activity != null) {
+      debugPrint("Activity Details: $activity");
+    } else {
+      debugPrint("Failed to fetch activity details.");
+    }
+  }
+
+  // ACTIVITY LOGS ARE FETCHED FROM THE BACKEND USING THE USERID SAVED IN THE LOCAL STORAGE
   Future<void> _loadActivityLogs() async {
     final userId = await getUserId(); // Await the userId
     debugPrint(" Retrieved userId: $userId");
@@ -76,10 +94,13 @@ class _ActivityLogsState extends State<ActivityLogs> {
       return;
     }
 
+    debugPrint("Fetching logs... Show all logs: $showAllLogs");
+
     // FETCH ALL ACTIVITY LOGS OR PER USER
     final logsData = showAllLogs
         ? await API.fetchAllActivityLogs() // Fetch all users' logs
         : await API.fetchActivityLogs(userId); // Fetch only current user's logs
+
     if (logsData != null) {
       if (mounted) {
         // ✅ Prevent updating state if widget is disposed
@@ -87,7 +108,15 @@ class _ActivityLogsState extends State<ActivityLogs> {
           activityLogs = logsData
               .map((log) {
                 try {
-                  return ActivityLog.fromJson(log);
+                  // Ensure countedAmount is properly parsed
+                  final parsedLog = ActivityLog.fromJson(log);
+                  debugPrint("RAW LOG DATA: $log");
+
+                  // Log object count for debugging
+                  debugPrint(
+                      "COUNTED OBJECT Parsed log: ID=${parsedLog.id}, Object Count=${parsedLog.countedAmount}");
+
+                  return parsedLog;
                 } catch (e) {
                   debugPrint("❌ Error parsing log: $log \n Exception: $e");
                   return null;
@@ -96,6 +125,7 @@ class _ActivityLogsState extends State<ActivityLogs> {
               .whereType<ActivityLog>()
               .toList();
         });
+        debugPrint("✅ Logs updated: ${activityLogs.length} logs");
       }
     } else {
       debugPrint("❌ No logs retrieved");
@@ -121,8 +151,9 @@ class _ActivityLogsState extends State<ActivityLogs> {
           ),
         ],
       ),
-      endDrawer: const SideMenu(),
-      body: Container(
+      endDrawer: const SideMenu(), // Using the extracted drawer
+      body: 
+      Container(
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage("assets/images/tectags_bg.png"),
@@ -130,7 +161,8 @@ class _ActivityLogsState extends State<ActivityLogs> {
           ),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
               padding: const EdgeInsets.only(left: 24, top: 12, bottom: 0),
@@ -143,7 +175,7 @@ class _ActivityLogsState extends State<ActivityLogs> {
                     onChanged: (value) {
                       setState(() {
                         showAllLogs = value;
-                        _loadActivityLogs();
+                        _loadActivityLogs(); // Reload data when toggling
                       });
                     },
                     activeColor: Colors.white,
@@ -155,39 +187,50 @@ class _ActivityLogsState extends State<ActivityLogs> {
                 ],
               ),
             ),
+
+            // ✅ Scrollable content stays below
             Expanded(
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: SingleChildScrollView(
-                  child: DataTable(
-                    columns: const [
-                      DataColumn(label: Text('User ID')),
-                      DataColumn(label: Text('Full Name')),
-                      DataColumn(label: Text('Action')),
-                      DataColumn(label: Text('Objects Counted')),
-                      DataColumn(label: Text('Timestamp')),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      DataTable(
+                        columns: const [
+                          DataColumn(label: Text('User ID')),
+                          DataColumn(label: Text('Full Name')),
+                          DataColumn(label: Text('Action')),
+                          DataColumn(label: Text('Total Sold')),
+                          DataColumn(label: Text('Timestamp')),
+                        ],
+                        rows: activityLogs.map((log) {
+                          return DataRow(cells: [
+                            DataCell(Text(log.userId)),
+                            DataCell(Text(log.fullName)),
+                            DataCell(Text(log.action)),
+                            DataCell(Text(log.countedAmount == 0
+                                ? ' '
+                                : log.countedAmount.toString())),
+                            DataCell(Text(log.timestamp)),
+                          ]);
+                        }).toList(),
+                      ),
                     ],
-                    rows: activityLogs.map((log) {
-                      return DataRow(cells: [
-                        DataCell(Text(log.userId)),
-                        DataCell(Text(log.fullName)),
-                        DataCell(Text(log.action)),
-                        DataCell(Text(log.objectCount?.toString() ?? 'N/A')),
-                        DataCell(Text(log.timestamp)),
-                      ]);
-                    }).toList(),
                   ),
                 ),
               ),
             ),
+
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF052D5A),
+                  // textStyle: TextStyle(fontSize: 16),
                   foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 118, vertical: 15),
+                  padding: const EdgeInsets.symmetric(horizontal: 118, vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                     side: const BorderSide(

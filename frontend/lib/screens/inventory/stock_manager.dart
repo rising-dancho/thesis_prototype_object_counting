@@ -12,7 +12,16 @@ class StockManager extends StatefulWidget {
 class _StockManagerState extends State<StockManager> {
   TextEditingController itemController = TextEditingController();
   TextEditingController countController = TextEditingController();
-  Map<String, int> stockCounts = {};
+  Map<String, Map<String, int>> stockCounts = {};
+
+  // BACKUP
+  // Map<String, int> stockCounts = {
+  //   "Cement": 100,
+  //   "Sand": 100,
+  //   "Hollow Blocks": 100,
+  //   "Plywood": 100,
+  //   "Deform Bar": 100,
+  // };
 
   @override
   void initState() {
@@ -20,13 +29,26 @@ class _StockManagerState extends State<StockManager> {
     fetchStockData();
   }
 
-  void fetchStockData() async {
-    Map<String, int>? data = await API.fetchStockFromMongoDB();
+  // INFO DISPLAYED IN THE CARDS PULLED FROM THE STOCKS COLLECTION
+  Future<void> fetchStockData() async {
+    Map<String, Map<String, int>>? data = await API.fetchStockFromMongoDB();
+    debugPrint("Fetched Stock Data: $data");
+    debugPrint("STOCK COUNTS Data: $stockCounts");
 
-    if (data != null && mounted) {
+    if (data == null) {
+      debugPrint("⚠️ No stock data fetched.");
+      return; // Exit early if data is null
+    }
+
+    if (mounted) {
       setState(() {
-        stockCounts = data;
+        stockCounts = data.map((key, value) => MapEntry(key, {
+              "availableStock": value["availableStock"] ?? 0,
+              "totalStock": value["totalStock"] ?? 0,
+              "sold": value["sold"] ?? 0,
+            }));
       });
+      debugPrint("Updated StockCounts: $stockCounts");
     }
   }
 
@@ -36,7 +58,11 @@ class _StockManagerState extends State<StockManager> {
 
     if (itemName.isNotEmpty && itemCount != null) {
       setState(() {
-        stockCounts[itemName] = itemCount;
+        stockCounts[itemName] = {
+          "availableStock": itemCount,
+          "totalStock": itemCount,
+          "sold": 0, // ✅ Make sure sold is stored properly
+        };
       });
 
       API.saveStockToMongoDB(stockCounts);
@@ -47,18 +73,17 @@ class _StockManagerState extends State<StockManager> {
   }
 
   void updateStock(String item, int newCount) {
-    setState(() {
-      stockCounts[item] = newCount;
-    });
+    if (stockCounts.containsKey(item)) {
+      setState(() {
+        stockCounts[item]?["totalStock"] = newCount;
+      });
 
-    API.saveStockToMongoDB(stockCounts);
+      API.saveStockToMongoDB(stockCounts);
+    }
   }
 
   void deleteStockItem(String item) {
-    setState(() {
-      stockCounts.remove(item);
-    });
-
+    setState(() => stockCounts.remove(item));
     API.deleteStockFromMongoDB(item);
   }
 
@@ -85,8 +110,7 @@ class _StockManagerState extends State<StockManager> {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage(
-                "assets/images/tectags_bg.png"),
+            image: AssetImage("assets/images/tectags_bg.png"),
             fit: BoxFit.cover,
           ),
         ),
@@ -145,6 +169,7 @@ class _StockManagerState extends State<StockManager> {
                   ],
                 ),
               ),
+              SizedBox(height: 10),
               Expanded(
                 child: stockCounts.isEmpty
                     ? const Center(child: Text("No stock available."))
@@ -152,36 +177,75 @@ class _StockManagerState extends State<StockManager> {
                         itemCount: stockCounts.length,
                         itemBuilder: (context, index) {
                           String item = stockCounts.keys.elementAt(index);
-                          int count = stockCounts[item] ?? 0;
+                          int availableStock =
+                              stockCounts[item]?["availableStock"] ?? 0;
+                          int totalStock =
+                              stockCounts[item]?["totalStock"] ?? 0;
+                          int sold = stockCounts[item]?["sold"] ?? 0;
+
                           return Padding(
-                            padding: const EdgeInsets.only(bottom: 16.0),
-                            child: Card(
-                              elevation: 4.0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12.0),
-                              ),
-                              child: ListTile(
-                                contentPadding: const EdgeInsets.all(16.0),
-                                title: Text(
-                                  item,
-                                  style: const TextStyle(
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                            padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                            child: Container(
+                              padding: EdgeInsets.fromLTRB(20, 5, 10, 5),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom:
+                                      BorderSide(color: Colors.grey.shade300),
                                 ),
-                                subtitle: Text("Total: $count"),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    flex: 2,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              item,
+                                              textAlign: TextAlign.start,
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Text(
+                                          "Available: $availableStock",
+                                          textAlign: TextAlign.start,
+                                        ),
+                                        Text(
+                                          "Sold: $sold",
+                                          textAlign: TextAlign.start,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(right: 15),
+                                    child: Text("Total: $totalStock"),
+                                  ),
+                                  Row(children: [
                                     IconButton(
-                                      icon: const Icon(Icons.edit),
+                                      icon: Icon(Icons.edit),
                                       onPressed: () {
-                                        TextEditingController editController =
-                                            TextEditingController(
-                                                text: count.toString());
                                         showDialog(
                                           context: context,
                                           builder: (context) {
+                                            TextEditingController
+                                                editController =
+                                                TextEditingController(
+                                                    text:
+                                                        totalStock.toString());
                                             return AlertDialog(
                                               title: Text("Edit $item Stock"),
                                               content: TextField(
@@ -202,8 +266,8 @@ class _StockManagerState extends State<StockManager> {
                                                     }
                                                     Navigator.pop(context);
                                                   },
-                                                  child: const Text("Save"),
-                                                ),
+                                                  child: Text("Save"),
+                                                )
                                               ],
                                             );
                                           },
@@ -211,47 +275,47 @@ class _StockManagerState extends State<StockManager> {
                                       },
                                     ),
                                     IconButton(
-                                      icon: const Icon(Icons.delete),
+                                      icon: Icon(Icons.delete),
                                       onPressed: () {
                                         showDialog(
                                           context: context,
-                                          builder: (context) {
-                                            return AlertDialog(
-                                              title: Text("Delete $item?"),
-                                              content: const Text(
-                                                  "Are you sure you want to remove this stock item?"),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () =>
-                                                      Navigator.pop(context),
-                                                  child: const Text("Cancel"),
-                                                ),
-                                                TextButton(
-                                                  onPressed: () {
-                                                    deleteStockItem(item);
-                                                    Navigator.pop(context);
-                                                  },
-                                                  child: const Text(
-                                                    "Delete",
+                                          builder: (context) => AlertDialog(
+                                            title: Text("Delete $item?"),
+                                            content: Text(
+                                                "Are you sure you want to remove this stock item?"),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () =>
+                                                    Navigator.pop(context),
+                                                child: Text("Cancel",
                                                     style: TextStyle(
-                                                      color: Colors.red,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            );
-                                          },
+                                                        color:
+                                                            Colors.grey[600])),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  deleteStockItem(item);
+                                                  Navigator.pop(context);
+                                                },
+                                                child: Text("Delete",
+                                                    style: TextStyle(
+                                                        color:
+                                                            Colors.red[400])),
+                                              ),
+                                            ],
+                                          ),
                                         );
                                       },
                                     ),
-                                  ],
-                                ),
+                                  ]),
+                                ],
                               ),
                             ),
                           );
                         },
                       ),
               ),
+              SizedBox(height: 50),
             ],
           ),
         ),

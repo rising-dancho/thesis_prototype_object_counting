@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tectags/screens/navigation/navigation_menu.dart';
+import 'package:tectags/services/shared_prefs_service.dart';
 import 'package:tectags/widgets/custom_scaffold.dart';
 import 'package:tectags/widgets/fade_route.dart';
 import 'package:tectags/screens/welcome_screen.dart';
@@ -42,12 +42,10 @@ class SplashScreenState extends State<SplashScreen>
     super.dispose();
   }
 
-  // AUTO LOGIN IF TOKEN EXISTS IN THE SHAREDPREFERENCE
   Future<void> checkTokenAndRedirect() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
+    final hasToken = await SharedPrefsService.hasValidToken();
 
-    if (token != null && token.isNotEmpty) {
+    if (hasToken) {
       // Token exists, redirect to NavigationMenu
       if (mounted) {
         Navigator.pushReplacement(
@@ -92,7 +90,7 @@ class SplashScreenState extends State<SplashScreen>
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 30, 0, 30),
                 child: SizedBox(
-                  width: 100,
+                  width: 60,
                   child: LinearProgressIndicator(
                     backgroundColor: Color(0xFFF7F7F7), // Light gray background
                     valueColor:

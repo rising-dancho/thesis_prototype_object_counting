@@ -3,12 +3,19 @@ const mongoose = require('mongoose');
 const activitySchema = new mongoose.Schema(
   {
     userId: {
-      type: mongoose.Schema.Types.ObjectId, // ✅ This stores a reference (ObjectId) to the User model
-      ref: 'User', // ✅ This tells Mongoose that `userId` is linked to the 'User' collection
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
       required: true,
     },
     action: { type: String, required: true },
-    objectCount: { type: Number, default: null },
+    stockId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Stock',
+      required: function () {
+        return this.action !== 'Logged In';
+      }, // Only require stockId for stock-related actions
+    },
+    countedAmount: { type: Number, default: 0 }, 
   },
   { timestamps: true }
 );

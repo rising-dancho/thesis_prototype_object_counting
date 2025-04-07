@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:tectags/screens/activity_logs/activity_logs.dart';
 import 'package:tectags/screens/inventory/stock_manager.dart';
 import 'package:tectags/screens/tensorflow/tensorflow_lite.dart';
+// import '../../../backup/logout_screen.dart';
+// import '../../../backup/crud_test/crud.dart';
+// import 'package:techtags/screens/opencv/opencv.dart';
 
 class NavigationMenu extends StatelessWidget {
   const NavigationMenu({super.key});
@@ -21,9 +24,12 @@ class NavigationMenu extends StatelessWidget {
             labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>(
               (Set<WidgetState> states) {
                 if (states.contains(WidgetState.selected)) {
-                  return const TextStyle(color: Colors.white);
+                  return const TextStyle(
+                      color: Color.fromARGB(255, 255, 255, 255));
                 }
-                return const TextStyle(color: Colors.white);
+
+                return const TextStyle(
+                    color: Color.fromARGB(255, 255, 255, 255));
               },
             ),
           ),
@@ -64,12 +70,12 @@ class NavigationMenu extends StatelessWidget {
               ),
               NavigationDestination(
                 icon: const Icon(Icons.inventory_sharp, color: Colors.grey),
-                selectedIcon: const Icon(Icons.inventory_sharp, color: Colors.white),
+                selectedIcon:
+                    const Icon(Icons.inventory_sharp, color: Colors.white),
                 label: "Inventory",
               ),
               NavigationDestination(
-                icon: const Icon(Icons.list_alt, color: Colors.grey),
-                selectedIcon: const Icon(Icons.list_alt, color: Colors.white),
+                icon: Icon(Icons.list_alt),
                 label: "Activity Logs",
               ),
             ],
@@ -83,5 +89,6 @@ class NavigationMenu extends StatelessWidget {
 class NavigationController extends GetxController {
   final Rx<int> selectedIndex = 0.obs;
 
+  // final screens = [TensorflowLite(), Crud()];
   final screens = [TensorflowLite(), StockManager(), ActivityLogs()];
 }

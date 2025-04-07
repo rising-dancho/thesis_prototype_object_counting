@@ -13,19 +13,20 @@ class PhotoViewer extends StatefulWidget {
   final bool isAddingBox;
   final bool isRemovingBox;
   final TextEditingController titleController;
+  final VoidCallback? onBoxAdded;
 
-  const PhotoViewer({
-    super.key,
-    required this.imageFile,
-    required this.imageForDrawing,
-    required this.editableBoundingBoxes,
-    required this.onNewBox,
-    required this.onRemoveBox,
-    required this.isAddingBox,
-    required this.isRemovingBox,
-    required this.timestamp,
-    required this.titleController,
-  });
+  const PhotoViewer(
+      {super.key,
+      required this.imageFile,
+      required this.imageForDrawing,
+      required this.editableBoundingBoxes,
+      required this.onNewBox,
+      required this.onRemoveBox,
+      required this.isAddingBox,
+      required this.isRemovingBox,
+      required this.timestamp,
+      required this.titleController,
+      required this.onBoxAdded});
 
   @override
   State<PhotoViewer> createState() => _PhotoViewerState();
@@ -158,6 +159,8 @@ class _PhotoViewerState extends State<PhotoViewer> {
                       boundingBoxes.add(newBox);
                       widget.onNewBox(newBox);
                     });
+                    // 🧠 Notify parent to toggle off adding mode
+                    widget.onBoxAdded?.call();
                   },
                   child: Container(color: Colors.transparent),
                 ),

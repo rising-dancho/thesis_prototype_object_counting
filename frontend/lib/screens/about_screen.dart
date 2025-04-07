@@ -1,25 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:tectags/screens/navigation/navigation_menu.dart';
+import 'package:tectags/screens/navigation/side_menu.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
   final List<Map<String, String>> developers = const [
     {
-      "name": "Jose A. Perez",
-      "role": "Development Lead and Features Implementation"
+      "name": "Jose A. Perez Jr.",
+      "role": "Development Lead and Features Implementation",
+      "email": "josealejoperezjr@gmail.com"
     },
     {
       "name": "Joshua Martin A. Peralta",
-      "role": "UI Conceptualization and Implementation"
+      "role": "UI Conceptualization and Implementation",
+      "email": "janesmith@example.com"
     },
     {
       "name": "Arvin F. Eugenio",
-      "role": "Documentation and Logo"
+      "role": "Documentation and Logo",
+      "email": "alexbrown@example.com"
     },
     {
       "name": "Armand Sebastian E. Bueno",
-      "role": "Dataset Annotation and Model Training"
+      "role": "Dataset Annotion and Model Training",
+      "email": "emilywhite@example.com"
     }
   ];
 
@@ -30,16 +34,9 @@ class AboutScreen extends StatelessWidget {
         title: const Text('About The App'),
         backgroundColor: const Color.fromARGB(255, 5, 45, 90),
         foregroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const NavigationMenu()),
-            );
-          },
-        ),
+        automaticallyImplyLeading: false,
       ),
+      endDrawer: const SideMenu(),
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -88,7 +85,7 @@ class AboutScreen extends StatelessWidget {
                 ),
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
-                  "TecTags is an innovative application designed to enhance inventory management and operational efficiency in hardware stores through AI-powered object detection. Below, meet the talented developers behind this project.",
+                  "TecTags is an innovative application designed to enhance inventory management and operational efficiency in hardware stores through AI-powered object detection. Below, meet the developers behind this project.",
                   style: TextStyle(
                     fontSize: 16,
                     fontFamily: 'Roboto',
@@ -124,14 +121,18 @@ class AboutScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12, horizontal: 16),
                       child: Row(
                         children: [
                           CircleAvatar(
-                            backgroundColor: const Color.fromARGB(255, 5, 45, 90),
+                            backgroundColor:
+                                const Color.fromARGB(255, 5, 45, 90),
                             child: Text(
                               developer["name"]![0],
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -169,7 +170,7 @@ class AboutScreen extends StatelessWidget {
                     ),
                 ],
               );
-            }).toList(),
+            }),
           ],
         ),
       ),

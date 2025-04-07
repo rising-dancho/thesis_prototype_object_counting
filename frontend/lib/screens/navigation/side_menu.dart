@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tectags/screens/about_screen.dart';
 import 'package:tectags/screens/login_screen.dart';
 import 'package:tectags/screens/navigation/navigation_menu.dart';
-import 'package:tectags/screens/opencv/opencv.dart';
 import 'package:tectags/screens/profile_screen.dart';
-import 'package:tectags/screens/about_screen.dart';
+import 'package:tectags/services/shared_prefs_service.dart';
 
 class SideMenu extends StatelessWidget {
   const SideMenu({super.key});
 
   Future<void> logout(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('auth_token'); // Remove the jasonwebtoken (JWT)
-    await prefs.remove('userId'); // Remove the user id
+    await SharedPrefsService.clearUserId(); // Clear user ID
+    await SharedPrefsService
+        .clearToken(); // Clear token for remembering login state
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -32,7 +31,7 @@ class SideMenu extends StatelessWidget {
             child: Container(
               alignment: Alignment.center,
               child: Image.asset(
-                'assets/images/tectags_logo_nobg.png',
+                'assets/images/tectags_logo_nobg.png', // Replace with your logo's asset path
                 width: 120,
                 height: 120,
                 fit: BoxFit.contain,
@@ -54,8 +53,8 @@ class SideMenu extends StatelessWidget {
             title: const Text('Profile'),
             onTap: () {
               Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
               );
             },
           ),
@@ -74,8 +73,8 @@ class SideMenu extends StatelessWidget {
             title: const Text('About'),
             onTap: () {
               Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const AboutScreen()),
+                context,
+                MaterialPageRoute(builder: (context) => const AboutScreen()),
               );
             },
           ),
@@ -85,16 +84,6 @@ class SideMenu extends StatelessWidget {
             indent: 20,
             endIndent: 20,
             color: Color.fromARGB(255, 82, 81, 81),
-          ),
-          ListTile(
-            leading: const Icon(Icons.spoke),
-            title: const Text('Beta Feature (OpenCV)'),
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const OpenCV()),
-              );
-            },
           ),
           ListTile(
             leading: const Icon(Icons.logout),
