@@ -91,7 +91,16 @@ class _StockManagerState extends State<StockManager> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Inventory Management"),
+        title: const Text(
+          "Inventory Management",
+          style: TextStyle(
+            fontFamily: 'Roboto', 
+            fontSize: 22, 
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2, 
+            color: Color.fromARGB(255, 27, 211, 224),
+          ),
+        ),
         backgroundColor: const Color.fromARGB(255, 5, 45, 90),
         foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
@@ -129,9 +138,8 @@ class _StockManagerState extends State<StockManager> {
                           labelText: 'Stock Category',
                           filled: true,
                           fillColor: const Color.fromARGB(255, 233, 233, 233),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
                         ),
                       ),
                     ),
@@ -140,13 +148,12 @@ class _StockManagerState extends State<StockManager> {
                       child: TextFormField(
                         controller: countController,
                         keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Stock Count',
                           filled: true,
-                          fillColor: const Color.fromARGB(255, 233, 233, 233),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
+                          fillColor: Color.fromARGB(255, 233, 233, 233),
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
                         ),
                       ),
                     ),
@@ -154,11 +161,12 @@ class _StockManagerState extends State<StockManager> {
                     ElevatedButton(
                       onPressed: addStockItem,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 3, 130, 168),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+                        backgroundColor:
+                            const Color.fromARGB(255, 22, 165, 221),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.zero,
                         ),
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(15.0),
                       ),
                       child: const Icon(
                         Icons.add,
@@ -183,16 +191,16 @@ class _StockManagerState extends State<StockManager> {
                               stockCounts[item]?["totalStock"] ?? 0;
                           int sold = stockCounts[item]?["sold"] ?? 0;
 
-                          return Padding(
-                            padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
-                            child: Container(
-                              padding: EdgeInsets.fromLTRB(20, 5, 10, 5),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom:
-                                      BorderSide(color: Colors.grey.shade300),
-                                ),
-                              ),
+                          return Card(
+                            elevation: 4,
+                            margin: const EdgeInsets.only(bottom: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            color: const Color.fromARGB(234, 255, 255, 255),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 12.0, horizontal: 16.0),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,

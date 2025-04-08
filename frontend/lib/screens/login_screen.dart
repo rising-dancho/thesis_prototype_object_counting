@@ -125,7 +125,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           const TextStyle(color: Color.fromRGBO(70, 70, 70, 1)),
                       prefixIcon: const Icon(Icons.lock,
                           color: Color.fromRGBO(70, 70, 70, 1)),
-                      // Suffix icon to toggle password visibility
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscureText
@@ -202,7 +201,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           }
 
                           // Check for token in the response
-                          if (response != null && response.containsKey('token')) {
+                          if (response != null &&
+                              response.containsKey('token')) {
                             await SharedPrefsService.saveToken(
                                 response['token'],
                                 rememberPassword); // Pass rememberPassword
@@ -238,7 +238,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
+                        backgroundColor:
+                            const Color.fromARGB(255, 22, 165, 221),
                         foregroundColor: Colors.white,
                         shadowColor: Colors.grey,
                         elevation: 5,
@@ -279,7 +280,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                       },
                       child: const Text(
-                        'Register now',
+                        'Sign up',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Color.fromARGB(255, 55, 247, 253),

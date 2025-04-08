@@ -114,36 +114,51 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   const SizedBox(height: 20.0),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 3.0),
-                    child: TextFormField(
-                      controller: _passwordController,
-                      obscureText: !_passwordVisible,
-                      obscuringCharacter: '*',
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a password';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        hintText: 'Enter your password',
-                        hintStyle: const TextStyle(color: Colors.black26),
-                        fillColor: const Color.fromARGB(255, 255, 255, 255),
-                        filled: true,
-                        border: InputBorder.none,
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _passwordVisible
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _passwordVisible = !_passwordVisible;
-                            });
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextFormField(
+                          controller: _passwordController,
+                          obscureText: !_passwordVisible,
+                          obscuringCharacter: '*',
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a password';
+                            } else if (value.length < 8) {
+                              return 'Password must be at least 8 characters long';
+                            }
+                            return null;
                           },
+                          decoration: InputDecoration(
+                            labelText: 'Password',
+                            hintText: 'Enter your password',
+                            hintStyle: const TextStyle(color: Colors.black26),
+                            fillColor: const Color.fromARGB(255, 255, 255, 255),
+                            filled: true,
+                            border: InputBorder.none,
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _passwordVisible
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _passwordVisible = !_passwordVisible;
+                                });
+                              },
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Must be at least 8 characters',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Color.fromARGB(221, 255, 255, 255),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 20.0),
@@ -217,7 +232,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             }
 
                             // Check for errors in the response
-                            if (response != null && response.containsKey('error') && response['error'] != null) {
+                            if (response != null &&
+                                response.containsKey('error') &&
+                                response['error'] != null) {
                               if (!mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text(response['error'])),
@@ -226,7 +243,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             }
 
                             // Check for token in the response
-                            if (response != null && response.containsKey('token')) {
+                            if (response != null &&
+                                response.containsKey('token')) {
                               await SharedPrefsService.saveTokenWithoutCheck(
                                   response['token']);
 
@@ -259,7 +277,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
+                          backgroundColor:
+                              const Color.fromARGB(255, 22, 165, 221),
                           foregroundColor: Colors.white,
                           shadowColor: Colors.grey,
                           elevation: 5,
@@ -303,7 +322,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           );
                         },
                         child: Text(
-                          'Login',
+                          'Sign in',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Color.fromARGB(255, 55, 247, 253),

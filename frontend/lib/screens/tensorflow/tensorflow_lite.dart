@@ -357,7 +357,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
             image: DecorationImage(
               image: AssetImage("assets/images/tectags_bg.png"),
               fit: BoxFit
-                  .cover, // Ensures the image covers the entire background
+                  .cover,
             ),
           ),
           child: Column(
@@ -367,7 +367,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
               Expanded(
                 child: Container(
                   width: double
-                      .infinity, // Makes the container expand horizontally
+                      .infinity,
                   margin: const EdgeInsets.fromLTRB(22, 40, 22, 42),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
@@ -380,7 +380,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                           color: Colors.grey[500],
                         )
                       : Screenshot(
-                          controller: screenshotController, // Wrap entire Stack
+                          controller: screenshotController, 
                           child: PhotoViewer(
                             imageFile: _selectedImage!,
                             imageForDrawing: imageForDrawing,
@@ -399,11 +399,10 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                             isRemovingBox: isRemovingBox,
                             timestamp: timestamp,
                             titleController: titleController,
-                            // 👇 Add this
                             onBoxAdded: () {
                               setState(() {
                                 isAddingBox =
-                                    false; // ✅ Auto toggle off adding mode
+                                    false;
                               });
                             },
                           ),
@@ -414,21 +413,17 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     textStyle: const TextStyle(fontSize: 16),
-                    backgroundColor: const Color(0xFF052D5A),
+                    backgroundColor: const Color.fromARGB(255, 22, 165, 221),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 95, vertical: 15),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      side: const BorderSide(
-                        color: Colors.white, // White border color
-                        width: 2,
-                      ),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   onPressed: useCamera,
                   icon: const Icon(Icons.camera_alt),
-                  label: const Text("Capture photo"),
+                  label: const Text("Capture Photo"),
                 ),
               ],
               const SizedBox(height: 15.0),
@@ -439,20 +434,16 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                     backgroundColor: Colors.white,
                     foregroundColor: const Color(0xFF052D5A),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 85, vertical: 15),
+                        horizontal: 84, vertical: 15),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      side: const BorderSide(
-                        color: Color(0xFF052D5A), // Dark blue border color
-                        width: 2, // Border width
-                      ),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   onPressed: imageGallery,
                   icon: const Icon(Icons.image),
-                  label: const Text("Choose an image"),
+                  label: const Text("Choose an Image"),
                 ),
-                SizedBox(height: 15.0), // <-- Adds spacing below the button
+                SizedBox(height: 15.0),
               ],
               if (_selectedImage != null) ...[
                 Padding(
@@ -486,7 +477,7 @@ class _TensorflowLiteState extends State<TensorflowLite> {
                   children: [
                     IconButton(icon: Icon(Icons.refresh), onPressed: reset),
                     IconButton(
-                      icon: Icon(Icons.add), // Change dynamically
+                      icon: Icon(Icons.add),
                       onPressed: toggleAddingMode,
                     ),
                     IconButton(

@@ -18,16 +18,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     'Password': TextEditingController(),
   };
 
-  File? _profileImage; // Stores selected profile picture
+  File? _profileImage;
 
-  // Function to pick an image
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
       setState(() {
-        _profileImage = File(image.path); // Updates the profile picture
+        _profileImage = File(image.path);
       });
     }
   }
@@ -35,94 +34,110 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text('My Profile'),
         backgroundColor: const Color.fromARGB(255, 5, 45, 90),
+        elevation: 0,
         foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
       ),
       endDrawer: const SideMenu(),
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/tectags_bg.png'),
-            fit: BoxFit.cover,
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/tectags_bg.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
-        ),
-        child: ListView(
-          padding: const EdgeInsets.all(16.0),
-          children: [
-            const SizedBox(height: 20),
-
-            // Profile Picture with Edit Option
-            GestureDetector(
-              onTap: _pickImage, // Opens image picker
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundImage: _profileImage != null
-                        ? Image.file(_profileImage!).image // Corrected here
-                        : const AssetImage('assets/profile_picture.png')
-                            as ImageProvider,
-                    child: _profileImage == null
-                        ? const Icon(Icons.camera_alt,
-                            size: 30, color: Colors.white)
-                        : null,
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    "Edit your profile",
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 255, 255, 255),
-                      fontSize: 20,
-                      fontFamily: 'Roboto',
-                      fontWeight: FontWeight.w500,
+          Container(color: Colors.black.withOpacity(0.3)),
+          Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 40),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Stack(
+                      alignment: Alignment.bottomRight,
+                      children: [
+                        CircleAvatar(
+                          radius: 60,
+                          backgroundImage: _profileImage != null
+                              ? FileImage(_profileImage!)
+                              : const AssetImage('assets/profile_picture.png')
+                                  as ImageProvider,
+                        ),
+                        GestureDetector(
+                          onTap: _pickImage,
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.blueAccent,
+                            ),
+                            child: const Icon(Icons.edit,
+                                color: Colors.white, size: 20),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // Dynamic Input Fields
-            _buildTextField(label: 'Full Name', icon: Icons.person),
-            _buildTextField(label: 'Email', icon: Icons.email),
-            _buildTextField(label: 'Phone', icon: Icons.phone),
-            _buildTextField(
-                label: 'Password', icon: Icons.lock, obscureText: true),
-
-            const SizedBox(height: 20),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                shadowColor: Colors.grey,
-                elevation: 5,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                    const SizedBox(height: 20),
+                    const Text(
+                      "Edit Your Profile",
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                        color: Color.fromARGB(221, 250, 250, 250),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    _buildTextField(label: 'Full Name', icon: Icons.person),
+                    _buildTextField(label: 'Email', icon: Icons.email),
+                    _buildTextField(label: 'Phone', icon: Icons.phone),
+                    _buildTextField(
+                      label: 'Password',
+                      icon: Icons.lock,
+                      obscureText: true,
+                    ),
+                    const SizedBox(height: 30),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            const Color.fromARGB(255, 22, 165, 221),
+                        foregroundColor: Colors.white,
+                        shadowColor: Colors.grey,
+                        elevation: 5,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 105, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Changes saved successfully!')),
+                        );
+                      },
+                      child: const Text(
+                        'Save Changes',
+                        style: TextStyle(
+                          fontFamily: 'Roboto',
+                          fontSize: 15.0,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              onPressed: () {
-                // Add save functionality
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Changes saved successfully!')),
-                );
-              },
-              child: const Text(
-                'Save changes',
-                style: TextStyle(
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15.0,
-                ),
-              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -133,23 +148,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     bool obscureText = false,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: TextFormField(
-        controller: _controllers[label], // Dynamically selects the controller
-        obscureText: obscureText, // Used for password field
+        controller: _controllers[label],
+        obscureText: obscureText,
         decoration: InputDecoration(
-          filled: true,
-          fillColor: Colors.grey[200],
-          prefixIcon: Icon(icon, color: const Color.fromARGB(255, 51, 51, 51)),
+          prefixIcon: Icon(icon, color: Colors.blueGrey),
           labelText: label,
-          labelStyle: const TextStyle(color: Color.fromARGB(255, 51, 51, 51)),
-          enabledBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.blue, width: 2),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.orange, width: 2),
-          ),
-          border: OutlineInputBorder(),
+          filled: true,
+          fillColor: Colors.grey[100],
+          labelStyle: const TextStyle(color: Colors.black87),
+          border: InputBorder.none,
         ),
       ),
     );

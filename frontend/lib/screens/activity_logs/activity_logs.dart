@@ -136,9 +136,18 @@ class _ActivityLogsState extends State<ActivityLogs> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Activity Logs"),
+        title: const Text(
+          "Activity Logs",
+          style: TextStyle(
+            fontFamily: 'Roboto',
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+            color: Color.fromARGB(255, 27, 211, 224),
+          ),
+        ),
         backgroundColor: const Color.fromARGB(255, 5, 45, 90),
-        foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+        foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
         actions: [
           Builder(
@@ -152,8 +161,7 @@ class _ActivityLogsState extends State<ActivityLogs> {
         ],
       ),
       endDrawer: const SideMenu(), // Using the extracted drawer
-      body: 
-      Container(
+      body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage("assets/images/tectags_bg.png"),
@@ -168,7 +176,14 @@ class _ActivityLogsState extends State<ActivityLogs> {
               padding: const EdgeInsets.only(left: 24, top: 12, bottom: 0),
               child: Row(
                 children: [
-                  const Text("Show All Users' Logs"),
+                  Text(
+                    "Show All Users' Logs",
+                    style: TextStyle(
+                      color:
+                          Colors.white, // Change this to any color you prefer
+                      fontSize: 15, // Optional: Adjust the font size
+                    ),
+                  ),
                   const SizedBox(width: 10),
                   Switch(
                     value: showAllLogs,
@@ -182,13 +197,14 @@ class _ActivityLogsState extends State<ActivityLogs> {
                     activeTrackColor: Colors.green,
                     inactiveThumbColor: Colors.white,
                     inactiveTrackColor:
-                        Colors.black54.withAlpha((0.25 * 255).toInt()),
+                        const Color.fromARGB(255, 243, 243, 243).withAlpha((0.25 * 255).toInt()),
                   ),
                 ],
               ),
             ),
 
-            // ✅ Scrollable content stays below
+            const SizedBox(width: 50),
+            // ✅ White Table for Logs
             Expanded(
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -198,23 +214,118 @@ class _ActivityLogsState extends State<ActivityLogs> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       DataTable(
-                        columns: const [
-                          DataColumn(label: Text('User ID')),
-                          DataColumn(label: Text('Full Name')),
-                          DataColumn(label: Text('Action')),
-                          DataColumn(label: Text('Total Sold')),
-                          DataColumn(label: Text('Timestamp')),
+                        dataRowHeight: 60, // Adjust row height
+                        headingRowHeight: 56, // Adjust header row height
+                        columnSpacing: 20, // Adjust space between columns
+                        decoration: BoxDecoration(
+                          color: Colors
+                              .white, // Set white background color for the table
+                          borderRadius: BorderRadius.circular(
+                              15), // Rounded corners for the table
+                          boxShadow: [
+                            // Optional: Add shadow for a 3D effect
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.3),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        columns: [
+                          DataColumn(
+                            label: Text(
+                              'User ID',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              'Full Name',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              'Action',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              'Total Sold',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              'Timestamp',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
                         ],
                         rows: activityLogs.map((log) {
-                          return DataRow(cells: [
-                            DataCell(Text(log.userId)),
-                            DataCell(Text(log.fullName)),
-                            DataCell(Text(log.action)),
-                            DataCell(Text(log.countedAmount == 0
-                                ? ' '
-                                : log.countedAmount.toString())),
-                            DataCell(Text(log.timestamp)),
-                          ]);
+                          return DataRow(
+                            cells: [
+                              DataCell(
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Text(log.userId),
+                                ),
+                              ),
+                              DataCell(
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Text(log.fullName),
+                                ),
+                              ),
+                              DataCell(
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Text(log.action),
+                                ),
+                              ),
+                              DataCell(
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Text(log.countedAmount == 0
+                                      ? ' '
+                                      : log.countedAmount.toString()),
+                                ),
+                              ),
+                              DataCell(
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Text(log.timestamp),
+                                ),
+                              ),
+                            ],
+                          );
                         }).toList(),
                       ),
                     ],
@@ -227,20 +338,22 @@ class _ActivityLogsState extends State<ActivityLogs> {
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF052D5A),
-                  // textStyle: TextStyle(fontSize: 16),
+                  backgroundColor: const Color.fromARGB(255, 22, 165, 221),
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 118, vertical: 15),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    side: const BorderSide(
-                      color: Colors.white,
-                      width: 2,
-                    ),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 onPressed: () {},
-                child: const Text("Generate Reports"),
+                child: const Text(
+                  'Generate Reports',
+                  style: TextStyle(
+                    fontFamily: 'Roboto',
+                    fontSize: 15.0,
+                  ),
+                ),
               ),
             ),
           ],
