@@ -349,6 +349,7 @@ class _ActivityLogsState extends State<ActivityLogs> {
                 onPressed: () {},
                 child: const Text(
                   'Generate Reports',
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'Roboto',
                     fontSize: 15.0,
@@ -359,6 +360,6 @@ class _ActivityLogsState extends State<ActivityLogs> {
           ],
         ),
       ),
-    );
+      );
   }
 }
