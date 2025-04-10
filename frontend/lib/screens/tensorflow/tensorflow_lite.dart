@@ -1,52 +1,175 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart';
+import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:tectags/logic/tensorflow/photo_viewer.dart';
+import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart';
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 import 'dart:ui' as ui;
 
-void main() {
-  runApp(const MyHomePage());
-}
+import 'package:tectags/screens/navigation/side_menu.dart';
+import 'package:tectags/services/api.dart';
+import 'package:tectags/services/shared_prefs_service.dart';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
- 
+class TensorflowLite extends StatefulWidget {
+  const TensorflowLite({super.key});
+
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<TensorflowLite> createState() => _TensorflowLiteState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _TensorflowLiteState extends State<TensorflowLite> {
+  ScreenshotController screenshotController = ScreenshotController();
+  // Image galler and camera variables
+  File? _selectedImage;
   late ImagePicker imagePicker;
-  File? _image;
-  ui.Image? image_for_drawing;
+  // EXPLANATION about ui.Image:
+  // In Flutter, ui.Image (from dart:ui) is an in-memory representation of an image that allows direct manipulation in a Canvas via CustomPainter. Unlike Image.file or Image.asset, which are widgets for displaying images in the UI, ui.Image is specifically used for low-level drawing operations.
+  ui.Image? imageForDrawing;
+
   // initialize object detector
   late ObjectDetector objectDetector;
+  // detected objects array
+  List<DetectedObject> objects = [];
+  List<Rect> editableBoundingBoxes = []; // Editable list of bounding boxes
+  bool isAddingBox = false;
+  bool isRemovingBox = false;
+
+  // FOR LABELS
+  String timestamp = "";
+  // variable for whatever is typed in the TextField
+  final TextEditingController titleController = TextEditingController();
+
+  // FOR THE DROPDOWN
+  List<String> stockList = [];
+  String? _selectedStock;
 
   @override
   void initState() {
     super.initState();
+    loadStockData();
     imagePicker = ImagePicker();
     // USE DEFAULT PRETRAINED MODEL: load initial pretrained object detector
-    // final options = ObjectDetectorOptions(
-    //     mode: DetectionMode.single,
-    //     classifyObjects: true,
-    //     multipleObjects: true);
-    // objectDetector = ObjectDetector(options: options);
-    loadModel();
+    // EXPLANATION: https://pub.dev/packages/google_mlkit_object_detection#create-an-instance-of-objectdetector
+    final options = ObjectDetectorOptions(
+        mode: DetectionMode.single,
+        classifyObjects: true,
+        multipleObjects: true);
+    // initialize object detector inside initState (REQUIRED)
+    objectDetector = ObjectDetector(options: options);
+    // loadModel();
   }
 
-  loadModel() async {
-    final modelPath = await getModelPath('assets/ml/fish.tflite');
-    final options = LocalObjectDetectorOptions(
-      mode: DetectionMode.single,
-      modelPath: modelPath,
-      classifyObjects: true,
-      multipleObjects: true,
-    );
-    objectDetector = ObjectDetector(options: options);
+  // SEND OBJECT COUNT TO THE BACKEND
+  void logObjectCount(String userId, String item, int countedAmount) async {
+    var response = await API.logStockCurrentCount(userId, item, countedAmount);
+
+    if (response != null) {
+      debugPrint("✅ OBJECT COUNT LOGGED successfully: $response");
+    } else {
+      debugPrint("❌ Failed to log object count.");
+    }
+  }
+
+  void updateDatabaseWithObjectCount(String userId, String item) {
+    debugPrint(
+        "📌 Updating Database: User = $userId, Item = $item, Count = ${editableBoundingBoxes.length}");
+    int detectedCount = editableBoundingBoxes.length;
+    logObjectCount(userId, item, detectedCount);
+  }
+
+  // STOCK DATA FOR THE DROPDOWN
+  Future<void> loadStockData() async {
+    var fetchedStocks = await API.fetchStockFromMongoDB();
+
+    if (fetchedStocks != null) {
+      setState(() {
+        stockList = fetchedStocks.keys.toList();
+      });
+    }
+  }
+
+  Future<void> loadImageForDrawing(File imageFile) async {
+    final data = await imageFile.readAsBytes();
+    final codec = await ui.instantiateImageCodec(data);
+    final frame = await codec.getNextFrame();
+    imageForDrawing = frame.image;
+  }
+
+  // OBJECT DETECTION
+  // loadModel() async {
+  //   final modelPath = await getModelPath('assets/ml/checkpoint_epoch_1.tflite');
+  //   final options = LocalObjectDetectorOptions(
+  //     mode: DetectionMode.single,
+  //     modelPath: modelPath,
+  //     classifyObjects: true,
+  //     multipleObjects: true,
+  //   );
+  //   objectDetector = ObjectDetector(options: options);
+  // }
+
+  /// **Save Screenshot to Gallery**
+  /// THIS WOULD ALSO SAVE COUNTED OBJECT TO THE DATABASE (WILL SHOW IN THE ACTIVITY LOGS)
+  Future<void> saveImage(BuildContext context) async {
+    try {
+      final Uint8List? screenShot = await screenshotController.capture();
+      if (!mounted) return;
+
+      if (screenShot == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to capture screenshot")),
+        );
+        return;
+      }
+
+      final result = await ImageGallerySaverPlus.saveImage(
+        screenShot,
+        name: "screenshot_${DateTime.now().millisecondsSinceEpoch}.png",
+      );
+
+      if (result["isSuccess"]) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Image saved in gallery")),
+        );
+
+        // 🔥 Log detected object count to the backend
+        if (_selectedStock != null) {
+          debugPrint("⚠️ No stock selected, skipping log.");
+          String? userId = await SharedPrefsService.getUserId();
+
+          if (userId == null) {
+            debugPrint("❌ userId is null, cannot log object count.");
+            return; // Exit the function early
+          }
+
+          var response = await API.logStockCurrentCount(
+            userId,
+            _selectedStock!,
+            editableBoundingBoxes.length, // Detected count
+          );
+
+          if (response != null) {
+            debugPrint("✅ Object count logged: $response");
+          } else {
+            debugPrint("❌ Failed to log object count.");
+          }
+        } else {
+          debugPrint("⚠️ No stock selected, skipping log.");
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Image not saved")),
+        );
+      }
+    } catch (e) {
+      debugPrint("Error saving image: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("An error occurred while saving")),
+      );
+    }
   }
 
   Future<String> getModelPath(String asset) async {
@@ -61,189 +184,314 @@ class _MyHomePageState extends State<MyHomePage> {
     return file.path;
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  _imgFromCamera() async {
-    XFile? pickedFile = await imagePicker.pickImage(source: ImageSource.camera);
-    if (pickedFile != null) {
-      _image = File(pickedFile.path);
-      doObjectDetection();
-    }
-  }
-
-  _imgFromGallery() async {
-    XFile? pickedFile =
-        await imagePicker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      _image = File(pickedFile.path);
-      doObjectDetection();
-    }
-  }
-
-  // detected objects array
-  List<DetectedObject> objects = [];
   doObjectDetection() async {
-    if (_image == null) {
+    if (_selectedImage == null) {
       debugPrint("No image selected!");
       return;
     }
 
-    try {
-      debugPrint("Starting object detection...");
-      InputImage inputImage = InputImage.fromFile(_image!);
-      objects = await objectDetector.processImage(inputImage);
-      // debugPrint("Objects detected: ${objects.length}");
+    debugPrint("Starting object detection...");
+    InputImage inputImage = InputImage.fromFile(_selectedImage!);
 
-      // Print shape of the objects list (dimensions of the list of detected objects)
-      debugPrint("SHAPE OF DETECTED OBJECTS: ${objects.length}");
+    // Get detected objects
+    List<DetectedObject> detectedObjects =
+        await objectDetector.processImage(inputImage);
+    debugPrint("Objects detected: ${detectedObjects.length}");
 
-      for (DetectedObject detectedObject in objects) {
-        final rect = detectedObject.boundingBox;
-        final trackingId = detectedObject.trackingId;
-
-        // Print bounding box details
-        debugPrint("BOUNDING BOX: $rect");
-
-        // Print the shape of the label array for each object
-        debugPrint("NUMBER OF LABELS: ${detectedObject.labels.length}");
-
-        for (Label label in detectedObject.labels) {
-          debugPrint(
-              'RESPONSE: ${label.text} ${label.confidence} $rect $trackingId!!!');
-        }
-      }
-
-      setState(() {
-        _image;
-      });
-      drawRectanglesAroundObjects();
-    } catch (e) {
-      debugPrint("Detection error: $e");
+    // debugPrint all bounding boxes BEFORE adding them to the list
+    debugPrint("\nBounding Boxes BEFORE Processing:");
+    for (int i = 0; i < detectedObjects.length; i++) {
+      final rect = detectedObjects[i].boundingBox;
+      debugPrint(
+          "Box $i: Left=${rect.left}, Top=${rect.top}, Right=${rect.right}, Bottom=${rect.bottom}");
     }
+
+    setState(() {
+      objects = detectedObjects;
+      editableBoundingBoxes = detectedObjects
+          .map((obj) => obj.boundingBox)
+          .toList(); // ✅ Ensure ML-detected boxes are editable
+      debugPrint("📌 Detected Count: ${editableBoundingBoxes.length}");
+    });
+
+    // debugPrint bounding boxes AFTER being added to editableBoundingBoxes
+    debugPrint("\nBounding Boxes AFTER Processing:");
+    for (int i = 0; i < editableBoundingBoxes.length; i++) {
+      final rect = editableBoundingBoxes[i];
+      debugPrint(
+          "Editable Box $i: Left=${rect.left}, Top=${rect.top}, Right=${rect.right}, Bottom=${rect.bottom}");
+    }
+
+    drawRectanglesAroundObjects();
   }
 
   Future<void> drawRectanglesAroundObjects() async {
-    if (_image == null) return;
+    if (_selectedImage == null) return;
 
     // Read image bytes
-    Uint8List imageBytes = await _image!.readAsBytes();
+    Uint8List imageBytes = await _selectedImage!.readAsBytes();
 
     // Decode image
     ui.Image decodedImage = await decodeImageFromList(imageBytes);
 
     setState(() {
-      image_for_drawing = decodedImage; // Now image is a ui.Image
+      imageForDrawing = decodedImage; // Now image is a ui.Image
+    });
+  }
+  // END
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  imageGallery() async {
+    XFile? pickedFile =
+        await imagePicker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      _selectedImage = File(pickedFile.path);
+      setState(() {
+        _selectedImage;
+        timestamp = DateTime.now().toString(); // Store timestamp
+      });
+      doObjectDetection();
+    }
+  }
+
+  useCamera() async {
+    XFile? pickedFile = await imagePicker.pickImage(source: ImageSource.camera);
+
+    if (pickedFile != null) {
+      _selectedImage = File(pickedFile.path);
+      setState(() {
+        _selectedImage;
+        timestamp = DateTime.now().toString(); // Store timestamp
+      });
+      doObjectDetection();
+    }
+  }
+
+  void reset() {
+    setState(() {
+      _selectedImage = null;
+      imageForDrawing = null; // Clear this to prevent null check errors
+      objects = []; // Also clear detected objects
+      isAddingBox = false;
+      titleController.clear();
+      timestamp = "";
+    });
+  }
+
+  void toggleAddingMode() {
+    setState(() {
+      isAddingBox = !isAddingBox;
+      if (isAddingBox) {
+        isRemovingBox = false; // Disable removing mode
+      }
+    });
+  }
+
+  void toggleRemovingMode() {
+    setState(() {
+      isRemovingBox = !isRemovingBox;
+      if (isRemovingBox) {
+        isAddingBox = false; // Disable adding mode
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-          body: Container(
-        // decoration: const BoxDecoration(
-        //   image: DecorationImage(
-        //       image: AssetImage('images/bg.jpg'), fit: BoxFit.cover),
-        // ),
-        child: Column(
-          children: [
-            const SizedBox(
-              width: 100,
-            ),
-            Container(
-              margin: const EdgeInsets.only(top: 100),
-              child: Stack(children: <Widget>[
-                Center(
-                  child: ElevatedButton(
-                    onPressed: _imgFromGallery,
-                    onLongPress: _imgFromCamera,
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent),
-                    child: Container(
-                      width: 350,
-                      height: 350,
-                      margin: const EdgeInsets.only(
-                        top: 45,
-                      ),
-                      child: image_for_drawing != null
-                          ? Center(
-                              child: FittedBox(
-                                child: SizedBox(
-                                  width:
-                                      image_for_drawing?.width.toDouble() ?? 0,
-                                  height:
-                                      image_for_drawing?.height.toDouble() ?? 0,
-                                  child: CustomPaint(
-                                    painter: ObjectPainter(
-                                        objectList: objects,
-                                        imageFile: image_for_drawing),
-                                  ),
-                                ),
-                              ),
-                            )
-                          : Container(
-                              color: Colors.pinkAccent,
-                              width: 350,
-                              height: 350,
-                              child: const Icon(
-                                Icons.camera_alt,
-                                color: Colors.black,
-                                size: 53,
-                              ),
-                            ),
+    if (imageForDrawing == null) {
+      debugPrint("Error: Image for drawing is null.");
+    }
+    return Scaffold(
+        appBar: AppBar(
+          title: Row(mainAxisSize: MainAxisSize.min, children: [
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Tec',
+                    style: TextStyle(
+                      color: const Color.fromARGB(255, 27, 211, 224),
+                      fontSize: 25.0,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ),
-              ]),
+                  TextSpan(
+                    text: 'Tags',
+                    style: TextStyle(
+                      color: const Color.fromARGB(255, 29, 118, 235),
+                      fontSize: 25.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: 2),
+            Image.asset(
+              'assets/images/tectags_icon.png',
+              height: 40.0,
+            ),
+          ]),
+          backgroundColor: const Color.fromARGB(255, 5, 45, 90),
+          foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+          automaticallyImplyLeading: false,
+          actions: [
+            Builder(
+              builder: (context) => IconButton(
+                icon: Icon(Icons.menu),
+                onPressed: () {
+                  Scaffold.of(context).openEndDrawer();
+                },
+              ),
             ),
           ],
         ),
-      )),
-    );
-  }
-}
-
-class ObjectPainter extends CustomPainter {
-  List<DetectedObject> objectList;
-  dynamic imageFile;
-  ObjectPainter({required this.objectList, @required this.imageFile});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (imageFile != null) {
-      canvas.drawImage(imageFile, Offset.zero, Paint());
-    }
-    Paint paint = Paint();
-    paint.color = Colors.green;
-    paint.style = PaintingStyle.stroke;
-    paint.strokeWidth = 6;
-
-    for (DetectedObject rectangle in objectList) {
-      canvas.drawRect(rectangle.boundingBox, paint);
-      var list = rectangle.labels;
-      for (Label label in list) {
-        debugPrint("${label.text}   ${label.confidence.toStringAsFixed(2)}");
-        TextSpan span = TextSpan(
-            text: "${label.text} ${label.confidence.toStringAsFixed(2)}",
-            style: const TextStyle(fontSize: 25, color: Colors.blue));
-        TextPainter tp = TextPainter(
-            text: span,
-            textAlign: TextAlign.left,
-            textDirection: TextDirection.ltr);
-        tp.layout();
-        tp.paint(canvas,
-            Offset(rectangle.boundingBox.left, rectangle.boundingBox.top));
-        break;
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return true;
+        endDrawer: const SideMenu(),
+        body: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/images/tectags_bg.png"),
+              fit: BoxFit
+                  .cover,
+            ),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Container(
+                  width: double
+                      .infinity,
+                  margin: const EdgeInsets.fromLTRB(22, 40, 22, 42),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: const Color.fromARGB(255, 223, 223, 223),
+                  ),
+                  child: imageForDrawing == null
+                      ? Icon(
+                          Icons.add_photo_alternate_outlined,
+                          size: 120,
+                          color: Colors.grey[500],
+                        )
+                      : Screenshot(
+                          controller: screenshotController, 
+                          child: PhotoViewer(
+                            imageFile: _selectedImage!,
+                            imageForDrawing: imageForDrawing,
+                            editableBoundingBoxes: editableBoundingBoxes,
+                            onNewBox: (Rect box) {
+                              setState(() {
+                                editableBoundingBoxes.add(box);
+                              });
+                            },
+                            onRemoveBox: (int index) {
+                              setState(() {
+                                editableBoundingBoxes.removeAt(index);
+                              });
+                            },
+                            isAddingBox: isAddingBox,
+                            isRemovingBox: isRemovingBox,
+                            timestamp: timestamp,
+                            titleController: titleController,
+                            onBoxAdded: () {
+                              setState(() {
+                                isAddingBox =
+                                    false;
+                              });
+                            },
+                          ),
+                        ),
+                ),
+              ),
+              if (_selectedImage == null) ...[
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    textStyle: const TextStyle(fontSize: 16),
+                    backgroundColor: const Color.fromARGB(255, 22, 165, 221),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 95, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: useCamera,
+                  icon: const Icon(Icons.camera_alt),
+                  label: const Text("Capture Photo"),
+                ),
+              ],
+              const SizedBox(height: 15.0),
+              if (_selectedImage == null) ...[
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    textStyle: const TextStyle(fontSize: 16),
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xFF052D5A),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 84, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: imageGallery,
+                  icon: const Icon(Icons.image),
+                  label: const Text("Choose an Image"),
+                ),
+                SizedBox(height: 15.0),
+              ],
+              if (_selectedImage != null) ...[
+                Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    // DROPDOWN THAT FETCHES STOCKS FROM MONGODB
+                    child: DropdownButtonFormField<String>(
+                      value: _selectedStock,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _selectedStock = newValue!;
+                          titleController.text = _selectedStock!;
+                        });
+                        debugPrint("✅ Selected Stock: $_selectedStock");
+                      },
+                      items: stockList
+                          .map<DropdownMenuItem<String>>((String stock) {
+                        return DropdownMenuItem<String>(
+                          value: stock,
+                          child: Text(stock),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                        hintText: "Select a stock",
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(),
+                      ),
+                    )),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(icon: Icon(Icons.refresh), onPressed: reset),
+                    IconButton(
+                      icon: Icon(Icons.add),
+                      onPressed: toggleAddingMode,
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close),
+                      onPressed: toggleRemovingMode,
+                    ),
+                    IconButton(
+                        icon: Icon(Icons.save),
+                        onPressed: () => saveImage(context)),
+                  ],
+                ),
+              ]
+            ],
+          ),
+        ));
   }
 }

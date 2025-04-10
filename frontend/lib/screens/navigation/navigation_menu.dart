@@ -76,7 +76,9 @@ class NavigationMenu extends StatelessWidget {
                 label: "Inventory",
               ),
               NavigationDestination(
-                icon: Icon(Icons.list_alt),
+                icon: const Icon(Icons.list_alt, color: Colors.grey),
+                selectedIcon:
+                    const Icon(Icons.list_alt, color: Colors.white),
                 label: "Activity Logs",
               ),
             ],
@@ -91,6 +93,6 @@ class NavigationController extends GetxController {
   final Rx<int> selectedIndex = 0.obs;
 
   // final screens = [TensorflowLite(), Crud()];
-  // final screens = [TensorflowLite(), StockManager(), ActivityLogs()];
-  final screens = [MyHomePage(), StockManager(), ActivityLogs()];
+  final screens = [TensorflowLite(), StockManager(), ActivityLogs()];
+  // final screens = [MyHomePage(), StockManager(), ActivityLogs()];
 }
