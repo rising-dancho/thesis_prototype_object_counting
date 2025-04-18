@@ -179,7 +179,7 @@ app.post('/api/count_objects', async (req, res) => {
       userId,
       action: `Updated count for ${stockName}`,
       stockId: stock._id,
-      countedAmount: activity.countedAmount ?? 0, // ✅ Ensure correct field
+      countedAmount: sold, // ✅ THIS IS WHATS CAUSING THE ERROR FOR THE COUNTEDAMOUNT TO NOT SHOW IN ACTIVITY LOGS
     });
 
     res.status(200).json({

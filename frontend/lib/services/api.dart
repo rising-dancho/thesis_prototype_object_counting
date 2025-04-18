@@ -152,7 +152,7 @@ class API {
   }
 
   static Future<Map<String, dynamic>?> logStockCurrentCount(
-      String userId, String stockItem, int sold) async {
+    String userId, String stockItem, int sold) async {
     var url = Uri.parse("${baseUrl}count_objects");
 
     Map<String, dynamic> requestBody = {
