@@ -92,5 +92,5 @@ class NavigationController extends GetxController {
 
   // final screens = [TensorflowLite(), Crud()];
   final screens = [PytorchMobile(), StockManager(), ActivityLogs()];
-  // final screens = [MyHomePage(), StockManager(), ActivityLogs()];
+  // final screens = [RunModelByImageDemo(), StockManager(), ActivityLogs()];
 }

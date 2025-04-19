@@ -1,219 +1,120 @@
 import 'dart:io';
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:photo_view/photo_view.dart';
 
 class PhotoViewer extends StatefulWidget {
-  final String timestamp;
   final File imageFile;
-  final ui.Image? imageForDrawing; // ✅ Add this parameter
   final List<Rect> editableBoundingBoxes;
-  final Function(Rect) onNewBox;
-  final Function(int) onRemoveBox;
-  final bool isAddingBox;
   final bool isRemovingBox;
-  final TextEditingController titleController;
+  final void Function(int index) onRemoveBox;
+  final void Function(int index, Rect newBox) onMoveBox;
+  final void Function(Rect newBox)? onNewBox; // Optional if adding a new box
+  final bool isAddingBox; // Optional if you're adding boxes
 
   const PhotoViewer({
-    super.key,
     required this.imageFile,
-    required this.imageForDrawing,
     required this.editableBoundingBoxes,
-    required this.onNewBox,
-    required this.onRemoveBox,
-    required this.isAddingBox,
     required this.isRemovingBox,
-    required this.timestamp,
-    required this.titleController,
+    required this.onRemoveBox,
+    required this.onMoveBox,
+    this.onNewBox,
+    this.isAddingBox = false,
+    super.key,
   });
 
   @override
-  State<PhotoViewer> createState() => _PhotoViewerState();
+  _PhotoViewerState createState() => _PhotoViewerState();
 }
 
 class _PhotoViewerState extends State<PhotoViewer> {
-  late List<Rect> boundingBoxes;
+  // Track the initial offset when dragging starts
+  late Rect initialBox;
+  late Offset dragStartPosition;
   int? draggingBoxIndex;
-  Offset? dragStart;
-
-  // FOR LABELS
-  late String timestamp;
-
-  double scaleX = 1.0; // ✅ Scaling factors
-  double scaleY = 1.0;
-  double offsetX = 0.0; // ✅ Offset for centering image
-  double offsetY = 0.0;
-
-  @override
-  void initState() {
-    super.initState();
-    boundingBoxes = List.from(widget.editableBoundingBoxes);
-    timestamp = widget.timestamp; // ✅ Initialize from widget
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => _calculateScaling()); // ✅ Run after layout
-  }
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        final double factorX = constraints.maxWidth;
+        final double factorY = constraints.maxHeight;
+
         return Stack(
           children: [
-            /// Background Image Viewer
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: PhotoView(
-                imageProvider: FileImage(widget.imageFile),
-                minScale: PhotoViewComputedScale.contained,
-                maxScale: PhotoViewComputedScale.covered * 2.0,
-                backgroundDecoration: BoxDecoration(color: Colors.white),
-              ),
+            Positioned.fill(
+              child: Image.file(widget.imageFile, fit: BoxFit.fill),
             ),
+            ...widget.editableBoundingBoxes.asMap().entries.map((entry) {
+              final int index = entry.key;
+              final Rect box = entry.value;
 
-            /// Bounding Boxes Over the Image
-            ...boundingBoxes.asMap().entries.map((entry) {
-              int index = entry.key;
-              Rect box = entry.value;
+              // Apply scaling
+              final double left = box.left * factorX;
+              final double top = box.top * factorY;
+              final double width = box.width * factorX;
+              final double height = box.height * factorY;
 
               return Positioned(
-                left: box.left * scaleX + offsetX,
-                top: box.top * scaleY + offsetY,
-                width: box.width * scaleX,
-                height: box.height * scaleY,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    GestureDetector(
-                      onPanStart: (details) {
-                        setState(() {
-                          draggingBoxIndex = index;
-                          dragStart = details.globalPosition;
-                        });
-                      },
-                      onPanUpdate: (details) {
-                        if (draggingBoxIndex != null && dragStart != null) {
-                          _moveBox(draggingBoxIndex!, details.globalPosition);
-                        }
-                      },
-                      onPanEnd: (_) {
-                        setState(() {
-                          draggingBoxIndex = null;
-                          dragStart = null;
-                        });
-                      },
-                      onTap: () {
-                        if (widget.isRemovingBox) {
-                          setState(() {
-                            boundingBoxes.removeAt(index);
-                            widget.onRemoveBox(index);
-                          });
-                        }
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.green, width: 2),
-                          color: Colors.green.withAlpha((0.4 * 255)
-                              .toInt()), // Change this to your preferred highlight color,
-                        ),
-                      ),
+                left: left,
+                top: top,
+                width: width,
+                height: height,
+                child: GestureDetector(
+                  onTap: () {
+                    if (widget.isRemovingBox) {
+                      widget.onRemoveBox(index); // Remove box on tap if `isRemovingBox` is true
+                    }
+                  },
+                  onPanStart: (details) {
+                    // Save the initial position of the bounding box when drag starts
+                    setState(() {
+                      draggingBoxIndex = index;
+                      initialBox = box;
+                      dragStartPosition = details.localPosition;
+                    });
+                  },
+                  onPanUpdate: (details) {
+                    if (draggingBoxIndex == null) return;
+
+                    final dx = details.localPosition.dx - dragStartPosition.dx;
+                    final dy = details.localPosition.dy - dragStartPosition.dy;
+
+                    final updatedLeft = initialBox.left + dx / factorX;
+                    final updatedTop = initialBox.top + dy / factorY;
+
+                    final updatedBox = Rect.fromLTWH(
+                      updatedLeft,
+                      updatedTop,
+                      box.width,
+                      box.height,
+                    );
+
+                    widget.onMoveBox(index, updatedBox); // Update box position
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.red, width: 2),
                     ),
-                    Positioned(
-                      child: Text(
-                        '${index + 1}', // Display box number
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               );
             }),
 
-            /// Add a New Bounding Box
-            if (widget.isAddingBox)
-              Positioned.fill(
+            // Optionally, if you're adding a new box
+            if (widget.isAddingBox && widget.onNewBox != null)
+              Positioned(
+                left: 50, // Example for new box placement (can be dynamic)
+                top: 50,
+                width: 100, // Example width
+                height: 100, // Example height
                 child: GestureDetector(
-                  onTapDown: (details) {
-                    setState(() {
-                      double boxWidth = 100, boxHeight = 100;
-
-                      if (boundingBoxes.isNotEmpty) {
-                        // Copy size from first box
-                        boxWidth = boundingBoxes.first.width;
-                        boxHeight = boundingBoxes.first.height;
-                      }
-
-                      final newBox = Rect.fromLTWH(
-                        ((details.localPosition.dx - offsetX) / scaleX) -
-                            (boxWidth / 2),
-                        ((details.localPosition.dy - offsetY) / scaleY) -
-                            (boxHeight / 2),
-                        boxWidth,
-                        boxHeight,
-                      );
-
-                      boundingBoxes.add(newBox);
-                      widget.onNewBox(newBox);
-                    });
+                  onTap: () {
+                    final newBox = Rect.fromLTWH(50, 50, 100, 100); // Example new box
+                    widget.onNewBox!(newBox); // Call the `onNewBox` callback
                   },
-                  child: Container(color: Colors.transparent),
-                ),
-              ),
-
-            /// **Title (Upper Left)**
-            if (widget.titleController.text.isNotEmpty)
-              Positioned(
-                top: 10, // Adjust as needed
-                left: 10,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Color.fromRGBO(0, 0, 0, 0.7),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    widget.titleController.text, // Display input text
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                ),
-              ),
-
-            /// **Total Bounding Boxes Counter (Upper Right)**
-            Positioned(
-              top: 10,
-              right: 10,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.black.withAlpha((0.7 * 255)
-                      .toInt()), // Change this to your preferred highlight color,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'Total Count: ${boundingBoxes.length}',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
-              ),
-            ),
-
-            /// **Timestamp (Lower Left)**
-            if (timestamp.isNotEmpty)
-              Positioned(
-                bottom: 10,
-                left: 10,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withAlpha((0.7 * 255)
-                        .toInt()), // Change this to your preferred highlight color,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    widget.timestamp, // ✅ Display timestamp
-                    style: TextStyle(color: Colors.white, fontSize: 14),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.blue, width: 2),
+                    ),
                   ),
                 ),
               ),
@@ -221,56 +122,5 @@ class _PhotoViewerState extends State<PhotoViewer> {
         );
       },
     );
-  }
-
-  /// Move a bounding box by the drag delta
-  void _moveBox(int index, Offset newGlobalPosition) {
-    if (dragStart == null) return;
-    Offset delta = newGlobalPosition - dragStart!;
-
-    setState(() {
-      boundingBoxes[index] =
-          boundingBoxes[index].translate(delta.dx / scaleX, delta.dy / scaleY);
-      dragStart = newGlobalPosition;
-    });
-  }
-
-  void _calculateScaling() {
-    final renderBox = context.findRenderObject() as RenderBox?;
-    if (renderBox != null && widget.imageForDrawing != null) {
-      final originalWidth = widget.imageForDrawing!.width.toDouble();
-      final originalHeight = widget.imageForDrawing!.height.toDouble();
-
-      final displayedWidth = renderBox.size.width;
-      final displayedHeight = renderBox.size.height;
-
-      // Maintain aspect ratio
-      double aspectRatio = originalWidth / originalHeight;
-      double viewAspectRatio = displayedWidth / displayedHeight;
-
-      if (viewAspectRatio > aspectRatio) {
-        // Image is constrained by height
-        scaleY = displayedHeight / originalHeight;
-        scaleX = scaleY;
-        offsetX = (displayedWidth - (originalWidth * scaleX)) / 2;
-        offsetY = 0;
-      } else {
-        // Image is constrained by width
-        scaleX = displayedWidth / originalWidth;
-        scaleY = scaleX;
-        offsetY = (displayedHeight - (originalHeight * scaleY)) / 2;
-        offsetX = 0;
-      }
-
-      setState(() {
-        scaleX = scaleX;
-        scaleY = scaleY;
-        offsetX = offsetX;
-        offsetY = offsetY;
-      });
-
-      debugPrint(
-          "ScaleX: $scaleX, ScaleY: $scaleY, OffsetX: $offsetX, OffsetY: $offsetY");
-    }
   }
 }

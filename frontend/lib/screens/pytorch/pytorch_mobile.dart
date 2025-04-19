@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:tectags/logic/tensorflow/photo_viewer.dart';
-import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart';
+// import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
@@ -17,6 +17,9 @@ import 'package:saver_gallery/saver_gallery.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:tectags/services/shared_prefs_service.dart';
+
+// PYTORCH
+import 'package:pytorch_lite/pytorch_lite.dart';
 
 class PytorchMobile extends StatefulWidget {
   const PytorchMobile({super.key});
@@ -34,14 +37,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
   // In Flutter, ui.Image (from dart:ui) is an in-memory representation of an image that allows direct manipulation in a Canvas via CustomPainter. Unlike Image.file or Image.asset, which are widgets for displaying images in the UI, ui.Image is specifically used for low-level drawing operations.
   ui.Image? imageForDrawing;
 
-  // initialize object detector
-  late ObjectDetector objectDetector;
-  // detected objects array
-  List<DetectedObject> objects = [];
-  List<Rect> editableBoundingBoxes = []; // Editable list of bounding boxes
-  bool isAddingBox = false;
-  bool isRemovingBox = false;
-
   // FOR LABELS
   String timestamp = "";
   // variable for whatever is typed in the TextField
@@ -51,22 +46,100 @@ class _PytorchMobileState extends State<PytorchMobile> {
   List<String> stockList = [];
   String? _selectedStock;
 
+  // PYTORCH OBJECT DETECTION
+  // initialize object detector
+  late ModelObjectDetection _objectModelYoloV8;
+  List<Rect> editableBoundingBoxes = []; // Editable list of bounding boxes
+  bool isAddingBox = false;
+  bool isRemovingBox = false;
+  // for inference speed checking
+  String? textToShow;
+
   @override
   void initState() {
     super.initState();
     loadStockData();
     imagePicker = ImagePicker();
-    // USE DEFAULT PRETRAINED MODEL: load initial pretrained object detector
-    // EXPLANATION: https://pub.dev/packages/google_mlkit_object_detection#create-an-instance-of-objectdetector
-    final options = ObjectDetectorOptions(
-        mode: DetectionMode.single,
-        classifyObjects: true,
-        multipleObjects: true);
-    // initialize object detector inside initState (REQUIRED)
-    objectDetector = ObjectDetector(options: options);
-    // loadModel();
     _requestPermission(); // [gain permission]
+    loadModel();
   }
+
+  Future loadModel() async {
+    String pathObjectDetectionModelYolov8 = "assets/models/best.torchscript";
+    String pathCustomLabels = "assets/labels/custom_labels.txt";
+
+    try {
+      _objectModelYoloV8 = await PytorchLite.loadObjectDetectionModel(
+        pathObjectDetectionModelYolov8,
+        7,
+        640,
+        640,
+        labelPath: pathCustomLabels,
+        objectDetectionModelType: ObjectDetectionModelType.yolov8,
+      );
+    } catch (e) {
+      if (e is PlatformException) {
+        print("only supported for android, Error is $e");
+      } else {
+        print("Error is $e");
+      }
+    }
+  }
+
+  Future doObjectDetection() async {
+    if (_selectedImage == null) {
+      debugPrint("No image selected!");
+      return;
+    }
+
+    debugPrint("Running YOLOv8 object detection...");
+
+    Stopwatch stopwatch = Stopwatch()..start();
+    debugPrint('Detection completed in ${stopwatch.elapsed.inMilliseconds} ms');
+    List<ResultObjectDetection?> objDetect =
+        await _objectModelYoloV8.getImagePrediction(
+      await _selectedImage!.readAsBytes(),
+      minimumScore: 0.1,
+      iOUThreshold: 0.3,
+    );
+    textToShow = inferenceTimeAsString(stopwatch);
+
+    debugPrint('object executed in ${stopwatch.elapsed.inMilliseconds} ms');
+    for (var element in objDetect) {
+      if (element != null) {
+        debugPrint({
+          "score": element.score,
+          "className": element.className,
+          "class": element.classIndex,
+          "rect": {
+            "left": element.rect.left,
+            "top": element.rect.top,
+            "width": element.rect.width,
+            "height": element.rect.height,
+            "right": element.rect.right,
+            "bottom": element.rect.bottom,
+          },
+        }.toString());
+      }
+    }
+
+    setState(() {
+      editableBoundingBoxes = objDetect
+          .where((e) => e != null)
+          .map((e) => Rect.fromLTWH(
+                e!.rect.left,
+                e.rect.top,
+                e.rect.width,
+                e.rect.height,
+              ))
+          .toList();
+      debugPrint("📌 DETECTED COUNT: ${editableBoundingBoxes.length}");
+    });
+    drawRectanglesAroundObjects();
+  }
+
+  String inferenceTimeAsString(Stopwatch stopwatch) =>
+      "Inference Took ${stopwatch.elapsed.inMilliseconds} ms";
 
   /// Requests necessary permissions based on the platform. [gain permission]
   Future<void> _requestPermission() async {
@@ -81,68 +154,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
       statuses = await Permission.photosAddOnly.request().isGranted;
     }
     debugPrint('Permission Request Result: $statuses');
-  }
-
-  // OBJECT DETECTION
-  // loadModel() async {
-  //   final modelPath = await getModelPath('assets/ml/checkpoint_epoch_1.tflite');
-  //   final options = LocalObjectDetectorOptions(
-  //     mode: DetectionMode.single,
-  //     modelPath: modelPath,
-  //     classifyObjects: true,
-  //     multipleObjects: true,
-  //   );
-  //   objectDetector = ObjectDetector(options: options);
-  // }
-
-  // SEND OBJECT COUNT TO THE BACKEND
-  void logObjectCount(String userId, String item, int countedAmount) async {
-    var response = await API.logStockCurrentCount(userId, item, countedAmount);
-
-    if (response != null) {
-      debugPrint("✅ OBJECT COUNT LOGGED successfully: $response");
-    } else {
-      debugPrint("❌ Failed to log object count.");
-    }
-  }
-
-  doObjectDetection() async {
-    if (_selectedImage == null) {
-      debugPrint("No image selected!");
-      return;
-    }
-
-    debugPrint("Starting object detection...");
-    InputImage inputImage = InputImage.fromFile(_selectedImage!);
-
-    // Get detected objects
-    List<DetectedObject> detectedObjects =
-        await objectDetector.processImage(inputImage);
-    debugPrint("Objects detected: ${detectedObjects.length}");
-
-    // debugPrint all bounding boxes BEFORE adding them to the list
-    debugPrint("\nBounding Boxes BEFORE Processing:");
-    for (int i = 0; i < detectedObjects.length; i++) {
-      final rect = detectedObjects[i].boundingBox;
-      debugPrint(
-          "Box $i: Left=${rect.left}, Top=${rect.top}, Right=${rect.right}, Bottom=${rect.bottom}");
-    }
-    setState(() {
-      objects = detectedObjects;
-      editableBoundingBoxes = detectedObjects
-          .map((obj) => obj.boundingBox)
-          .toList(); // ✅ Ensure ML-detected boxes are editable
-      debugPrint("📌 DETECTED COUNT: ${editableBoundingBoxes.length}");
-    });
-
-    // debugPrint bounding boxes AFTER being added to editableBoundingBoxes
-    debugPrint("\nBounding Boxes AFTER Processing:");
-    for (int i = 0; i < editableBoundingBoxes.length; i++) {
-      final rect = editableBoundingBoxes[i];
-      debugPrint(
-          "Editable Box $i: Left=${rect.left}, Top=${rect.top}, Right=${rect.right}, Bottom=${rect.bottom}");
-    }
-    drawRectanglesAroundObjects();
   }
 
   imageGallery() async {
@@ -181,13 +192,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
         stockList = fetchedStocks.keys.toList();
       });
     }
-  }
-
-  Future<void> loadImageForDrawing(File imageFile) async {
-    final data = await imageFile.readAsBytes();
-    final codec = await ui.instantiateImageCodec(data);
-    final frame = await codec.getNextFrame();
-    imageForDrawing = frame.image;
   }
 
   /// **Save Screenshot to Gallery**
@@ -306,7 +310,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
     setState(() {
       _selectedImage = null;
       imageForDrawing = null; // Clear this to prevent null check errors
-      objects = []; // Also clear detected objects
+      editableBoundingBoxes = []; // Also clear detected objects
       isAddingBox = false;
       titleController.clear();
       timestamp = "";
@@ -410,11 +414,10 @@ class _PytorchMobileState extends State<PytorchMobile> {
                           controller: screenshotController, // Wrap entire Stack
                           child: PhotoViewer(
                             imageFile: _selectedImage!,
-                            imageForDrawing: imageForDrawing,
                             editableBoundingBoxes: editableBoundingBoxes,
-                            onNewBox: (Rect box) {
+                            onMoveBox: (int index, Rect newBox) {
                               setState(() {
-                                editableBoundingBoxes.add(box);
+                                editableBoundingBoxes[index] = newBox;
                               });
                             },
                             onRemoveBox: (int index) {
@@ -422,10 +425,14 @@ class _PytorchMobileState extends State<PytorchMobile> {
                                 editableBoundingBoxes.removeAt(index);
                               });
                             },
-                            isAddingBox: isAddingBox,
                             isRemovingBox: isRemovingBox,
-                            timestamp: timestamp,
-                            titleController: titleController,
+                            isAddingBox:
+                                isAddingBox, // Optional if adding new boxes
+                            onNewBox: (Rect newBox) {
+                              setState(() {
+                                editableBoundingBoxes.add(newBox);
+                              });
+                            }, // Optional if adding new boxes
                           ),
                         ),
                 ),
