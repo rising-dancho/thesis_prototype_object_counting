@@ -1,0 +1,2 @@
+C:/Users/adfinem/Downloads/peralta/frontend/android/app/.cxx/Debug/z4f4e3x5/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/adfinem/Downloads/peralta/frontend/android/app/.cxx/Debug/z4f4e3x5/x86_64/CMakeFiles/rebuild_cache.dir

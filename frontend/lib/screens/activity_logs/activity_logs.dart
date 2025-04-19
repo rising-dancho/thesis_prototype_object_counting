@@ -196,8 +196,8 @@ class _ActivityLogsState extends State<ActivityLogs> {
                     activeColor: Colors.white,
                     activeTrackColor: Colors.green,
                     inactiveThumbColor: Colors.white,
-                    inactiveTrackColor:
-                        const Color.fromARGB(255, 243, 243, 243).withAlpha((0.25 * 255).toInt()),
+                    inactiveTrackColor: const Color.fromARGB(255, 243, 243, 243)
+                        .withAlpha((0.25 * 255).toInt()),
                   ),
                 ],
               ),
@@ -360,6 +360,6 @@ class _ActivityLogsState extends State<ActivityLogs> {
           ],
         ),
       ),
-      );
+    );
   }
 }

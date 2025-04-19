@@ -48,22 +48,9 @@ class AboutScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           children: [
             const SizedBox(height: 20),
-            const Center(
-              child: Text(
-                "Welcome to TecTags!",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Roboto',
-                  color: Colors.white,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 10),
             Center(
               child: Image.asset(
-                'assets/images/tectags_icon.png',
+                'assets/images/tectags_logo_nobg.png',
                 height: 100,
               ),
             ),

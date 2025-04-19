@@ -3,7 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:tectags/screens/activity_logs/activity_logs.dart';
 import 'package:tectags/screens/inventory/stock_manager.dart';
-import 'package:tectags/screens/pytorch/pytorch_mobile.dart';
+import 'package:tectags/screens/pytorch/pytorchmobile.dart';
 // import '../../../backup/crud_test/crud.dart';
 // import 'package:techtags/screens/opencv/opencv.dart';
 

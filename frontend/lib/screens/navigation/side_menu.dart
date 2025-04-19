@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tectags/screens/about_screen.dart';
+// import 'package:tectags/screens/guide_screen.dart';
 import 'package:tectags/screens/login_screen.dart';
 import 'package:tectags/screens/navigation/navigation_menu.dart';
 import 'package:tectags/screens/profile_screen.dart';
@@ -48,26 +49,26 @@ class SideMenu extends StatelessWidget {
               );
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.person_2),
-            title: const Text('Profile'),
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.menu_book),
-            title: const Text('Guide'),
-            onTap: () {
-              // Navigator.pushReplacement(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => const ActivityLogs()),
-              // );
-            },
-          ),
+          // ListTile(
+          //  leading: const Icon(Icons.person_2),
+          //  title: const Text('Profile'),
+          //  onTap: () {
+          //    Navigator.pushReplacement(
+          //      context,
+          //      MaterialPageRoute(builder: (context) => const ProfileScreen()),
+          //    );
+          //  },
+          //),
+          // ListTile(
+          //  leading: const Icon(Icons.menu_book),
+          //  title: const Text('Guide'),
+          //  onTap: () {
+          //    Navigator.pushReplacement(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => const GuideScreen()),
+          //     );
+          //  },
+          //),
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: const Text('About'),

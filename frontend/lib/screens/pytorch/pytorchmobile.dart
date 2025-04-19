@@ -387,8 +387,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
           decoration: BoxDecoration(
             image: DecorationImage(
               image: AssetImage("assets/images/tectags_bg.png"),
-              fit: BoxFit
-                  .cover, // Ensures the image covers the entire background
+              fit: BoxFit.cover,
             ),
           ),
           child: Column(
@@ -397,8 +396,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
             children: [
               Expanded(
                 child: Container(
-                  width: double
-                      .infinity, // Makes the container expand horizontally
+                  width: double.infinity,
                   margin: const EdgeInsets.fromLTRB(22, 40, 22, 42),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
@@ -411,7 +409,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                           color: Colors.grey[500],
                         )
                       : Screenshot(
-                          controller: screenshotController, // Wrap entire Stack
+                          controller: screenshotController,
                           child: PhotoViewer(
                             imageFile: _selectedImage!,
                             editableBoundingBoxes: editableBoundingBoxes,
@@ -430,7 +428,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                                 isAddingBox, // Optional if adding new boxes
                             onNewBox: (Rect newBox) {
                               setState(() {
-                                editableBoundingBoxes.add(newBox);
+                                isAddingBox = false;
                               });
                             }, // Optional if adding new boxes
                           ),
@@ -503,18 +501,22 @@ class _PytorchMobileState extends State<PytorchMobile> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    IconButton(icon: Icon(Icons.refresh), onPressed: reset),
                     IconButton(
-                      icon: Icon(Icons.add), // Change dynamically
+                      icon: Icon(Icons.refresh, color: Colors.white),
+                      onPressed: reset,
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.add, color: Colors.white),
                       onPressed: toggleAddingMode,
                     ),
                     IconButton(
-                      icon: Icon(Icons.close),
+                      icon: Icon(Icons.close, color: Colors.white),
                       onPressed: toggleRemovingMode,
                     ),
                     IconButton(
-                        icon: Icon(Icons.save),
-                        onPressed: () => saveImage(context)),
+                      icon: Icon(Icons.save, color: Colors.white),
+                      onPressed: () => saveImage(context),
+                    ),
                   ],
                 ),
               ]

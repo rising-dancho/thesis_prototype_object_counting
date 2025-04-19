@@ -4,6 +4,8 @@ import 'package:tectags/screens/navigation/navigation_menu.dart';
 import 'package:tectags/services/api.dart';
 import 'package:tectags/services/shared_prefs_service.dart';
 import 'package:tectags/widgets/custom_scaffold.dart';
+import 'package:tectags/screens/onboarding/onboarding_view.dart';
+
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -14,7 +16,10 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formSignUpKey = GlobalKey<FormState>();
-  final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _middleInitialController =
+      TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
@@ -22,6 +27,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   bool _passwordVisible = false;
   bool _confirmPasswordVisible = false;
+  bool isValidEmail(String email) {
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    return emailRegex.hasMatch(email);
+  }
 
   @override
   void initState() {
@@ -30,7 +39,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   void dispose() {
-    _fullNameController.dispose();
+    _firstNameController.dispose();
+    _middleInitialController.dispose();
+    _lastNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -70,19 +81,60 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ),
                   const SizedBox(height: 40.0),
+                  // First Name
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 3.0),
                     child: TextFormField(
-                      controller: _fullNameController,
+                      controller: _firstNameController,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your full name';
+                          return 'Please enter your first name';
                         }
                         return null;
                       },
                       decoration: InputDecoration(
-                        labelText: 'Full Name',
-                        hintText: 'Enter your full name',
+                        labelText: 'First Name',
+                        hintText: 'Enter your first name',
+                        hintStyle: const TextStyle(color: Colors.black26),
+                        fillColor: Colors.white,
+                        filled: true,
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20.0),
+
+                  // Middle Initial (Optional)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                    child: TextFormField(
+                      controller: _middleInitialController,
+                      decoration: InputDecoration(
+                        labelText: 'Middle Initial (Optional)',
+                        hintText: 'Enter your middle initial',
+                        hintStyle: const TextStyle(color: Colors.black26),
+                        fillColor: Colors.white,
+                        filled: true,
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20.0),
+
+                  // Last Name
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                    child: TextFormField(
+                      controller: _lastNameController,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your last name';
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Last Name',
+                        hintText: 'Enter your last name',
                         hintStyle: const TextStyle(color: Colors.black26),
                         fillColor: Colors.white,
                         filled: true,
@@ -98,6 +150,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your email';
+                        } else if (!isValidEmail(value)) {
+                          return 'Please enter a valid email address';
                         }
                         return null;
                       },
@@ -208,10 +262,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       child: ElevatedButton(
                         onPressed: () async {
                           if (_formSignUpKey.currentState!.validate()) {
+                            var fullName = _firstNameController.text.trim();
+                            if (_middleInitialController.text
+                                .trim()
+                                .isNotEmpty) {
+                              fullName +=
+                                  ' ${_middleInitialController.text.trim()}';
+                            }
+                            fullName += ' ${_lastNameController.text.trim()}';
+
                             var data = {
                               "email": _emailController.text,
                               "password": _passwordController.text,
-                              "fullName": _fullNameController.text,
+                              "fullName": fullName,
                             };
 
                             Map<String, dynamic>? response;
@@ -255,15 +318,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                         'Registration Successful!')),
                               );
 
+                              _firstNameController.clear();
+                              _middleInitialController.clear();
+                              _lastNameController.clear();
                               _emailController.clear();
                               _passwordController.clear();
-                              _fullNameController.clear();
+                              _confirmPasswordController.clear();
 
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        const NavigationMenu()),
+                                        const OnboardingView()),
                               );
                             } else {
                               // Handle case where token is missing

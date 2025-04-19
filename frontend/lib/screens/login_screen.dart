@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tectags/screens/navigation/navigation_menu.dart';
+import 'package:tectags/screens/onboarding/onboarding_view.dart';
 import 'package:tectags/services/api.dart';
 import 'package:tectags/services/shared_prefs_service.dart';
 import 'package:tectags/widgets/custom_scaffold.dart';
@@ -224,7 +224,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const NavigationMenu()),
+                                  builder: (context) => const OnboardingView()),
                             );
                           } else {
                             // Handle case where token is missing
