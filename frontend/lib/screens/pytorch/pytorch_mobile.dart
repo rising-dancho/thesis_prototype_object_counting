@@ -335,7 +335,35 @@ class _PytorchMobileState extends State<PytorchMobile> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Tectags AutoCount"),
+          title: Row(mainAxisSize: MainAxisSize.min, children: [
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Tec',
+                    style: TextStyle(
+                      color: const Color.fromARGB(255, 27, 211, 224),
+                      fontSize: 25.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextSpan(
+                    text: 'Tags',
+                    style: TextStyle(
+                      color: const Color.fromARGB(255, 29, 118, 235),
+                      fontSize: 25.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: 2),
+            Image.asset(
+              'assets/images/tectags_icon.png',
+              height: 40.0,
+            ),
+          ]),
           backgroundColor: const Color.fromARGB(255, 5, 45, 90),
           foregroundColor: const Color.fromARGB(255, 255, 255, 255),
           automaticallyImplyLeading: false,
@@ -403,53 +431,38 @@ class _PytorchMobileState extends State<PytorchMobile> {
                 ),
               ),
               if (_selectedImage == null) ...[
-                ElevatedButton(
+                ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    textStyle: TextStyle(
-                      fontSize: 16, // Optionally adjust the font size
-                    ),
-                    backgroundColor: const Color.fromARGB(255, 10, 125,
-                        170), // Set your desired background color here
-                    foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-                    shadowColor: Colors.grey,
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 118, vertical: 15),
+                    textStyle: const TextStyle(fontSize: 16),
+                    backgroundColor: const Color.fromARGB(255, 22, 165, 221),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 95, vertical: 15),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      side: BorderSide(
-                        color: const Color.fromARGB(
-                            255, 3, 130, 168), // Set the border color
-                        width: 2,
-                      ),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   onPressed: useCamera,
-                  child: const Text("Capture"),
+                  icon: const Icon(Icons.camera_alt),
+                  label: const Text("Capture Photo"),
                 ),
               ],
               const SizedBox(height: 15.0),
               if (_selectedImage == null) ...[
-                ElevatedButton(
+                ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    textStyle: TextStyle(
-                      fontSize: 16, // Optionally adjust the font size
-                    ),
-                    backgroundColor: const Color.fromARGB(255, 255, 255,
-                        255), // Set your desired background color here
-                    foregroundColor: const Color.fromARGB(255, 0, 0, 0),
-                    shadowColor: Colors.grey,
-                    padding: EdgeInsets.symmetric(horizontal: 85, vertical: 15),
+                    textStyle: const TextStyle(fontSize: 16),
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xFF052D5A),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 84, vertical: 15),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      side: BorderSide(
-                        color: const Color.fromARGB(
-                            255, 3, 130, 168), // Set the border color
-                        width: 2,
-                      ),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   onPressed: imageGallery,
-                  child: const Text("Choose an image"),
+                  icon: const Icon(Icons.image),
+                  label: const Text("Choose an Image"),
                 ),
                 SizedBox(height: 15.0), // <-- Adds spacing below the button
               ],
