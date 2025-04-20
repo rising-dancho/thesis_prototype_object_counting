@@ -384,7 +384,8 @@ class _PytorchMobileState extends State<PytorchMobile> {
         ),
         endDrawer: const SideMenu(),
         body: Container(
-          padding: const EdgeInsets.fromLTRB(42, 40, 42, 42), // Overall outer padding
+          padding: const EdgeInsets.fromLTRB(
+              42, 40, 42, 42), // Overall outer padding
           decoration: BoxDecoration(
             image: DecorationImage(
               image: AssetImage("assets/images/tectags_bg.png"),
@@ -520,12 +521,40 @@ class _PytorchMobileState extends State<PytorchMobile> {
                     children: [
                       IconButton(icon: Icon(Icons.refresh), onPressed: reset),
                       IconButton(
-                        icon: Icon(Icons.add),
                         onPressed: toggleAddingMode,
+                        icon: Container(
+                          decoration: BoxDecoration(
+                            color: isAddingBox
+                                ? Colors.grey[300]
+                                : Colors.transparent,
+                            shape: BoxShape.rectangle,
+                            borderRadius:
+                                BorderRadius.circular(10), // Rounded corners
+                          ),
+                          padding: const EdgeInsets.all(8),
+                          child: Icon(
+                            Icons.add,
+                            color: Colors.black,
+                          ),
+                        ),
                       ),
                       IconButton(
-                        icon: Icon(Icons.close),
                         onPressed: toggleRemovingMode,
+                        icon: Container(
+                          decoration: BoxDecoration(
+                            color: isRemovingBox
+                                ? Colors.grey[300]
+                                : Colors.transparent,
+                            shape: BoxShape.rectangle,
+                            borderRadius:
+                                BorderRadius.circular(10), // Rounded corners
+                          ),
+                          padding: const EdgeInsets.all(8),
+                          child: Icon(
+                            Icons.close,
+                            color: Colors.black,
+                          ),
+                        ),
                       ),
                       IconButton(
                         icon: Icon(Icons.save),

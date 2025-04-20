@@ -15,11 +15,11 @@ class PhotoViewer extends StatefulWidget {
   const PhotoViewer({
     required this.imageFile,
     required this.editableBoundingBoxes,
-    required this.isRemovingBox,
     required this.onRemoveBox,
     required this.onMoveBox,
     this.onNewBox,
     this.isAddingBox = false,
+    this.isRemovingBox = false,
     required this.timestamp,
     required this.titleController,
     super.key,
