@@ -7,6 +7,7 @@ import 'package:tectags/logic/pytorch/photo_viewer.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
+import 'package:tectags/models/detected_objects_model.dart';
 import 'dart:ui' as ui;
 
 import 'package:tectags/screens/navigation/side_menu.dart';
@@ -50,7 +51,8 @@ class _PytorchMobileState extends State<PytorchMobile> {
   // PYTORCH OBJECT DETECTION
   // initialize object detector
   late ModelObjectDetection _objectModelYoloV8;
-  List<Rect> editableBoundingBoxes = []; // Editable list of bounding boxes
+  // List<Rect> editableBoundingBoxes = []; // Editable list of bounding boxes
+  List<DetectedObject> editableBoundingBoxes = [];
   bool isAddingBox = false;
   bool isRemovingBox = false;
   // for inference speed checking
@@ -127,13 +129,14 @@ class _PytorchMobileState extends State<PytorchMobile> {
     setState(() {
       editableBoundingBoxes = objDetect
           .where((e) => e != null)
-          .map((e) => Rect.fromLTWH(
-                e!.rect.left,
-                e.rect.top,
-                e.rect.width,
-                e.rect.height,
+          .map((e) => DetectedObject(
+                rect: Rect.fromLTWH(
+                    e!.rect.left, e.rect.top, e.rect.width, e.rect.height),
+                label: e.className ?? 'Unknown',
+                score: e.score,
               ))
           .toList();
+
       debugPrint("📌 DETECTED COUNT: ${editableBoundingBoxes.length}");
     });
     drawRectanglesAroundObjects();
@@ -420,7 +423,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                           child: PhotoViewer(
                             imageFile: _selectedImage!,
                             editableBoundingBoxes: editableBoundingBoxes,
-                            onMoveBox: (int index, Rect newBox) {
+                            onMoveBox: (int index, DetectedObject newBox) {
                               setState(() {
                                 editableBoundingBoxes[index] = newBox;
                               });
@@ -430,14 +433,13 @@ class _PytorchMobileState extends State<PytorchMobile> {
                                 editableBoundingBoxes.removeAt(index);
                               });
                             },
-                            onNewBox: (Rect newBox) {
+                            onNewBox: (DetectedObject newBox) {
                               setState(() {
                                 editableBoundingBoxes.add(newBox);
                               });
-                            }, // Optional if adding new boxes
+                            },
                             isRemovingBox: isRemovingBox,
-                            isAddingBox:
-                                isAddingBox, // Optional if adding new boxes
+                            isAddingBox: isAddingBox,
                             timestamp: timestamp,
                             titleController: titleController,
                           ),

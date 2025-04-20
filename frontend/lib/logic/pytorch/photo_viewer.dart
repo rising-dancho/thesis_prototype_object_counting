@@ -1,13 +1,15 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:tectags/models/detected_objects_model.dart';
 
 class PhotoViewer extends StatefulWidget {
   final File imageFile;
-  final List<Rect> editableBoundingBoxes;
+  final List<DetectedObject> editableBoundingBoxes;
   final bool isRemovingBox;
   final void Function(int index) onRemoveBox;
-  final void Function(int index, Rect newBox) onMoveBox;
-  final void Function(Rect newBox)? onNewBox; // Optional if adding a new box
+  final void Function(int index, DetectedObject newBox) onMoveBox;
+  final void Function(DetectedObject newBox)?
+      onNewBox; // Optional if adding a new box
   final bool isAddingBox; // Optional if you're adding boxes
   final String timestamp;
   final TextEditingController titleController;
@@ -50,7 +52,9 @@ class _PhotoViewerState extends State<PhotoViewer> {
             ),
             ...widget.editableBoundingBoxes.asMap().entries.map((entry) {
               final int index = entry.key;
-              final Rect box = entry.value;
+              final DetectedObject detectedObject = entry.value;
+              final Rect box =
+                  detectedObject.rect; // Accessing rect from DetectedObject
 
               // Apply scaling
               final double left = box.left * factorX;
@@ -97,7 +101,13 @@ class _PhotoViewerState extends State<PhotoViewer> {
                           box.height,
                         );
 
-                        widget.onMoveBox(index, updatedBox);
+                        widget.onMoveBox(
+                            index,
+                            DetectedObject(
+                              rect: updatedBox,
+                              label: detectedObject.label,
+                              score: detectedObject.score,
+                            ));
                       },
                       onPanEnd: (_) {
                         setState(() {
@@ -121,6 +131,18 @@ class _PhotoViewerState extends State<PhotoViewer> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+                    // Optionally display the label or score
+                    Positioned(
+                      top: 5,
+                      left: 5,
+                      child: Text(
+                        detectedObject.label, // Display the label
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               );
@@ -141,8 +163,10 @@ class _PhotoViewerState extends State<PhotoViewer> {
                       double boxHeight = 0.1; // 10% height
 
                       if (widget.editableBoundingBoxes.isNotEmpty) {
-                        boxWidth = widget.editableBoundingBoxes.first.width;
-                        boxHeight = widget.editableBoundingBoxes.first.height;
+                        boxWidth =
+                            widget.editableBoundingBoxes.first.rect.width;
+                        boxHeight =
+                            widget.editableBoundingBoxes.first.rect.height;
                       }
 
                       final newBox = Rect.fromLTWH(
@@ -152,7 +176,15 @@ class _PhotoViewerState extends State<PhotoViewer> {
                         boxHeight,
                       );
 
-                      widget.onNewBox!(newBox);
+                      // Create DetectedObject and pass it
+                      final newDetectedObject = DetectedObject(
+                        rect: newBox,
+                        label:
+                            'New Object', // You can add logic to choose the label
+                        score: 0.0, // You can also adjust the score as needed
+                      );
+
+                      widget.onNewBox!(newDetectedObject);
                     });
                   },
                   child: Container(color: Colors.transparent),
