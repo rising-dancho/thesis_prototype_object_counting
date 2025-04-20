@@ -106,8 +106,10 @@ class _PhotoViewerState extends State<PhotoViewer> {
                       },
                       child: Container(
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.lightGreen, width: 2),
-                          color: Colors.lightGreen.withAlpha((0.4 * 255).toInt()),
+                          border:
+                              Border.all(color: Colors.lightGreen, width: 2),
+                          color:
+                              Colors.lightGreen.withAlpha((0.4 * 255).toInt()),
                         ),
                       ),
                     ),
@@ -124,26 +126,39 @@ class _PhotoViewerState extends State<PhotoViewer> {
               );
             }),
 
-            // Optionally, if you're adding a new box
+            // For adding a new box
             if (widget.isAddingBox && widget.onNewBox != null)
-              Positioned(
-                left: 50, // Example for new box placement (can be dynamic)
-                top: 50,
-                width: 100, // Example width
-                height: 100, // Example height
+              Positioned.fill(
                 child: GestureDetector(
-                  onTap: () {
-                    final newBox =
-                        Rect.fromLTWH(50, 50, 100, 100); // Example new box
-                    widget.onNewBox!(newBox); // Call the `onNewBox` callback
+                  onTapDown: (details) {
+                    setState(() {
+                      final RenderBox renderBox =
+                          context.findRenderObject() as RenderBox;
+                      final localPosition =
+                          renderBox.globalToLocal(details.globalPosition);
+
+                      double boxWidth = 0.1; // 10% width
+                      double boxHeight = 0.1; // 10% height
+
+                      if (widget.editableBoundingBoxes.isNotEmpty) {
+                        boxWidth = widget.editableBoundingBoxes.first.width;
+                        boxHeight = widget.editableBoundingBoxes.first.height;
+                      }
+
+                      final newBox = Rect.fromLTWH(
+                        (localPosition.dx / factorX) - (boxWidth / 2),
+                        (localPosition.dy / factorY) - (boxHeight / 2),
+                        boxWidth,
+                        boxHeight,
+                      );
+
+                      widget.onNewBox!(newBox);
+                    });
                   },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.blue, width: 2),
-                    ),
-                  ),
+                  child: Container(color: Colors.transparent),
                 ),
               ),
+
             // Title (Upper Left)
             if (widget.titleController.text.isNotEmpty)
               Positioned(
