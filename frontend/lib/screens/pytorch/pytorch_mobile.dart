@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:screenshot/screenshot.dart';
-import 'package:tectags/logic/tensorflow/photo_viewer.dart';
+import 'package:tectags/logic/pytorch/photo_viewer.dart';
 // import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
@@ -425,14 +425,16 @@ class _PytorchMobileState extends State<PytorchMobile> {
                                 editableBoundingBoxes.removeAt(index);
                               });
                             },
-                            isRemovingBox: isRemovingBox,
-                            isAddingBox:
-                                isAddingBox, // Optional if adding new boxes
                             onNewBox: (Rect newBox) {
                               setState(() {
                                 editableBoundingBoxes.add(newBox);
                               });
                             }, // Optional if adding new boxes
+                            isRemovingBox: isRemovingBox,
+                            isAddingBox:
+                                isAddingBox, // Optional if adding new boxes
+                            timestamp: timestamp,
+                            titleController: titleController,
                           ),
                         ),
                 ),

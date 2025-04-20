@@ -9,6 +9,8 @@ class PhotoViewer extends StatefulWidget {
   final void Function(int index, Rect newBox) onMoveBox;
   final void Function(Rect newBox)? onNewBox; // Optional if adding a new box
   final bool isAddingBox; // Optional if you're adding boxes
+  final String timestamp;
+  final TextEditingController titleController;
 
   const PhotoViewer({
     required this.imageFile,
@@ -18,10 +20,13 @@ class PhotoViewer extends StatefulWidget {
     required this.onMoveBox,
     this.onNewBox,
     this.isAddingBox = false,
+    required this.timestamp,
+    required this.titleController,
     super.key,
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _PhotoViewerState createState() => _PhotoViewerState();
 }
 
@@ -61,7 +66,8 @@ class _PhotoViewerState extends State<PhotoViewer> {
                 child: GestureDetector(
                   onTap: () {
                     if (widget.isRemovingBox) {
-                      widget.onRemoveBox(index); // Remove box on tap if `isRemovingBox` is true
+                      widget.onRemoveBox(
+                          index); // Remove box on tap if `isRemovingBox` is true
                     }
                   },
                   onPanStart: (details) {
@@ -108,13 +114,69 @@ class _PhotoViewerState extends State<PhotoViewer> {
                 height: 100, // Example height
                 child: GestureDetector(
                   onTap: () {
-                    final newBox = Rect.fromLTWH(50, 50, 100, 100); // Example new box
+                    final newBox =
+                        Rect.fromLTWH(50, 50, 100, 100); // Example new box
                     widget.onNewBox!(newBox); // Call the `onNewBox` callback
                   },
                   child: Container(
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.blue, width: 2),
                     ),
+                  ),
+                ),
+              ),
+            // Title (Upper Left)
+            if (widget.titleController.text.isNotEmpty)
+              Positioned(
+                top: 10,
+                left: 10,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color.fromRGBO(0, 0, 0, 0.7),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    widget.titleController.text,
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                ),
+              ),
+
+            // Total Count (Upper Right)
+            Positioned(
+              top: 10,
+              right: 10,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.black.withAlpha((0.7 * 255).toInt()),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Total Count: ${widget.editableBoundingBoxes.length}',
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
+            ),
+
+            // Timestamp (Lower Left)
+            if (widget.timestamp.isNotEmpty)
+              Positioned(
+                bottom: 10,
+                left: 10,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withAlpha((0.7 * 255).toInt()),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    widget.timestamp,
+                    style: const TextStyle(color: Colors.white, fontSize: 14),
                   ),
                 ),
               ),
