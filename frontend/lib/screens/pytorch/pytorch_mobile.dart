@@ -384,6 +384,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
         ),
         endDrawer: const SideMenu(),
         body: Container(
+          padding: const EdgeInsets.fromLTRB(42, 40, 42, 42), // Overall outer padding
           decoration: BoxDecoration(
             image: DecorationImage(
               image: AssetImage("assets/images/tectags_bg.png"),
@@ -399,7 +400,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                 child: Container(
                   width: double
                       .infinity, // Makes the container expand horizontally
-                  margin: const EdgeInsets.fromLTRB(22, 40, 22, 42),
+                  margin: const EdgeInsets.fromLTRB(0, 40, 0, 40),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     color: const Color.fromARGB(255, 223, 223, 223),
@@ -439,6 +440,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                         ),
                 ),
               ),
+              const SizedBox(height: 15.0),
               if (_selectedImage == null) ...[
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
@@ -476,48 +478,61 @@ class _PytorchMobileState extends State<PytorchMobile> {
                 SizedBox(height: 15.0), // <-- Adds spacing below the button
               ],
               if (_selectedImage != null) ...[
-                Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    // DROPDOWN THAT FETCHES STOCKS FROM MONGODB
-                    child: DropdownButtonFormField<String>(
-                      value: _selectedStock,
-                      onChanged: (newValue) {
-                        setState(() {
-                          _selectedStock = newValue!;
-                          titleController.text = _selectedStock!;
-                        });
-                        debugPrint("✅ Selected Stock: $_selectedStock");
-                      },
-                      items: stockList
-                          .map<DropdownMenuItem<String>>((String stock) {
-                        return DropdownMenuItem<String>(
-                          value: stock,
-                          child: Text(stock),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                        hintText: "Select a stock",
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(),
+                // DROPDOWN THAT FETCHES STOCKS FROM MONGODB
+                DropdownButtonFormField<String>(
+                  value: _selectedStock,
+                  onChanged: (newValue) {
+                    setState(() {
+                      _selectedStock = newValue!;
+                      titleController.text = _selectedStock!;
+                    });
+                    debugPrint("✅ Selected Stock: $_selectedStock");
+                  },
+                  items:
+                      stockList.map<DropdownMenuItem<String>>((String stock) {
+                    return DropdownMenuItem<String>(
+                      value: stock,
+                      child: Text(stock),
+                    );
+                  }).toList(),
+                  decoration: InputDecoration(
+                    hintText: "Select a stock",
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 15.0),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white, // White background
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 4,
+                        offset: Offset(0, 2),
                       ),
-                    )),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(icon: Icon(Icons.refresh), onPressed: reset),
-                    IconButton(
-                      icon: Icon(Icons.add), // Change dynamically
-                      onPressed: toggleAddingMode,
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.close),
-                      onPressed: toggleRemovingMode,
-                    ),
-                    IconButton(
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(icon: Icon(Icons.refresh), onPressed: reset),
+                      IconButton(
+                        icon: Icon(Icons.add),
+                        onPressed: toggleAddingMode,
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close),
+                        onPressed: toggleRemovingMode,
+                      ),
+                      IconButton(
                         icon: Icon(Icons.save),
-                        onPressed: () => saveImage(context)),
-                  ],
+                        onPressed: () => saveImage(context),
+                      ),
+                    ],
+                  ),
                 ),
               ]
             ],
