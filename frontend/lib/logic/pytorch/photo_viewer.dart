@@ -135,11 +135,16 @@ class _PhotoViewerState extends State<PhotoViewer> {
                     Positioned(
                       top: 5,
                       left: 5,
-                      child: Text(
-                        detectedObject.label, // Display the label
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 3),
+                        child: Text(
+                          '${detectedObject.label}${(detectedObject.score * 100).toStringAsFixed(1)}%',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            // fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
