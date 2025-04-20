@@ -17,6 +17,7 @@ import 'package:saver_gallery/saver_gallery.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:tectags/services/shared_prefs_service.dart';
+import 'package:intl/intl.dart';
 
 // PYTORCH
 import 'package:pytorch_lite/pytorch_lite.dart';
@@ -164,7 +165,8 @@ class _PytorchMobileState extends State<PytorchMobile> {
       _selectedImage = File(pickedFile.path);
       setState(() {
         _selectedImage;
-        timestamp = DateTime.now().toString(); // Store timestamp
+        timestamp = DateFormat('MMM d, y • hh:mm a')
+            .format(DateTime.parse(DateTime.now().toString()).toLocal());
       });
       doObjectDetection();
     }
@@ -177,7 +179,8 @@ class _PytorchMobileState extends State<PytorchMobile> {
       _selectedImage = File(pickedFile.path);
       setState(() {
         _selectedImage;
-        timestamp = DateTime.now().toString(); // Store timestamp
+        timestamp = DateFormat('MMM d, y • hh:mm a')
+            .format(DateTime.parse(DateTime.now().toString()).toLocal());
       });
       doObjectDetection();
     }
