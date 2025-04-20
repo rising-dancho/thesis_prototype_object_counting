@@ -63,44 +63,63 @@ class _PhotoViewerState extends State<PhotoViewer> {
                 top: top,
                 width: width,
                 height: height,
-                child: GestureDetector(
-                  onTap: () {
-                    if (widget.isRemovingBox) {
-                      widget.onRemoveBox(
-                          index); // Remove box on tap if `isRemovingBox` is true
-                    }
-                  },
-                  onPanStart: (details) {
-                    // Save the initial position of the bounding box when drag starts
-                    setState(() {
-                      draggingBoxIndex = index;
-                      initialBox = box;
-                      dragStartPosition = details.localPosition;
-                    });
-                  },
-                  onPanUpdate: (details) {
-                    if (draggingBoxIndex == null) return;
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        if (widget.isRemovingBox) {
+                          widget.onRemoveBox(index);
+                        }
+                      },
+                      onPanStart: (details) {
+                        setState(() {
+                          draggingBoxIndex = index;
+                          initialBox = box;
+                          dragStartPosition = details.localPosition;
+                        });
+                      },
+                      onPanUpdate: (details) {
+                        if (draggingBoxIndex == null) return;
 
-                    final dx = details.localPosition.dx - dragStartPosition.dx;
-                    final dy = details.localPosition.dy - dragStartPosition.dy;
+                        final dx =
+                            details.localPosition.dx - dragStartPosition.dx;
+                        final dy =
+                            details.localPosition.dy - dragStartPosition.dy;
 
-                    final updatedLeft = initialBox.left + dx / factorX;
-                    final updatedTop = initialBox.top + dy / factorY;
+                        final updatedLeft = initialBox.left + dx / factorX;
+                        final updatedTop = initialBox.top + dy / factorY;
 
-                    final updatedBox = Rect.fromLTWH(
-                      updatedLeft,
-                      updatedTop,
-                      box.width,
-                      box.height,
-                    );
+                        final updatedBox = Rect.fromLTWH(
+                          updatedLeft,
+                          updatedTop,
+                          box.width,
+                          box.height,
+                        );
 
-                    widget.onMoveBox(index, updatedBox); // Update box position
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.red, width: 2),
+                        widget.onMoveBox(index, updatedBox);
+                      },
+                      onPanEnd: (_) {
+                        setState(() {
+                          draggingBoxIndex = null;
+                        });
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.lightGreen, width: 2),
+                          color: Colors.lightGreen.withAlpha((0.4 * 255).toInt()),
+                        ),
+                      ),
                     ),
-                  ),
+                    Text(
+                      '${index + 1}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               );
             }),
