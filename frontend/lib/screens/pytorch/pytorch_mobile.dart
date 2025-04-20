@@ -404,7 +404,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                 child: Container(
                   width: double
                       .infinity, // Makes the container expand horizontally
-                  margin: const EdgeInsets.fromLTRB(0, 40, 0, 40),
+                  margin: const EdgeInsets.fromLTRB(0, 40, 0, 0),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     color: const Color.fromARGB(255, 223, 223, 223),
@@ -444,7 +444,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                         ),
                 ),
               ),
-              const SizedBox(height: 15.0),
+              const SizedBox(height: 35.0),
               if (_selectedImage == null) ...[
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
@@ -479,9 +479,18 @@ class _PytorchMobileState extends State<PytorchMobile> {
                   icon: const Icon(Icons.image),
                   label: const Text("Choose an Image"),
                 ),
-                SizedBox(height: 15.0), // <-- Adds spacing below the button
+                SizedBox(height: 15.0),
               ],
               if (_selectedImage != null) ...[
+                textToShow != null
+                    ? Text(
+                        textToShow!,
+                        style: const TextStyle(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white),
+                      )
+                    : const SizedBox(height: 15.0),
                 // DROPDOWN THAT FETCHES STOCKS FROM MONGODB
                 DropdownButtonFormField<String>(
                   value: _selectedStock,
