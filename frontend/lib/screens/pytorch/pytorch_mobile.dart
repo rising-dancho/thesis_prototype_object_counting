@@ -488,7 +488,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                         style: const TextStyle(
                             fontSize: 16.0,
                             fontWeight: FontWeight.w500,
-                            color: Colors.white),
+                            color: Colors.lightGreenAccent),
                       )
                     : const SizedBox(height: 15.0),
                 // DROPDOWN THAT FETCHES STOCKS FROM MONGODB
