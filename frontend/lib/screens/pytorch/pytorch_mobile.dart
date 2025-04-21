@@ -45,7 +45,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
   final TextEditingController titleController = TextEditingController();
 
   // FOR THE DROPDOWN
-  List<String> stockList = [];
   String? _selectedStock;
 
   // PYTORCH OBJECT DETECTION
@@ -60,6 +59,11 @@ class _PytorchMobileState extends State<PytorchMobile> {
 
   // toggle bounding box, labels, and scores except the number tag
   bool showBoundingInfo = true;
+
+  // auto populate detected stocks from doObjectDetection method
+  List<String> stockList = []; // Your fixed list
+  List<String> detectedStockList = []; // Dynamic from detection
+  List<String> allStocks = []; // Merged unique values
 
   @override
   void initState() {
@@ -140,7 +144,37 @@ class _PytorchMobileState extends State<PytorchMobile> {
               ))
           .toList();
 
+      detectedStockList =
+          editableBoundingBoxes.map((e) => e.label).toSet().toList();
+
+      allStocks =
+          {...stockList, ...detectedStockList}.toList(); // 🌟 This is perfect!
+
+      // // ✅ Ensure _selectedStock is valid
+      // if (!allStocks.contains(_selectedStock)) {
+      //   _selectedStock = null;
+      //   titleController.clear(); // optional: also clear the text field
+      // }
+
+      // Auto-select the most common label
+      final labelCounts = <String, int>{};
+      for (var label in detectedStockList) {
+        labelCounts[label] = (labelCounts[label] ?? 0) + 1;
+      }
+      String? mostCommonLabel;
+      int maxCount = 0;
+      labelCounts.forEach((label, count) {
+        if (count > maxCount) {
+          mostCommonLabel = label;
+          maxCount = count;
+        }
+      });
+      _selectedStock = mostCommonLabel;
+      titleController.text = mostCommonLabel ?? '';
+
       debugPrint("📌 DETECTED COUNT: ${editableBoundingBoxes.length}");
+      debugPrint("📦 Auto-populated Dropdown: $detectedStockList");
+      debugPrint("🧠 Combined List (allStocks): $allStocks");
     });
     drawRectanglesAroundObjects();
   }
@@ -534,7 +568,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                     debugPrint("✅ Selected Stock: $_selectedStock");
                   },
                   items:
-                      stockList.map<DropdownMenuItem<String>>((String stock) {
+                      allStocks.map<DropdownMenuItem<String>>((String stock) {
                     return DropdownMenuItem<String>(
                       value: stock,
                       child: Text(stock),
