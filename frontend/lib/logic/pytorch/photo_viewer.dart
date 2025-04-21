@@ -131,8 +131,10 @@ class _PhotoViewerState extends State<PhotoViewer> {
                       // Always show the index number
                       Text(
                         '${index + 1}',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: widget.showBoundingInfo
+                              ? Colors.white
+                              : Colors.limeAccent,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
