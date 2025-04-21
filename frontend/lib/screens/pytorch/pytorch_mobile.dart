@@ -58,6 +58,9 @@ class _PytorchMobileState extends State<PytorchMobile> {
   // for inference speed checking
   String? textToShow;
 
+  // toggle bounding box, labels, and scores except the number tag
+  bool showBoundingInfo = true;
+
   @override
   void initState() {
     super.initState();
@@ -484,15 +487,41 @@ class _PytorchMobileState extends State<PytorchMobile> {
                 SizedBox(height: 15.0),
               ],
               if (_selectedImage != null) ...[
-                textToShow != null
-                    ? Text(
-                        textToShow!,
-                        style: const TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.lightGreenAccent),
-                      )
-                    : const SizedBox(height: 15.0),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      "Show Bounding Boxes Info",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    Switch(
+                      value: showBoundingInfo,
+                      onChanged: (value) {
+                        setState(() {
+                          showBoundingInfo = value;
+                          debugPrint(showBoundingInfo.toString());
+                        });
+                      },
+                      activeColor: Colors.white,
+                      activeTrackColor: Colors.green,
+                      inactiveThumbColor: Colors.white,
+                      inactiveTrackColor:
+                          const Color.fromARGB(255, 243, 243, 243)
+                              .withAlpha((0.25 * 255).toInt()),
+                    ),
+                    const Spacer(),
+                    textToShow != null
+                        ? Text(
+                            textToShow!,
+                            style: const TextStyle(
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.lightGreenAccent),
+                          )
+                        : const SizedBox(height: 15.0),
+                  ],
+                ),
+
                 // DROPDOWN THAT FETCHES STOCKS FROM MONGODB
                 DropdownButtonFormField<String>(
                   value: _selectedStock,
