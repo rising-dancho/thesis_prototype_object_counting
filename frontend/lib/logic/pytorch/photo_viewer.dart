@@ -134,7 +134,7 @@ class _PhotoViewerState extends State<PhotoViewer> {
                         style: TextStyle(
                           color: widget.showBoundingInfo
                               ? Colors.white
-                              : Colors.limeAccent,
+                              : Colors.yellowAccent,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
