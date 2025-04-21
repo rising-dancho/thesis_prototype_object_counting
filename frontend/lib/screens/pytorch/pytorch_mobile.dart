@@ -410,7 +410,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                 child: Container(
                   width: double
                       .infinity, // Makes the container expand horizontally
-                  margin: const EdgeInsets.fromLTRB(0, 40, 0, 0),
+                  margin: const EdgeInsets.fromLTRB(20, 40, 20, 0),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     color: const Color.fromARGB(255, 223, 223, 223),
