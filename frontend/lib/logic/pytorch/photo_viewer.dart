@@ -192,12 +192,26 @@ class _PhotoViewerState extends State<PhotoViewer> {
                         boxHeight,
                       );
 
+                      // Count the frequency of each label
+                      final labelFrequency = <String, int>{};
+                      for (var box in widget.editableBoundingBoxes) {
+                        labelFrequency[box.label] =
+                            (labelFrequency[box.label] ?? 0) + 1;
+                      }
+
+                      // Get the label with the highest count
+                      String mostCommonLabel = 'New Object'; // fallback
+                      if (labelFrequency.isNotEmpty) {
+                        mostCommonLabel = labelFrequency.entries
+                            .reduce((a, b) => a.value >= b.value ? a : b)
+                            .key;
+                      }
+
                       // Create DetectedObject and pass it
                       final newDetectedObject = DetectedObject(
                         rect: newBox,
-                        label:
-                            'New Object', // You can add logic to choose the label
-                        score: 0.0, // You can also adjust the score as needed
+                        label: mostCommonLabel,
+                        score: 0.0,
                       );
 
                       widget.onNewBox!(newDetectedObject);
