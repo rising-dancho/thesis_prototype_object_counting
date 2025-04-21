@@ -5,12 +5,13 @@ import 'package:tectags/models/detected_objects_model.dart';
 class PhotoViewer extends StatefulWidget {
   final File imageFile;
   final List<DetectedObject> editableBoundingBoxes;
-  final bool isRemovingBox;
   final void Function(int index) onRemoveBox;
   final void Function(int index, DetectedObject newBox) onMoveBox;
   final void Function(DetectedObject newBox)?
       onNewBox; // Optional if adding a new box
   final bool isAddingBox; // Optional if you're adding boxes
+  final bool isRemovingBox;
+  final bool showBoundingInfo;
   final String timestamp;
   final TextEditingController titleController;
 
@@ -22,6 +23,7 @@ class PhotoViewer extends StatefulWidget {
     this.onNewBox,
     this.isAddingBox = false,
     this.isRemovingBox = false,
+    this.showBoundingInfo = true,
     required this.timestamp,
     required this.titleController,
     super.key,
@@ -67,88 +69,95 @@ class _PhotoViewerState extends State<PhotoViewer> {
                 top: top,
                 width: width,
                 height: height,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        if (widget.isRemovingBox) {
-                          widget.onRemoveBox(index);
-                        }
-                      },
-                      onPanStart: (details) {
-                        setState(() {
-                          draggingBoxIndex = index;
-                          initialBox = box;
-                          dragStartPosition = details.localPosition;
-                        });
-                      },
-                      onPanUpdate: (details) {
-                        if (draggingBoxIndex == null) return;
+                child: GestureDetector(
+                  onTap: () {
+                    if (widget.isRemovingBox) {
+                      widget.onRemoveBox(index);
+                    }
+                  },
+                  onPanStart: (details) {
+                    setState(() {
+                      draggingBoxIndex = index;
+                      initialBox = box;
+                      dragStartPosition = details.localPosition;
+                    });
+                  },
+                  onPanUpdate: (details) {
+                    if (draggingBoxIndex == null) return;
 
-                        final dx =
-                            details.localPosition.dx - dragStartPosition.dx;
-                        final dy =
-                            details.localPosition.dy - dragStartPosition.dy;
+                    final dx = details.localPosition.dx - dragStartPosition.dx;
+                    final dy = details.localPosition.dy - dragStartPosition.dy;
 
-                        final updatedLeft = initialBox.left + dx / factorX;
-                        final updatedTop = initialBox.top + dy / factorY;
+                    final updatedLeft = initialBox.left + dx / factorX;
+                    final updatedTop = initialBox.top + dy / factorY;
 
-                        final updatedBox = Rect.fromLTWH(
-                          updatedLeft,
-                          updatedTop,
-                          box.width,
-                          box.height,
-                        );
+                    final updatedBox = Rect.fromLTWH(
+                      updatedLeft,
+                      updatedTop,
+                      box.width,
+                      box.height,
+                    );
 
-                        widget.onMoveBox(
-                            index,
-                            DetectedObject(
-                              rect: updatedBox,
-                              label: detectedObject.label,
-                              score: detectedObject.score,
-                            ));
-                      },
-                      onPanEnd: (_) {
-                        setState(() {
-                          draggingBoxIndex = null;
-                        });
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border:
-                              Border.all(color: Colors.lightGreen, width: 2),
-                          color:
-                              Colors.lightGreen.withAlpha((0.4 * 255).toInt()),
-                        ),
-                      ),
-                    ),
-                    Text(
-                      '${index + 1}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    // Optionally display the label or score
-                    Positioned(
-                      top: 5,
-                      left: 5,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 3),
-                        child: Text(
-                          '${detectedObject.label}${(detectedObject.score * 100).toStringAsFixed(1)}%',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
+                    widget.onMoveBox(
+                        index,
+                        DetectedObject(
+                          rect: updatedBox,
+                          label: detectedObject.label,
+                          score: detectedObject.score,
+                        ));
+                  },
+                  onPanEnd: (_) {
+                    setState(() {
+                      draggingBoxIndex = null;
+                    });
+                  },
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      if (widget
+                          .showBoundingInfo) // Show the bounding box background only if toggled
+                        Container(
+                          decoration: BoxDecoration(
+                            border:
+                                Border.all(color: Colors.lightGreen, width: 2),
+                            color: Colors.lightGreen
+                                .withAlpha((0.4 * 255).toInt()),
                           ),
                         ),
+                      if (!widget
+                          .showBoundingInfo) // Transparent container if info is hidden
+                        Container(color: Colors.transparent),
+
+                      // Always show the index number
+                      Text(
+                        '${index + 1}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
+
+                      // Only show label & score when toggled
+                      if (widget.showBoundingInfo)
+                        Positioned(
+                          top: 5,
+                          left: 5,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 3),
+                            child: Text(
+                              '${detectedObject.label}${(detectedObject.score * 100).toStringAsFixed(1)}%',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               );
             }),

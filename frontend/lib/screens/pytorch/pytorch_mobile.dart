@@ -443,6 +443,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                             },
                             isRemovingBox: isRemovingBox,
                             isAddingBox: isAddingBox,
+                            showBoundingInfo: showBoundingInfo,
                             timestamp: timestamp,
                             titleController: titleController,
                           ),
