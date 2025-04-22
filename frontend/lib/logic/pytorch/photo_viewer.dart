@@ -58,11 +58,18 @@ class _PhotoViewerState extends State<PhotoViewer> {
               final Rect box =
                   detectedObject.rect; // Accessing rect from DetectedObject
 
+              // ENFORCE A MINIMUM SIZE FOR THE BOUNDING BOXES 
+              //- so that numbers can still display properly even when the detected object is smaller than the number
+              const double minBoxSize = 20.0;
               // Apply scaling
               final double left = box.left * factorX;
               final double top = box.top * factorY;
-              final double width = box.width * factorX;
-              final double height = box.height * factorY;
+
+              // ENFORCING A MINIMUM WIDTH AND HEIGHT
+              final double width =
+                  (box.width * factorX).clamp(minBoxSize, double.infinity);
+              final double height =
+                  (box.height * factorY).clamp(minBoxSize, double.infinity);
 
               return Positioned(
                 left: left,
