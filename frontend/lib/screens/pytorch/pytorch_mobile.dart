@@ -147,7 +147,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
 
       // Title case the detected labels before saving them into the inventory
       detectedStockList = editableBoundingBoxes
-          .map((e) => LabelFormatter.format(e.label))
+          .map((e) => LabelFormatter.titleCase(e.label))
           .toSet()
           .toList();
 

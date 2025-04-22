@@ -56,7 +56,7 @@ class _StockManagerState extends State<StockManager> {
   void addStockItem() {
     String rawItemName = itemController.text.trim();
      // Title case the detected labels before saving them into the inventory
-    String itemName = LabelFormatter.format(rawItemName);
+    String itemName = LabelFormatter.titleCase(rawItemName);
     int? itemCount = int.tryParse(countController.text.trim());
 
     if (itemName.isNotEmpty && itemCount != null) {
