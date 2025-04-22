@@ -179,8 +179,22 @@ class _PytorchMobileState extends State<PytorchMobile> {
     drawRectanglesAroundObjects();
   }
 
+  Future<void> drawRectanglesAroundObjects() async {
+    if (_selectedImage == null) return;
+
+    // Read image bytes
+    Uint8List imageBytes = await _selectedImage!.readAsBytes();
+
+    // Decode image
+    ui.Image decodedImage = await decodeImageFromList(imageBytes);
+
+    setState(() {
+      imageForDrawing = decodedImage; // Now image is a ui.Image
+    });
+  }
+
   String inferenceTimeAsString(Stopwatch stopwatch) =>
-      "Inference Took ${stopwatch.elapsed.inMilliseconds} ms";
+      "Speed: ${stopwatch.elapsed.inMilliseconds} ms";
 
   /// Requests necessary permissions based on the platform. [gain permission]
   Future<void> _requestPermission() async {
@@ -329,19 +343,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
     return file.path;
   }
 
-  Future<void> drawRectanglesAroundObjects() async {
-    if (_selectedImage == null) return;
-
-    // Read image bytes
-    Uint8List imageBytes = await _selectedImage!.readAsBytes();
-
-    // Decode image
-    ui.Image decodedImage = await decodeImageFromList(imageBytes);
-
-    setState(() {
-      imageForDrawing = decodedImage; // Now image is a ui.Image
-    });
-  }
   // END
 
   @override
@@ -427,8 +428,9 @@ class _PytorchMobileState extends State<PytorchMobile> {
         ),
         endDrawer: const SideMenu(),
         body: Container(
-          padding: const EdgeInsets.fromLTRB(
-              42, 40, 42, 42), // Overall outer padding
+          padding: _selectedImage == null
+              ? const EdgeInsets.fromLTRB(12, 12, 12, 12)
+              : const EdgeInsets.all(5), // Overall outer padding
           decoration: BoxDecoration(
             image: DecorationImage(
               image: AssetImage("assets/images/tectags_bg.png"),
@@ -444,7 +446,9 @@ class _PytorchMobileState extends State<PytorchMobile> {
                 child: Container(
                   width: double
                       .infinity, // Makes the container expand horizontally
-                  margin: const EdgeInsets.fromLTRB(20, 40, 20, 0),
+                  margin: _selectedImage == null
+                      ? const EdgeInsets.fromLTRB(12, 40, 12, 40)
+                      : const EdgeInsets.all(0),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     color: const Color.fromARGB(255, 223, 223, 223),
@@ -484,7 +488,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
                         ),
                 ),
               ),
-              const SizedBox(height: 35.0),
               if (_selectedImage == null) ...[
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
@@ -501,9 +504,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                   icon: const Icon(Icons.camera_alt),
                   label: const Text("Capture Photo"),
                 ),
-              ],
-              const SizedBox(height: 15.0),
-              if (_selectedImage == null) ...[
+                const SizedBox(height: 15.0),
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     textStyle: const TextStyle(fontSize: 16),
@@ -519,44 +520,49 @@ class _PytorchMobileState extends State<PytorchMobile> {
                   icon: const Icon(Icons.image),
                   label: const Text("Choose an Image"),
                 ),
-                SizedBox(height: 15.0),
               ],
               if (_selectedImage != null) ...[
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      "Show Bounding Boxes Info",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    Switch(
-                      value: showBoundingInfo,
-                      onChanged: (value) {
-                        setState(() {
-                          showBoundingInfo = value;
-                          debugPrint(showBoundingInfo.toString());
-                        });
-                      },
-                      activeColor: Colors.white,
-                      activeTrackColor: Colors.green,
-                      inactiveThumbColor: Colors.white,
-                      inactiveTrackColor:
-                          const Color.fromARGB(255, 243, 243, 243)
-                              .withAlpha((0.25 * 255).toInt()),
-                    ),
-                    const Spacer(),
-                    textToShow != null
-                        ? Text(
-                            textToShow!,
-                            style: const TextStyle(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.lightGreenAccent),
-                          )
-                        : const SizedBox(height: 15.0),
-                  ],
+                Container(
+                  // color: Colors.red, // Debug background
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        "Bounding Boxes: ",
+                        style: TextStyle(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.lightGreenAccent),
+                      ),
+                      Switch(
+                        value: showBoundingInfo,
+                        onChanged: (value) {
+                          setState(() {
+                            showBoundingInfo = value;
+                            debugPrint(showBoundingInfo.toString());
+                          });
+                        },
+                        activeColor: Colors.white,
+                        activeTrackColor: Colors.green,
+                        inactiveThumbColor: Colors.white,
+                        inactiveTrackColor:
+                            const Color.fromARGB(255, 243, 243, 243)
+                                .withAlpha((0.25 * 255).toInt()),
+                      ),
+                      const Spacer(),
+                      textToShow != null
+                          ? Text(
+                              textToShow!,
+                              style: const TextStyle(
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.lightGreenAccent),
+                            )
+                          : const SizedBox.shrink(),
+                    ],
+                  ),
                 ),
-
+                // SizedBox(height: 5.0),
                 // DROPDOWN THAT FETCHES STOCKS FROM MONGODB
                 DropdownButtonFormField<String>(
                   value: _selectedStock,
@@ -581,7 +587,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                     border: OutlineInputBorder(),
                   ),
                 ),
-                const SizedBox(height: 15.0),
+                const SizedBox(height: 5.0),
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white, // White background

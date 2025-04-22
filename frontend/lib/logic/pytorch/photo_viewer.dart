@@ -175,21 +175,36 @@ class _PhotoViewerState extends State<PhotoViewer> {
                       final localPosition =
                           renderBox.globalToLocal(details.globalPosition);
 
-                      double boxWidth = 0.1; // 10% width
-                      double boxHeight = 0.1; // 10% height
+                      double defaultBoxWidth = 0.1; // 10% width of image
+                      double defaultBoxHeight = 0.1; // 10% height of image
 
                       if (widget.editableBoundingBoxes.isNotEmpty) {
-                        boxWidth =
+                        defaultBoxWidth =
                             widget.editableBoundingBoxes.first.rect.width;
-                        boxHeight =
+                        defaultBoxHeight =
                             widget.editableBoundingBoxes.first.rect.height;
                       }
 
+                      // Convert relative sizes to absolute pixel values if necessary
+                      final double absBoxWidth = defaultBoxWidth * factorX;
+                      final double absBoxHeight = defaultBoxHeight * factorY;
+
+                      // Apply minimum size constraints
+                      final double minWidth = 40.0;
+                      final double minHeight = 30.0;
+                      final double adjustedWidth =
+                          absBoxWidth < minWidth ? minWidth : absBoxWidth;
+                      final double adjustedHeight =
+                          absBoxHeight < minHeight ? minHeight : absBoxHeight;
+
+                      // Convert back to scaled values for Rect (relative to factorX/factorY)
                       final newBox = Rect.fromLTWH(
-                        (localPosition.dx / factorX) - (boxWidth / 2),
-                        (localPosition.dy / factorY) - (boxHeight / 2),
-                        boxWidth,
-                        boxHeight,
+                        (localPosition.dx / factorX) -
+                            (adjustedWidth / factorX / 2),
+                        (localPosition.dy / factorY) -
+                            (adjustedHeight / factorY / 2),
+                        adjustedWidth / factorX,
+                        adjustedHeight / factorY,
                       );
 
                       // Count the frequency of each label
@@ -199,7 +214,6 @@ class _PhotoViewerState extends State<PhotoViewer> {
                             (labelFrequency[box.label] ?? 0) + 1;
                       }
 
-                      // Get the label with the highest count
                       String mostCommonLabel = 'New Object'; // fallback
                       if (labelFrequency.isNotEmpty) {
                         mostCommonLabel = labelFrequency.entries
@@ -207,7 +221,6 @@ class _PhotoViewerState extends State<PhotoViewer> {
                             .key;
                       }
 
-                      // Create DetectedObject and pass it
                       final newDetectedObject = DetectedObject(
                         rect: newBox,
                         label: mostCommonLabel,
