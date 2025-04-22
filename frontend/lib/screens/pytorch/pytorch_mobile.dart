@@ -22,6 +22,7 @@ import 'package:intl/intl.dart';
 
 // PYTORCH
 import 'package:pytorch_lite/pytorch_lite.dart';
+import 'package:tectags/utils/label_formatter.dart';
 
 class PytorchMobile extends StatefulWidget {
   const PytorchMobile({super.key});
@@ -144,11 +145,13 @@ class _PytorchMobileState extends State<PytorchMobile> {
               ))
           .toList();
 
-      detectedStockList =
-          editableBoundingBoxes.map((e) => e.label).toSet().toList();
+      // Title case the detected labels before saving them into the inventory
+      detectedStockList = editableBoundingBoxes
+          .map((e) => LabelFormatter.format(e.label))
+          .toSet()
+          .toList();
 
-      allStocks =
-          {...stockList, ...detectedStockList}.toList(); // 🌟 This is perfect!
+      allStocks = {...stockList, ...detectedStockList}.toList();
 
       // // ✅ Ensure _selectedStock is valid
       // if (!allStocks.contains(_selectedStock)) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:tectags/services/api.dart';
+import 'package:tectags/utils/label_formatter.dart';
 
 class StockManager extends StatefulWidget {
   const StockManager({super.key});
@@ -53,7 +54,9 @@ class _StockManagerState extends State<StockManager> {
   }
 
   void addStockItem() {
-    String itemName = itemController.text.trim();
+    String rawItemName = itemController.text.trim();
+     // Title case the detected labels before saving them into the inventory
+    String itemName = LabelFormatter.format(rawItemName);
     int? itemCount = int.tryParse(countController.text.trim());
 
     if (itemName.isNotEmpty && itemCount != null) {
@@ -94,10 +97,10 @@ class _StockManagerState extends State<StockManager> {
         title: const Text(
           "Inventory Management",
           style: TextStyle(
-            fontFamily: 'Roboto', 
-            fontSize: 22, 
+            fontFamily: 'Roboto',
+            fontSize: 22,
             fontWeight: FontWeight.bold,
-            letterSpacing: 1.2, 
+            letterSpacing: 1.2,
             color: Color.fromARGB(255, 27, 211, 224),
           ),
         ),
