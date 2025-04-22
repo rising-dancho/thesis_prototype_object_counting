@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tectags/widgets/color.dart';
 import 'package:tectags/screens/onboarding/onboarding_items.dart';
 import 'package:tectags/screens/navigation/navigation_menu.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,19 +20,26 @@ class _OnboardingViewState extends State<OnboardingView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomSheet: Container(
-        color: Colors.transparent,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        child: isLastPage
-            ? getStarted()
-            : Row(
+      bottomSheet: isLastPage
+          ? null // No bottomSheet on the last page
+          : Container(
+              color: Colors.transparent,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // Skip Button
                   TextButton(
-                    onPressed: () => pageController.jumpToPage(controller.items.length - 1),
+                    onPressed: () =>
+                        pageController.jumpToPage(controller.items.length - 1),
+                    style: TextButton.styleFrom(
+                      foregroundColor: const Color.fromARGB(255, 22, 165, 221), 
+                      textStyle:
+                          const TextStyle(fontSize: 17), 
+                    ),
                     child: const Text("Skip"),
                   ),
+
                   // Indicator
                   SmoothPageIndicator(
                     controller: pageController,
@@ -46,7 +52,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                     effect: const WormEffect(
                       dotHeight: 12,
                       dotWidth: 12,
-                      activeDotColor: primaryColor,
+                      activeDotColor: Color.fromARGB(255, 120, 33, 155),
                     ),
                   ),
                   // Next Button
@@ -55,13 +61,19 @@ class _OnboardingViewState extends State<OnboardingView> {
                       duration: const Duration(milliseconds: 600),
                       curve: Curves.easeIn,
                     ),
+                    style: TextButton.styleFrom(
+                      foregroundColor: const Color.fromARGB(255, 22, 165, 221), 
+                      textStyle:
+                          const TextStyle(fontSize: 17), 
+                    ),
                     child: const Text("Next"),
                   ),
                 ],
               ),
-      ),
+            ),
       body: PageView.builder(
-        onPageChanged: (index) => setState(() => isLastPage = controller.items.length - 1 == index),
+        onPageChanged: (index) =>
+            setState(() => isLastPage = controller.items.length - 1 == index),
         itemCount: controller.items.length,
         controller: pageController,
         itemBuilder: (context, index) {
@@ -71,20 +83,33 @@ class _OnboardingViewState extends State<OnboardingView> {
               color: onboardingItem.backgroundColor,
             ),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                // Image.asset(onboardingItem.image),
-                const SizedBox(height: 15),
+                const SizedBox(height: 100),
+                Image.asset(onboardingItem.image),
+                const SizedBox(height: 50),
                 Text(
                   onboardingItem.title,
-                  style: const TextStyle(fontSize: 30, color: Colors.white, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 30,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 15),
                 Text(
                   onboardingItem.descriptions,
-                  style: const TextStyle(color: Color.fromARGB(255, 194, 194, 194), fontSize: 17),
+                  style: const TextStyle(
+                    color: Color.fromARGB(255, 194, 194, 194),
+                    fontSize: 17,
+                  ),
                   textAlign: TextAlign.center,
                 ),
+                if (isLastPage) ...[
+                  const Spacer(),
+                  getStarted(),
+                  const SizedBox(height: 20), // Space below the button
+                ],
               ],
             ),
           );
@@ -93,30 +118,40 @@ class _OnboardingViewState extends State<OnboardingView> {
     );
   }
 
-  // Get Started Button
+// Get Started Button
   Widget getStarted() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: const Color.fromARGB(255, 22, 165, 221),
-      ),
-      width: MediaQuery.of(context).size.width * .9,
-      height: 55,
-      child: TextButton(
-        onPressed: () async {
-          final pres = await SharedPreferences.getInstance();
-          pres.setBool("onboarding", true);
+    return Padding(
+      padding:
+          const EdgeInsets.only(bottom: 20.0), // Adjust the value as needed
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width * 0.9,
+        height: 55,
+        child: TextButton(
+          style: TextButton.styleFrom(
+            backgroundColor: const Color.fromARGB(255, 22, 165, 221),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          onPressed: () async {
+            final prefs = await SharedPreferences.getInstance();
+            prefs.setBool("onboarding", true);
 
-          // After pressing the Get Started button, set onboarding value to true
-          if (!mounted) return;
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => NavigationMenu()),
-          );
-        },
-        child: const Text(
-          "Get started",
-          style: TextStyle(color: Colors.white),
+            if (!mounted) return;
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => NavigationMenu()),
+            );
+          },
+          child: const Text(
+            "Get started",
+            style: TextStyle(
+              fontFamily: 'Roboto',
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: Colors.white,
+            ),
+          ),
         ),
       ),
     );

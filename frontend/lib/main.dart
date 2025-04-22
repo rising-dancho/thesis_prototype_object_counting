@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tectags/screens/onboarding/onboarding_view.dart';
-// import 'package:tectags/screens/navigation/navigation_menu.dart';
 // import 'package:tectags/screens/splash_screen.dart';
 import 'package:tectags/theme/theme.dart';
 
