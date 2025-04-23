@@ -74,6 +74,7 @@ class _AddProductState extends State<AddProduct> {
           const SizedBox(height: 10),
           TextFormField(
             // controller: _fullNameController,
+            keyboardType: TextInputType.number,
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter the count';
@@ -99,6 +100,7 @@ class _AddProductState extends State<AddProduct> {
           const SizedBox(height: 10),
           TextFormField(
             // controller: _fullNameController,
+            keyboardType: TextInputType.number,
             validator: (value) {
               return null;
             },
@@ -134,11 +136,12 @@ class _AddProductState extends State<AddProduct> {
               // onPressed: widget.addStockItem,
               onPressed: () {},
               child: const Text(
-                'Save',
+                'SAVE',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: 'Roboto',
                   fontSize: 15.0,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
