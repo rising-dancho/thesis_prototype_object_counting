@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:tectags/services/api.dart';
+import 'package:tectags/utils/label_formatter.dart';
 
 class AddProduct extends StatefulWidget {
-  // final VoidCallback addStockItem;
+  final Map<String, Map<String, int>> stockCounts;
+  final void Function(String name, int count) onAddStock;
 
   const AddProduct({
     super.key,
-    // required this.addStockItem,
+    required this.stockCounts,
+    required this.onAddStock,
   });
 
   @override
@@ -13,6 +17,23 @@ class AddProduct extends StatefulWidget {
 }
 
 class _AddProductState extends State<AddProduct> {
+  TextEditingController itemController = TextEditingController();
+  TextEditingController countController = TextEditingController();
+  TextEditingController priceController = TextEditingController();
+
+  void addStockItem() {
+    String rawItemName = itemController.text.trim();
+    String itemName = LabelFormatter.titleCase(rawItemName);
+    int? itemCount = int.tryParse(countController.text.trim());
+
+    if (itemName.isNotEmpty && itemCount != null) {
+      widget.onAddStock(itemName, itemCount); // Notify parent
+      itemController.clear();
+      countController.clear();
+      Navigator.pop(context); // Dismiss modal after adding
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -48,7 +69,7 @@ class _AddProductState extends State<AddProduct> {
           ),
           const SizedBox(height: 22),
           TextFormField(
-            // controller: _fullNameController,
+            controller: itemController,
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter the stock name';
@@ -73,7 +94,7 @@ class _AddProductState extends State<AddProduct> {
           ),
           const SizedBox(height: 10),
           TextFormField(
-            // controller: _fullNameController,
+            controller: countController,
             keyboardType: TextInputType.number,
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -99,7 +120,7 @@ class _AddProductState extends State<AddProduct> {
           ),
           const SizedBox(height: 10),
           TextFormField(
-            // controller: _fullNameController,
+            controller: priceController,
             keyboardType: TextInputType.number,
             validator: (value) {
               return null;
@@ -133,8 +154,7 @@ class _AddProductState extends State<AddProduct> {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              // onPressed: widget.addStockItem,
-              onPressed: () {},
+              onPressed: addStockItem,
               child: const Text(
                 'SAVE',
                 textAlign: TextAlign.center,

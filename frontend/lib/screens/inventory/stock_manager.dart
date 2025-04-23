@@ -25,33 +25,22 @@ class _StockManagerState extends State<StockManager> {
     showModalBottomSheet(
       context: context,
       builder: (_) {
-        // return AddProduct(addStockItem: addStockItem);
-        return AddProduct();
+        return AddProduct(
+          stockCounts: stockCounts,
+          onAddStock: (String name, int count) {
+            setState(() {
+              stockCounts[name] = {
+                "availableStock": count,
+                "totalStock": count,
+                "sold": 0,
+              };
+            });
+            API.saveStockToMongoDB(stockCounts);
+          },
+        );
       },
     );
   }
-
-  // void addStockItem() {
-  //   String rawItemName = itemController.text.trim();
-  //   // Title case the detected labels before saving them into the inventory
-  //   String itemName = LabelFormatter.titleCase(rawItemName);
-  //   int? itemCount = int.tryParse(countController.text.trim());
-
-  //   if (itemName.isNotEmpty && itemCount != null) {
-  //     setState(() {
-  //       stockCounts[itemName] = {
-  //         "availableStock": itemCount,
-  //         "totalStock": itemCount,
-  //         "sold": 0, // ✅ Make sure sold is stored properly
-  //       };
-  //     });
-
-  //     API.saveStockToMongoDB(stockCounts);
-
-  //     itemController.clear();
-  //     countController.clear();
-  //   }
-  // }
 
   // INFO DISPLAYED IN THE CARDS PULLED FROM THE STOCKS COLLECTION
   Future<void> fetchStockData() async {
@@ -151,8 +140,7 @@ class _StockManagerState extends State<StockManager> {
                           prefixIcon: const Icon(Icons.search),
                           filled: true,
                           fillColor: const Color.fromARGB(255, 233, 233, 233),
-                          hintText:
-                              'Search for any stock name..',
+                          hintText: 'Search for any stock name..',
                           hintStyle: const TextStyle(color: Colors.black38),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.0),
