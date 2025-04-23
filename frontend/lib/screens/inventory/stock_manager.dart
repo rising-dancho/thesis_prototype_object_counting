@@ -296,24 +296,62 @@ class _StockManagerState extends State<StockManager> {
                                     itemBuilder: (context) => [
                                       PopupMenuItem(
                                         value: 'edit',
-                                        child: Row(
-                                          children: [
-                                            Icon(Icons.edit,
-                                                color: Colors.black54),
-                                            SizedBox(width: 8),
-                                            Text('Edit'),
-                                          ],
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.blue[
+                                                50], // light blue background for edit
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 8, horizontal: 4),
+                                          child: Row(
+                                            // crossAxisAlignment:
+                                            //     CrossAxisAlignment.center,
+                                            // mainAxisAlignment:
+                                            //     MainAxisAlignment.center,
+                                            children: [
+                                              Icon(Icons.edit,
+                                                  color: Colors.blue[400]),
+                                              SizedBox(width: 8),
+                                              Text('Edit',
+                                                  style: TextStyle(
+                                                    fontFamily: 'Roboto',
+                                                    // fontSize: 15.0,
+                                                    fontWeight: FontWeight.w400,
+                                                  )),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                       PopupMenuItem(
                                         value: 'delete',
-                                        child: Row(
-                                          children: [
-                                            Icon(Icons.delete,
-                                                color: Colors.black54),
-                                            SizedBox(width: 8),
-                                            Text('Delete'),
-                                          ],
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.red[
+                                                50], // light red background for delete
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 8, horizontal: 4),
+                                          child: Row(
+                                            // crossAxisAlignment:
+                                            //     CrossAxisAlignment.center,
+                                            // mainAxisAlignment:
+                                            //     MainAxisAlignment.center,
+                                            children: [
+                                              Icon(Icons.delete,
+                                                  color: Colors.red[400]),
+                                              SizedBox(width: 8),
+                                              Text('Delete',
+                                                  style: TextStyle(
+                                                    fontFamily: 'Roboto',
+                                                    // fontSize: 15.0,
+                                                    fontWeight: FontWeight.w400,
+                                                  )),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ],
