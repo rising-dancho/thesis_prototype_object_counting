@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:tectags/services/api.dart';
 import 'package:tectags/utils/label_formatter.dart';
+import 'package:tectags/widgets/add_product.dart';
 
 class StockManager extends StatefulWidget {
   const StockManager({super.key});
@@ -15,47 +16,24 @@ class _StockManagerState extends State<StockManager> {
   TextEditingController countController = TextEditingController();
   Map<String, Map<String, int>> stockCounts = {};
 
-  // BACKUP
-  // Map<String, int> stockCounts = {
-  //   "Cement": 100,
-  //   "Sand": 100,
-  //   "Hollow Blocks": 100,
-  //   "Plywood": 100,
-  //   "Deform Bar": 100,
-  // };
-
   @override
   void initState() {
     super.initState();
     fetchStockData();
   }
 
-  // INFO DISPLAYED IN THE CARDS PULLED FROM THE STOCKS COLLECTION
-  Future<void> fetchStockData() async {
-    Map<String, Map<String, int>>? data = await API.fetchStockFromMongoDB();
-    debugPrint("Fetched Stock Data: $data");
-    debugPrint("STOCK COUNTS Data: $stockCounts");
-
-    if (data == null) {
-      debugPrint("⚠️ No stock data fetched.");
-      return; // Exit early if data is null
-    }
-
-    if (mounted) {
-      setState(() {
-        stockCounts = data.map((key, value) => MapEntry(key, {
-              "availableStock": value["availableStock"] ?? 0,
-              "totalStock": value["totalStock"] ?? 0,
-              "sold": value["sold"] ?? 0,
-            }));
-      });
-      debugPrint("Updated StockCounts: $stockCounts");
-    }
+  void _openAddProductModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return AddProduct(addStockItem: addStockItem);
+      },
+    );
   }
 
   void addStockItem() {
     String rawItemName = itemController.text.trim();
-     // Title case the detected labels before saving them into the inventory
+    // Title case the detected labels before saving them into the inventory
     String itemName = LabelFormatter.titleCase(rawItemName);
     int? itemCount = int.tryParse(countController.text.trim());
 
@@ -72,6 +50,29 @@ class _StockManagerState extends State<StockManager> {
 
       itemController.clear();
       countController.clear();
+    }
+  }
+
+  // INFO DISPLAYED IN THE CARDS PULLED FROM THE STOCKS COLLECTION
+  Future<void> fetchStockData() async {
+    Map<String, Map<String, int>>? data = await API.fetchStockFromMongoDB();
+    debugPrint("Fetched Stock Data: $data");
+    debugPrint("STOCK COUNTS Data: $stockCounts");
+
+    if (data == null) {
+      debugPrint("⚠️ No stock data fetshed.");
+      return; // Exit early if data is null
+    }
+
+    if (mounted) {
+      setState(() {
+        stockCounts = data.map((key, value) => MapEntry(key, {
+              "availableStock": value["availableStock"] ?? 0,
+              "totalStock": value["totalStock"] ?? 0,
+              "sold": value["sold"] ?? 0,
+            }));
+      });
+      debugPrint("Updated StockCounts: $stockCounts");
     }
   }
 
@@ -183,7 +184,14 @@ class _StockManagerState extends State<StockManager> {
               SizedBox(height: 10),
               Expanded(
                 child: stockCounts.isEmpty
-                    ? const Center(child: Text("No stock available."))
+                    ? const Center(
+                        child: Text(
+                        "No stock available.",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 16,
+                            color: Colors.white),
+                      ))
                     : ListView.builder(
                         itemCount: stockCounts.length,
                         itemBuilder: (context, index) {
@@ -326,9 +334,23 @@ class _StockManagerState extends State<StockManager> {
                         },
                       ),
               ),
-              SizedBox(height: 50),
             ],
           ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _openAddProductModal(context),
+        tooltip: 'Add Product',
+        backgroundColor:
+            Color.fromARGB(255, 22, 165, 221), // Change background color
+        foregroundColor: Colors.white, // Change icon/text color
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+          size: 24.0,
         ),
       ),
     );
