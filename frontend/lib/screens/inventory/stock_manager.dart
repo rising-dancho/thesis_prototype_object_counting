@@ -12,8 +12,6 @@ class StockManager extends StatefulWidget {
 }
 
 class _StockManagerState extends State<StockManager> {
-  TextEditingController itemController = TextEditingController();
-  TextEditingController countController = TextEditingController();
   Map<String, Map<String, int>> stockCounts = {};
 
   @override
@@ -26,32 +24,33 @@ class _StockManagerState extends State<StockManager> {
     showModalBottomSheet(
       context: context,
       builder: (_) {
-        return AddProduct(addStockItem: addStockItem);
+        // return AddProduct(addStockItem: addStockItem);
+        return AddProduct();
       },
     );
   }
 
-  void addStockItem() {
-    String rawItemName = itemController.text.trim();
-    // Title case the detected labels before saving them into the inventory
-    String itemName = LabelFormatter.titleCase(rawItemName);
-    int? itemCount = int.tryParse(countController.text.trim());
+  // void addStockItem() {
+  //   String rawItemName = itemController.text.trim();
+  //   // Title case the detected labels before saving them into the inventory
+  //   String itemName = LabelFormatter.titleCase(rawItemName);
+  //   int? itemCount = int.tryParse(countController.text.trim());
 
-    if (itemName.isNotEmpty && itemCount != null) {
-      setState(() {
-        stockCounts[itemName] = {
-          "availableStock": itemCount,
-          "totalStock": itemCount,
-          "sold": 0, // ✅ Make sure sold is stored properly
-        };
-      });
+  //   if (itemName.isNotEmpty && itemCount != null) {
+  //     setState(() {
+  //       stockCounts[itemName] = {
+  //         "availableStock": itemCount,
+  //         "totalStock": itemCount,
+  //         "sold": 0, // ✅ Make sure sold is stored properly
+  //       };
+  //     });
 
-      API.saveStockToMongoDB(stockCounts);
+  //     API.saveStockToMongoDB(stockCounts);
 
-      itemController.clear();
-      countController.clear();
-    }
-  }
+  //     itemController.clear();
+  //     countController.clear();
+  //   }
+  // }
 
   // INFO DISPLAYED IN THE CARDS PULLED FROM THE STOCKS COLLECTION
   Future<void> fetchStockData() async {
@@ -135,49 +134,32 @@ class _StockManagerState extends State<StockManager> {
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
                 child: Row(
                   children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: itemController,
-                        decoration: InputDecoration(
-                          labelText: 'Stock Category',
-                          filled: true,
-                          fillColor: const Color.fromARGB(255, 233, 233, 233),
-                          border: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16.0),
-                    Expanded(
-                      child: TextFormField(
-                        controller: countController,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          labelText: 'Stock Count',
-                          filled: true,
-                          fillColor: Color.fromARGB(255, 233, 233, 233),
-                          border: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16.0),
-                    ElevatedButton(
-                      onPressed: addStockItem,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color.fromARGB(255, 22, 165, 221),
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero,
-                        ),
-                        padding: const EdgeInsets.all(15.0),
-                      ),
-                      child: const Icon(
-                        Icons.add,
-                        color: Colors.white,
-                        size: 24.0,
-                      ),
-                    ),
+                    // Expanded(
+                    //   child: TextFormField(
+                    //     controller: itemController,
+                    //     decoration: InputDecoration(
+                    //       labelText: 'Stock Category',
+                    //       filled: true,
+                    //       fillColor: const Color.fromARGB(255, 233, 233, 233),
+                    //       border: InputBorder.none,
+                    //       focusedBorder: InputBorder.none,
+                    //     ),
+                    //   ),
+                    // ),
+                    // const SizedBox(width: 16.0),
+                    // Expanded(
+                    //   child: TextFormField(
+                    //     controller: countController,
+                    //     keyboardType: TextInputType.number,
+                    //     decoration: const InputDecoration(
+                    //       labelText: 'Stock Count',
+                    //       filled: true,
+                    //       fillColor: Color.fromARGB(255, 233, 233, 233),
+                    //       border: InputBorder.none,
+                    //       focusedBorder: InputBorder.none,
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
