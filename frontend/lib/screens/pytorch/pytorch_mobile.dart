@@ -432,7 +432,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
         endDrawer: const SideMenu(),
         body: Container(
           padding: _selectedImage == null
-              ? const EdgeInsets.fromLTRB(12, 12, 12, 12)
+              ? const EdgeInsets.fromLTRB(12, 16, 12, 32)
               : const EdgeInsets.all(5), // Overall outer padding
           decoration: BoxDecoration(
             image: DecorationImage(
@@ -450,7 +450,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                   width: double
                       .infinity, // Makes the container expand horizontally
                   margin: _selectedImage == null
-                      ? const EdgeInsets.fromLTRB(12, 40, 12, 40)
+                      ? const EdgeInsets.fromLTRB(12, 16, 12, 40)
                       : const EdgeInsets.all(0),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),

@@ -363,6 +363,7 @@ class _StockManagerState extends State<StockManager> {
                         },
                       ),
               ),
+              SizedBox(height: 75),
             ],
           ),
         ),
