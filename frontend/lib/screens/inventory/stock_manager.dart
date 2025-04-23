@@ -93,6 +93,10 @@ class _StockManagerState extends State<StockManager> {
 
   @override
   Widget build(BuildContext context) {
+    final filteredItems = stockCounts.keys
+        .where((key) => key.toLowerCase().contains(searchQuery))
+        .toList();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -148,7 +152,7 @@ class _StockManagerState extends State<StockManager> {
                           filled: true,
                           fillColor: const Color.fromARGB(255, 233, 233, 233),
                           hintText:
-                              'Search for stock name, or any number value',
+                              'Search for any stock name..',
                           hintStyle: const TextStyle(color: Colors.black38),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.0),
@@ -172,9 +176,9 @@ class _StockManagerState extends State<StockManager> {
                             color: Colors.white),
                       ))
                     : ListView.builder(
-                        itemCount: stockCounts.length,
+                        itemCount: filteredItems.length,
                         itemBuilder: (context, index) {
-                          String item = stockCounts.keys.elementAt(index);
+                          String item = filteredItems[index];
                           int availableStock =
                               stockCounts[item]?["availableStock"] ?? 0;
                           int totalStock =
