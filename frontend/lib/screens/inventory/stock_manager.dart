@@ -147,6 +147,9 @@ class _StockManagerState extends State<StockManager> {
                           prefixIcon: const Icon(Icons.search),
                           filled: true,
                           fillColor: const Color.fromARGB(255, 233, 233, 233),
+                          hintText:
+                              'Search for stock name, or any number value',
+                          hintStyle: const TextStyle(color: Colors.black38),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.0),
                             borderSide: BorderSide.none,
