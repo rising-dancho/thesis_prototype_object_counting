@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:tectags/services/api.dart';
-import 'package:tectags/utils/label_formatter.dart';
 import 'package:tectags/widgets/add_product.dart';
 
 class StockManager extends StatefulWidget {
@@ -13,6 +12,8 @@ class StockManager extends StatefulWidget {
 
 class _StockManagerState extends State<StockManager> {
   Map<String, Map<String, int>> stockCounts = {};
+  TextEditingController searchController = TextEditingController();
+  String searchQuery = '';
 
   @override
   void initState() {
@@ -134,32 +135,25 @@ class _StockManagerState extends State<StockManager> {
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
                 child: Row(
                   children: [
-                    // Expanded(
-                    //   child: TextFormField(
-                    //     controller: itemController,
-                    //     decoration: InputDecoration(
-                    //       labelText: 'Stock Category',
-                    //       filled: true,
-                    //       fillColor: const Color.fromARGB(255, 233, 233, 233),
-                    //       border: InputBorder.none,
-                    //       focusedBorder: InputBorder.none,
-                    //     ),
-                    //   ),
-                    // ),
-                    // const SizedBox(width: 16.0),
-                    // Expanded(
-                    //   child: TextFormField(
-                    //     controller: countController,
-                    //     keyboardType: TextInputType.number,
-                    //     decoration: const InputDecoration(
-                    //       labelText: 'Stock Count',
-                    //       filled: true,
-                    //       fillColor: Color.fromARGB(255, 233, 233, 233),
-                    //       border: InputBorder.none,
-                    //       focusedBorder: InputBorder.none,
-                    //     ),
-                    //   ),
-                    // ),
+                    Expanded(
+                      child: TextFormField(
+                        controller: searchController,
+                        onChanged: (value) {
+                          setState(() {
+                            searchQuery = value.toLowerCase();
+                          });
+                        },
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.search),
+                          filled: true,
+                          fillColor: const Color.fromARGB(255, 233, 233, 233),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
