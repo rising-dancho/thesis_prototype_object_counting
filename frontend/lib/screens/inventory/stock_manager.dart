@@ -157,7 +157,7 @@ class _StockManagerState extends State<StockManager> {
                 child: stockCounts.isEmpty
                     ? const Center(
                         child: Text(
-                        "No stock available.",
+                        "No stocks available.",
                         style: TextStyle(
                             fontWeight: FontWeight.w400,
                             fontSize: 16,
@@ -363,7 +363,7 @@ class _StockManagerState extends State<StockManager> {
                         },
                       ),
               ),
-              SizedBox(height: 75),
+              SizedBox(height: 80),
             ],
           ),
         ),

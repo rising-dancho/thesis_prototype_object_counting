@@ -432,7 +432,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
         endDrawer: const SideMenu(),
         body: Container(
           padding: _selectedImage == null
-              ? const EdgeInsets.fromLTRB(12, 16, 12, 32)
+              ? const EdgeInsets.fromLTRB(12, 16, 12, 12)
               : const EdgeInsets.all(5), // Overall outer padding
           decoration: BoxDecoration(
             image: DecorationImage(
@@ -450,7 +450,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                   width: double
                       .infinity, // Makes the container expand horizontally
                   margin: _selectedImage == null
-                      ? const EdgeInsets.fromLTRB(12, 16, 12, 40)
+                      ? const EdgeInsets.fromLTRB(12, 16, 12, 24)
                       : const EdgeInsets.all(0),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
@@ -507,7 +507,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                   icon: const Icon(Icons.camera_alt),
                   label: const Text("Capture Photo"),
                 ),
-                const SizedBox(height: 15.0),
+                const SizedBox(height: 10.0),
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     textStyle: const TextStyle(fontSize: 16),
