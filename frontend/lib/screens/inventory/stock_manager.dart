@@ -224,10 +224,10 @@ class _StockManagerState extends State<StockManager> {
                                     padding: EdgeInsets.only(right: 15),
                                     child: Text("Total: $totalStock"),
                                   ),
-                                  Row(children: [
-                                    IconButton(
-                                      icon: Icon(Icons.edit),
-                                      onPressed: () {
+                                  PopupMenuButton<String>(
+                                    icon: Icon(Icons.more_horiz),
+                                    onSelected: (value) {
+                                      if (value == 'edit') {
                                         showDialog(
                                           context: context,
                                           builder: (context) {
@@ -262,11 +262,7 @@ class _StockManagerState extends State<StockManager> {
                                             );
                                           },
                                         );
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.delete),
-                                      onPressed: () {
+                                      } else if (value == 'delete') {
                                         showDialog(
                                           context: context,
                                           builder: (context) => AlertDialog(
@@ -295,9 +291,33 @@ class _StockManagerState extends State<StockManager> {
                                             ],
                                           ),
                                         );
-                                      },
-                                    ),
-                                  ]),
+                                      }
+                                    },
+                                    itemBuilder: (context) => [
+                                      PopupMenuItem(
+                                        value: 'edit',
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.edit,
+                                                color: Colors.black54),
+                                            SizedBox(width: 8),
+                                            Text('Edit'),
+                                          ],
+                                        ),
+                                      ),
+                                      PopupMenuItem(
+                                        value: 'delete',
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.delete,
+                                                color: Colors.black54),
+                                            SizedBox(width: 8),
+                                            Text('Delete'),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ],
                               ),
                             ),
