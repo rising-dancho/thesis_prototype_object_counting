@@ -4,11 +4,15 @@ import 'package:tectags/utils/label_formatter.dart';
 class AddProduct extends StatefulWidget {
   final Map<String, Map<String, int>> stockCounts;
   final void Function(String name, int count) onAddStock;
+  final String? initialName;
+  final int? initialCount;
 
   const AddProduct({
     super.key,
     required this.stockCounts,
     required this.onAddStock,
+    this.initialName,
+    this.initialCount,
   });
 
   @override
@@ -16,20 +20,28 @@ class AddProduct extends StatefulWidget {
 }
 
 class _AddProductState extends State<AddProduct> {
-  TextEditingController itemController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
   TextEditingController countController = TextEditingController();
   TextEditingController priceController = TextEditingController();
   // form validation
   final _formKey = GlobalKey<FormState>();
 
+  @override
+  void initState() {
+    super.initState();
+    nameController = TextEditingController(text: widget.initialName ?? '');
+    countController =
+        TextEditingController(text: widget.initialCount?.toString() ?? '');
+  }
+
   void addStockItem() {
-    String rawItemName = itemController.text.trim();
+    String rawItemName = nameController.text.trim();
     String itemName = LabelFormatter.titleCase(rawItemName);
     int? itemCount = int.tryParse(countController.text.trim());
 
     if (itemName.isNotEmpty && itemCount != null) {
       widget.onAddStock(itemName, itemCount); // Notify parent
-      itemController.clear();
+      nameController.clear();
       countController.clear();
       Navigator.pop(context); // Dismiss modal after adding
     }
@@ -78,7 +90,7 @@ class _AddProductState extends State<AddProduct> {
             ),
             const SizedBox(height: 22),
             TextFormField(
-              controller: itemController,
+              controller: nameController,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Required: Please enter the stock name';
