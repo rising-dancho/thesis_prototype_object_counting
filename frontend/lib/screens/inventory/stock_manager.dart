@@ -24,20 +24,26 @@ class _StockManagerState extends State<StockManager> {
   void _openAddProductModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (_) {
-        return AddProduct(
-          stockCounts: stockCounts,
-          onAddStock: (String name, int count) {
-            setState(() {
-              stockCounts[name] = {
-                "availableStock": count,
-                "totalStock": count,
-                "sold": 0,
-              };
-            });
-            API.saveStockToMongoDB(stockCounts);
-          },
-        );
+        return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: SingleChildScrollView(
+                child: AddProduct(
+              stockCounts: stockCounts,
+              onAddStock: (String name, int count) {
+                setState(() {
+                  stockCounts[name] = {
+                    "availableStock": count,
+                    "totalStock": count,
+                    "sold": 0,
+                  };
+                });
+                API.saveStockToMongoDB(stockCounts);
+              },
+            )));
       },
     );
   }
@@ -203,26 +209,38 @@ class _StockManagerState extends State<StockManager> {
                                               item,
                                               textAlign: TextAlign.start,
                                               style: TextStyle(
-                                                fontSize: 16,
+                                                fontSize: 22,
                                                 fontWeight: FontWeight.bold,
+                                                color: Colors.grey[800],
                                               ),
                                             ),
                                           ],
                                         ),
-                                        Text(
-                                          "Available: $availableStock",
-                                          textAlign: TextAlign.start,
-                                        ),
-                                        Text(
-                                          "Sold: $sold",
-                                          textAlign: TextAlign.start,
-                                        ),
+                                        Text("Available: $availableStock",
+                                            textAlign: TextAlign.start,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              // fontWeight: FontWeight.w500,
+                                              color: Colors.grey[700],
+                                            )),
+                                        Text("Sold: $sold",
+                                            textAlign: TextAlign.start,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              // fontWeight: FontWeight.w500,
+                                              color: Colors.grey[700],
+                                            )),
                                       ],
                                     ),
                                   ),
                                   Padding(
                                     padding: EdgeInsets.only(right: 15),
-                                    child: Text("Total: $totalStock"),
+                                    child: Text("Total: $totalStock",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          // fontWeight: FontWeight.w500,
+                                          color: Colors.grey[700],
+                                        )),
                                   ),
                                   PopupMenuButton<String>(
                                     icon: Icon(Icons.more_horiz),

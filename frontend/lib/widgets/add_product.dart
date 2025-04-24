@@ -49,7 +49,7 @@ class _AddProductState extends State<AddProduct> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 28,
-                  color: Colors.grey[700],
+                  color: Colors.grey[800],
                 ),
               ),
               Container(
