@@ -110,9 +110,12 @@ class _StockManagerState extends State<StockManager> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint("🔄 Rebuilding StockManager UI");
     final filteredItems = stockCounts.keys
         .where((key) => key.toLowerCase().contains(searchQuery))
         .toList();
+
+    debugPrint("Filtered items: $filteredItems");
 
     return Scaffold(
       appBar: AppBar(
@@ -161,7 +164,7 @@ class _StockManagerState extends State<StockManager> {
                         controller: searchController,
                         onChanged: (value) {
                           setState(() {
-                            searchQuery = value.toLowerCase();
+                            searchQuery = value.toLowerCase().trim();
                           });
                         },
                         decoration: InputDecoration(

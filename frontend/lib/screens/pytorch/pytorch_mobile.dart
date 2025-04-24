@@ -24,7 +24,7 @@ import 'package:intl/intl.dart';
 import 'package:pytorch_lite/pytorch_lite.dart';
 import 'package:tectags/utils/label_formatter.dart';
 import 'package:tectags/widgets/products/add_new_product.dart';
-import 'package:tectags/widgets/products/add_product.dart';
+
 
 class PytorchMobile extends StatefulWidget {
   const PytorchMobile({super.key});

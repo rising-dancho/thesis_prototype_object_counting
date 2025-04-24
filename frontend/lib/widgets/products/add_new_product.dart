@@ -29,8 +29,18 @@ class _AddNewProductState extends State<AddNewProduct> {
   void initState() {
     super.initState();
     nameController = TextEditingController(text: widget.initialName ?? '');
+    debugPrint("🛠 Initializing AddNewProduct — Sold: ${widget.initialSold}");
     soldController =
         TextEditingController(text: widget.initialSold?.toString() ?? '');
+  }
+
+  // FIXES THE SOLD NOT UPDATING CORRECTLY FROM _openAddProductModal
+  @override
+  void didUpdateWidget(covariant AddNewProduct oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialSold != oldWidget.initialSold) {
+      soldController.text = widget.initialSold?.toString() ?? '';
+    }
   }
 
   void addStockItem() {
