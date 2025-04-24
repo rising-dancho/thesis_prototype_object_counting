@@ -25,7 +25,6 @@ import 'package:pytorch_lite/pytorch_lite.dart';
 import 'package:tectags/utils/label_formatter.dart';
 import 'package:tectags/widgets/products/add_new_product.dart';
 
-
 class PytorchMobile extends StatefulWidget {
   const PytorchMobile({super.key});
 
@@ -394,6 +393,9 @@ class _PytorchMobileState extends State<PytorchMobile> {
                   };
                 });
                 API.saveStockToMongoDB(stockCounts);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Stocks updated successfully!")),
+                );
               },
             ),
           ),
