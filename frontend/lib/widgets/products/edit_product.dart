@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class EditStockModal extends StatefulWidget {
+class EditProduct extends StatefulWidget {
   final String itemName;
   final int currentStock;
   final void Function(int newCount) onUpdate;
 
-  const EditStockModal({
+  const EditProduct({
     super.key,
     required this.itemName,
     required this.currentStock,
@@ -13,10 +13,10 @@ class EditStockModal extends StatefulWidget {
   });
 
   @override
-  State<EditStockModal> createState() => _EditStockModalState();
+  State<EditProduct> createState() => _EditProductState();
 }
 
-class _EditStockModalState extends State<EditStockModal> {
+class _EditProductState extends State<EditProduct> {
   late TextEditingController _countController;
 
   @override
@@ -42,7 +42,7 @@ class _EditStockModalState extends State<EditStockModal> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
       padding: EdgeInsets.only(
         left: 20,
         right: 20,

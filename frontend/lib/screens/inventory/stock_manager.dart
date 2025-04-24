@@ -54,13 +54,18 @@ class _StockManagerState extends State<StockManager> {
       context: context,
       isScrollControlled: true,
       builder: (_) {
-        return EditStockModal(
-          itemName: item,
-          currentStock: totalStock,
-          onUpdate: (newCount) {
-            updateStock(item, newCount);
-          },
-        );
+        return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: SingleChildScrollView(
+                child: EditProduct(
+              itemName: item,
+              currentStock: totalStock,
+              onUpdate: (newCount) {
+                updateStock(item, newCount);
+              },
+            )));
       },
     );
   }
