@@ -54,7 +54,7 @@ class _AddProductState extends State<AddProduct> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Add Product",
+                  "Add Stock",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 28,
@@ -86,7 +86,7 @@ class _AddProductState extends State<AddProduct> {
                 return null;
               },
               decoration: InputDecoration(
-                labelText: 'Stock Name',
+                labelText: 'Name',
                 labelStyle: TextStyle(
                   color: Colors.grey[700], // default color
                 ),
@@ -108,12 +108,12 @@ class _AddProductState extends State<AddProduct> {
               keyboardType: TextInputType.number,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Required: Please enter the count';
+                  return 'Required: Please enter the total stock count';
                 }
                 return null;
               },
               decoration: InputDecoration(
-                labelText: 'Stock Count',
+                labelText: 'Total Count',
                 labelStyle: TextStyle(
                   color: Colors.grey[700], // default color
                 ),
@@ -137,7 +137,7 @@ class _AddProductState extends State<AddProduct> {
                 return null;
               },
               decoration: InputDecoration(
-                labelText: 'Stock Price',
+                labelText: 'Price',
                 labelStyle: TextStyle(
                   color: Colors.grey[700], // default color
                 ),

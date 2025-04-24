@@ -278,14 +278,14 @@ class _StockManagerState extends State<StockManager> {
                                               "Delete $item?",
                                               style: TextStyle(
                                                 fontWeight: FontWeight.bold,
-                                                fontSize: 28,
+                                                fontSize: 20,
                                                 color: Colors.grey[800],
                                               ),
                                             ),
                                             content: Text(
                                               "Are you sure you want to remove this stock item?",
                                               style: TextStyle(
-                                                fontSize: 16,
+                                                fontSize: 14,
                                                 color: Colors.grey[700],
                                               ),
                                             ),

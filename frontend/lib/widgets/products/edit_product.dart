@@ -56,7 +56,7 @@ class _EditProductState extends State<EditProduct> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Edit ${widget.itemName} Stock",
+                "Edit ${widget.itemName}",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 28,
@@ -83,7 +83,7 @@ class _EditProductState extends State<EditProduct> {
             controller: _countController,
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
-              labelText: "New Stock Count",
+              labelText: "New Total Count",
               filled: true,
               fillColor: Colors.grey[200],
               border: InputBorder.none,
