@@ -274,9 +274,21 @@ class _StockManagerState extends State<StockManager> {
                                         showDialog(
                                           context: context,
                                           builder: (context) => AlertDialog(
-                                            title: Text("Delete $item?"),
+                                            title: Text(
+                                              "Delete $item?",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 28,
+                                                color: Colors.grey[800],
+                                              ),
+                                            ),
                                             content: Text(
-                                                "Are you sure you want to remove this stock item?"),
+                                              "Are you sure you want to remove this stock item?",
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.grey[700],
+                                              ),
+                                            ),
                                             actions: [
                                               TextButton(
                                                 onPressed: () =>
@@ -284,7 +296,7 @@ class _StockManagerState extends State<StockManager> {
                                                 child: Text("Cancel",
                                                     style: TextStyle(
                                                         color:
-                                                            Colors.grey[600])),
+                                                            Colors.grey[800])),
                                               ),
                                               TextButton(
                                                 onPressed: () {
