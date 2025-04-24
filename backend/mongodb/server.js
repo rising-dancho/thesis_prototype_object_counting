@@ -149,7 +149,10 @@ app.post('/api/count_objects', async (req, res) => {
     }
 
     // Find the stock item
-    const stock = await Stock.findOne({ stockName: stockName });
+    const stock = await Stock.findOne({
+      stockName: { $regex: new RegExp(`^${stockName}$`, 'i') }, // 'i' = case-insensitive
+    });
+
     if (!stock) {
       return res
         .status(404)
