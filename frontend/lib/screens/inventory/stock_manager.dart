@@ -209,7 +209,7 @@ class _StockManagerState extends State<StockManager> {
                                               item,
                                               textAlign: TextAlign.start,
                                               style: TextStyle(
-                                                fontSize: 22,
+                                                fontSize: 20,
                                                 fontWeight: FontWeight.bold,
                                                 color: Colors.grey[800],
                                               ),
