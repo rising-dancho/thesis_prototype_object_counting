@@ -1,35 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:tectags/utils/label_formatter.dart';
 
-class AddProduct extends StatefulWidget {
-  final Map<String, Map<String, int>> stockCounts;
-  final void Function(String name, int count) onAddStock;
+class AddNewProduct extends StatefulWidget {
+  final void Function(String name, int count, int sold) onAddStock;
+  final String? initialName;
+  final int? initialSold;
 
-  const AddProduct({
+  const AddNewProduct({
     super.key,
-    required this.stockCounts,
     required this.onAddStock,
+    this.initialName,
+    this.initialSold,
   });
 
   @override
-  State<AddProduct> createState() => _AddProductState();
+  State<AddNewProduct> createState() => _AddNewProductState();
 }
 
-class _AddProductState extends State<AddProduct> {
-  TextEditingController itemController = TextEditingController();
+class _AddNewProductState extends State<AddNewProduct> {
+  TextEditingController nameController = TextEditingController();
   TextEditingController countController = TextEditingController();
+  TextEditingController soldController = TextEditingController();
   TextEditingController priceController = TextEditingController();
   // form validation
   final _formKey = GlobalKey<FormState>();
 
+  @override
+  void initState() {
+    super.initState();
+    nameController = TextEditingController(text: widget.initialName ?? '');
+    soldController =
+        TextEditingController(text: widget.initialSold?.toString() ?? '');
+  }
+
   void addStockItem() {
-    String rawItemName = itemController.text.trim();
+    String rawItemName = nameController.text.trim();
     String itemName = LabelFormatter.titleCase(rawItemName);
     int? itemCount = int.tryParse(countController.text.trim());
 
     if (itemName.isNotEmpty && itemCount != null) {
-      widget.onAddStock(itemName, itemCount); // Notify parent
-      itemController.clear();
+      int itemSold = int.tryParse(soldController.text.trim()) ?? 0;
+      widget.onAddStock(itemName, itemCount, itemSold); // Notify parent
+      nameController.clear();
       countController.clear();
       Navigator.pop(context); // Dismiss modal after adding
     }
@@ -54,7 +66,7 @@ class _AddProductState extends State<AddProduct> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Add Product",
+                  "Add Stock",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 28,
@@ -78,15 +90,15 @@ class _AddProductState extends State<AddProduct> {
             ),
             const SizedBox(height: 22),
             TextFormField(
-              controller: itemController,
+              controller: nameController,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter the stock name';
+                  return 'Required: Please enter the stock name';
                 }
                 return null;
               },
               decoration: InputDecoration(
-                labelText: 'Stock Name',
+                labelText: 'Name',
                 labelStyle: TextStyle(
                   color: Colors.grey[700], // default color
                 ),
@@ -108,12 +120,12 @@ class _AddProductState extends State<AddProduct> {
               keyboardType: TextInputType.number,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter the count';
+                  return 'Required: Please enter the total stock count';
                 }
                 return null;
               },
               decoration: InputDecoration(
-                labelText: 'Stock Count',
+                labelText: 'Total Stock Count',
                 labelStyle: TextStyle(
                   color: Colors.grey[700], // default color
                 ),
@@ -121,7 +133,32 @@ class _AddProductState extends State<AddProduct> {
                   color:
                       Color(0xFF416FDF), // 👈 color when the field is focused
                 ),
-                hintText: 'Please enter the total stock count',
+                hintText: 'Please set the total stock count for this stock',
+                hintStyle: const TextStyle(color: Colors.black26),
+                fillColor: Colors.grey[200],
+                filled: true,
+                border: InputBorder.none,
+                // prefixIcon: Icon(Icons.numbers),
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextFormField(
+              controller: soldController,
+              keyboardType: TextInputType.number,
+              enabled: false, // 🔒 This disables the field
+              validator: (value) {
+                return null;
+              },
+              decoration: InputDecoration(
+                labelText: 'Sold',
+                labelStyle: TextStyle(
+                  color: Colors.grey[700], // default color
+                ),
+                floatingLabelStyle: TextStyle(
+                  color:
+                      Color(0xFF416FDF), // 👈 color when the field is focused
+                ),
+                hintText: 'Please enter the number of items sold',
                 hintStyle: const TextStyle(color: Colors.black26),
                 fillColor: Colors.grey[200],
                 filled: true,
@@ -137,7 +174,7 @@ class _AddProductState extends State<AddProduct> {
                 return null;
               },
               decoration: InputDecoration(
-                labelText: 'Stock Price',
+                labelText: 'Price',
                 labelStyle: TextStyle(
                   color: Colors.grey[700], // default color
                 ),

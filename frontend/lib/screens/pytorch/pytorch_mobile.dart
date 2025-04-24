@@ -23,6 +23,7 @@ import 'package:intl/intl.dart';
 // PYTORCH
 import 'package:pytorch_lite/pytorch_lite.dart';
 import 'package:tectags/utils/label_formatter.dart';
+import 'package:tectags/widgets/products/add_new_product.dart';
 import 'package:tectags/widgets/products/add_product.dart';
 
 class PytorchMobile extends StatefulWidget {
@@ -96,6 +97,29 @@ class _PytorchMobileState extends State<PytorchMobile> {
       } else {
         print("Error is $e");
       }
+    }
+  }
+
+  // INFO DISPLAYED IN THE CARDS PULLED FROM THE STOCKS COLLECTION
+  Future<void> fetchStockData() async {
+    Map<String, Map<String, int>>? data = await API.fetchStockFromMongoDB();
+    debugPrint("Fetched Stock Data: $data");
+    debugPrint("STOCK COUNTS Data: $stockCounts");
+
+    if (data == null) {
+      debugPrint("⚠️ No stock data fetshed.");
+      return; // Exit early if data is null
+    }
+
+    if (mounted) {
+      setState(() {
+        stockCounts = data.map((key, value) => MapEntry(key, {
+              "availableStock": value["availableStock"] ?? 0,
+              "totalStock": value["totalStock"] ?? 0,
+              "sold": value["sold"] ?? 0,
+            }));
+      });
+      debugPrint("Updated StockCounts: $stockCounts");
     }
   }
 
@@ -256,34 +280,11 @@ class _PytorchMobileState extends State<PytorchMobile> {
     }
   }
 
-  // INFO DISPLAYED IN THE CARDS PULLED FROM THE STOCKS COLLECTION
-  Future<void> fetchStockData() async {
-    Map<String, Map<String, int>>? data = await API.fetchStockFromMongoDB();
-    debugPrint("Fetched Stock Data: $data");
-    debugPrint("STOCK COUNTS Data: $stockCounts");
-
-    if (data == null) {
-      debugPrint("⚠️ No stock data fetshed.");
-      return; // Exit early if data is null
-    }
-
-    if (mounted) {
-      setState(() {
-        stockCounts = data.map((key, value) => MapEntry(key, {
-              "availableStock": value["availableStock"] ?? 0,
-              "totalStock": value["totalStock"] ?? 0,
-              "sold": value["sold"] ?? 0,
-            }));
-      });
-      debugPrint("Updated StockCounts: $stockCounts");
-    }
-  }
-
   /// **Save Screenshot to Gallery**
   /// THIS WOULD ALSO SAVE COUNTED OBJECT TO THE DATABASE (WILL SHOW IN THE ACTIVITY LOGS)
   Future<void> saveImage(BuildContext context) async {
     try {
-      // ✅ Prevent saving if no stock selected
+      // ✅ PREVENT SAVING IF THE STOCK SELECTION DROPDOWN IS EMPTY
       if (_selectedStock == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -294,7 +295,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
         return;
       }
 
-      // ✅ Capture screenshot
       final Uint8List? screenShot = await screenshotController.capture();
       if (!mounted) return;
 
@@ -305,14 +305,13 @@ class _PytorchMobileState extends State<PytorchMobile> {
         return;
       }
 
-      // ✅ Save to gallery
       final result = await SaverGallery.saveImage(
         screenShot,
         fileName: "screenshot_${DateTime.now().millisecondsSinceEpoch}.png",
         skipIfExists: false,
-      );
+      ); // [save your actual image] screenShot is my image
 
-      debugPrint("Result: $result");
+      debugPrint("Result: $result"); // [check structure of: result]
 
       if (result.isSuccess) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -326,31 +325,39 @@ class _PytorchMobileState extends State<PytorchMobile> {
           _openAddProductModal(
             context,
             initialName: _selectedStock,
-            initialCount: editableBoundingBoxes.length,
+            sold: editableBoundingBoxes.length,
           );
           return; // Exit early — let the user add the product before logging
         }
 
-        // ✅ Log object count
-        String? userId = await SharedPrefsService.getUserId();
-        if (userId == null) {
-          debugPrint("❌ User ID not found, cannot log data.");
-          return;
-        }
+        // 🔥 Log detected object count to the backend
+        if (_selectedStock != null) {
+          debugPrint("⚠️ No stock selected, skipping log.");
+          String? userId =
+              await SharedPrefsService.getUserId(); // ✅ Directly get the userId
+          if (userId == null) {
+            debugPrint("❌ User ID not found, cannot log data.");
+          }
 
-        debugPrint(
-            "📌 Logging to DB: USER = $userId, ITEM = $_selectedStock, Count = ${editableBoundingBoxes.length}");
+          if (userId != null) {
+            debugPrint(
+                "📌 Updating Database: USER = $userId, ITEM = $_selectedStock, Count = ${editableBoundingBoxes.length}");
+            var response = await API.logStockCurrentCount(
+              userId,
+              _selectedStock!,
+              editableBoundingBoxes.length, // Detected count
+            );
 
-        var response = await API.logStockCurrentCount(
-          userId,
-          _selectedStock!,
-          editableBoundingBoxes.length,
-        );
-
-        if (response != null) {
-          debugPrint("✅ Object count logged: $response");
+            if (response != null) {
+              debugPrint("✅ Object count logged: $response");
+            } else {
+              debugPrint("❌ Failed to log object count.");
+            }
+          } else {
+            debugPrint("❌ User ID not found, cannot log data.");
+          }
         } else {
-          debugPrint("❌ Failed to log object count.");
+          debugPrint("⚠️ No stock selected, skipping log.");
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -366,7 +373,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
   }
 
   void _openAddProductModal(BuildContext context,
-      {String? initialName, int? initialCount}) {
+      {String? initialName, int? sold}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -375,16 +382,15 @@ class _PytorchMobileState extends State<PytorchMobile> {
           padding:
               EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
           child: SingleChildScrollView(
-            child: AddProduct(
-              stockCounts: stockCounts,
+            child: AddNewProduct(
               initialName: initialName,
-              initialCount: initialCount,
-              onAddStock: (String name, int count) {
+              initialSold: sold,
+              onAddStock: (String name, int count, int sold) {
                 setState(() {
                   stockCounts[name] = {
                     "availableStock": count,
                     "totalStock": count,
-                    "sold": 0,
+                    "sold": sold,
                   };
                 });
                 API.saveStockToMongoDB(stockCounts);

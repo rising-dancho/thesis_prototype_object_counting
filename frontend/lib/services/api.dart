@@ -3,9 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+class SaveResult {
+  final bool isSuccess;
+  final String? errorMessage;
+
+  SaveResult({required this.isSuccess, this.errorMessage});
+}
+
 class API {
   // static const baseUrl = "http://192.168.1.10:2000/api/"; // FOR TESTING
-  static const baseUrl = "https://thesis-prototype-object-counting.vercel.app/api/";
+  static const baseUrl =
+      "https://thesis-prototype-object-counting.vercel.app/api/";
   // static const baseUrl = "https://fix-inventory.vercel.app/api/";
 
   // POST REQUEST: REGISTRATION
@@ -153,7 +161,7 @@ class API {
   }
 
   static Future<Map<String, dynamic>?> logStockCurrentCount(
-    String userId, String stockItem, int sold) async {
+      String userId, String stockItem, int sold) async {
     var url = Uri.parse("${baseUrl}count_objects");
 
     Map<String, dynamic> requestBody = {
@@ -188,7 +196,7 @@ class API {
     }
   }
 
-  static Future<void> saveStockToMongoDB(
+  static Future<SaveResult> saveStockToMongoDB(
       Map<String, Map<String, int>> stockCounts) async {
     try {
       List<Map<String, dynamic>> formattedStocks =
@@ -212,8 +220,9 @@ class API {
       } else {
         debugPrint("Failed to save stock: ${response.body}");
       }
+      return SaveResult(isSuccess: true);
     } catch (e) {
-      debugPrint("Error saving stock: $e");
+      return SaveResult(isSuccess: false, errorMessage: e.toString());
     }
   }
 
