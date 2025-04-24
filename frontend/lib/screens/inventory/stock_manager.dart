@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:tectags/services/api.dart';
-import 'package:tectags/widgets/add_product.dart';
+import 'package:tectags/widgets/products/add_product.dart';
+import 'package:tectags/widgets/products/edit_product.dart';
 
 class StockManager extends StatefulWidget {
   const StockManager({super.key});
@@ -44,6 +45,22 @@ class _StockManagerState extends State<StockManager> {
                 API.saveStockToMongoDB(stockCounts);
               },
             )));
+      },
+    );
+  }
+
+  void _openEditStockModal(BuildContext context, String item, int totalStock) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) {
+        return EditStockModal(
+          itemName: item,
+          currentStock: totalStock,
+          onUpdate: (newCount) {
+            updateStock(item, newCount);
+          },
+        );
       },
     );
   }
@@ -219,14 +236,14 @@ class _StockManagerState extends State<StockManager> {
                                         Text("Available: $availableStock",
                                             textAlign: TextAlign.start,
                                             style: TextStyle(
-                                              fontSize: 16,
+                                              fontSize: 14,
                                               // fontWeight: FontWeight.w500,
                                               color: Colors.grey[700],
                                             )),
                                         Text("Sold: $sold",
                                             textAlign: TextAlign.start,
                                             style: TextStyle(
-                                              fontSize: 16,
+                                              fontSize: 14,
                                               // fontWeight: FontWeight.w500,
                                               color: Colors.grey[700],
                                             )),
@@ -237,7 +254,7 @@ class _StockManagerState extends State<StockManager> {
                                     padding: EdgeInsets.only(right: 15),
                                     child: Text("Total: $totalStock",
                                         style: TextStyle(
-                                          fontSize: 16,
+                                          fontSize: 14,
                                           // fontWeight: FontWeight.w500,
                                           color: Colors.grey[700],
                                         )),
@@ -246,40 +263,8 @@ class _StockManagerState extends State<StockManager> {
                                     icon: Icon(Icons.more_horiz),
                                     onSelected: (value) {
                                       if (value == 'edit') {
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            TextEditingController
-                                                editController =
-                                                TextEditingController(
-                                                    text:
-                                                        totalStock.toString());
-                                            return AlertDialog(
-                                              title: Text("Edit $item Stock"),
-                                              content: TextField(
-                                                controller: editController,
-                                                keyboardType:
-                                                    TextInputType.number,
-                                              ),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () {
-                                                    int? newCount =
-                                                        int.tryParse(
-                                                            editController
-                                                                .text);
-                                                    if (newCount != null) {
-                                                      updateStock(
-                                                          item, newCount);
-                                                    }
-                                                    Navigator.pop(context);
-                                                  },
-                                                  child: Text("Save"),
-                                                )
-                                              ],
-                                            );
-                                          },
-                                        );
+                                        _openEditStockModal(
+                                            context, item, totalStock);
                                       } else if (value == 'delete') {
                                         showDialog(
                                           context: context,

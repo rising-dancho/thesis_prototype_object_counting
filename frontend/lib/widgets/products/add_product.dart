@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tectags/services/api.dart';
 import 'package:tectags/utils/label_formatter.dart';
 
 class AddProduct extends StatefulWidget {
@@ -82,7 +81,7 @@ class _AddProductState extends State<AddProduct> {
               controller: itemController,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter the stock name';
+                  return 'Required: Please enter the stock name';
                 }
                 return null;
               },
@@ -109,7 +108,7 @@ class _AddProductState extends State<AddProduct> {
               keyboardType: TextInputType.number,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter the count';
+                  return 'Required: Please enter the count';
                 }
                 return null;
               },
