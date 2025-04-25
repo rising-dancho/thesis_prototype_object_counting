@@ -24,12 +24,15 @@ class API {
     String newPassword,
   ) async {
     final url = Uri.parse('${baseUrl}change-password/$userId');
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
 
     try {
       final response = await http.put(
         url,
         headers: {
           'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
         },
         body: jsonEncode({
           'currentPassword': currentPassword,

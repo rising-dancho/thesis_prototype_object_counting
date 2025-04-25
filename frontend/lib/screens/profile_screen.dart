@@ -30,7 +30,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
 
-  bool _passwordVisible = false;
+  bool _currentPasswordVisible = false;
+  bool _newPasswordVisible = false;
 
   @override
   void initState() {
@@ -394,7 +395,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         children: [
                           TextFormField(
                             controller: _currentPasswordController,
-                            obscureText: !_passwordVisible,
+                            obscureText: !_currentPasswordVisible,
                             obscuringCharacter: '*',
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -414,13 +415,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               border: InputBorder.none,
                               suffixIcon: IconButton(
                                 icon: Icon(
-                                  _passwordVisible
+                                  _currentPasswordVisible
                                       ? Icons.visibility
                                       : Icons.visibility_off,
                                 ),
                                 onPressed: () {
                                   setState(() {
-                                    _passwordVisible = !_passwordVisible;
+                                    _currentPasswordVisible = !_currentPasswordVisible;
                                   });
                                 },
                               ),
@@ -444,7 +445,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         children: [
                           TextFormField(
                             controller: _newPasswordController,
-                            obscureText: !_passwordVisible,
+                            obscureText: !_newPasswordVisible,
                             obscuringCharacter: '*',
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -464,13 +465,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               border: InputBorder.none,
                               suffixIcon: IconButton(
                                 icon: Icon(
-                                  _passwordVisible
+                                  _newPasswordVisible
                                       ? Icons.visibility
                                       : Icons.visibility_off,
                                 ),
                                 onPressed: () {
                                   setState(() {
-                                    _passwordVisible = !_passwordVisible;
+                                    _newPasswordVisible = !_newPasswordVisible;
                                   });
                                 },
                               ),

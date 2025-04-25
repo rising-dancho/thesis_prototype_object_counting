@@ -116,16 +116,16 @@ app.post('/api/register', async (req, res) => {
 });
 
 // CHANGE PASSWORD
-// app.put('/api/change-password/:userId', async (req, res) => {
-app.put('/api/change-password/:userId', requireAuth, async (req, res) => {
+app.put('/api/change-password/:userId', async (req, res) => {
+  // app.put('/api/change-password/:userId', requireAuth, async (req, res) => {
   try {
     const { userId } = req.params;
     // JWT ROUTE PROTECTION
-    if (userId !== req.userId) {
-      return res
-        .status(403)
-        .json({ message: "Unauthorized to change this user's password." });
-    }
+    // if (userId !== req.userId) {
+    //   return res
+    //     .status(403)
+    //     .json({ message: "Unauthorized to change this user's password." });
+    // }
     const { currentPassword, newPassword } = req.body;
 
     // Validate inputs
