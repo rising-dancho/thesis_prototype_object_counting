@@ -116,18 +116,20 @@ app.post('/api/register', async (req, res) => {
 });
 
 // UPDATE PROFILE
-// app.put('/api/profile', requireAuth, async (req, res) => {
-app.put('/api/profile', async (req, res) => {
+app.put('/api/profile/:userId', async (req, res) => {
   try {
-    const userId = req.userId; // This comes from your JWT after decoding in the middleware
-
+    const { userId } = req.params; // Get userId from URL
     const { firstName, lastName, contactNumber, birthday } = req.body;
 
-    // Optional: validate fields if needed
+    // Validate inputs
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: 'Invalid user ID.' });
+    }
     if (!firstName || !lastName || !contactNumber || !birthday) {
       return res.status(400).json({ message: 'All fields are required.' });
     }
 
+    // Update user
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       {
@@ -145,6 +147,7 @@ app.put('/api/profile', async (req, res) => {
 
     res.json({ message: 'Profile updated successfully.', user: updatedUser });
   } catch (error) {
+    console.error('Update error:', error);
     res.status(500).json({ message: 'Server error.', error: error.message });
   }
 });

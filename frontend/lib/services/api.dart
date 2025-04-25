@@ -49,20 +49,17 @@ class API {
     }
   }
 
-  // PUT REQUEST: UPDATE PROFILE
   static Future<Map<String, dynamic>?> updateUserProfile(
-      Map<String, dynamic> profileData) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-
-    final url = Uri.parse('${baseUrl}profile');
+    String userId,
+    Map<String, dynamic> profileData,
+  ) async {
+    final url = Uri.parse('${baseUrl}profile/$userId');
 
     try {
       final response = await http.put(
         url,
         headers: {
           'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
         },
         body: jsonEncode(profileData),
       );

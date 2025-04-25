@@ -332,41 +332,67 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       onPressed: () async {
-                        var data = {
-                          "email": _emailController.text,
-                          "password": _passwordController.text,
+                        // Profile data to update (only include fields expected by the backend)
+                        Map<String, dynamic> profileData = {
                           "firstName": LabelFormatter.titleCase(
                               _firstNameController.text),
                           "lastName": LabelFormatter.titleCase(
                               _lastNameController.text),
                           "contactNumber": PhoneNumberFormatter.format(
                               _contactNumberController.text),
-                          "birthday": _birthdayController.text,
+                          "birthday": _birthdayController
+                              .text, // Ensure format is YYYY-MM-DD
                         };
 
-                        // {
-                        //     "email": "admin@gmail.com",
-                        //     "password": "admin123",
-                        //     "firstName": "rising",
-                        //     "lastName": "dancho",
-                        //     "contactNumber":"09234699665",
-                        //     "birthday": "1992-05-07"
-                        // }
+                        // Get userId from SharedPreferences
+                        String? userId = await SharedPrefsService.getUserId();
+                        debugPrint("User ID: $userId"); // Log the user ID
 
-                        Map<String, dynamic>? response;
-                        try {
-                          response = await API.updateUserProfile(data);
-                          debugPrint("API Response: $response"); // Debug log
-                        } catch (e) {
-                          debugPrint(
-                              "Error during registration: $e"); // Debug log
+                        // Check if userId is available
+                        if (userId == null) {
                           if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                                 content: Text(
-                                    'Registration failed. Please try again.')),
+                                    'User ID not found. Please log in again.')),
                           );
                           return;
+                        }
+
+                        // Call the API to update profile
+                        Map<String, dynamic>? response;
+                        try {
+                          response =
+                              await API.updateUserProfile(userId, profileData);
+                          debugPrint("API Response: $response"); // Debug log
+
+                          if (!mounted) return;
+
+                          // Handle response
+                          if (response != null &&
+                              response.containsKey('error')) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      'Failed to update profile: ${response['error']}')),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content:
+                                      Text('Profile updated successfully!')),
+                            );
+                            // Optionally navigate back or update UI
+                          }
+                        } catch (e) {
+                          debugPrint(
+                              "Error during profile update: $e"); // Debug log
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text(
+                                    'Profile update failed. Please try again.')),
+                          );
                         }
                       },
                       child: const Text(
@@ -376,7 +402,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           fontSize: 15.0,
                         ),
                       ),
-                    ),
+                    )
                   ],
                 ),
               ),
