@@ -106,7 +106,15 @@ class API {
     var url = Uri.parse("${baseUrl}activity_logs/$userId");
 
     try {
-      final res = await http.get(url);
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Retrieve token
+      final res = await http.get(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          if (token != null) "Authorization": "Bearer $token",
+        },
+      );
 
       debugPrint("Response Code: ${res.statusCode}");
       debugPrint("Response Body: ${res.body}");
