@@ -42,13 +42,22 @@ app.get('/', (req, res) => {
 // REGISTRATION
 app.post('/api/register', async (req, res) => {
   try {
-    const { password, email, fullName } = req.body;
+    const { email, password, firstName, lastName, contactNumber, birthday } =
+      req.body;
 
     // Validate input
-    if (!email || !password || !fullName) {
-      return res
-        .status(400)
-        .json({ message: 'Email, password, and full name are required.' });
+    if (
+      !email ||
+      !password ||
+      !firstName ||
+      !lastName ||
+      !contactNumber ||
+      !birthday
+    ) {
+      return res.status(400).json({
+        message:
+          'All fields are required: email, password, firstName, lastName, contactNumber, birthday.',
+      });
     }
 
     // Check if email already exists
@@ -61,13 +70,16 @@ app.post('/api/register', async (req, res) => {
     const saltRounds = 12; // number of rounds for  randomization
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // THIS IS WHAT WILL BE SAVED TO MONGODB
-    let newUser = new User({
-      email: email,
-      hashedPassword: hashedPassword,
-      fullName: fullName,
+    // Create new user
+    const newUser = new User({
+      email,
+      hashedPassword,
+      firstName,
+      lastName,
+      contactNumber,
+      birthday: new Date(birthday), // ensure birthday is stored as Date
     });
-
+    
     // SAVE THE USER TO THE DATABASE
     await newUser.save();
 

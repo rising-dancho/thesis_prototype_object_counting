@@ -9,8 +9,20 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  fullName: {
+  firstName: {
     type: String,
+    required: true,
+  },
+  lastName: {
+    type: String,
+    required: true,
+  },
+  contactNumber: {
+    type: String,
+    required: true,
+  },
+  birthday: {
+    type: Date,
     required: true,
   },
 });
