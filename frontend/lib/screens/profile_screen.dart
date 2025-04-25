@@ -18,6 +18,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     'Password': TextEditingController(),
   };
 
+  // {
+  //     "email": "admin@gmail.com",
+  //     "password": "admin123",
+  //     "firstName": "rising",
+  //     "lastName": "dancho",
+  //     "contactNumber":"09234699665",
+  //     "birthday": "1992-05-07"
+  // }
+
   File? _profileImage;
 
   Future<void> _pickImage() async {

@@ -179,7 +179,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       },
                       decoration: InputDecoration(
                         labelText: 'Contact Number',
-                        hintText: 'eg. 4',
+                        hintText: 'eg. 09231234567',
                         hintStyle: const TextStyle(color: Colors.black26),
                         fillColor: Colors.white,
                         filled: true,
