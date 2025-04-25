@@ -49,6 +49,77 @@ class API {
     }
   }
 
+  // PUT REQUEST: UPDATE PROFILE
+  static Future<Map<String, dynamic>?> updateUserProfile(
+      Map<String, dynamic> profileData) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final url = Uri.parse('${baseUrl}profile');
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(profileData),
+      );
+
+      debugPrint("Response Code: ${response.statusCode}");
+      debugPrint("Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {'error': jsonDecode(response.body)['message']};
+      }
+    } catch (e) {
+      return {'error': e.toString()};
+    }
+  }
+
+  // Method to fetch the user profile
+  static Future<Map<String, dynamic>?> fetchUserProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId =
+        prefs.getString('userId'); // Get the userId from SharedPreferences
+    final token =
+        prefs.getString('token'); // Get the token from SharedPreferences
+
+    if (userId == null || token == null) {
+      debugPrint("❌ User ID or Token not found in SharedPreferences");
+      return null;
+    }
+
+    final url = Uri.parse(
+        "${baseUrl}user/$userId"); // Construct the URL with the userId
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token", // Add token for authentication
+        },
+      );
+
+      debugPrint("Response Code: ${response.statusCode}");
+      debugPrint("Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body); // Return the user data
+      } else {
+        debugPrint("❌ Failed to fetch user profile: ${response.body}");
+        return null;
+      }
+    } catch (error) {
+      debugPrint("⚠️ Error fetching user profile: $error");
+      return null;
+    }
+  }
+
   // POST REQUEST: LOGIN
   static Future<Map<String, dynamic>?> loginUser(
       Map<String, dynamic> userData) async {
@@ -73,7 +144,7 @@ class API {
         // Save userId to local storage (SharedPreferences)
         // EXTRACT TOKEN AND USER ID
         String userId = data['userId'];
-        String token = data['token']; // ⬅️ TOKEN
+        String token = data['token']; // ⬅️ Saving TOKEN
 
         // THEN SAVE to SharedPreferences
         SharedPreferences prefs = await SharedPreferences.getInstance();

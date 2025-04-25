@@ -115,6 +115,64 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
+// UPDATE PROFILE
+app.put('/api/profile', requireAuth, async (req, res) => {
+  try {
+    const userId = req.userId; // This comes from your JWT after decoding in the middleware
+
+    const { firstName, lastName, contactNumber, birthday } = req.body;
+
+    // Optional: validate fields if needed
+    if (!firstName || !lastName || !contactNumber || !birthday) {
+      return res.status(400).json({ message: 'All fields are required.' });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        firstName,
+        lastName,
+        contactNumber,
+        birthday: new Date(birthday),
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    res.json({ message: 'Profile updated successfully.', user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error.', error: error.message });
+  }
+});
+
+// GET USER PROFILE
+app.get('/api/user/:userId', requireAuth, async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Fetch the user from the database using the userId
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    res.status(200).json({
+      _id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      contactNumber: user.contactNumber,
+      birthday: user.birthday,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error.', error: error.message });
+  }
+});
+
 // LOGIN + ACTIVITY LOGGING
 app.post('/api/login', async (req, res) => {
   try {

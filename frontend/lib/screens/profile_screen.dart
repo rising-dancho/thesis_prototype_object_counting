@@ -35,6 +35,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     // _loadUserProfile();
+    getUserProfile();
+  }
+
+  void getUserProfile() async {
+    var userProfile = await API.fetchUserProfile();
+    if (userProfile != null) {
+      // Use the user profile data, e.g., display it in your UI
+      debugPrint("User Profile: $userProfile");
+    } else {
+      debugPrint("Failed to fetch user profile.");
+    }
   }
 
   // void _loadUserProfile() async {
@@ -345,7 +356,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                           Map<String, dynamic>? response;
                           try {
-                            response = await API.registerUser(data);
+                            response = await API.updateUserProfile(data);
                             debugPrint("API Response: $response"); // Debug log
                           } catch (e) {
                             debugPrint(
