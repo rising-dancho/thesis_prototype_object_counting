@@ -394,7 +394,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                 });
                 API.saveStockToMongoDB(stockCounts);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Stocks updated successfully!")),
+                  SnackBar(content: Text("Stock and Image saved successfully!")),
                 );
               },
             ),

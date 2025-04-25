@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tectags/utils/label_formatter.dart';
 
 class SaveResult {
   final bool isSuccess;
@@ -202,10 +203,10 @@ class API {
       List<Map<String, dynamic>> formattedStocks =
           stockCounts.entries.map((entry) {
         return {
-          "stockName": entry.key,
-          "totalStock": entry.value["totalStock"] ?? 0, // ✅ Fixed key
+          "stockName": LabelFormatter.titleCase(entry.key),
+          "totalStock": entry.value["totalStock"] ?? 0,
           "sold": entry.value["sold"] ?? 0,
-          "availableStock": entry.value["availableStock"] ?? 0, // ✅ Added
+          "availableStock": entry.value["availableStock"] ?? 0,
         };
       }).toList();
 

@@ -54,7 +54,7 @@ class _AddProductState extends State<AddProduct> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Add Product",
+                  "Add Stock",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 28,
