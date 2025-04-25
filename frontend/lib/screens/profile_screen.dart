@@ -34,32 +34,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    // _loadUserProfile();
-    getUserProfile();
+    _loadUserProfile();
   }
 
-  void getUserProfile() async {
+  void _loadUserProfile() async {
     var userProfile = await API.fetchUserProfile();
     if (userProfile != null) {
-      // Use the user profile data, e.g., display it in your UI
+      DateTime dateTime = DateTime.parse(userProfile['birthday']);
+      String formattedDate = DateFormat('MM/dd/yyyy').format(dateTime);
+
+      setState(() {
+        _firstNameController.text = userProfile['firstName'] ?? '';
+        _lastNameController.text = userProfile['lastName'] ?? '';
+        _emailController.text = userProfile['email'] ?? '';
+        _contactNumberController.text = userProfile['contactNumber'] ?? '';
+        _birthdayController.text = formattedDate;
+        _passwordController.text = ''; // Keep password empty for security
+      });
       debugPrint("User Profile: $userProfile");
+
+      String? userId = await SharedPrefsService.getUserId();
+      debugPrint("User ID: $userId"); // Log the user ID
     } else {
       debugPrint("Failed to fetch user profile.");
     }
   }
-
-  // void _loadUserProfile() async {
-  //   final user =
-  //       await SharedPrefsService.getUser(); // Make sure this method exists
-  //   setState(() {
-  //     _firstNameController.text = user['firstName'] ?? '';
-  //     _lastNameController.text = user['lastName'] ?? '';
-  //     _emailController.text = user['email'] ?? '';
-  //     _contactNumberController.text = user['contactNumber'] ?? '';
-  //     _birthdayController.text = user['birthday'] ?? '';
-  //     _passwordController.text = ''; // Keep password empty for security
-  //   });
-  // }
 
   @override
   void dispose() {
@@ -147,7 +146,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           radius: 60,
                           backgroundImage: _profileImage != null
                               ? FileImage(_profileImage!)
-                              : const AssetImage('assets/profile_picture.png')
+                              : const AssetImage(
+                                      'assets/icons/profile_picture.png')
                                   as ImageProvider,
                         ),
                         GestureDetector(
@@ -332,86 +332,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       onPressed: () async {
-                        if (_formSignUpKey.currentState!.validate()) {
-                          var data = {
-                            "email": _emailController.text,
-                            "password": _passwordController.text,
-                            "firstName": LabelFormatter.titleCase(
-                                _firstNameController.text),
-                            "lastName": LabelFormatter.titleCase(
-                                _lastNameController.text),
-                            "contactNumber": PhoneNumberFormatter.format(
-                                _contactNumberController.text),
-                            "birthday": _birthdayController.text,
-                          };
+                        var data = {
+                          "email": _emailController.text,
+                          "password": _passwordController.text,
+                          "firstName": LabelFormatter.titleCase(
+                              _firstNameController.text),
+                          "lastName": LabelFormatter.titleCase(
+                              _lastNameController.text),
+                          "contactNumber": PhoneNumberFormatter.format(
+                              _contactNumberController.text),
+                          "birthday": _birthdayController.text,
+                        };
 
-                          // {
-                          //     "email": "admin@gmail.com",
-                          //     "password": "admin123",
-                          //     "firstName": "rising",
-                          //     "lastName": "dancho",
-                          //     "contactNumber":"09234699665",
-                          //     "birthday": "1992-05-07"
-                          // }
+                        // {
+                        //     "email": "admin@gmail.com",
+                        //     "password": "admin123",
+                        //     "firstName": "rising",
+                        //     "lastName": "dancho",
+                        //     "contactNumber":"09234699665",
+                        //     "birthday": "1992-05-07"
+                        // }
 
-                          Map<String, dynamic>? response;
-                          try {
-                            response = await API.updateUserProfile(data);
-                            debugPrint("API Response: $response"); // Debug log
-                          } catch (e) {
-                            debugPrint(
-                                "Error during registration: $e"); // Debug log
-                            if (!mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text(
-                                      'Registration failed. Please try again.')),
-                            );
-                            return;
-                          }
-
-                          // Check for errors in the response
-                          if (response != null &&
-                              response.containsKey('error') &&
-                              response['error'] != null) {
-                            if (!mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(response['error'])),
-                            );
-                            return;
-                          }
-
-                          // Check for token in the response
-                          if (response != null &&
-                              response.containsKey('token')) {
-                            await SharedPrefsService.saveTokenWithoutCheck(
-                                response['token']);
-
-                            if (!mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Changes saved successfully!')),
-                            );
-
-                            _emailController.clear();
-                            _passwordController.clear();
-                            _firstNameController.clear();
-                            _lastNameController.clear();
-
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const NavigationMenu()),
-                            );
-                          } else {
-                            // Handle case where token is missing
-                            if (!mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text(
-                                      'Registration failed. Token not received.')),
-                            );
-                          }
+                        Map<String, dynamic>? response;
+                        try {
+                          response = await API.updateUserProfile(data);
+                          debugPrint("API Response: $response"); // Debug log
+                        } catch (e) {
+                          debugPrint(
+                              "Error during registration: $e"); // Debug log
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text(
+                                    'Registration failed. Please try again.')),
+                          );
+                          return;
                         }
                       },
                       child: const Text(

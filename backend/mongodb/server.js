@@ -116,7 +116,8 @@ app.post('/api/register', async (req, res) => {
 });
 
 // UPDATE PROFILE
-app.put('/api/profile', requireAuth, async (req, res) => {
+// app.put('/api/profile', requireAuth, async (req, res) => {
+app.put('/api/profile', async (req, res) => {
   try {
     const userId = req.userId; // This comes from your JWT after decoding in the middleware
 
