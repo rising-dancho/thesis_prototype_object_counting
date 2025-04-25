@@ -313,10 +313,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
       debugPrint("Result: $result"); // [check structure of: result]
 
       if (result.isSuccess) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Image saved in gallery")),
-        );
-
         // ✅ If selected stock is NOT in the cached stock list, open modal to add it
         if (!stockList.contains(_selectedStock)) {
           debugPrint(
@@ -328,6 +324,10 @@ class _PytorchMobileState extends State<PytorchMobile> {
           );
           return; // Exit early — let the user add the product before logging
         }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Stock and Image saved successfully!")),
+        );
 
         // 🔥 Log detected object count to the backend
         if (_selectedStock != null) {
@@ -371,20 +371,20 @@ class _PytorchMobileState extends State<PytorchMobile> {
     }
   }
 
-  void _openAddProductModal(BuildContext context,
-      {String? initialName, int? sold}) {
-    showModalBottomSheet(
+  Future<void> _openAddProductModal(BuildContext context,
+      {String? initialName, int? sold}) async {
+    await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (_) {
+      builder: (modalContext) {
         return Padding(
-          padding:
-              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          padding: EdgeInsets.only(
+              bottom: MediaQuery.of(modalContext).viewInsets.bottom),
           child: SingleChildScrollView(
             child: AddNewProduct(
               initialName: initialName,
               initialSold: sold,
-              onAddStock: (String name, int count, int sold) {
+              onAddStock: (String name, int count, int sold) async {
                 setState(() {
                   stockCounts[name] = {
                     "availableStock": count,
@@ -392,10 +392,46 @@ class _PytorchMobileState extends State<PytorchMobile> {
                     "sold": sold,
                   };
                 });
-                API.saveStockToMongoDB(stockCounts);
+                await API.saveStockToMongoDB(stockCounts);
+
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Stock and Image saved successfully!")),
+                  SnackBar(
+                      content: Text("Stock and Image saved successfully!")),
                 );
+
+                // 🔥 Log detected object count to the backend
+                if (_selectedStock == null) {
+                  debugPrint("⚠️ No stock selected, skipping log.");
+                } else {
+                  String? userId = await SharedPrefsService.getUserId();
+                  debugPrint("User ID: $userId");
+
+                  if (userId == null) {
+                    debugPrint("❌ User ID not found, cannot log data.");
+                    if (!modalContext.mounted) return;
+                    ScaffoldMessenger.of(modalContext).showSnackBar(
+                      const SnackBar(
+                          content:
+                              Text('User ID not found. Please log in again.')),
+                    );
+                    return;
+                  }
+
+                  debugPrint(
+                      "📌 Updating Database: USER = $userId, ITEM = $_selectedStock, Count = ${editableBoundingBoxes.length}");
+                  var response = await API.logStockCurrentCount(
+                    userId,
+                    _selectedStock!,
+                    editableBoundingBoxes.length, // Detected count
+                  );
+
+                  if (response != null && !response.containsKey('error')) {
+                    debugPrint("✅ Object count logged: $response");
+                  } else {
+                    debugPrint(
+                        "❌ Failed to log object count: ${response?['error']}");
+                  }
+                }
               },
             ),
           ),
