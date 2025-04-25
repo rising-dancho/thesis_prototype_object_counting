@@ -14,7 +14,11 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formSignUpKey = GlobalKey<FormState>();
-  final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _contactNumberController =
+      TextEditingController();
+  final TextEditingController _birthdayController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
@@ -30,7 +34,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   void dispose() {
-    _fullNameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _contactNumberController.dispose();
+    _birthdayController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -73,16 +80,37 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 3.0),
                     child: TextFormField(
-                      controller: _fullNameController,
+                      controller: _firstNameController,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your full name';
+                          return 'Please enter your first name';
                         }
                         return null;
                       },
                       decoration: InputDecoration(
-                        labelText: 'Full Name',
-                        hintText: 'Enter your full name',
+                        labelText: 'First Name',
+                        hintText: 'Enter your first name',
+                        hintStyle: const TextStyle(color: Colors.black26),
+                        fillColor: Colors.white,
+                        filled: true,
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20.0),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                    child: TextFormField(
+                      controller: _lastNameController,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your last name';
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Last Name',
+                        hintText: 'Enter your last name',
                         hintStyle: const TextStyle(color: Colors.black26),
                         fillColor: Colors.white,
                         filled: true,
@@ -104,6 +132,48 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       decoration: InputDecoration(
                         labelText: 'Email',
                         hintText: 'Enter your email',
+                        hintStyle: const TextStyle(color: Colors.black26),
+                        fillColor: Colors.white,
+                        filled: true,
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20.0),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                    child: TextFormField(
+                      controller: _contactNumberController,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your contact number';
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Contact Number',
+                        hintText: 'Enter your mobile phone number',
+                        hintStyle: const TextStyle(color: Colors.black26),
+                        fillColor: Colors.white,
+                        filled: true,
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20.0),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                    child: TextFormField(
+                      controller: _contactNumberController,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your birthday';
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Birthday',
+                        hintText: 'Enter your your birthday',
                         hintStyle: const TextStyle(color: Colors.black26),
                         fillColor: Colors.white,
                         filled: true,
@@ -211,8 +281,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             var data = {
                               "email": _emailController.text,
                               "password": _passwordController.text,
-                              "fullName": _fullNameController.text,
+                              "firstName": _firstNameController.text,
+                              "lastName": _lastNameController.text,
+                              "contactNumber": _contactNumberController.text,
+                              "birthday": _birthdayController.text,
                             };
+
+                            // {
+                            //     "email": "admin@gmail.com",
+                            //     "password": "admin123",
+                            //     "firstName": "rising",
+                            //     "lastName": "dancho",
+                            //     "contactNumber":"09234699665",
+                            //     "birthday": "1992-05-07"
+                            // }
 
                             Map<String, dynamic>? response;
                             try {
@@ -257,7 +339,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                               _emailController.clear();
                               _passwordController.clear();
-                              _fullNameController.clear();
+                              _firstNameController.clear();
+                              _lastNameController.clear();
 
                               Navigator.pushReplacement(
                                 context,
