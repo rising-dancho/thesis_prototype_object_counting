@@ -291,7 +291,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 20),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
@@ -387,7 +387,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20.0),
+                    const SizedBox(height: 30.0),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 3.0),
                       child: Column(
@@ -421,7 +421,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                                 onPressed: () {
                                   setState(() {
-                                    _currentPasswordVisible = !_currentPasswordVisible;
+                                    _currentPasswordVisible =
+                                        !_currentPasswordVisible;
                                   });
                                 },
                               ),
@@ -485,94 +486,90 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               color: Color.fromARGB(221, 255, 255, 255),
                             ),
                           ),
-                          const SizedBox(height: 30),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  const Color.fromARGB(255, 22, 165, 221),
-                              foregroundColor: Colors.white,
-                              shadowColor: Colors.grey,
-                              elevation: 5,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 105, vertical: 15),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            onPressed: () async {
-                              // Validate inputs
-                              if (_currentPasswordController.text.isEmpty ||
-                                  _newPasswordController.text.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content:
-                                          Text('Please enter both passwords.')),
-                                );
-                                return;
-                              }
-
-                              // Get userId
-                              String? userId =
-                                  await SharedPrefsService.getUserId();
-                              debugPrint("User ID: $userId");
-
-                              if (userId == null) {
-                                if (!mounted) return;
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text(
-                                          'User ID not found. Please log in again.')),
-                                );
-                                return;
-                              }
-
-                              // Change password
-                              Map<String, dynamic>? response;
-                              try {
-                                response = await API.changePassword(
-                                  userId,
-                                  _currentPasswordController.text,
-                                  _newPasswordController.text,
-                                );
-                                debugPrint(
-                                    "Change Password Response: $response");
-
-                                if (!mounted) return;
-
-                                if (response != null &&
-                                    response.containsKey('error')) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(
-                                            'Failed to change password: ${response['error']}')),
-                                  );
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text(
-                                            'Password changed successfully!')),
-                                  );
-                                  // Clear password fields
-                                  _currentPasswordController.clear();
-                                  _newPasswordController.clear();
-                                }
-                              } catch (e) {
-                                debugPrint("Error during password change: $e");
-                                if (!mounted) return;
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text(
-                                          'Password change failed. Please try again.')),
-                                );
-                              }
-                            },
-                            child: const Text(
-                              'Change Password',
-                              style: TextStyle(
-                                  fontFamily: 'Roboto', fontSize: 15.0),
-                            ),
-                          ),
                         ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            const Color.fromARGB(255, 22, 165, 221),
+                        foregroundColor: Colors.white,
+                        shadowColor: Colors.grey,
+                        elevation: 5,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 105, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      onPressed: () async {
+                        // Validate inputs
+                        if (_currentPasswordController.text.isEmpty ||
+                            _newPasswordController.text.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Please enter both passwords.')),
+                          );
+                          return;
+                        }
+
+                        // Get userId
+                        String? userId = await SharedPrefsService.getUserId();
+                        debugPrint("User ID: $userId");
+
+                        if (userId == null) {
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text(
+                                    'User ID not found. Please log in again.')),
+                          );
+                          return;
+                        }
+
+                        // Change password
+                        Map<String, dynamic>? response;
+                        try {
+                          response = await API.changePassword(
+                            userId,
+                            _currentPasswordController.text,
+                            _newPasswordController.text,
+                          );
+                          debugPrint("Change Password Response: $response");
+
+                          if (!mounted) return;
+
+                          if (response != null &&
+                              response.containsKey('error')) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      'Failed to change password: ${response['error']}')),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content:
+                                      Text('Password changed successfully!')),
+                            );
+                            // Clear password fields
+                            _currentPasswordController.clear();
+                            _newPasswordController.clear();
+                          }
+                        } catch (e) {
+                          debugPrint("Error during password change: $e");
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text(
+                                    'Password change failed. Please try again.')),
+                          );
+                        }
+                      },
+                      child: const Text(
+                        'Change Password',
+                        style: TextStyle(fontFamily: 'Roboto', fontSize: 15.0),
                       ),
                     ),
                   ],
@@ -588,4 +585,4 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
 
 // GO BACK HERE TO ADD THE JWT REQUIRE AUTH
-// https://grok.com/chat/40c001c2-c730-4714-b31d-adb8fa514795
+// https://grok.com/share/c2hhcmQtMg%3D%3D_4d2720e7-a164-4ed4-918d-578a8ce368b9
