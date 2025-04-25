@@ -79,7 +79,7 @@ app.post('/api/register', async (req, res) => {
       contactNumber,
       birthday: new Date(birthday), // ensure birthday is stored as Date
     });
-    
+
     // SAVE THE USER TO THE DATABASE
     await newUser.save();
 
@@ -243,14 +243,16 @@ app.get('/api/activity_logs/:userId', async (req, res) => {
     const { userId } = req.params;
 
     const activities = await Activity.find({ userId })
-      .populate('userId', 'fullName')
+      .populate('userId', 'firstName lastName') // Populating firstName and lastName instead of fullName
       .populate('stockId', 'stockName totalStock availableStock sold')
       .sort({ createdAt: -1 });
 
     const formattedActivities = activities.map((activity) => ({
       _id: activity._id,
       userId: activity.userId?._id,
-      fullName: activity.userId?.fullName ?? 'Unknown User',
+      fullName: `${activity.userId?.firstName ?? 'Unknown'} ${
+        activity.userId?.lastName ?? ''
+      }`, // Combine first and last name
       action: activity.action,
       stockName: activity.stockId?.stockName ?? 'N/A',
       countedAmount: activity.countedAmount, // ✅ Ensure correct field
@@ -274,15 +276,16 @@ app.get('/api/activity_logs/', async (req, res) => {
     const { page = 1, limit = 50 } = req.query; // Default: 50 results per page
 
     const activities = await Activity.find()
-      .populate('userId', 'fullName')
-      .sort({ createdAt: -1 })
+      .populate('userId', 'firstName lastName') // Populating firstName and lastName instead of fullName      .sort({ createdAt: -1 })
       .skip((page - 1) * limit) // Pagination
       .limit(Number(limit)); // Convert to number for safety
 
     const formattedActivities = activities.map((activity) => ({
       _id: activity._id,
       userId: activity.userId?._id,
-      fullName: activity.userId?.fullName ?? 'Unknown User',
+      fullName: `${activity.userId?.firstName ?? 'Unknown'} ${
+        activity.userId?.lastName ?? ''
+      }`, // Combine first and last name
       action: activity.action,
       countedAmount: activity.countedAmount ?? 0, // ✅ Ensure correct field
       timestamp: activity.createdAt,
