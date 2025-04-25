@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:tectags/screens/login_screen.dart';
 import 'package:tectags/screens/navigation/navigation_menu.dart';
 import 'package:tectags/services/api.dart';
 import 'package:tectags/services/shared_prefs_service.dart';
+import 'package:tectags/utils/label_formatter.dart';
+import 'package:tectags/utils/phone_number_formatter.dart';
 import 'package:tectags/widgets/custom_scaffold.dart';
+import 'package:flutter/services.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -46,6 +50,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    void _openDatePicker() {
+      showDatePicker(
+              context: context,
+              initialDate: DateTime.now().subtract(Duration(days: 365 * 20)),
+              firstDate: DateTime(1900),
+              lastDate: DateTime.now())
+          .then((pickedDate) {
+        if (pickedDate == null) {
+          return;
+        }
+        setState(() {
+          _birthdayController.text = DateFormat.yMd().format(pickedDate);
+        });
+      });
+    }
+
     return Container(
       decoration: const BoxDecoration(
         image: DecorationImage(
@@ -144,15 +164,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 3.0),
                     child: TextFormField(
                       controller: _contactNumberController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(11),
+                      ],
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your contact number';
+                        } else if (!RegExp(r'^09\d{9}$').hasMatch(value)) {
+                          return 'Must start with 09 and be 11 digits';
                         }
                         return null;
                       },
                       decoration: InputDecoration(
                         labelText: 'Contact Number',
-                        hintText: 'Enter your mobile phone number',
+                        hintText: 'eg. 4',
                         hintStyle: const TextStyle(color: Colors.black26),
                         fillColor: Colors.white,
                         filled: true,
@@ -164,13 +191,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 3.0),
                     child: TextFormField(
-                      controller: _contactNumberController,
+                      controller: _birthdayController,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your birthday';
                         }
                         return null;
                       },
+                      onTap: _openDatePicker,
+                      readOnly: true,
                       decoration: InputDecoration(
                         labelText: 'Birthday',
                         hintText: 'Enter your your birthday',
@@ -281,9 +310,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             var data = {
                               "email": _emailController.text,
                               "password": _passwordController.text,
-                              "firstName": _firstNameController.text,
-                              "lastName": _lastNameController.text,
-                              "contactNumber": _contactNumberController.text,
+                              "firstName": LabelFormatter.titleCase(
+                                  _firstNameController.text),
+                              "lastName": LabelFormatter.titleCase(
+                                  _lastNameController.text),
+                              "contactNumber": PhoneNumberFormatter.format(
+                                  _contactNumberController.text),
                               "birthday": _birthdayController.text,
                             };
 
