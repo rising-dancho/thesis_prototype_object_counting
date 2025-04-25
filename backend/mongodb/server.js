@@ -25,6 +25,23 @@ app.use(
   })
 );
 
+const requireAuth = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader)
+    return res.status(401).json({ message: 'Authorization header missing' });
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.SECRET);
+    req.user = decoded; // Makes the user's _id available in the request
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: 'Invalid or expired token' });
+  }
+};
+
 // 🛢️ Connect to MongoDB using Mongoose
 mongoose.set('strictQuery', true);
 mongoose
@@ -148,7 +165,7 @@ app.post('/api/login', async (req, res) => {
 // NUMBER OF STOCKS and DETECTIONS DATA -------------
 
 // CREATES A COUNT LOG FOR THE ACTIVITY LOGS WIDGET
-app.post('/api/count_objects', async (req, res) => {
+app.post('/api/count_objects', requireAuth, async (req, res) => {
   try {
     // Extract values from request body
     const { userId, stockName, sold } = req.body;
@@ -238,7 +255,7 @@ app.get('/api/activity/:activityId', async (req, res) => {
 });
 
 // GET [ALL] USER ACTIVITY LOGS PER USERID
-app.get('/api/activity_logs/:userId', async (req, res) => {
+app.get('/api/activity_logs/:userId', requireAuth, async (req, res) => {
   try {
     const { userId } = req.params;
 

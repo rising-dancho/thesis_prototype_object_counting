@@ -171,14 +171,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ],
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your contact number';
+                          return 'Please enter your phone number';
                         } else if (!RegExp(r'^09\d{9}$').hasMatch(value)) {
                           return 'Must start with 09 and be 11 digits';
                         }
                         return null;
                       },
                       decoration: InputDecoration(
-                        labelText: 'Contact Number',
+                        labelText: 'Phone',
                         hintText: 'eg. 09231234567',
                         hintStyle: const TextStyle(color: Colors.black26),
                         fillColor: Colors.white,

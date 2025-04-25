@@ -73,10 +73,12 @@ class API {
         // Save userId to local storage (SharedPreferences)
         // EXTRACT TOKEN AND USER ID
         String userId = data['userId'];
+        String token = data['token']; // ⬅️ TOKEN
 
         // THEN SAVE to SharedPreferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('userId', userId);
+        await prefs.setString('token', token); // ⬅️ Save token too
         return data; // Return the response data
       } else {
         debugPrint("Failed: ${res.body}");
@@ -165,6 +167,15 @@ class API {
       String userId, String stockItem, int sold) async {
     var url = Uri.parse("${baseUrl}count_objects");
 
+    // ✅ Get token from SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    if (token == null) {
+      debugPrint("❌ No token found in SharedPreferences");
+      return null;
+    }
+
     Map<String, dynamic> requestBody = {
       "userId": userId,
       "stockName": stockItem,
@@ -177,7 +188,11 @@ class API {
     try {
       final response = await http.post(
         url,
-        headers: {"Content-Type": "application/json"},
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization":
+              "Bearer $token", // ✅ AUTHORIZATION FOR PROTECTED ROUTES
+        },
         body: jsonEncode(requestBody),
       );
 
