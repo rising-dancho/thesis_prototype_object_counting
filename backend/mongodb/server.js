@@ -54,7 +54,7 @@ app.get('/', (req, res) => {
   res.send('FIXING BACKEND LOGIC! 🚀');
 });
 
-// LOGIN & REGISTRATION -------------
+// LOGIN, REGISTRATION, UPDATE USER & CHANGE PASSWORD -------------
 
 // REGISTRATION
 app.post('/api/register', async (req, res) => {
@@ -112,6 +112,56 @@ app.post('/api/register', async (req, res) => {
       message: 'Something went wrong.',
       error: error.message,
     });
+  }
+});
+
+// CHANGE PASSWORD
+// app.put('/api/change-password/:userId', async (req, res) => {
+app.put('/api/change-password/:userId', requireAuth, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    // JWT ROUTE PROTECTION
+    if (userId !== req.userId) {
+      return res
+        .status(403)
+        .json({ message: "Unauthorized to change this user's password." });
+    }
+    const { currentPassword, newPassword } = req.body;
+
+    // Validate inputs
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: 'Invalid user ID.' });
+    }
+    if (!currentPassword || !newPassword) {
+      return res
+        .status(400)
+        .json({ message: 'Current and new passwords are required.' });
+    }
+
+    // Find user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    // Verify current password
+    const isMatch = await bcrypt.compare(currentPassword, user.hashedPassword);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Incorrect current password.' });
+    }
+
+    // Hash new password
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update password
+    user.hashedPassword = hashedPassword;
+    await user.save();
+
+    res.json({ message: 'Password updated successfully.' });
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({ message: 'Server error.', error: error.message });
   }
 });
 

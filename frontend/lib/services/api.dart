@@ -17,6 +17,39 @@ class API {
       "https://thesis-prototype-object-counting.vercel.app/api/";
   // static const baseUrl = "https://fix-inventory.vercel.app/api/";
 
+  // CHANGE PASSWORD
+  static Future<Map<String, dynamic>?> changePassword(
+    String userId,
+    String currentPassword,
+    String newPassword,
+  ) async {
+    final url = Uri.parse('${baseUrl}change-password/$userId');
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'currentPassword': currentPassword,
+          'newPassword': newPassword,
+        }),
+      );
+
+      debugPrint("Change Password Response Code: ${response.statusCode}");
+      debugPrint("Change Password Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {'error': jsonDecode(response.body)['message']};
+      }
+    } catch (e) {
+      return {'error': e.toString()};
+    }
+  }
+
   // POST REQUEST: REGISTRATION
   static Future<Map<String, dynamic>?> registerUser(
       Map<String, dynamic> userData) async {

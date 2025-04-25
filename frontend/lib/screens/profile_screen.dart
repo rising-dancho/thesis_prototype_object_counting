@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:tectags/screens/navigation/navigation_menu.dart';
 import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:tectags/services/api.dart';
 import 'package:tectags/services/shared_prefs_service.dart';
@@ -27,7 +26,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       TextEditingController();
   final TextEditingController _birthdayController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _currentPasswordController =
+      TextEditingController();
+  final TextEditingController _newPasswordController = TextEditingController();
 
   bool _passwordVisible = false;
 
@@ -49,7 +50,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _emailController.text = userProfile['email'] ?? '';
         _contactNumberController.text = userProfile['contactNumber'] ?? '';
         _birthdayController.text = formattedDate;
-        _passwordController.text = ''; // Keep password empty for security
+        _currentPasswordController.text =
+            ''; // Keep password empty for security
+        _newPasswordController.text = "";
       });
       debugPrint("User Profile: $userProfile");
 
@@ -67,7 +70,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _contactNumberController.dispose();
     _birthdayController.dispose();
     _emailController.dispose();
-    _passwordController.dispose();
+    _currentPasswordController.dispose();
+    _newPasswordController.dispose();
     super.dispose();
   }
   // {
@@ -173,6 +177,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         color: Color.fromARGB(221, 250, 250, 250),
                       ),
                     ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                      child: TextFormField(
+                        controller: _firstNameController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your first name';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'First Name',
+                          hintText: 'Enter your first name',
+                          hintStyle: const TextStyle(color: Colors.black26),
+                          fillColor: Colors.white,
+                          filled: true,
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 20),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 3.0),
@@ -266,57 +290,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20.0),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 3.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextFormField(
-                            controller: _passwordController,
-                            obscureText: !_passwordVisible,
-                            obscuringCharacter: '*',
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter a password';
-                              } else if (value.length < 8) {
-                                return 'Password must be at least 8 characters long';
-                              }
-                              return null;
-                            },
-                            decoration: InputDecoration(
-                              labelText: 'Password',
-                              hintText: 'Enter your password',
-                              hintStyle: const TextStyle(color: Colors.black26),
-                              fillColor:
-                                  const Color.fromARGB(255, 255, 255, 255),
-                              filled: true,
-                              border: InputBorder.none,
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _passwordVisible
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _passwordVisible = !_passwordVisible;
-                                  });
-                                },
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            'Must be at least 8 characters',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color.fromARGB(221, 255, 255, 255),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                     const SizedBox(height: 30),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -332,14 +305,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       onPressed: () async {
+                        // Validate inputs
+                        if (_firstNameController.text.isEmpty ||
+                            _lastNameController.text.isEmpty ||
+                            _contactNumberController.text.isEmpty ||
+                            _birthdayController.text.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Please fill all fields.')),
+                          );
+                          return;
+                        }
                         // Profile data to update (only include fields expected by the backend)
                         Map<String, dynamic> profileData = {
                           "firstName": LabelFormatter.titleCase(
                               _firstNameController.text),
                           "lastName": LabelFormatter.titleCase(
                               _lastNameController.text),
-                          "contactNumber": PhoneNumberFormatter.format(
-                              _contactNumberController.text),
+                          "contactNumber": _contactNumberController.text,
                           "birthday": _birthdayController
                               .text, // Ensure format is YYYY-MM-DD
                         };
@@ -402,7 +385,195 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           fontSize: 15.0,
                         ),
                       ),
-                    )
+                    ),
+                    const SizedBox(height: 20.0),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextFormField(
+                            controller: _currentPasswordController,
+                            obscureText: !_passwordVisible,
+                            obscuringCharacter: '*',
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your current password';
+                              } else if (value.length < 8) {
+                                return 'Password must be at least 8 characters long';
+                              }
+                              return null;
+                            },
+                            decoration: InputDecoration(
+                              labelText: 'Current Password',
+                              hintText: 'Enter your current password',
+                              hintStyle: const TextStyle(color: Colors.black26),
+                              fillColor:
+                                  const Color.fromARGB(255, 255, 255, 255),
+                              filled: true,
+                              border: InputBorder.none,
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _passwordVisible
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _passwordVisible = !_passwordVisible;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Must be at least 8 characters',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Color.fromARGB(221, 255, 255, 255),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextFormField(
+                            controller: _newPasswordController,
+                            obscureText: !_passwordVisible,
+                            obscuringCharacter: '*',
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your new password';
+                              } else if (value.length < 8) {
+                                return 'Password must be at least 8 characters long';
+                              }
+                              return null;
+                            },
+                            decoration: InputDecoration(
+                              labelText: 'New Password',
+                              hintText: 'Enter your new password',
+                              hintStyle: const TextStyle(color: Colors.black26),
+                              fillColor:
+                                  const Color.fromARGB(255, 255, 255, 255),
+                              filled: true,
+                              border: InputBorder.none,
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _passwordVisible
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _passwordVisible = !_passwordVisible;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Must be at least 8 characters',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Color.fromARGB(221, 255, 255, 255),
+                            ),
+                          ),
+                          const SizedBox(height: 30),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 22, 165, 221),
+                              foregroundColor: Colors.white,
+                              shadowColor: Colors.grey,
+                              elevation: 5,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 105, vertical: 15),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            onPressed: () async {
+                              // Validate inputs
+                              if (_currentPasswordController.text.isEmpty ||
+                                  _newPasswordController.text.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content:
+                                          Text('Please enter both passwords.')),
+                                );
+                                return;
+                              }
+
+                              // Get userId
+                              String? userId =
+                                  await SharedPrefsService.getUserId();
+                              debugPrint("User ID: $userId");
+
+                              if (userId == null) {
+                                if (!mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                          'User ID not found. Please log in again.')),
+                                );
+                                return;
+                              }
+
+                              // Change password
+                              Map<String, dynamic>? response;
+                              try {
+                                response = await API.changePassword(
+                                  userId,
+                                  _currentPasswordController.text,
+                                  _newPasswordController.text,
+                                );
+                                debugPrint(
+                                    "Change Password Response: $response");
+
+                                if (!mounted) return;
+
+                                if (response != null &&
+                                    response.containsKey('error')) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'Failed to change password: ${response['error']}')),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            'Password changed successfully!')),
+                                  );
+                                  // Clear password fields
+                                  _currentPasswordController.clear();
+                                  _newPasswordController.clear();
+                                }
+                              } catch (e) {
+                                debugPrint("Error during password change: $e");
+                                if (!mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                          'Password change failed. Please try again.')),
+                                );
+                              }
+                            },
+                            child: const Text(
+                              'Change Password',
+                              style: TextStyle(
+                                  fontFamily: 'Roboto', fontSize: 15.0),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -413,3 +584,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
+
+
+// GO BACK HERE TO ADD THE JWT REQUIRE AUTH
+// https://grok.com/chat/40c001c2-c730-4714-b31d-adb8fa514795
