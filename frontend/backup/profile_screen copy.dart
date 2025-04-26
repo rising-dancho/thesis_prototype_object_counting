@@ -12,22 +12,11 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final Map<String, TextEditingController> _controllers = {
-    'First Name': TextEditingController(),
-    'Last Name': TextEditingController(),
+    'Full Name': TextEditingController(),
     'Email': TextEditingController(),
     'Phone': TextEditingController(),
-    'Birthday': TextEditingController(),
     'Password': TextEditingController(),
   };
-
-  // {
-  //     "email": "admin@gmail.com",
-  //     "password": "admin123",
-  //     "firstName": "rising",
-  //     "lastName": "dancho",
-  //     "contactNumber":"09231234567",
-  //     "birthday": "1992-05-07"
-  // }
 
   File? _profileImage;
 
@@ -107,11 +96,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    _buildTextField(
-                        label: 'First Name', icon: Icons.account_circle),
-                    _buildTextField(label: 'Last Name', icon: Icons.account_circle),
+                    _buildTextField(label: 'Full Name', icon: Icons.person),
                     _buildTextField(label: 'Email', icon: Icons.email),
-                    _buildTextField(label: 'Birthday', icon: Icons.calendar_today ),
                     _buildTextField(label: 'Phone', icon: Icons.phone),
                     _buildTextField(
                       label: 'Password',

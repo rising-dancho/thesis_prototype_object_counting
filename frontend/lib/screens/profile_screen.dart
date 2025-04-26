@@ -8,7 +8,7 @@ import 'package:tectags/services/shared_prefs_service.dart';
 import 'dart:io';
 
 import 'package:tectags/utils/label_formatter.dart';
-import 'package:tectags/utils/phone_number_formatter.dart';
+// import 'package:tectags/utils/phone_number_formatter.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -213,6 +213,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         const TextStyle(color: Colors.black26),
                                     fillColor: Colors.white,
                                     filled: true,
+                                    prefixIcon: const Icon(
+                                        Icons.person_2_rounded,
+                                        color: Color.fromRGBO(70, 70, 70, 1)),
                                     border: InputBorder.none,
                                   ),
                                 ),
@@ -236,6 +239,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         const TextStyle(color: Colors.black26),
                                     fillColor: Colors.white,
                                     filled: true,
+                                    prefixIcon: const Icon(
+                                        Icons.person_2_rounded,
+                                        color: Color.fromRGBO(70, 70, 70, 1)),
                                     border: InputBorder.none,
                                   ),
                                 ),
@@ -259,6 +265,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         const TextStyle(color: Colors.black26),
                                     fillColor: Colors.white,
                                     filled: true,
+                                    prefixIcon: const Icon(Icons.email,
+                                        color: Color.fromRGBO(70, 70, 70, 1)),
                                     border: InputBorder.none,
                                   ),
                                 ),
@@ -290,6 +298,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         const TextStyle(color: Colors.black26),
                                     fillColor: Colors.white,
                                     filled: true,
+                                    prefixIcon: const Icon(Icons.phone,
+                                        color: Color.fromRGBO(70, 70, 70, 1)),
                                     border: InputBorder.none,
                                   ),
                                 ),
@@ -315,6 +325,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         const TextStyle(color: Colors.black26),
                                     fillColor: Colors.white,
                                     filled: true,
+                                    prefixIcon: const Icon(Icons.calendar_month,
+                                        color: Color.fromRGBO(70, 70, 70, 1)),
                                     border: InputBorder.none,
                                   ),
                                 ),
@@ -455,6 +467,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     fillColor: const Color.fromARGB(
                                         255, 255, 255, 255),
                                     filled: true,
+                                    prefixIcon: const Icon(Icons.lock,
+                                        color: Color.fromRGBO(70, 70, 70, 1)),
                                     border: InputBorder.none,
                                     suffixIcon: IconButton(
                                       icon: Icon(
@@ -499,6 +513,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         fillColor: const Color.fromARGB(
                                             255, 255, 255, 255),
                                         filled: true,
+                                        prefixIcon: const Icon(
+                                            Icons.lock,
+                                            color:
+                                                Color.fromRGBO(70, 70, 70, 1)),
                                         border: InputBorder.none,
                                         suffixIcon: IconButton(
                                           icon: Icon(
