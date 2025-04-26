@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tectags/screens/onboarding/onboarding_items.dart';
 import 'package:tectags/screens/navigation/navigation_menu.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:tectags/services/shared_prefs_service.dart';
 
 class OnboardingView extends StatefulWidget {
   const OnboardingView({super.key});
@@ -33,9 +34,8 @@ class _OnboardingViewState extends State<OnboardingView> {
                     onPressed: () =>
                         pageController.jumpToPage(controller.items.length - 1),
                     style: TextButton.styleFrom(
-                      foregroundColor: const Color.fromARGB(255, 22, 165, 221), 
-                      textStyle:
-                          const TextStyle(fontSize: 17), 
+                      foregroundColor: const Color.fromARGB(255, 22, 165, 221),
+                      textStyle: const TextStyle(fontSize: 17),
                     ),
                     child: const Text("Skip"),
                   ),
@@ -62,9 +62,8 @@ class _OnboardingViewState extends State<OnboardingView> {
                       curve: Curves.easeIn,
                     ),
                     style: TextButton.styleFrom(
-                      foregroundColor: const Color.fromARGB(255, 22, 165, 221), 
-                      textStyle:
-                          const TextStyle(fontSize: 17), 
+                      foregroundColor: const Color.fromARGB(255, 22, 165, 221),
+                      textStyle: const TextStyle(fontSize: 17),
                     ),
                     child: const Text("Next"),
                   ),
@@ -121,8 +120,7 @@ class _OnboardingViewState extends State<OnboardingView> {
 // Get Started Button
   Widget getStarted() {
     return Padding(
-      padding:
-          const EdgeInsets.only(bottom: 20.0), // Adjust the value as needed
+      padding: const EdgeInsets.only(bottom: 20.0),
       child: SizedBox(
         width: MediaQuery.of(context).size.width * 0.9,
         height: 55,
@@ -134,13 +132,14 @@ class _OnboardingViewState extends State<OnboardingView> {
             ),
           ),
           onPressed: () async {
-            final prefs = await SharedPreferences.getInstance();
-            prefs.setBool("onboarding", true);
+            // final prefs = await SharedPreferences.getInstance();
+            // prefs.setBool("onboarding", true);
+            await SharedPrefsService.setHasSeenOnboarding(true);
 
             if (!mounted) return;
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => NavigationMenu()),
+              MaterialPageRoute(builder: (context) => const NavigationMenu()),
             );
           },
           child: const Text(

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tectags/screens/navigation/navigation_menu.dart';
+import 'package:tectags/screens/onboarding/onboarding_view.dart';
 import 'package:tectags/services/shared_prefs_service.dart';
 import 'package:tectags/widgets/custom_scaffold.dart';
 import 'package:tectags/widgets/fade_route.dart';
@@ -44,9 +45,17 @@ class SplashScreenState extends State<SplashScreen>
 
   Future<void> checkTokenAndRedirect() async {
     final hasToken = await SharedPrefsService.hasValidToken();
+    final hasSeenOnboarding =
+        await SharedPrefsService.hasSeenOnboarding(); // <- check onboarding
 
-    if (hasToken) {
-      // Token exists, redirect to NavigationMenu
+    if (!hasSeenOnboarding) {
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          FadeRoute(page: const OnboardingView()),
+        );
+      }
+    } else if (hasToken) {
       if (mounted) {
         Navigator.pushReplacement(
           context,
@@ -54,7 +63,6 @@ class SplashScreenState extends State<SplashScreen>
         );
       }
     } else {
-      // No token, redirect to WelcomeScreen
       if (mounted) {
         Navigator.pushReplacement(
           context,
@@ -64,7 +72,7 @@ class SplashScreenState extends State<SplashScreen>
     }
 
     setState(() {
-      _isLoading = false; // Stop loading
+      _isLoading = false;
     });
   }
 

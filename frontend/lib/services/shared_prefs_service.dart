@@ -6,15 +6,46 @@ class SharedPrefsService {
     return await SharedPreferences.getInstance();
   }
 
+  // ----------------- TOKEN MANAGEMENT -----------------
   static Future<bool> hasValidToken() async {
     final prefs = await _getPrefs();
     final token = prefs.getString('auth_token');
     return token != null && token.isNotEmpty;
   }
 
+  static Future<String?> getToken() async {
+    final prefs = await _getPrefs();
+    return prefs.getString('auth_token');
+  }
+
+  static Future<void> saveToken(String token, bool rememberPassword) async {
+    final prefs = await _getPrefs();
+    if (rememberPassword) {
+      await prefs.setString('auth_token', token);
+    } else {
+      await prefs.remove('auth_token');
+    }
+  }
+
+  static Future<void> saveTokenWithoutCheck(String token) async {
+    try {
+      final prefs = await _getPrefs();
+      await prefs.setString('auth_token', token);
+      debugPrint("Token saved successfully: $token");
+    } catch (e) {
+      debugPrint("Error saving token: $e");
+    }
+  }
+
+  static Future<void> clearToken() async {
+    final prefs = await _getPrefs();
+    await prefs.remove('auth_token');
+  }
+
+  // ----------------- USER ID MANAGEMENT -----------------
   static Future<String?> getUserId() async {
     final prefs = await _getPrefs();
-    return prefs.getString('userId'); // Returns null if not found
+    return prefs.getString('userId');
   }
 
   static Future<void> saveUserId(String userId) async {
@@ -27,37 +58,7 @@ class SharedPrefsService {
     await prefs.remove('userId');
   }
 
-  static Future<void> clearToken() async {
-    final prefs = await _getPrefs();
-    await prefs.remove('auth_token'); // Properly removes the token
-  }
-
-  // Save the token conditionally (for login)
-  static Future<void> saveToken(String token, bool rememberPassword) async {
-    final prefs = await _getPrefs();
-    if (rememberPassword) {
-      await prefs.setString('auth_token', token);
-    } else {
-      await prefs.remove('auth_token');
-    }
-  }
-
-  // NEXT TIME THEY GO IN THEY ARE AUTO LOGGED IN UNLESS THEY LOGOUT
-  static Future<void> saveTokenWithoutCheck(String token) async {
-    try {
-      final prefs = await _getPrefs();
-      await prefs.setString('auth_token', token);
-      debugPrint("Token saved successfully: $token"); // Debug log
-    } catch (e) {
-      debugPrint("Error saving token: $e"); // Debug log
-    }
-  }
-
-  static Future<String?> getToken() async {
-    final prefs = await _getPrefs();
-    return prefs.getString('auth_token');
-  }
-
+  // ----------------- REMEMBER PASSWORD MANAGEMENT -----------------
   static Future<void> saveRememberPassword(bool rememberPassword) async {
     final prefs = await _getPrefs();
     await prefs.setBool('remember_password', rememberPassword);
@@ -66,5 +67,16 @@ class SharedPrefsService {
   static Future<bool> loadRememberPassword() async {
     final prefs = await _getPrefs();
     return prefs.getBool('remember_password') ?? true; // Default to true
+  }
+
+  // ----------------- ONBOARDING MANAGEMENT -----------------
+  static Future<bool> hasSeenOnboarding() async {
+    final prefs = await _getPrefs();
+    return prefs.getBool('hasSeenOnboarding') ?? false;
+  }
+
+  static Future<void> setHasSeenOnboarding(bool value) async {
+    final prefs = await _getPrefs();
+    await prefs.setBool('hasSeenOnboarding', value);
   }
 }
