@@ -30,7 +30,6 @@ class SplashScreenState extends State<SplashScreen>
       });
     controller.repeat(reverse: true);
     super.initState();
-
     // DURATION OF THE SPLASH SCREEN
     Timer(const Duration(seconds: 4), () {
       checkTokenAndRedirect(); // Check for token on startup
