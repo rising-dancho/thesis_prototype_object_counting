@@ -277,7 +277,7 @@ app.post('/api/login', async (req, res) => {
 // NUMBER OF STOCKS and DETECTIONS DATA -------------
 
 // CREATES A COUNT LOG FOR THE ACTIVITY LOGS WIDGET
-app.post('/api/count_objects', requireAuth, async (req, res) => {
+app.post('/api/count_objects', async (req, res) => {
   try {
     // Extract values from request body
     const { userId, stockName, sold } = req.body;
@@ -291,8 +291,16 @@ app.post('/api/count_objects', requireAuth, async (req, res) => {
 
     // Find the stock item
     const stock = await Stock.findOne({
-      stockName: { $regex: new RegExp(`^${stockName}$`, 'i') }, // 'i' = case-insensitive
+      // stockName: { $regex: new RegExp(`^${stockName}$`, 'i') }, // 'i' = case-insensitive
+      stockName: stockName,
     });
+
+    // const stock = await Stock.findOne({ stockName: stockName });
+    // if (!stock) {
+    //   return res
+    //     .status(404)
+    //     .json({ message: `Stock item '${stockName}' not found` });
+    // }
 
     if (!stock) {
       return res
@@ -308,15 +316,15 @@ app.post('/api/count_objects', requireAuth, async (req, res) => {
     }
 
     // ✅ Update stock: subtract `sold` from `availableStock`
-    const updatedStock = await Stock.updateOne(
-      { stockName: stockName },
-      {
-        $inc: {
-          availableStock: -sold, // Subtract sold from available stock
-          sold: sold, // Increase sold count
-        },
-      }
-    );
+    // const updatedStock = await Stock.updateOne(
+    //   { stockName: stockName },
+    //   {
+    //     $inc: {
+    //       availableStock: -sold, // Subtract sold from available stock
+    //       sold: sold, // Increase sold count
+    //     },
+    //   }
+    // );
 
     // ✅ Log the activity
     await Activity.create({
@@ -480,4 +488,3 @@ const PORT = 2000;
 app.listen(PORT, () => {
   console.log(`Connected to server at ${PORT}`);
 });
-
