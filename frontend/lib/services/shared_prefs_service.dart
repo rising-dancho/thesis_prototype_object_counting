@@ -42,7 +42,6 @@ class SharedPrefsService {
     }
   }
 
-  //Save the token unconditionally (for signup)
   // NEXT TIME THEY GO IN THEY ARE AUTO LOGGED IN UNLESS THEY LOGOUT
   static Future<void> saveTokenWithoutCheck(String token) async {
     try {

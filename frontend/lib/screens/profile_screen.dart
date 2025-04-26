@@ -390,55 +390,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 30.0),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 3.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextFormField(
-                            controller: _currentPasswordController,
-                            obscureText: !_currentPasswordVisible,
-                            obscuringCharacter: '*',
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your current password';
-                              } else if (value.length < 8) {
-                                return 'Password must be at least 8 characters long';
-                              }
-                              return null;
+                      child: TextFormField(
+                        controller: _currentPasswordController,
+                        obscureText: !_currentPasswordVisible,
+                        obscuringCharacter: '*',
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your current password';
+                          } else if (value.length < 8) {
+                            return 'Password must be at least 8 characters long';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Current Password',
+                          hintText: 'Enter your current password',
+                          hintStyle: const TextStyle(color: Colors.black26),
+                          fillColor: const Color.fromARGB(255, 255, 255, 255),
+                          filled: true,
+                          border: InputBorder.none,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _currentPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _currentPasswordVisible =
+                                    !_currentPasswordVisible;
+                              });
                             },
-                            decoration: InputDecoration(
-                              labelText: 'Current Password',
-                              hintText: 'Enter your current password',
-                              hintStyle: const TextStyle(color: Colors.black26),
-                              fillColor:
-                                  const Color.fromARGB(255, 255, 255, 255),
-                              filled: true,
-                              border: InputBorder.none,
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _currentPasswordVisible
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _currentPasswordVisible =
-                                        !_currentPasswordVisible;
-                                  });
-                                },
-                              ),
-                            ),
                           ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            'Must be at least 8 characters',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color.fromARGB(221, 255, 255, 255),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
+                    const SizedBox(height: 20),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 3.0),
                       child: Column(
