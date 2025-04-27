@@ -16,6 +16,7 @@ class RestockProduct extends StatefulWidget {
 
 class _RestockProductState extends State<RestockProduct> {
   late TextEditingController _restockController;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -32,6 +33,9 @@ class _RestockProductState extends State<RestockProduct> {
   void restockItem() {
     int? restockAmount = int.tryParse(_restockController.text.trim());
     if (restockAmount != null && restockAmount > 0) {
+      setState(() {
+        isLoading = true;
+      });
       widget.onRestock(restockAmount);
       Navigator.pop(context);
     } else {
@@ -85,9 +89,13 @@ class _RestockProductState extends State<RestockProduct> {
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
               labelText: "Enter restock amount",
+              labelStyle: TextStyle(
+                color: Colors.grey[700], // default color
+              ),
               hintText: "e.g. 50",
+              hintStyle: const TextStyle(color: Colors.black26),
               filled: true,
-              fillColor: Colors.grey[200],
+              fillColor: Colors.grey[300],
               border: InputBorder.none,
             ),
           ),
@@ -95,24 +103,27 @@ class _RestockProductState extends State<RestockProduct> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: restockItem,
+              onPressed: isLoading ? null : restockItem,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 22, 165, 221),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: Text(
-                'RESTOCK',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'Roboto',
-                  fontSize: 15.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              child: isLoading
+                  ? CircularProgressIndicator(color: Colors.white)
+                  : Text(
+                      'RESTOCK',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Roboto',
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
             ),
           ),
         ],
