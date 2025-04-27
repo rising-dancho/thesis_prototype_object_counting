@@ -290,8 +290,8 @@ app.get('/api/stocks', async (req, res) => {
   res.json(withSold);
 });
 
-// Save stock categories
-app.post('/api/stocks', async (req, res) => {
+// Save stock for restock
+app.post('/api/update/restock', async (req, res) => {
   try {
     for (const stockItem of req.body) {
       await Stock.findOneAndUpdate(
@@ -302,6 +302,26 @@ app.post('/api/stocks', async (req, res) => {
             availableStock: stockItem.availableStock,
           },
           // ❌ no touching "sold"
+        },
+        { upsert: true, new: true }
+      );
+    }
+    res.json({ message: 'Stock updated successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Save stock for sold
+app.post('/api/update/sold', async (req, res) => {
+  try {
+    for (const stockItem of req.body) {
+      await Stock.findOneAndUpdate(
+        { stockName: stockItem.stockName }, // Ensure correct search query
+        {
+          totalStock: stockItem.totalStock,
+
+          availableStock: stockItem.totalStock - (stockItem.sold ?? 0), // Ensure availableStock updates
         },
         { upsert: true, new: true }
       );

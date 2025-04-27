@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'TecTags App',
-      theme: lightMode,
+      theme: lightMode    ,
       home: SplashScreen(),
       // home: NavigationMenu(),
     );
