@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:tectags/services/api.dart';
 
 class RestockProduct extends StatefulWidget {
   final String itemName;
-  final int restockAmount;
-  final void Function(int newTotal) onRestock;
+  final void Function(int restockAmount) onRestock;
 
   const RestockProduct({
     super.key,
     required this.itemName,
-    required this.restockAmount,
     required this.onRestock,
   });
 
@@ -18,54 +15,28 @@ class RestockProduct extends StatefulWidget {
 }
 
 class _RestockProductState extends State<RestockProduct> {
-  late TextEditingController _countController;
-  bool _isLoading = false;
+  late TextEditingController _restockController;
 
   @override
   void initState() {
     super.initState();
-    _countController = TextEditingController(text: '10');
+    _restockController = TextEditingController();
   }
 
   @override
   void dispose() {
-    _countController.dispose();
+    _restockController.dispose();
     super.dispose();
   }
 
-  Future<void> restockItem() async {
-    int? amountToAdd = int.tryParse(_countController.text.trim());
-    if (amountToAdd == null || amountToAdd <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please enter a valid restock amount')),
-      );
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    var result = await API.restockStock(widget.itemName, amountToAdd);
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    if (result != null) {
-      debugPrint("✅ Restock Successful: ${result['message']}");
-      int newTotal = widget.restockAmount + amountToAdd;
-
-      widget.onRestock(newTotal);
+  void restockItem() {
+    int? restockAmount = int.tryParse(_restockController.text.trim());
+    if (restockAmount != null && restockAmount > 0) {
+      widget.onRestock(restockAmount);
       Navigator.pop(context);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('✅ Successfully restocked ${widget.itemName}!')),
-      );
     } else {
-      debugPrint("❌ Restock Failed");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('❌ Failed to restock. Try again.')),
+        SnackBar(content: Text('Please enter a valid positive number')),
       );
     }
   }
@@ -110,10 +81,11 @@ class _RestockProductState extends State<RestockProduct> {
           ),
           const SizedBox(height: 12),
           TextField(
-            controller: _countController,
+            controller: _restockController,
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
-              labelText: "Amount to Add",
+              labelText: "Enter restock amount",
+              hintText: "e.g. 50",
               filled: true,
               fillColor: Colors.grey[200],
               border: InputBorder.none,
@@ -123,29 +95,26 @@ class _RestockProductState extends State<RestockProduct> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: _isLoading ? null : restockItem,
+              onPressed: restockItem,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 22, 165, 221),
                 foregroundColor: Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: _isLoading
-                  ? CircularProgressIndicator(color: Colors.white)
-                  : Text(
-                      'RESTOCK',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Roboto',
-                        fontSize: 15.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+              child: Text(
+                'RESTOCK',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'Roboto',
+                  fontSize: 15.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
-          )
+          ),
         ],
       ),
     );

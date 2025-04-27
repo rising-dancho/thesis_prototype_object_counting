@@ -294,14 +294,14 @@ app.get('/api/stocks', async (req, res) => {
 app.post('/api/stocks', async (req, res) => {
   try {
     for (const stockItem of req.body) {
-      const sold = stockItem.sold ?? 0;
-
       await Stock.findOneAndUpdate(
         { stockName: stockItem.stockName },
         {
-          totalStock: stockItem.totalStock,
-          sold: stockItem.totalStock - stockItem.availableStock, // ✅ ADD THIS
-          availableStock: stockItem.totalStock - sold,
+          $inc: {
+            totalStock: stockItem.totalStock,
+            availableStock: stockItem.availableStock,
+          },
+          // ❌ no touching "sold"
         },
         { upsert: true, new: true }
       );

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:tectags/services/api.dart';
 import 'package:tectags/widgets/products/add_product.dart';
-import 'package:tectags/widgets/products/edit_product.dart';
 import 'package:tectags/widgets/products/restock_product.dart';
 
 class StockManager extends StatefulWidget {
@@ -50,32 +49,38 @@ class _StockManagerState extends State<StockManager> {
     );
   }
 
-  void _openRestockStockModal(
-      BuildContext context, String item, int restockAmount) {
+  void _openRestockStockModal(BuildContext context, String item) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (_) {
         return Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child: SingleChildScrollView(
-                child: RestockProduct(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: SingleChildScrollView(
+            child: RestockProduct(
               itemName: item,
-              restockAmount: restockAmount,
-              onRestock: (newCount) {
-                updateStock(item, newCount);
+              onRestock: (restockAmount) {
+                updateStock(item, restockAmount);
               },
-            )));
+            ),
+          ),
+        );
       },
     );
   }
 
-  void updateStock(String item, int newCount) {
+  void updateStock(String item, int restockAmount) {
     if (stockCounts.containsKey(item)) {
       setState(() {
-        stockCounts[item]?["totalStock"] = newCount;
+        int currentTotalStock = stockCounts[item]?["totalStock"] ?? 0;
+        int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
+
+        stockCounts[item]?["totalStock"] = currentTotalStock + restockAmount;
+        stockCounts[item]?["availableStock"] =
+            currentAvailableStock + restockAmount;
+        // 🔥 sold does NOT change
       });
 
       API.saveStockToMongoDB(stockCounts);
@@ -274,7 +279,7 @@ class _StockManagerState extends State<StockManager> {
                                     onSelected: (value) {
                                       if (value == 'edit') {
                                         _openRestockStockModal(
-                                            context, item, totalStock);
+                                            context, item);
                                       } else if (value == 'delete') {
                                         showDialog(
                                           context: context,
