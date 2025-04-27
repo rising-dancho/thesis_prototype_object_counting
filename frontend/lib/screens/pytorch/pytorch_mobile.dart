@@ -598,37 +598,44 @@ class _PytorchMobileState extends State<PytorchMobile> {
                 ),
               ),
               if (_selectedImage == null) ...[
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    textStyle: const TextStyle(fontSize: 16),
-                    backgroundColor: const Color.fromARGB(255, 22, 165, 221),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 95, vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  onPressed: useCamera,
-                  icon: const Icon(Icons.camera_alt),
-                  label: const Text("Capture Photo"),
-                ),
+                Container(
+                    width: double
+                        .infinity, // Makes the button take all horizontal space
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        textStyle: const TextStyle(fontSize: 16),
+                        backgroundColor:
+                            const Color.fromARGB(255, 22, 165, 221),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 95, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      onPressed: useCamera,
+                      icon: const Icon(Icons.camera_alt),
+                      label: const Text("Capture Photo"),
+                    )),
                 const SizedBox(height: 10.0),
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    textStyle: const TextStyle(fontSize: 16),
-                    backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFF052D5A),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 84, vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  onPressed: imageGallery,
-                  icon: const Icon(Icons.image),
-                  label: const Text("Choose an Image"),
-                ),
+                Container(
+                    width: double
+                        .infinity, // Makes the button take all horizontal space
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        textStyle: const TextStyle(fontSize: 16),
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFF052D5A),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 84, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      onPressed: imageGallery,
+                      icon: const Icon(Icons.image),
+                      label: const Text("Choose an Image"),
+                    )),
               ],
               if (_selectedImage != null) ...[
                 Container(

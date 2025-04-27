@@ -344,115 +344,126 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ],
                                 ),
                                 const SizedBox(height: 20),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        const Color.fromARGB(255, 22, 165, 221),
-                                    foregroundColor: Colors.white,
-                                    shadowColor: Colors.grey,
-                                    elevation: 5,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 105, vertical: 15),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                  onPressed: () async {
-                                    if (_formUpdateKey.currentState!
-                                        .validate()) {
-                                      // Validate inputs
-                                      if (_firstNameController.text.isEmpty ||
-                                          _lastNameController.text.isEmpty ||
-                                          _contactNumberController
-                                              .text.isEmpty ||
-                                          _birthdayController.text.isEmpty) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                              content: Text(
-                                                  'Please fill all fields.')),
-                                        );
-                                        return;
-                                      }
-                                      // Profile data to update (only include fields expected by the backend)
-                                      Map<String, dynamic> profileData = {
-                                        "firstName": LabelFormatter.titleCase(
-                                            _firstNameController.text),
-                                        "lastName": LabelFormatter.titleCase(
-                                            _lastNameController.text),
-                                        "contactNumber":
-                                            _contactNumberController.text,
-                                        "birthday": _birthdayController
-                                            .text, // Ensure format is YYYY-MM-DD
-                                      };
+                                Container(
+                                    width: double
+                                        .infinity, // Makes the button take all horizontal space
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color.fromARGB(
+                                            255, 22, 165, 221),
+                                        foregroundColor: Colors.white,
+                                        shadowColor: Colors.grey,
+                                        elevation: 5,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 105, vertical: 15),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                      ),
+                                      onPressed: () async {
+                                        if (_formUpdateKey.currentState!
+                                            .validate()) {
+                                          // Validate inputs
+                                          if (_firstNameController
+                                                  .text.isEmpty ||
+                                              _lastNameController
+                                                  .text.isEmpty ||
+                                              _contactNumberController
+                                                  .text.isEmpty ||
+                                              _birthdayController
+                                                  .text.isEmpty) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                  content: Text(
+                                                      'Please fill all fields.')),
+                                            );
+                                            return;
+                                          }
+                                          // Profile data to update (only include fields expected by the backend)
+                                          Map<String, dynamic> profileData = {
+                                            "firstName":
+                                                LabelFormatter.titleCase(
+                                                    _firstNameController.text),
+                                            "lastName":
+                                                LabelFormatter.titleCase(
+                                                    _lastNameController.text),
+                                            "contactNumber":
+                                                _contactNumberController.text,
+                                            "birthday": _birthdayController
+                                                .text, // Ensure format is YYYY-MM-DD
+                                          };
 
-                                      // Get userId from SharedPreferences
-                                      String? userId =
-                                          await SharedPrefsService.getUserId();
-                                      debugPrint(
-                                          "User ID: $userId"); // Log the user ID
+                                          // Get userId from SharedPreferences
+                                          String? userId =
+                                              await SharedPrefsService
+                                                  .getUserId();
+                                          debugPrint(
+                                              "User ID: $userId"); // Log the user ID
 
-                                      // Check if userId is available
-                                      if (userId == null) {
-                                        if (!mounted) return;
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                              content: Text(
-                                                  'User ID not found. Please log in again.')),
-                                        );
-                                        return;
-                                      }
+                                          // Check if userId is available
+                                          if (userId == null) {
+                                            if (!mounted) return;
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                  content: Text(
+                                                      'User ID not found. Please log in again.')),
+                                            );
+                                            return;
+                                          }
 
-                                      // Call the API to update profile
-                                      Map<String, dynamic>? response;
-                                      try {
-                                        response = await API.updateUserProfile(
-                                            userId, profileData);
-                                        debugPrint(
-                                            "API Response: $response"); // Debug log
+                                          // Call the API to update profile
+                                          Map<String, dynamic>? response;
+                                          try {
+                                            response =
+                                                await API.updateUserProfile(
+                                                    userId, profileData);
+                                            debugPrint(
+                                                "API Response: $response"); // Debug log
 
-                                        if (!mounted) return;
+                                            if (!mounted) return;
 
-                                        // Handle response
-                                        if (response != null &&
-                                            response.containsKey('error')) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                                content: Text(
-                                                    'Failed to update profile: ${response['error']}')),
-                                          );
-                                        } else {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            const SnackBar(
-                                                content: Text(
-                                                    'Profile updated successfully!')),
-                                          );
-                                          // Optionally navigate back or update UI
+                                            // Handle response
+                                            if (response != null &&
+                                                response.containsKey('error')) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                    content: Text(
+                                                        'Failed to update profile: ${response['error']}')),
+                                              );
+                                            } else {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                    content: Text(
+                                                        'Profile updated successfully!')),
+                                              );
+                                              // Optionally navigate back or update UI
+                                            }
+                                          } catch (e) {
+                                            debugPrint(
+                                                "Error during profile update: $e"); // Debug log
+                                            if (!mounted) return;
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                  content: Text(
+                                                      'Profile update failed. Please try again.')),
+                                            );
+                                          }
                                         }
-                                      } catch (e) {
-                                        debugPrint(
-                                            "Error during profile update: $e"); // Debug log
-                                        if (!mounted) return;
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                              content: Text(
-                                                  'Profile update failed. Please try again.')),
-                                        );
-                                      }
-                                    }
-                                  },
-                                  child: const Text(
-                                    'Save Changes',
-                                    style: TextStyle(
-                                      fontFamily: 'Roboto',
-                                      fontSize: 15.0,
-                                    ),
-                                  ),
-                                ),
+                                      },
+                                      child: const Text(
+                                        'Save',
+                                        style: TextStyle(
+                                          fontFamily: 'Roboto',
+                                          fontSize: 15.0,
+                                        ),
+                                      ),
+                                    )),
                                 const SizedBox(height: 30.0),
                               ],
                             )),
@@ -569,92 +580,98 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ],
                         ),
                         const SizedBox(height: 10),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromARGB(255, 22, 165, 221),
-                            foregroundColor: Colors.white,
-                            shadowColor: Colors.grey,
-                            elevation: 5,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 105, vertical: 15),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          onPressed: () async {
-                            if (_formUpdateKey.currentState!.validate()) {
-                              // Validate inputs
-                              if (_currentPasswordController.text.isEmpty ||
-                                  _newPasswordController.text.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content:
-                                          Text('Please enter both passwords.')),
-                                );
-                                return;
-                              }
-                              // Get userId
-                              String? userId =
-                                  await SharedPrefsService.getUserId();
-                              debugPrint("User ID: $userId");
+                        Container(
+                            width: double
+                                .infinity, // Makes the button take all horizontal space
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    const Color.fromARGB(255, 22, 165, 221),
+                                foregroundColor: Colors.white,
+                                shadowColor: Colors.grey,
+                                elevation: 5,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 105, vertical: 15),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              onPressed: () async {
+                                if (_formUpdateKey.currentState!.validate()) {
+                                  // Validate inputs
+                                  if (_currentPasswordController.text.isEmpty ||
+                                      _newPasswordController.text.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              'Please enter both passwords.')),
+                                    );
+                                    return;
+                                  }
+                                  // Get userId
+                                  String? userId =
+                                      await SharedPrefsService.getUserId();
+                                  debugPrint("User ID: $userId");
 
-                              if (userId == null) {
-                                if (!mounted) return;
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text(
-                                          'User ID not found. Please log in again.')),
-                                );
-                                return;
-                              }
-                              // Change password
-                              Map<String, dynamic>? response;
-                              try {
-                                response = await API.changePassword(
-                                  userId,
-                                  _currentPasswordController.text,
-                                  _newPasswordController.text,
-                                );
-                                debugPrint(
-                                    "Change Password Response: $response");
+                                  if (userId == null) {
+                                    if (!mounted) return;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              'User ID not found. Please log in again.')),
+                                    );
+                                    return;
+                                  }
+                                  // Change password
+                                  Map<String, dynamic>? response;
+                                  try {
+                                    response = await API.changePassword(
+                                      userId,
+                                      _currentPasswordController.text,
+                                      _newPasswordController.text,
+                                    );
+                                    debugPrint(
+                                        "Change Password Response: $response");
 
-                                if (!mounted) return;
+                                    if (!mounted) return;
 
-                                if (response != null &&
-                                    response.containsKey('error')) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(
-                                            'Failed to change password: ${response['error']}')),
-                                  );
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text(
-                                            'Password changed successfully!')),
-                                  );
-                                  // Clear password fields
-                                  _currentPasswordController.clear();
-                                  _newPasswordController.clear();
+                                    if (response != null &&
+                                        response.containsKey('error')) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                            content: Text(
+                                                'Failed to change password: ${response['error']}')),
+                                      );
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                            content: Text(
+                                                'Password changed successfully!')),
+                                      );
+                                      // Clear password fields
+                                      _currentPasswordController.clear();
+                                      _newPasswordController.clear();
+                                    }
+                                  } catch (e) {
+                                    debugPrint(
+                                        "Error during password change: $e");
+                                    if (!mounted) return;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              'Password change failed. Please try again.')),
+                                    );
+                                  }
                                 }
-                              } catch (e) {
-                                debugPrint("Error during password change: $e");
-                                if (!mounted) return;
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text(
-                                          'Password change failed. Please try again.')),
-                                );
-                              }
-                            }
-                          },
-                          child: const Text(
-                            'Change Password',
-                            style:
-                                TextStyle(fontFamily: 'Roboto', fontSize: 15.0),
-                          ),
-                        ),
+                              },
+                              child: const Text(
+                                'Change',
+                                style: TextStyle(
+                                    fontFamily: 'Roboto', fontSize: 15.0),
+                              ),
+                            )),
                       ],
                     )),
               ),

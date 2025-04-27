@@ -19,6 +19,8 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formSignUpKey = GlobalKey<FormState>();
   final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _middleInitialController =
+      TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _contactNumberController =
       TextEditingController();
@@ -31,6 +33,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _passwordVisible = false;
   bool _confirmPasswordVisible = false;
 
+  bool isValidEmail(String email) {
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    return emailRegex.hasMatch(email);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -39,6 +46,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   void dispose() {
     _firstNameController.dispose();
+    _middleInitialController.dispose();
     _lastNameController.dispose();
     _contactNumberController.dispose();
     _birthdayController.dispose();
@@ -118,6 +126,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ),
                   const SizedBox(height: 20.0),
+                  // Middle Initial (Optional)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                    child: TextFormField(
+                      controller: _middleInitialController,
+                      decoration: InputDecoration(
+                        labelText: 'Middle Initial (Optional)',
+                        hintText: 'Enter your middle initial',
+                        hintStyle: const TextStyle(color: Colors.black26),
+                        fillColor: Colors.white,
+                        filled: true,
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20.0),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 3.0),
                     child: TextFormField(
@@ -146,6 +171,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your email';
+                        } else if (!isValidEmail(value)) {
+                          return 'Please enter a valid email address';
                         }
                         return null;
                       },
@@ -160,56 +187,160 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ),
                   const SizedBox(height: 20.0),
+                  // Birthday and Phone number
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 3.0),
-                    child: TextFormField(
-                      controller: _contactNumberController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(11),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 5.0),
+                            child: TextFormField(
+                              controller: _birthdayController,
+                              readOnly: true,
+                              onTap: () async {
+                                DateTime? pickedDate = await showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime(2000),
+                                  firstDate: DateTime(1900),
+                                  lastDate: DateTime.now(),
+                                  builder: (context, child) {
+                                    return Theme(
+                                      data: Theme.of(context).copyWith(
+                                        colorScheme: const ColorScheme.light(
+                                          primary: Color(0xFF16A5DD),
+                                          onPrimary: Colors.white,
+                                          onSurface: Colors.black,
+                                        ),
+                                        textButtonTheme: TextButtonThemeData(
+                                          style: TextButton.styleFrom(
+                                            foregroundColor: Color(0xFF16A5DD),
+                                          ),
+                                        ),
+                                      ),
+                                      child: child!,
+                                    );
+                                  },
+                                );
+                                if (pickedDate != null) {
+                                  setState(() {
+                                    _birthdayController.text =
+                                        DateFormat('MM/dd/yyyy')
+                                            .format(pickedDate);
+                                  });
+                                }
+                              },
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Select birthday';
+                                }
+                                return null;
+                              },
+                              decoration: InputDecoration(
+                                labelText: 'Birthday',
+                                hintText: 'Select your birthday',
+                                hintStyle:
+                                    const TextStyle(color: Colors.black26),
+                                fillColor: Colors.white,
+                                filled: true,
+                                border: InputBorder.none,
+                                suffixIcon: const Icon(Icons.calendar_today),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 5.0),
+                            child: TextFormField(
+                              controller: _contactNumberController,
+                              keyboardType: TextInputType.phone,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(11),
+                              ],
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your phone number';
+                                } else if (!RegExp(r'^09\d{9}$')
+                                    .hasMatch(value)) {
+                                  return 'Must start with 09 and be 11 digits';
+                                }
+                                return null;
+                              },
+                              // validator: (value) {
+                              //   if (value == null || value.isEmpty) {
+                              //     return 'Enter phone';
+                              //   } else if (value.length < 10) {
+                              //     return 'Invalid phone';
+                              //   }
+                              //   return null;
+                              // },
+                              decoration: InputDecoration(
+                                labelText: 'Phone Number',
+                                hintText: 'Enter phone number',
+                                hintStyle:
+                                    const TextStyle(color: Colors.black26),
+                                fillColor: Colors.white,
+                                filled: true,
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your phone number';
-                        } else if (!RegExp(r'^09\d{9}$').hasMatch(value)) {
-                          return 'Must start with 09 and be 11 digits';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        labelText: 'Phone',
-                        hintText: 'eg. 09231234567',
-                        hintStyle: const TextStyle(color: Colors.black26),
-                        fillColor: Colors.white,
-                        filled: true,
-                        border: InputBorder.none,
-                      ),
                     ),
                   ),
-                  const SizedBox(height: 20.0),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 3.0),
-                    child: TextFormField(
-                      controller: _birthdayController,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your birthday';
-                        }
-                        return null;
-                      },
-                      onTap: _openDatePicker,
-                      readOnly: true,
-                      decoration: InputDecoration(
-                        labelText: 'Birthday',
-                        hintText: 'Enter your your birthday',
-                        hintStyle: const TextStyle(color: Colors.black26),
-                        fillColor: Colors.white,
-                        filled: true,
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ),
+                  // Padding(
+                  //   padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                  //   child: TextFormField(
+                  //     controller: _contactNumberController,
+                  // keyboardType: TextInputType.number,
+                  // inputFormatters: [
+                  //   FilteringTextInputFormatter.digitsOnly,
+                  //   LengthLimitingTextInputFormatter(11),
+                  // ],
+                  // validator: (value) {
+                  //   if (value == null || value.isEmpty) {
+                  //     return 'Please enter your phone number';
+                  //   } else if (!RegExp(r'^09\d{9}$').hasMatch(value)) {
+                  //     return 'Must start with 09 and be 11 digits';
+                  //   }
+                  //   return null;
+                  // },
+                  //     decoration: InputDecoration(
+                  //       labelText: 'Phone',
+                  //       hintText: 'eg. 09231234567',
+                  //       hintStyle: const TextStyle(color: Colors.black26),
+                  //       fillColor: Colors.white,
+                  //       filled: true,
+                  //       border: InputBorder.none,
+                  //     ),
+                  //   ),
+                  // ),
+                  // const SizedBox(height: 20.0),
+                  // Padding(
+                  //   padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                  //   child: TextFormField(
+                  //     controller: _birthdayController,
+                  //     validator: (value) {
+                  //       if (value == null || value.isEmpty) {
+                  //         return 'Please enter your birthday';
+                  //       }
+                  //       return null;
+                  //     },
+                  //     onTap: _openDatePicker,
+                  //     readOnly: true,
+                  //     decoration: InputDecoration(
+                  //       labelText: 'Birthday',
+                  //       hintText: 'Enter your your birthday',
+                  //       hintStyle: const TextStyle(color: Colors.black26),
+                  //       fillColor: Colors.white,
+                  //       filled: true,
+                  //       border: InputBorder.none,
+                  //     ),
+                  //   ),
+                  // ),
                   const SizedBox(height: 20.0),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 3.0),

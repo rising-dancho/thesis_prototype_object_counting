@@ -196,8 +196,8 @@ class _ActivityLogsState extends State<ActivityLogs> {
                     activeColor: Colors.white,
                     activeTrackColor: Colors.green,
                     inactiveThumbColor: Colors.white,
-                    inactiveTrackColor:
-                        const Color.fromARGB(255, 243, 243, 243).withAlpha((0.25 * 255).toInt()),
+                    inactiveTrackColor: const Color.fromARGB(255, 243, 243, 243)
+                        .withAlpha((0.25 * 255).toInt()),
                   ),
                 ],
               ),
@@ -336,30 +336,33 @@ class _ActivityLogsState extends State<ActivityLogs> {
 
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 22, 165, 221),
-                  foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                onPressed: () {},
-                child: const Text(
-                  'Generate Reports',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'Roboto',
-                    fontSize: 15.0,
-                  ),
-                ),
-              ),
+              child: Container(
+                  width: double
+                      .infinity, // Makes the button take all horizontal space
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 22, 165, 221),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 100, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onPressed: () {},
+                    child: const Text(
+                      'Generate Reports',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Roboto',
+                        fontSize: 15.0,
+                      ),
+                    ),
+                  )),
             ),
           ],
         ),
       ),
-      );
+    );
   }
 }
