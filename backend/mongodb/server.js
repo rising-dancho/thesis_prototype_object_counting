@@ -458,6 +458,18 @@ app.post('/api/count_objects', async (req, res) => {
       });
     }
 
+    // ✅ THIS IS CALLED WHEN THE LABEL ALREADY EXISTS (NOT USING AUTO DETECT ADD MISSING LABEL): subtract `sold` from `availableStock` 
+    const updatedStock = await Stock.updateOne(
+      { stockName: stockName },
+      {
+        $inc: {
+          availableStock: -sold, // Subtract sold from available stock
+
+          sold: sold, // Increase sold count
+        },
+      }
+    );
+
     // ✅ Log the activity
     await Activity.create({
       userId,
