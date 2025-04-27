@@ -19,7 +19,7 @@ class API {
 
   static Future<Map<String, dynamic>?> restockStock(
       String stockName, int restockAmount) async {
-    final url = Uri.parse('${baseUrl}stocks/restock');
+    final url = Uri.parse('${baseUrl}/api/update/restock');
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
 
@@ -125,7 +125,7 @@ class API {
       }).toList();
 
       var response = await http.post(
-        Uri.parse("${baseUrl}stocks"),
+        Uri.parse("${baseUrl}update/sold"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(formattedStocks),
       );
