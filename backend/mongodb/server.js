@@ -276,6 +276,136 @@ app.post('/api/login', async (req, res) => {
 
 // NUMBER OF STOCKS and DETECTIONS DATA -------------
 
+// SOLD CALCULATION DONE HERE
+app.get('/api/stocks', async (req, res) => {
+  const stocks = await Stock.find();
+
+  const withSold = stocks.map((stock) => ({
+    stockName: stock.stockName,
+    totalStock: stock.totalStock,
+    availableStock: stock.availableStock,
+    sold: stock.totalStock - stock.availableStock, // ✅ calculated here
+  }));
+
+  res.json(withSold);
+});
+
+// Save stock categories
+app.post('/api/stocks', async (req, res) => {
+  try {
+    for (const stockItem of req.body) {
+      const sold = stockItem.sold ?? 0;
+
+      await Stock.findOneAndUpdate(
+        { stockName: stockItem.stockName },
+        {
+          totalStock: stockItem.totalStock,
+          sold: stockItem.totalStock - stockItem.availableStock, // ✅ ADD THIS
+          availableStock: stockItem.totalStock - sold,
+        },
+        { upsert: true, new: true }
+      );
+    }
+    res.json({ message: 'Stock updated successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// RESTOCK endpoint
+app.post('/api/stocks/restock', async (req, res) => {
+  try {
+    const { stockName, restockAmount } = req.body;
+
+    if (!stockName || restockAmount === undefined) {
+      return res
+        .status(400)
+        .json({ message: 'Stock name and restock amount are required' });
+    }
+
+    const stock = await Stock.findOne({ stockName });
+
+    if (!stock) {
+      return res
+        .status(404)
+        .json({ message: `Stock item '${stockName}' not found` });
+    }
+
+    stock.totalStock += restockAmount;
+    stock.availableStock += restockAmount;
+
+    await stock.save();
+
+    res.json({
+      message: `Successfully restocked ${restockAmount} units of ${stockName}`,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// CALCULATE PRICE OF SOLD ITEMS
+app.post('/api/stocks/sell', async (req, res) => {
+  try {
+    const { stockName, quantitySold } = req.body;
+
+    if (!stockName || quantitySold === undefined) {
+      return res
+        .status(400)
+        .json({ message: 'Stock name and quantity sold are required' });
+    }
+
+    const stock = await Stock.findOne({ stockName });
+
+    if (!stock) {
+      return res
+        .status(404)
+        .json({ message: `Stock item '${stockName}' not found` });
+    }
+
+    if (stock.availableStock < quantitySold) {
+      return res.status(400).json({
+        message: `Not enough stock available. Only ${stock.availableStock} left.`,
+      });
+    }
+
+    stock.sold += quantitySold;
+    stock.availableStock -= quantitySold;
+
+    // Detect sold out
+    if (stock.availableStock === 0) {
+      console.log(` Stock '${stock.stockName}' is now SOLD OUT!`);
+      soldOut = true; // ✅ set soldOut flag
+    }
+
+    await stock.save();
+
+    // await Activity.create({
+    //   userId, // (if you want to track which user sold it)
+    //   action: `Sold ${quantitySold} units of ${stockName}`,
+    //   stockId: stock._id,
+    //   countedAmount: quantitySold,
+    // });
+
+    res.json({
+      message: `Successfully sold ${quantitySold} units of ${stockName}`,
+      soldOut: soldOut, //
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/stocks/:stockName', async (req, res) => {
+  try {
+    const stockName = req.params.stockName;
+    await Stock.deleteOne({ stockName: stockName }); // ✅ Fix field name
+    res.json({ message: `Deleted ${stockName} successfully` });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // CREATES A COUNT LOG FOR THE ACTIVITY LOGS WIDGET
 app.post('/api/count_objects', async (req, res) => {
   try {
@@ -295,13 +425,6 @@ app.post('/api/count_objects', async (req, res) => {
       stockName: stockName,
     });
 
-    // const stock = await Stock.findOne({ stockName: stockName });
-    // if (!stock) {
-    //   return res
-    //     .status(404)
-    //     .json({ message: `Stock item '${stockName}' not found` });
-    // }
-
     if (!stock) {
       return res
         .status(404)
@@ -314,17 +437,6 @@ app.post('/api/count_objects', async (req, res) => {
         message: `Not enough stock available. Only ${stock.availableStock} left.`,
       });
     }
-
-    // ✅ Update stock: subtract `sold` from `availableStock`
-    // const updatedStock = await Stock.updateOne(
-    //   { stockName: stockName },
-    //   {
-    //     $inc: {
-    //       availableStock: -sold, // Subtract sold from available stock
-    //       sold: sold, // Increase sold count
-    //     },
-    //   }
-    // );
 
     // ✅ Log the activity
     await Activity.create({
@@ -436,52 +548,6 @@ app.get('/api/activity_logs/', async (req, res) => {
       .json({ message: 'Internal server error', error: error.message });
   }
   // EXPLANATION ON ABOUT ACTIVITY LOGS PER USERID AND ALL ACTIVITY LOGS PER USER: https://chatgpt.com/share/67e6097f-8c94-8000-940d-5ecd8c54bb09
-});
-
-// Get all stock
-app.get('/api/stocks', async (req, res) => {
-  const stocks = await Stock.find();
-
-  const withSold = stocks.map((stock) => ({
-    stockName: stock.stockName,
-    totalStock: stock.totalStock,
-    availableStock: stock.availableStock,
-    sold: stock.totalStock - stock.availableStock, // ✅ calculated here
-  }));
-
-  res.json(withSold);
-});
-
-// Save stock categories
-app.post('/api/stocks', async (req, res) => {
-  try {
-    for (const stockItem of req.body) {
-      const sold = stockItem.sold ?? 0;
-
-      await Stock.findOneAndUpdate(
-        { stockName: stockItem.stockName },
-        {
-          totalStock: stockItem.totalStock,
-          sold: sold, // ✅ ADD THIS
-          availableStock: stockItem.totalStock - sold,
-        },
-        { upsert: true, new: true }
-      );
-    }
-    res.json({ message: 'Stock updated successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.delete('/api/stocks/:stockName', async (req, res) => {
-  try {
-    const stockName = req.params.stockName;
-    await Stock.deleteOne({ stockName: stockName }); // ✅ Fix field name
-    res.json({ message: `Deleted ${stockName} successfully` });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 });
 
 const PORT = 2000;

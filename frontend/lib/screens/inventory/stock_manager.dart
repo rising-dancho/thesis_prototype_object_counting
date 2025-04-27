@@ -3,6 +3,7 @@ import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:tectags/services/api.dart';
 import 'package:tectags/widgets/products/add_product.dart';
 import 'package:tectags/widgets/products/edit_product.dart';
+import 'package:tectags/widgets/products/restock_product.dart';
 
 class StockManager extends StatefulWidget {
   const StockManager({super.key});
@@ -49,7 +50,8 @@ class _StockManagerState extends State<StockManager> {
     );
   }
 
-  void _openEditStockModal(BuildContext context, String item, int totalStock) {
+  void _openRestockStockModal(
+      BuildContext context, String item, int restockAmount) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -59,15 +61,25 @@ class _StockManagerState extends State<StockManager> {
               bottom: MediaQuery.of(context).viewInsets.bottom,
             ),
             child: SingleChildScrollView(
-                child: EditProduct(
+                child: RestockProduct(
               itemName: item,
-              currentStock: totalStock,
-              onUpdate: (newCount) {
+              restockAmount: restockAmount,
+              onRestock: (newCount) {
                 updateStock(item, newCount);
               },
             )));
       },
     );
+  }
+
+  void updateStock(String item, int newCount) {
+    if (stockCounts.containsKey(item)) {
+      setState(() {
+        stockCounts[item]?["totalStock"] = newCount;
+      });
+
+      API.saveStockToMongoDB(stockCounts);
+    }
   }
 
   // INFO DISPLAYED IN THE CARDS PULLED FROM THE STOCKS COLLECTION
@@ -90,16 +102,6 @@ class _StockManagerState extends State<StockManager> {
             }));
       });
       debugPrint("Updated StockCounts: $stockCounts");
-    }
-  }
-
-  void updateStock(String item, int newCount) {
-    if (stockCounts.containsKey(item)) {
-      setState(() {
-        stockCounts[item]?["totalStock"] = newCount;
-      });
-
-      API.saveStockToMongoDB(stockCounts);
     }
   }
 
@@ -271,7 +273,7 @@ class _StockManagerState extends State<StockManager> {
                                     icon: Icon(Icons.more_horiz),
                                     onSelected: (value) {
                                       if (value == 'edit') {
-                                        _openEditStockModal(
+                                        _openRestockStockModal(
                                             context, item, totalStock);
                                       } else if (value == 'delete') {
                                         showDialog(
@@ -321,7 +323,7 @@ class _StockManagerState extends State<StockManager> {
                                         value: 'edit',
                                         child: Container(
                                           decoration: BoxDecoration(
-                                            color: Colors.blue[
+                                            color: Colors.green[
                                                 50], // light blue background for edit
                                             borderRadius:
                                                 BorderRadius.circular(5),
@@ -334,10 +336,10 @@ class _StockManagerState extends State<StockManager> {
                                             // mainAxisAlignment:
                                             //     MainAxisAlignment.center,
                                             children: [
-                                              Icon(Icons.edit,
-                                                  color: Colors.blue[400]),
-                                              SizedBox(width: 8),
-                                              Text('Edit',
+                                              Icon(Icons.add_box,
+                                                  color: Colors.green[400]),
+                                              SizedBox(width: 5),
+                                              Text('Restock',
                                                   style: TextStyle(
                                                     fontFamily: 'Roboto',
                                                     // fontSize: 15.0,
@@ -364,7 +366,7 @@ class _StockManagerState extends State<StockManager> {
                                             // mainAxisAlignment:
                                             //     MainAxisAlignment.center,
                                             children: [
-                                              Icon(Icons.delete,
+                                              Icon(Icons.delete_rounded,
                                                   color: Colors.red[400]),
                                               SizedBox(width: 8),
                                               Text('Delete',

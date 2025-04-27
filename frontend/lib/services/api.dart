@@ -17,6 +17,191 @@ class API {
       "https://thesis-prototype-object-counting.vercel.app/api/";
   // static const baseUrl = "https://fix-inventory.vercel.app/api/";
 
+  static Future<Map<String, dynamic>?> restockStock(
+      String stockName, int restockAmount) async {
+    final url = Uri.parse('${baseUrl}stocks/restock');
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      debugPrint("❌ No token found in SharedPreferences");
+      return null;
+    }
+
+    Map<String, dynamic> requestBody = {
+      "stockName": stockName,
+      "restockAmount": restockAmount,
+    };
+
+    debugPrint("🔄 Sending restock request to: $url");
+    debugPrint("📦 Request body: ${jsonEncode(requestBody)}");
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization":
+              "Bearer $token", // ✅ Send token if route is protected
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      debugPrint("📝 Response Code: ${response.statusCode}");
+      debugPrint("📝 Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        debugPrint("❌ Failed to restock stock: ${response.body}");
+        return null;
+      }
+    } catch (error) {
+      debugPrint("⚠️ Error during restocking: $error");
+      return null;
+    }
+  }
+
+  static Future<Map<String, dynamic>?> logStockCurrentCount(
+      String userId, String stockItem, int sold) async {
+    var url = Uri.parse("${baseUrl}count_objects");
+
+    // ✅ Get token from SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    if (token == null) {
+      debugPrint("❌ No token found in SharedPreferences");
+      return null;
+    }
+
+    Map<String, dynamic> requestBody = {
+      "userId": userId,
+      "stockName": stockItem,
+      "sold": sold,
+    };
+
+    debugPrint("🔄 Sending request to: $url");
+    debugPrint("📦 Request body: ${jsonEncode(requestBody)}");
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization":
+              "Bearer $token", // ✅ AUTHORIZATION FOR PROTECTED ROUTES
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      debugPrint("📝 Response Code: ${response.statusCode}");
+      debugPrint("📝 Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        debugPrint("❌ Failed to log object count: ${response.body}");
+        return null;
+      }
+    } catch (error, stacktrace) {
+      debugPrint("⚠️ Error logging object count: $error");
+      debugPrint(stacktrace.toString());
+      return null;
+    }
+  }
+
+  static Future<SaveResult> saveStockToMongoDB(
+      Map<String, Map<String, int>> stockCounts) async {
+    try {
+      List<Map<String, dynamic>> formattedStocks =
+          stockCounts.entries.map((entry) {
+        return {
+          "stockName": LabelFormatter.titleCase(entry.key),
+          "totalStock": entry.value["totalStock"] ?? 0,
+          "sold": entry.value["sold"] ?? 0,
+          "availableStock": entry.value["availableStock"] ?? 0,
+        };
+      }).toList();
+
+      var response = await http.post(
+        Uri.parse("${baseUrl}stocks"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(formattedStocks),
+      );
+
+      if (response.statusCode == 200) {
+        debugPrint("Stock saved successfully: ${response.body}");
+      } else {
+        debugPrint("Failed to save stock: ${response.body}");
+      }
+      return SaveResult(isSuccess: true);
+    } catch (e) {
+      return SaveResult(isSuccess: false, errorMessage: e.toString());
+    }
+  }
+
+  static Future<Map<String, Map<String, int>>?> fetchStockFromMongoDB() async {
+    try {
+      var response = await http.get(Uri.parse("${baseUrl}stocks"));
+
+      debugPrint("Stock API Response: ${response.body}");
+
+      if (response.statusCode == 200) {
+        List<dynamic> jsonData = jsonDecode(response.body);
+
+        Map<String, Map<String, int>> stockData = {};
+        for (var item in jsonData) {
+          if (item.containsKey("stockName") &&
+              item.containsKey("availableStock") &&
+              item.containsKey("totalStock")) {
+            // ✅ No longer requiring "sold"
+
+            String itemName = item["stockName"];
+            int availableStock = item["availableStock"] ?? 0;
+            int totalStock = item["totalStock"] ?? 0;
+            int sold = item.containsKey("sold")
+                ? item["sold"] ?? 0
+                : 0; // ✅ Handle missing "sold"
+
+            stockData[itemName] = {
+              "availableStock": availableStock,
+              "totalStock": totalStock,
+              "sold": sold, // ✅ Ensures "sold" exists
+            };
+          }
+        }
+
+        debugPrint("Fetched Stock Data with Sold: $stockData");
+        return stockData;
+      } else {
+        debugPrint("Failed to fetch stock: ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      debugPrint("Error fetching stock: $e");
+      return null;
+    }
+  }
+
+  static Future<void> deleteStockFromMongoDB(String itemName) async {
+    try {
+      var encodedName =
+          Uri.encodeComponent(itemName); // ✅ Prevent issues with spaces
+      var response =
+          await http.delete(Uri.parse("${baseUrl}stocks/$encodedName"));
+
+      if (response.statusCode == 200) {
+        debugPrint("Stock deleted: ${response.body}");
+      } else {
+        debugPrint(
+            "Failed to delete stock: ${response.statusCode} - ${response.body}");
+      }
+    } catch (e) {
+      debugPrint("Error deleting stock: $e");
+    }
+  }
+
   // CHANGE PASSWORD
   static Future<Map<String, dynamic>?> changePassword(
     String userId,
@@ -272,146 +457,6 @@ class API {
     } catch (error) {
       debugPrint("⚠️ Error fetching activity details: $error");
       return null;
-    }
-  }
-
-  static Future<Map<String, dynamic>?> logStockCurrentCount(
-      String userId, String stockItem, int sold) async {
-    var url = Uri.parse("${baseUrl}count_objects");
-
-    // ✅ Get token from SharedPreferences
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-
-    if (token == null) {
-      debugPrint("❌ No token found in SharedPreferences");
-      return null;
-    }
-
-    Map<String, dynamic> requestBody = {
-      "userId": userId,
-      "stockName": stockItem,
-      "sold": sold,
-    };
-
-    debugPrint("🔄 Sending request to: $url");
-    debugPrint("📦 Request body: ${jsonEncode(requestBody)}");
-
-    try {
-      final response = await http.post(
-        url,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization":
-              "Bearer $token", // ✅ AUTHORIZATION FOR PROTECTED ROUTES
-        },
-        body: jsonEncode(requestBody),
-      );
-
-      debugPrint("📝 Response Code: ${response.statusCode}");
-      debugPrint("📝 Response Body: ${response.body}");
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        debugPrint("❌ Failed to log object count: ${response.body}");
-        return null;
-      }
-    } catch (error, stacktrace) {
-      debugPrint("⚠️ Error logging object count: $error");
-      debugPrint(stacktrace.toString());
-      return null;
-    }
-  }
-
-  static Future<SaveResult> saveStockToMongoDB(
-      Map<String, Map<String, int>> stockCounts) async {
-    try {
-      List<Map<String, dynamic>> formattedStocks =
-          stockCounts.entries.map((entry) {
-        return {
-          "stockName": LabelFormatter.titleCase(entry.key),
-          "totalStock": entry.value["totalStock"] ?? 0,
-          "sold": entry.value["sold"] ?? 0,
-          "availableStock": entry.value["availableStock"] ?? 0,
-        };
-      }).toList();
-
-      var response = await http.post(
-        Uri.parse("${baseUrl}stocks"),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(formattedStocks),
-      );
-
-      if (response.statusCode == 200) {
-        debugPrint("Stock saved successfully: ${response.body}");
-      } else {
-        debugPrint("Failed to save stock: ${response.body}");
-      }
-      return SaveResult(isSuccess: true);
-    } catch (e) {
-      return SaveResult(isSuccess: false, errorMessage: e.toString());
-    }
-  }
-
-  static Future<Map<String, Map<String, int>>?> fetchStockFromMongoDB() async {
-    try {
-      var response = await http.get(Uri.parse("${baseUrl}stocks"));
-
-      debugPrint("Stock API Response: ${response.body}");
-
-      if (response.statusCode == 200) {
-        List<dynamic> jsonData = jsonDecode(response.body);
-
-        Map<String, Map<String, int>> stockData = {};
-        for (var item in jsonData) {
-          if (item.containsKey("stockName") &&
-              item.containsKey("availableStock") &&
-              item.containsKey("totalStock")) {
-            // ✅ No longer requiring "sold"
-
-            String itemName = item["stockName"];
-            int availableStock = item["availableStock"] ?? 0;
-            int totalStock = item["totalStock"] ?? 0;
-            int sold = item.containsKey("sold")
-                ? item["sold"] ?? 0
-                : 0; // ✅ Handle missing "sold"
-
-            stockData[itemName] = {
-              "availableStock": availableStock,
-              "totalStock": totalStock,
-              "sold": sold, // ✅ Ensures "sold" exists
-            };
-          }
-        }
-
-        debugPrint("Fetched Stock Data with Sold: $stockData");
-        return stockData;
-      } else {
-        debugPrint("Failed to fetch stock: ${response.body}");
-        return null;
-      }
-    } catch (e) {
-      debugPrint("Error fetching stock: $e");
-      return null;
-    }
-  }
-
-  static Future<void> deleteStockFromMongoDB(String itemName) async {
-    try {
-      var encodedName =
-          Uri.encodeComponent(itemName); // ✅ Prevent issues with spaces
-      var response =
-          await http.delete(Uri.parse("${baseUrl}stocks/$encodedName"));
-
-      if (response.statusCode == 200) {
-        debugPrint("Stock deleted: ${response.body}");
-      } else {
-        debugPrint(
-            "Failed to delete stock: ${response.statusCode} - ${response.body}");
-      }
-    } catch (e) {
-      debugPrint("Error deleting stock: $e");
     }
   }
 }
