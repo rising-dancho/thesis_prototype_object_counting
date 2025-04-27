@@ -400,38 +400,38 @@ class _PytorchMobileState extends State<PytorchMobile> {
                 );
 
                 // 🔥 Log detected object count to the backend
-                if (_selectedStock == null) {
-                  debugPrint("⚠️ No stock selected, skipping log.");
-                } else {
-                  String? userId = await SharedPrefsService.getUserId();
-                  debugPrint("User ID: $userId");
+                // if (_selectedStock == null) {
+                //   debugPrint("⚠️ No stock selected, skipping log.");
+                // } else {
+                //   String? userId = await SharedPrefsService.getUserId();
+                //   debugPrint("User ID: $userId");
 
-                  if (userId == null) {
-                    debugPrint("❌ User ID not found, cannot log data.");
-                    if (!modalContext.mounted) return;
-                    ScaffoldMessenger.of(modalContext).showSnackBar(
-                      const SnackBar(
-                          content:
-                              Text('User ID not found. Please log in again.')),
-                    );
-                    return;
-                  }
+                //   if (userId == null) {
+                //     debugPrint("❌ User ID not found, cannot log data.");
+                //     if (!modalContext.mounted) return;
+                //     ScaffoldMessenger.of(modalContext).showSnackBar(
+                //       const SnackBar(
+                //           content:
+                //               Text('User ID not found. Please log in again.')),
+                //     );
+                //     return;
+                //   }
 
-                  debugPrint(
-                      "📌 Updating Database: USER = $userId, ITEM = $_selectedStock, Count = ${editableBoundingBoxes.length}");
-                  var response = await API.logStockCurrentCount(
-                    userId,
-                    _selectedStock!,
-                    editableBoundingBoxes.length, // Detected count
-                  );
+                //   debugPrint(
+                //       "📌 Updating Database: USER = $userId, ITEM = $_selectedStock, Count = ${editableBoundingBoxes.length}");
+                //   var response = await API.logStockCurrentCount(
+                //     userId,
+                //     _selectedStock!,
+                //     editableBoundingBoxes.length, // Detected count
+                //   );
 
-                  if (response != null && !response.containsKey('error')) {
-                    debugPrint("✅ Object count logged: $response");
-                  } else {
-                    debugPrint(
-                        "❌ Failed to log object count: ${response?['error']}");
-                  }
-                }
+                //   if (response != null && !response.containsKey('error')) {
+                //     debugPrint("✅ Object count logged: $response");
+                //   } else {
+                //     debugPrint(
+                //         "❌ Failed to log object count: ${response?['error']}");
+                //   }
+                // }
               },
             ),
           ),
