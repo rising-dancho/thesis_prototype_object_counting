@@ -58,21 +58,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    void _openDatePicker() {
-      showDatePicker(
-              context: context,
-              initialDate: DateTime.now().subtract(Duration(days: 365 * 20)),
-              firstDate: DateTime(1900),
-              lastDate: DateTime.now())
-          .then((pickedDate) {
-        if (pickedDate == null) {
-          return;
-        }
-        setState(() {
-          _birthdayController.text = DateFormat.yMd().format(pickedDate);
-        });
-      });
-    }
+    // void _openDatePicker() {
+    //   showDatePicker(
+    //           context: context,
+    //           initialDate: DateTime.now().subtract(Duration(days: 365 * 20)),
+    //           firstDate: DateTime(1900),
+    //           lastDate: DateTime.now())
+    //       .then((pickedDate) {
+    //     if (pickedDate == null) {
+    //       return;
+    //     }
+    //     setState(() {
+    //       _birthdayController.text = DateFormat.yMd().format(pickedDate);
+    //     });
+    //   });
+    // }
 
     return Container(
       decoration: const BoxDecoration(

@@ -128,13 +128,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: SafeArea(
         child: Stack(
           children: [
+            SizedBox.expand(
+                child: Image.asset(
+              'assets/images/tectags_bg.png',
+              fit: BoxFit.cover,
+            )),
+            // Background dim layer
             Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/tectags_bg.png'),
-                  fit: BoxFit.cover,
-                ),
-              ),
+              color: Colors.black.withOpacity(0.6),
             ),
             Container(color: Colors.black.withOpacity(0.3)),
             Center(

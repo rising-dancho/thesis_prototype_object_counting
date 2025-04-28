@@ -95,7 +95,7 @@ class _RestockProductState extends State<RestockProduct> {
               hintText: "e.g. 50",
               hintStyle: const TextStyle(color: Colors.black26),
               filled: true,
-              fillColor: Colors.grey[300],
+              fillColor: Colors.grey[200],
               border: InputBorder.none,
             ),
           ),

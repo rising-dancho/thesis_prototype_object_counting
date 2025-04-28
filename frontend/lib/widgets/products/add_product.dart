@@ -22,17 +22,55 @@ class _AddProductState extends State<AddProduct> {
   // form validation
   final _formKey = GlobalKey<FormState>();
 
+  // FOR DROP DOWN
+  final List<String> allItems = [
+    'Bistay Sand',
+    'Gravel',
+    'Rebar',
+    'Cement',
+    'Hollow Blocks',
+    'Sack',
+    'Skim Coat',
+  ];
+  // FOR DROP DOWN
+  String? selectedItem;
+  // For DropDown, filter out items already in stock
+  late List<String> availableItems;
+
+  // Method to filter items not yet in stock
+
+  void filterAvailableItems() {
+    // Get the keys (names) of the items already in stock
+    final stockedItems = widget.stockCounts.keys.toList();
+    // Filter the original items list to exclude stocked items
+    availableItems =
+        allItems.where((item) => !stockedItems.contains(item)).toList();
+  }
+
   void addStockItem() {
-    String rawItemName = itemController.text.trim();
+    String? rawItemName = selectedItem; // 👈 now using selectedItem
+    if (rawItemName == null) {
+      // Handle if nothing selected
+      return;
+    }
     String itemName = LabelFormatter.titleCase(rawItemName);
     int? itemCount = int.tryParse(countController.text.trim());
 
     if (itemName.isNotEmpty && itemCount != null) {
-      widget.onAddStock(itemName, itemCount); // Notify parent
-      itemController.clear();
+      widget.onAddStock(itemName, itemCount);
+      // Clear fields after adding
+      selectedItem = null; // Clear selected item
       countController.clear();
-      Navigator.pop(context); // Dismiss modal after adding
+      Navigator.pop(context);
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Filter available items whenever the widget is built or stock is updated
+    filterAvailableItems();
   }
 
   @override
@@ -77,31 +115,78 @@ class _AddProductState extends State<AddProduct> {
               ],
             ),
             const SizedBox(height: 22),
-            TextFormField(
-              controller: itemController,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter the stock name';
-                }
-                return null;
-              },
-              decoration: InputDecoration(
-                labelText: 'Stock Name',
-                labelStyle: TextStyle(
-                  color: Colors.grey[700], // default color
+            // TextFormField(
+            //   controller: itemController,
+            //   validator: (value) {
+            //     if (value == null || value.isEmpty) {
+            //       return 'Please enter the stock name';
+            //     }
+            //     return null;
+            //   },
+            //   decoration: InputDecoration(
+            //     labelText: 'Stock Name',
+            //     labelStyle: TextStyle(
+            //       color: Colors.grey[700], // default color
+            //     ),
+            //     floatingLabelStyle: TextStyle(
+            //       color:
+            //           Color(0xFF416FDF), // 👈 color when the field is focused
+            //     ),
+            //     hintText: 'Please enter the stock name',
+            //     hintStyle: const TextStyle(color: Colors.black26),
+            //     fillColor: Colors.grey[200],
+            //     filled: true,
+            //     border: InputBorder.none,
+            //     // prefixIcon: Icon(Icons.new_label),
+            //   ),
+            // ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: DropdownButtonFormField<String>(
+                value: selectedItem,
+                icon: Icon(
+                  Icons.arrow_drop_down,
+                  color: Colors.grey[700], // 👈 Arrow color to match textfields
                 ),
-                floatingLabelStyle: TextStyle(
-                  color:
-                      Color(0xFF416FDF), // 👈 color when the field is focused
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
                 ),
-                hintText: 'Please enter the stock name',
-                hintStyle: const TextStyle(color: Colors.black26),
-                fillColor: Colors.grey[200],
-                filled: true,
-                border: InputBorder.none,
-                // prefixIcon: Icon(Icons.new_label),
+                hint: Text(
+                  'Select an item',
+                  style: TextStyle(
+                      color: Colors.grey[700], fontWeight: FontWeight.w600),
+                ),
+                items: availableItems.map((item) {
+                  return DropdownMenuItem(
+                    value: item,
+                    child: Text(item,
+                        style: TextStyle(
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.w600)),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedItem = value;
+                  });
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please select an item';
+                  }
+                  return null;
+                },
+                dropdownColor:
+                    Colors.grey[100], // Optional: Dropdown popup background
               ),
             ),
+
             const SizedBox(height: 10),
             TextFormField(
               controller: countController,

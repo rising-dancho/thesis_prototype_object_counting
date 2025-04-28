@@ -556,7 +556,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                   width: double
                       .infinity, // Makes the container expand horizontally
                   margin: _selectedImage == null
-                      ? const EdgeInsets.fromLTRB(12, 16, 12, 24)
+                      ? const EdgeInsets.fromLTRB(0, 16, 0, 24)
                       : const EdgeInsets.all(0),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
