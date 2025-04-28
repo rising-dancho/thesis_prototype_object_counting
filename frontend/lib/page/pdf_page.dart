@@ -20,6 +20,12 @@ class _PdfPageState extends State<PdfPage> {
         appBar: AppBar(
           title: Text('TecTags App'),
           centerTitle: true,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
         ),
         body: Container(
           padding: EdgeInsets.all(32),
