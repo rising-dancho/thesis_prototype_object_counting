@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tectags/page/pdf_page.dart';
 import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:tectags/services/api.dart';
 
@@ -349,7 +350,14 @@ class _ActivityLogsState extends State<ActivityLogs> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PdfPage(),
+                        ),
+                      );
+                    },
                     child: const Text(
                       'Generate Reports',
                       textAlign: TextAlign.center,

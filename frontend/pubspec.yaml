@@ -35,6 +35,13 @@ dependencies:
   camera: ^0.11.0+2
   image: ^4.0.15
 
+  # PDF GENERATE REPORTS 
+  pdf: ^3.1.0
+  # open pdf document
+  open_file: ^3.5.10
+
+
+
 
 dev_dependencies:
   flutter_test:
@@ -50,4 +57,7 @@ flutter:
     # PYTORCH LITE 
     - assets/models/
     - assets/labels/
+
+    # PDF
+    - assets/fonts/Roboto-Regular.ttf
 
