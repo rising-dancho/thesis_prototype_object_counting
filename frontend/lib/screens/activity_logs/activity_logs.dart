@@ -351,11 +351,9 @@ class _ActivityLogsState extends State<ActivityLogs> {
                       ),
                     ),
                     onPressed: () {
-                      Navigator.pushReplacement(
+                      Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => PdfPage(),
-                        ),
+                        MaterialPageRoute(builder: (context) => PdfPage()),
                       );
                     },
                     child: const Text(
