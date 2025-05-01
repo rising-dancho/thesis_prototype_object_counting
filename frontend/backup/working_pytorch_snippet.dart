@@ -81,6 +81,24 @@ class RunModelByImageDemoState extends State<RunModelByImageDemo> {
       });
     }
 
+    // 🔔 Show Snackbar warning for confidence scores between 50% and 70%
+    bool hasMidConfidence = objDetect.any((element) {
+      final score = element?.score ?? 0.0;
+
+      return score >= 0.3 && score < 0.7;
+    });
+
+    if (hasMidConfidence && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              '⚠️ Warning: There may be objects detected that are not part of scope.'),
+          backgroundColor: Colors.red[300],
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+
     setState(() {
       _image = File(image.path);
     });
