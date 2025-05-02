@@ -1,5 +1,4 @@
 import 'dart:io';
-// FOR THE BUILD CONTEXT OF THE WARNING SNACKBAR
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:screenshot/screenshot.dart';
@@ -123,7 +122,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
     }
   }
 
-  Future<void> doObjectDetection(BuildContext context) async {
+  Future doObjectDetection() async {
     if (_selectedImage == null) {
       debugPrint("No image selected!");
       return;
@@ -136,7 +135,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
     List<ResultObjectDetection?> objDetect =
         await _objectModelYoloV8.getImagePrediction(
       await _selectedImage!.readAsBytes(),
-      minimumScore: 0.2,
+      minimumScore: 0.4,
       iOUThreshold: 0.3,
     );
     textToShow = inferenceTimeAsString(stopwatch);
@@ -160,36 +159,97 @@ class _PytorchMobileState extends State<PytorchMobile> {
       }
     }
 
-    // 🔔 Show Snackbar warning for confidence scores between 50% and 70%
+    // Show Snackbar warning for confidence scores between 50% and 70%
     bool hasMidConfidence = objDetect.any((element) {
       final score = element?.score ?? 0.0;
 
-      return score >= 0.3 && score < 0.7;
+      return score >= 0.4 && score < 0.75;
     });
 
     if (hasMidConfidence && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  '⚠️ Warning: There may be objects detected that are not part of scope.',
+      void showTopSnackBar(BuildContext context, Widget title, Widget message) {
+        final overlay = Overlay.of(context);
+        OverlayEntry? overlayEntry;
+
+        overlayEntry = OverlayEntry(
+          builder: (context) => Positioned(
+            top: MediaQuery.of(context).padding.top + 10,
+            left: 12,
+            right: 12,
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                padding: EdgeInsets.fromLTRB(20, 16, 20, 16),
+                decoration: BoxDecoration(
+                  // color: Color(0xFFF8D7DA),
+                  color: Colors.red[300],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          title,
+                          SizedBox(height: 4),
+                          message,
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      // icon: Icon(Icons.close, color: Colors.grey[800]),
+                      icon: Icon(
+                        Icons.close,
+                        color: Colors.grey[800],
+                      ),
+                      onPressed: () {
+                        overlayEntry?.remove();
+                      },
+                    )
+                  ],
                 ),
               ),
-              IconButton(
-                icon: Icon(Icons.close, color: Colors.white),
-                onPressed: () {
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                },
+            ),
+          ),
+        );
+
+        overlay.insert(overlayEntry);
+
+        // Future.delayed(Duration(seconds: 10)).then((_) {
+        //   overlayEntry?.remove();
+        // });
+      }
+
+      if (hasMidConfidence && mounted) {
+        showTopSnackBar(
+          this.context,
+          Row(
+            children: [
+              Icon(
+                Icons.warning, // Or use your custom icon widget here
+                color: Colors.red[700],
+                size: 30,
+              ),
+              SizedBox(width: 10),
+              Text(
+                'WARNING:',
+                style: TextStyle(
+                  // color: Color(0xFF6A1A21),
+                  color: Colors.grey[800],
+                  // color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
-          backgroundColor: Colors.red[300],
-          duration: Duration(days: 1), // Keeps the SnackBar on screen until manually dismissed
-          behavior: SnackBarBehavior.floating, // Optional: makes it float
-        ),
-      );
+          Text(
+            'There may be objects detected that are not part of scope!',
+            style: TextStyle(color: Colors.grey[800], fontSize: 18),
+          ),
+        );
+      }
     }
 
     setState(() {
@@ -272,7 +332,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
     debugPrint('Permission Request Result: $statuses');
   }
 
-  imageGallery(BuildContext context) async {
+  imageGallery() async {
     XFile? pickedFile =
         await imagePicker.pickImage(source: ImageSource.gallery);
 
@@ -283,11 +343,11 @@ class _PytorchMobileState extends State<PytorchMobile> {
         timestamp = DateFormat('MMM d, y • hh:mm a')
             .format(DateTime.parse(DateTime.now().toString()).toLocal());
       });
-      doObjectDetection(context);
+      doObjectDetection();
     }
   }
 
-  useCamera(BuildContext context) async {
+  useCamera() async {
     XFile? pickedFile = await imagePicker.pickImage(source: ImageSource.camera);
 
     if (pickedFile != null) {
@@ -297,7 +357,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
         timestamp = DateFormat('MMM d, y • hh:mm a')
             .format(DateTime.parse(DateTime.now().toString()).toLocal());
       });
-      doObjectDetection(context);
+      doObjectDetection();
     }
   }
 
@@ -646,7 +706,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      onPressed: useCamera(context),
+                      onPressed: useCamera,
                       icon: const Icon(Icons.camera_alt),
                       label: const Text("Capture Photo"),
                     )),
@@ -665,7 +725,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      onPressed: imageGallery(context),
+                      onPressed: imageGallery,
                       icon: const Icon(Icons.image),
                       label: const Text("Choose an Image"),
                     )),
