@@ -163,7 +163,8 @@ class _PytorchMobileState extends State<PytorchMobile> {
     bool hasMidConfidence = objDetect.any((element) {
       final score = element?.score ?? 0.0;
 
-      return score >= 0.4 && score < 0.75;
+      const upperLimit = 0.50;
+      return score >= 0.4 && score < upperLimit;
     });
 
     if (hasMidConfidence && mounted) {
@@ -201,7 +202,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                       // icon: Icon(Icons.close, color: Colors.grey[800]),
                       icon: Icon(
                         Icons.close,
-                        color: Colors.grey[800],
+                        color: Colors.grey[900],
                       ),
                       onPressed: () {
                         overlayEntry?.remove();
@@ -236,7 +237,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                 'WARNING:',
                 style: TextStyle(
                   // color: Color(0xFF6A1A21),
-                  color: Colors.grey[800],
+                  color: Colors.grey[900],
                   // color: Colors.white,
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -245,23 +246,26 @@ class _PytorchMobileState extends State<PytorchMobile> {
             ],
           ),
           Text(
-            'There may be objects detected that are not part of scope!',
-            style: TextStyle(color: Colors.grey[800], fontSize: 18),
+            'There may be objects detected that are not part of the scope!',
+            style: TextStyle(color: Colors.grey[900], fontSize: 18),
           ),
         );
       }
     }
 
     setState(() {
-      editableBoundingBoxes = objDetect
-          .where((e) => e != null)
-          .map((e) => DetectedObject(
-                rect: Rect.fromLTWH(
-                    e!.rect.left, e.rect.top, e.rect.width, e.rect.height),
-                label: e.className ?? 'Unknown',
-                score: e.score,
-              ))
-          .toList();
+      editableBoundingBoxes = objDetect.where((e) => e != null).map((e) {
+        final score = e!.score;
+        // final boxColor = score < 0.7 ? Colors.red : Colors.lightGreen;
+
+        return DetectedObject(
+          rect: Rect.fromLTWH(
+              e.rect.left, e.rect.top, e.rect.width, e.rect.height),
+          label: e.className ?? 'Unknown',
+          score: score,
+          color: Colors.primaries[e.classIndex % Colors.primaries.length],
+        );
+      }).toList();
 
       // Title case the detected labels before saving them into the inventory
       detectedStockList = editableBoundingBoxes
@@ -293,9 +297,9 @@ class _PytorchMobileState extends State<PytorchMobile> {
       _selectedStock = mostCommonLabel;
       titleController.text = mostCommonLabel ?? '';
 
-      debugPrint("📌 DETECTED COUNT: ${editableBoundingBoxes.length}");
-      debugPrint("📦 Auto-populated Dropdown: $detectedStockList");
-      debugPrint("🧠 Combined List (allStocks): $allStocks");
+      debugPrint("DETECTED COUNT: ${editableBoundingBoxes.length}");
+      debugPrint("Auto-populated Dropdown: $detectedStockList");
+      debugPrint("Combined List (allStocks): $allStocks");
     });
     drawRectanglesAroundObjects();
   }

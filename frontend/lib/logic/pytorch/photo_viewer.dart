@@ -42,6 +42,9 @@ class _PhotoViewerState extends State<PhotoViewer> {
 
   @override
   Widget build(BuildContext context) {
+    // FOR CHANGING THE COLOR OF BOUNDING BOX BASED ON CONFIDENCE SCORE
+    const upperLimit = 0.50;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final double factorX = constraints.maxWidth;
@@ -58,7 +61,7 @@ class _PhotoViewerState extends State<PhotoViewer> {
               final Rect box =
                   detectedObject.rect; // Accessing rect from DetectedObject
 
-              // ENFORCE A MINIMUM SIZE FOR THE BOUNDING BOXES 
+              // ENFORCE A MINIMUM SIZE FOR THE BOUNDING BOXES
               //- so that numbers can still display properly even when the detected object is smaller than the number
               const double minBoxSize = 20.0;
               // Apply scaling
@@ -108,10 +111,10 @@ class _PhotoViewerState extends State<PhotoViewer> {
                     widget.onMoveBox(
                         index,
                         DetectedObject(
-                          rect: updatedBox,
-                          label: detectedObject.label,
-                          score: detectedObject.score,
-                        ));
+                            rect: updatedBox,
+                            label: detectedObject.label,
+                            score: detectedObject.score,
+                            color: detectedObject.color));
                   },
                   onPanEnd: (_) {
                     setState(() {
@@ -124,12 +127,35 @@ class _PhotoViewerState extends State<PhotoViewer> {
                       if (widget
                           .showBoundingInfo) // Show the bounding box background only if toggled
                         Container(
+                          // decoration: BoxDecoration(
+                          //   border: Border.all(
+                          //     color: detectedObject.score < upperLimit
+                          //         ? Colors.red
+                          //         : Colors.lightGreen,
+                          //     width: 2,
+                          //   ),
+                          // ),
                           decoration: BoxDecoration(
-                            border:
-                                Border.all(color: Colors.lightGreen, width: 2),
-                            color: Colors.lightGreen
-                                .withAlpha((0.4 * 255).toInt()),
-                          ),
+                              border: Border.all(
+                                color: detectedObject.score < upperLimit
+                                    ? Colors.red
+                                    : Colors.lightGreen,
+                                width: 2,
+                              ),
+                              // color: Colors.lightGreen
+                              //     .withAlpha((0.4 * 255).toInt()),
+                              color: detectedObject.score < upperLimit
+                                  ? Colors.red.withAlpha((0.4 * 255).toInt())
+                                  : Colors.lightGreen
+                                      .withAlpha((0.4 * 255).toInt())),
+                          child: widget.showBoundingInfo
+                              ? Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                  ),
+                                )
+                              : null,
                         ),
                       if (!widget
                           .showBoundingInfo) // Transparent container if info is hidden
@@ -229,10 +255,10 @@ class _PhotoViewerState extends State<PhotoViewer> {
                       }
 
                       final newDetectedObject = DetectedObject(
-                        rect: newBox,
-                        label: mostCommonLabel,
-                        score: 0.0,
-                      );
+                          rect: newBox,
+                          label: mostCommonLabel,
+                          score: 0.0,
+                          color: Colors.lightGreen);
 
                       widget.onNewBox!(newDetectedObject);
                     });
