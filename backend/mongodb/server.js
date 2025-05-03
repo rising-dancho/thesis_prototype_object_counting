@@ -56,6 +56,53 @@ app.get('/', (req, res) => {
 
 // LOGIN, REGISTRATION, UPDATE USER & CHANGE PASSWORD -------------
 
+// LOGIN + ACTIVITY LOGGING
+app.post('/api/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const existingUser = await User.findOne({ email: email });
+
+    // if user does not exist throw an error
+    if (!existingUser) {
+      return res.status(400).json({ message: 'Incorrect email or password.' });
+    }
+
+    // compare the incoming password against the password in the database
+    const validPassword = await bcrypt.compare(
+      password,
+      existingUser.hashedPassword
+    );
+
+    // if password does not match throw an error
+    if (!validPassword) {
+      return res.status(400).json({ message: 'Incorrect email or password.' });
+    }
+
+    // IF LOGIN IS SUCCESSFUL: CREATE A TOKEN
+    if (validPassword) {
+      const token = createToken(existingUser._id);
+
+      // Log the login activity
+      await Activity.create({
+        userId: existingUser._id,
+        action: 'Logged In',
+      });
+
+      return res.status(200).json({
+        message: 'Login Successful!',
+        token: token,
+        userId: existingUser._id,
+      });
+    }
+  } catch (error) {
+    console.error('❌ Login error:', error);
+    return res
+      .status(500)
+      .json({ message: 'Internal server error', error: error.message });
+  }
+});
+
 // REGISTRATION
 app.post('/api/register', async (req, res) => {
   try {
@@ -99,6 +146,12 @@ app.post('/api/register', async (req, res) => {
 
     // SAVE THE USER TO THE DATABASE
     await newUser.save();
+
+    // Log registration activity
+    await Activity.create({
+      userId: newUser._id,
+      action: 'Registered',
+    });
 
     // AFTER SAVING: create JWT for remembering sessions
     const token = createToken(newUser._id);
@@ -225,53 +278,6 @@ app.get('/api/user/:userId', requireAuth, async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error.', error: error.message });
-  }
-});
-
-// LOGIN + ACTIVITY LOGGING
-app.post('/api/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const existingUser = await User.findOne({ email: email });
-
-    // if user does not exist throw an error
-    if (!existingUser) {
-      return res.status(400).json({ message: 'Incorrect email or password.' });
-    }
-
-    // compare the incoming password against the password in the database
-    const validPassword = await bcrypt.compare(
-      password,
-      existingUser.hashedPassword
-    );
-
-    // if password does not match throw an error
-    if (!validPassword) {
-      return res.status(400).json({ message: 'Incorrect email or password.' });
-    }
-
-    // IF LOGIN IS SUCCESSFUL: CREATE A TOKEN
-    if (validPassword) {
-      const token = createToken(existingUser._id);
-
-      // Log the login activity
-      await Activity.create({
-        userId: existingUser._id,
-        action: 'Logged In',
-      });
-
-      return res.status(200).json({
-        message: 'Login Successful!',
-        token: token,
-        userId: existingUser._id,
-      });
-    }
-  } catch (error) {
-    console.error('❌ Login error:', error);
-    return res
-      .status(500)
-      .json({ message: 'Internal server error', error: error.message });
   }
 });
 
