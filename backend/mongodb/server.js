@@ -148,10 +148,10 @@ app.post('/api/register', async (req, res) => {
     await newUser.save();
 
     // Log registration activity
-    await Activity.create({
-      userId: newUser._id,
-      action: 'Registered',
-    });
+    // await Activity.create({
+    //   userId: newUser._id,
+    //   action: 'Registered',
+    // });
 
     // AFTER SAVING: create JWT for remembering sessions
     const token = createToken(newUser._id);
@@ -162,6 +162,7 @@ app.post('/api/register', async (req, res) => {
       userId: newUser._id.toString(), // 👈 include userId
     });
   } catch (error) {
+    console.error('❌ Registration Error:', error); // log the full error to the console
     res.status(500).json({
       message: 'Something went wrong.',
       error: error.message,
