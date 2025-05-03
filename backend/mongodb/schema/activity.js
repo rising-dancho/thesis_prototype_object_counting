@@ -12,10 +12,10 @@ const activitySchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Stock',
       required: function () {
-        return this.action !== 'Logged In';
-      }, // Only require stockId for stock-related actions
+        return !['Logged In', 'Registered'].includes(this.action);
+      }, // ✅ Only require stockId for stock-related actions
     },
-    countedAmount: { type: Number, default: 0 }, 
+    countedAmount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
