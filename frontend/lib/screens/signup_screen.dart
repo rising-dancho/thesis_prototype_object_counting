@@ -199,11 +199,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               controller: _birthdayController,
                               readOnly: true,
                               onTap: () async {
+                                final today = DateTime.now();
+                                final latestAllowedBirthday = today.subtract(
+                                    const Duration(
+                                        days: 365 * 5)); // 5 years ago
+
                                 DateTime? pickedDate = await showDatePicker(
                                   context: context,
                                   initialDate: DateTime(2000),
                                   firstDate: DateTime(1900),
-                                  lastDate: DateTime.now(),
+                                  lastDate: latestAllowedBirthday
+                                      .subtract(const Duration(days: 1)),
                                   builder: (context, child) {
                                     return Theme(
                                       data: Theme.of(context).copyWith(

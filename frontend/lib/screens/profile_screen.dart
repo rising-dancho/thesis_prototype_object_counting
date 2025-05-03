@@ -99,13 +99,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    void _openDatePicker() {
+    final today = DateTime.now();
+    final latestAllowedBirthday =
+        today.subtract(const Duration(days: 365 * 5)); // 5 years ago
+    void openDatePicker() {
       showDatePicker(
-              context: context,
-              initialDate: DateTime.now().subtract(Duration(days: 365 * 20)),
-              firstDate: DateTime(1900),
-              lastDate: DateTime.now())
-          .then((pickedDate) {
+        context: context,
+        initialDate: DateTime(2000),
+        firstDate: DateTime(1900),
+        lastDate: latestAllowedBirthday,
+      ).then((pickedDate) {
         if (pickedDate == null) {
           return;
         }
@@ -329,7 +332,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           }
                                           return null;
                                         },
-                                        onTap: _openDatePicker,
+                                        onTap: openDatePicker,
                                         readOnly: true,
                                         decoration: InputDecoration(
                                           labelText: 'Birthday',
