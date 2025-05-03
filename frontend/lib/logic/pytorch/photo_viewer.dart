@@ -257,7 +257,7 @@ class _PhotoViewerState extends State<PhotoViewer> {
                       final newDetectedObject = DetectedObject(
                           rect: newBox,
                           label: mostCommonLabel,
-                          score: 0.0,
+                          score: upperLimit,
                           color: Colors.lightGreen);
 
                       widget.onNewBox!(newDetectedObject);

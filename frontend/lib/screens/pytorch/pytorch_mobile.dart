@@ -135,6 +135,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
     List<ResultObjectDetection?> objDetect =
         await _objectModelYoloV8.getImagePrediction(
       await _selectedImage!.readAsBytes(),
+      boxesLimit: 10000,
       minimumScore: 0.4,
       iOUThreshold: 0.3,
     );

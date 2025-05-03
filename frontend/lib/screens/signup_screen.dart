@@ -268,14 +268,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 }
                                 return null;
                               },
-                              // validator: (value) {
-                              //   if (value == null || value.isEmpty) {
-                              //     return 'Enter phone';
-                              //   } else if (value.length < 10) {
-                              //     return 'Invalid phone';
-                              //   }
-                              //   return null;
-                              // },
                               decoration: InputDecoration(
                                 labelText: 'Phone Number',
                                 hintText: 'Enter phone number',
@@ -291,56 +283,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ],
                     ),
                   ),
-                  // Padding(
-                  //   padding: const EdgeInsets.symmetric(horizontal: 3.0),
-                  //   child: TextFormField(
-                  //     controller: _contactNumberController,
-                  // keyboardType: TextInputType.number,
-                  // inputFormatters: [
-                  //   FilteringTextInputFormatter.digitsOnly,
-                  //   LengthLimitingTextInputFormatter(11),
-                  // ],
-                  // validator: (value) {
-                  //   if (value == null || value.isEmpty) {
-                  //     return 'Please enter your phone number';
-                  //   } else if (!RegExp(r'^09\d{9}$').hasMatch(value)) {
-                  //     return 'Must start with 09 and be 11 digits';
-                  //   }
-                  //   return null;
-                  // },
-                  //     decoration: InputDecoration(
-                  //       labelText: 'Phone',
-                  //       hintText: 'eg. 09231234567',
-                  //       hintStyle: const TextStyle(color: Colors.black26),
-                  //       fillColor: Colors.white,
-                  //       filled: true,
-                  //       border: InputBorder.none,
-                  //     ),
-                  //   ),
-                  // ),
-                  // const SizedBox(height: 20.0),
-                  // Padding(
-                  //   padding: const EdgeInsets.symmetric(horizontal: 3.0),
-                  //   child: TextFormField(
-                  //     controller: _birthdayController,
-                  //     validator: (value) {
-                  //       if (value == null || value.isEmpty) {
-                  //         return 'Please enter your birthday';
-                  //       }
-                  //       return null;
-                  //     },
-                  //     onTap: _openDatePicker,
-                  //     readOnly: true,
-                  //     decoration: InputDecoration(
-                  //       labelText: 'Birthday',
-                  //       hintText: 'Enter your your birthday',
-                  //       hintStyle: const TextStyle(color: Colors.black26),
-                  //       fillColor: Colors.white,
-                  //       filled: true,
-                  //       border: InputBorder.none,
-                  //     ),
-                  //   ),
-                  // ),
                   const SizedBox(height: 20.0),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 3.0),
@@ -449,16 +391,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   _contactNumberController.text),
                               "birthday": _birthdayController.text,
                             };
-
-                            // {
-                            //     "email": "admin@gmail.com",
-                            //     "password": "admin123",
-                            //     "firstName": "rising",
-                            //     "lastName": "dancho",
-                            //     "contactNumber":"09234699665",
-                            //     "birthday": "1992-05-07"
-                            // }
-
                             Map<String, dynamic>? response;
                             try {
                               response = await API.registerUser(data);
