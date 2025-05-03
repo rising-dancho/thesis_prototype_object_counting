@@ -148,10 +148,10 @@ app.post('/api/register', async (req, res) => {
     await newUser.save();
 
     // Log registration activity
-    // await Activity.create({
-    //   userId: newUser._id,
-    //   action: 'Registered',
-    // });
+    await Activity.create({
+      userId: newUser._id,
+      action: 'Registered',
+    });
 
     // AFTER SAVING: create JWT for remembering sessions
     const token = createToken(newUser._id);
