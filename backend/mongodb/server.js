@@ -106,6 +106,7 @@ app.post('/api/register', async (req, res) => {
     res.status(201).json({
       message: 'Registration successful!',
       token: token,
+      userId: newUser._id.toString(), // 👈 include userId
     });
   } catch (error) {
     res.status(500).json({

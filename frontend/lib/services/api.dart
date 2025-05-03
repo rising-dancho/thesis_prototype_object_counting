@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -238,7 +239,7 @@ class API {
     }
   }
 
-  // POST REQUEST: REGISTRATION
+// POST REQUEST: REGISTRATION
   static Future<Map<String, dynamic>?> registerUser(
       Map<String, dynamic> userData) async {
     debugPrint("Sending request to: ${baseUrl}register");
@@ -256,20 +257,80 @@ class API {
       debugPrint("Response Code: ${res.statusCode}");
       debugPrint("Response Body: ${res.body}");
 
+      var data = jsonDecode(res.body.toString());
+
       if (res.statusCode == 201) {
-        var data = jsonDecode(res.body.toString());
-        debugPrint("Success: $data");
-        return data; // Return the response data
+        debugPrint("SUCCESS: $data");
+
+        String userId = data['userId'];
+        String token = data['token'];
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('userId', userId);
+        await prefs.setString('token', token);
+
+        return data;
       } else {
-        debugPrint("Failed: ${res.body}");
-        return null; // Return null if the request fails
+        String errorMessage = data['message'] ?? "Unknown error";
+        return {"error": "Registration failed: $errorMessage"};
       }
+    } on SocketException catch (_) {
+      return {"error": "No internet connection"};
     } catch (error) {
-      debugPrint("Error: $error");
-      return null; // Return null if an exception occurs
+      debugPrint("⚠️ Exception: $error");
+      return {"error": "Network error: ${error.toString()}"};
     }
   }
 
+  // POST REQUEST: LOGIN
+  static Future<Map<String, dynamic>?> loginUser(
+      Map<String, dynamic> userData) async {
+    debugPrint("🚀 Sending request to: ${baseUrl}login");
+    debugPrint("📝 Request body: ${jsonEncode(userData)}");
+
+    var url = Uri.parse("${baseUrl}login");
+
+    try {
+      final res = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(userData),
+      );
+
+      debugPrint("Response Code: ${res.statusCode}");
+      debugPrint("Response Body: ${res.body}");
+
+      if (res.statusCode == 200) {
+        var data = jsonDecode(res.body.toString());
+        debugPrint("SUCCESS: $data");
+        // Save userId to local storage (SharedPreferences)
+        // EXTRACT TOKEN AND USER ID
+        String userId = data['userId'];
+        String token = data['token']; // ⬅️ Saving TOKEN
+
+        // THEN SAVE to SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('userId', userId);
+        await prefs.setString('token', token); // ⬅️ Save token too
+        return data; // Return the response data
+      } else {
+        debugPrint("Failed: ${res.body}");
+        // CONVERT THE RESPONSE FROM SERVER FIRST FROM JSON to STRING
+        var errorData = jsonDecode(res.body); // Convert response body to JSON
+        String errorMessage = errorData['message'];
+        return {
+          "error": "Login failed: $errorMessage"
+        }; // Return null if the request fails
+      }
+    } catch (error) {
+      debugPrint("⚠️ Exception: $error");
+      return {
+        "error": "Network error: $error"
+      }; // Return null if an exception occurs
+    }
+  }
+
+  // UPDATE for user profile
   static Future<Map<String, dynamic>?> updateUserProfile(
     String userId,
     Map<String, dynamic> profileData,
@@ -335,54 +396,6 @@ class API {
     } catch (error) {
       debugPrint("⚠️ Error fetching user profile: $error");
       return null;
-    }
-  }
-
-  // POST REQUEST: LOGIN
-  static Future<Map<String, dynamic>?> loginUser(
-      Map<String, dynamic> userData) async {
-    debugPrint("🚀 Sending request to: ${baseUrl}login");
-    debugPrint("📝 Request body: ${jsonEncode(userData)}");
-
-    var url = Uri.parse("${baseUrl}login");
-
-    try {
-      final res = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(userData),
-      );
-
-      debugPrint("Response Code: ${res.statusCode}");
-      debugPrint("Response Body: ${res.body}");
-
-      if (res.statusCode == 200) {
-        var data = jsonDecode(res.body.toString());
-        debugPrint("SUCCESS: $data");
-        // Save userId to local storage (SharedPreferences)
-        // EXTRACT TOKEN AND USER ID
-        String userId = data['userId'];
-        String token = data['token']; // ⬅️ Saving TOKEN
-
-        // THEN SAVE to SharedPreferences
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('userId', userId);
-        await prefs.setString('token', token); // ⬅️ Save token too
-        return data; // Return the response data
-      } else {
-        debugPrint("Failed: ${res.body}");
-        // CONVERT THE RESPONSE FROM SERVER FIRST FROM JSON to STRING
-        var errorData = jsonDecode(res.body); // Convert response body to JSON
-        String errorMessage = errorData['message'];
-        return {
-          "error": "Login failed: $errorMessage"
-        }; // Return null if the request fails
-      }
-    } catch (error) {
-      debugPrint("⚠️ Exception: $error");
-      return {
-        "error": "Network error: $error"
-      }; // Return null if an exception occurs
     }
   }
 
