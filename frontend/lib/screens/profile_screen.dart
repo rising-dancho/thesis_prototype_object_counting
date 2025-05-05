@@ -21,6 +21,8 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final _formUpdateKey = GlobalKey<FormState>();
   final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _middleInitialController =
+      TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _contactNumberController =
       TextEditingController();
@@ -67,6 +69,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void dispose() {
     _firstNameController.dispose();
+    _middleInitialController.dispose();
     _lastNameController.dispose();
     _contactNumberController.dispose();
     _birthdayController.dispose();
@@ -101,7 +104,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final today = DateTime.now();
     final latestAllowedBirthday =
-        today.subtract(const Duration(days: 365 * 5)); // 5 years ago
+        today.subtract(const Duration(days: 365 * 10)); // 10 years ago
     void openDatePicker() {
       showDatePicker(
         context: context,
@@ -220,6 +223,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         decoration: InputDecoration(
                                           labelText: 'First Name',
                                           hintText: 'Enter your first name',
+                                          hintStyle: const TextStyle(
+                                              color: Colors.black26),
+                                          fillColor: Colors.white,
+                                          filled: true,
+                                          prefixIcon: const Icon(
+                                              Icons.person_2_rounded,
+                                              color: Color.fromRGBO(
+                                                  70, 70, 70, 1)),
+                                          border: InputBorder.none,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 20),
+                                    // Middle Initial (Optional)
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 3.0),
+                                      child: TextFormField(
+                                        controller: _middleInitialController,
+                                        decoration: InputDecoration(
+                                          labelText:
+                                              'Middle Initial (Optional)',
+                                          hintText: 'Enter your middle initial',
                                           hintStyle: const TextStyle(
                                               color: Colors.black26),
                                           fillColor: Colors.white,

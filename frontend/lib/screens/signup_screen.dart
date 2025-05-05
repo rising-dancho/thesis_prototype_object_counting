@@ -5,7 +5,6 @@ import 'package:tectags/screens/navigation/navigation_menu.dart';
 import 'package:tectags/services/api.dart';
 import 'package:tectags/services/shared_prefs_service.dart';
 import 'package:tectags/utils/label_formatter.dart';
-import 'package:tectags/utils/phone_number_formatter.dart';
 import 'package:tectags/widgets/custom_scaffold.dart';
 import 'package:flutter/services.dart';
 
@@ -202,7 +201,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 final today = DateTime.now();
                                 final latestAllowedBirthday = today.subtract(
                                     const Duration(
-                                        days: 365 * 5)); // 5 years ago
+                                        days: 365 * 10)); // 10 years ago
 
                                 DateTime? pickedDate = await showDatePicker(
                                   context: context,
@@ -393,8 +392,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   _firstNameController.text),
                               "lastName": LabelFormatter.titleCase(
                                   _lastNameController.text),
-                              "contactNumber": PhoneNumberFormatter.format(
-                                  _contactNumberController.text),
+                              "contactNumber": _contactNumberController.text,
                               "birthday": _birthdayController.text,
                             };
                             Map<String, dynamic>? response;
