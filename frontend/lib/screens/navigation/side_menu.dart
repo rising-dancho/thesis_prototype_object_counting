@@ -3,6 +3,7 @@ import 'package:tectags/screens/about_screen.dart';
 import 'package:tectags/screens/guide_screen.dart';
 import 'package:tectags/screens/login_screen.dart';
 import 'package:tectags/screens/navigation/navigation_menu.dart';
+import 'package:tectags/screens/onboarding/onboarding_view.dart';
 import 'package:tectags/screens/profile_screen.dart';
 import 'package:tectags/services/shared_prefs_service.dart';
 
@@ -66,6 +67,16 @@ class SideMenu extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const GuideScreen()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.menu_book),
+            title: const Text('Onboarding'),
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const OnboardingView()),
               );
             },
           ),

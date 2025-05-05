@@ -52,7 +52,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                     effect: const WormEffect(
                       dotHeight: 12,
                       dotWidth: 12,
-                      activeDotColor: Color.fromARGB(255, 120, 33, 155),
+                      activeDotColor: Color.fromARGB(255, 33, 51, 155),
                     ),
                   ),
                   // Next Button
@@ -99,7 +99,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                 Text(
                   onboardingItem.descriptions,
                   style: const TextStyle(
-                    color: Color.fromARGB(255, 194, 194, 194),
+                    color: Color.fromARGB(255, 238, 238, 238),
                     fontSize: 17,
                   ),
                   textAlign: TextAlign.center,
