@@ -202,7 +202,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 final today = DateTime.now();
                                 final latestAllowedBirthday = today.subtract(
                                     const Duration(
-                                        days: 365 * 5)); // 5 years ago
+                                        days: 365 * 10)); // 10 years ago
 
                                 DateTime? pickedDate = await showDatePicker(
                                   context: context,
