@@ -4,6 +4,7 @@ import 'package:tectags/screens/guide_screen.dart';
 import 'package:tectags/screens/login_screen.dart';
 import 'package:tectags/screens/navigation/navigation_menu.dart';
 import 'package:tectags/screens/onboarding/onboarding_view.dart';
+import 'package:tectags/screens/otp/pages/otp_login.dart';
 import 'package:tectags/screens/profile_screen.dart';
 import 'package:tectags/services/shared_prefs_service.dart';
 
@@ -80,26 +81,16 @@ class SideMenu extends StatelessWidget {
               );
             },
           ),
-          // ListTile(
-          //   leading: const Icon(Icons.lock),
-          //   title: const Text('Send OTP'),
-          //   onTap: () {
-          //     Navigator.push(
-          //       context,
-          //       MaterialPageRoute(builder: (context) => LoginPage()),
-          //     );
-          //   },
-          // ),
-          // ListTile(
-          //   leading: const Icon(Icons.lock),
-          //   title: const Text('Verify OTP'),
-          //   onTap: () {
-          //     Navigator.push(
-          //       context,
-          //       MaterialPageRoute(builder: (context) => OTPVerifyPage()),
-          //     );
-          //   },
-          // ),
+          ListTile(
+            leading: const Icon(Icons.lock),
+            title: const Text('Email Verification'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage()),
+              );
+            },
+          ),
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: const Text('About'),

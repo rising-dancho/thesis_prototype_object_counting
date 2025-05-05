@@ -25,11 +25,11 @@ class _AddProductState extends State<AddProduct> {
   // FOR DROP DOWN
   final List<String> allItems = [
     'Bistay Sand',
-    'Gravel',
-    'Rebar',
     'Cement',
-    'Hollow Blocks',
-    'Sack',
+    'Gravel',
+    'Hollow blocks',
+    'Nails',
+    'Rebar',
     'Skim Coat',
   ];
   // FOR DROP DOWN
