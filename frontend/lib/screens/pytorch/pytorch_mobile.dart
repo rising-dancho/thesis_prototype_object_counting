@@ -24,6 +24,7 @@ import 'package:intl/intl.dart';
 import 'package:pytorch_lite/pytorch_lite.dart';
 import 'package:tectags/utils/label_formatter.dart';
 import 'package:tectags/widgets/products/add_new_product.dart';
+import 'package:tectags/widgets/products/restock_product.dart';
 
 class PytorchMobile extends StatefulWidget {
   const PytorchMobile({super.key});
@@ -412,6 +413,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
             context,
             initialName: _selectedStock,
             sold: editableBoundingBoxes.length,
+            initialAmount: editableBoundingBoxes.length,
           );
           return; // Exit early — let the user add the product before logging
         }
@@ -462,15 +464,19 @@ class _PytorchMobileState extends State<PytorchMobile> {
     }
   }
 
-  Future<void> _openAddProductModal(BuildContext context,
-      {String? initialName, int? sold}) async {
+  Future<void> _openAddProductModal(
+    BuildContext context, {
+    String? initialName,
+    int? sold,
+    int? initialAmount,
+  }) async {
     if (_isAddProductModalOpen) return; // Prevent multiple opens
 
     // Step 1: Ask the user what the action is
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Counted for?"),
+        title: Text("What did we count for?"),
         content: Text("Do you want to count this stock as sold or restocked?"),
         actions: [
           TextButton(
@@ -487,8 +493,34 @@ class _PytorchMobileState extends State<PytorchMobile> {
 
     if (result == null) return;
 
-    _isAddProductModalOpen = true;
+    if (result == "restock") {
+      await showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (modalContext) {
+          return RestockProduct(
+            itemName: initialName ?? "Unnamed",
+            initialAmount: initialAmount ?? 0,
+            onRestock: (restockAmount) async {
+              setState(() {
+                stockCounts[initialName!] = {
+                  "availableStock": restockAmount,
+                  "totalStock": restockAmount,
+                  "sold": 0,
+                };
+              });
+              await API.saveStockToMongoDB(stockCounts);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Stock restocked successfully!")),
+              );
+            },
+          );
+        },
+      );
+      return; // Exit early so we don't show AddNewProduct below
+    }
 
+    _isAddProductModalOpen = true;
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -500,7 +532,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
             child: AddNewProduct(
               initialName: initialName,
               initialSold: sold,
-              actionType: result, // 👈 Pass the choice to modal
+              actionType: result,
               onAddStock: (String name, int count, int sold) async {
                 setState(() {
                   stockCounts[name] = {
@@ -510,7 +542,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
                   };
                 });
                 await API.saveStockToMongoDB(stockCounts);
-
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                       content: Text("Stock and Image saved successfully!")),

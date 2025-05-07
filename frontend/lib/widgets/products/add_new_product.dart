@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tectags/services/api.dart';
 import 'package:tectags/utils/label_formatter.dart';
+import 'package:tectags/widgets/products/restock_product.dart';
 
 class AddNewProduct extends StatefulWidget {
   final void Function(String name, int count, int sold) onAddStock;
@@ -26,6 +28,8 @@ class _AddNewProductState extends State<AddNewProduct> {
   TextEditingController priceController = TextEditingController();
   // form validation
   final _formKey = GlobalKey<FormState>();
+  // FOR RESTOCKING
+  Map<String, Map<String, int>> stockCounts = {};
 
   @override
   void initState() {
@@ -56,6 +60,45 @@ class _AddNewProductState extends State<AddNewProduct> {
       nameController.clear();
       countController.clear();
       Navigator.pop(context); // Dismiss modal after adding
+    }
+  }
+
+  void _openRestockStockModal(BuildContext context, String item) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: SingleChildScrollView(
+            child: RestockProduct(
+              itemName: item,
+              initialAmount: widget.initialSold ?? 0,
+              onRestock: (restockAmount) {
+                updateStock(item, restockAmount);
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void updateStock(String item, int restockAmount) {
+    if (stockCounts.containsKey(item)) {
+      setState(() {
+        int currentTotalStock = stockCounts[item]?["totalStock"] ?? 0;
+        int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
+
+        stockCounts[item]?["totalStock"] = currentTotalStock + restockAmount;
+        stockCounts[item]?["availableStock"] =
+            currentAvailableStock + restockAmount;
+        // 🔥 sold does NOT change
+      });
+
+      API.saveStockToMongoDB(stockCounts);
     }
   }
 
@@ -155,68 +198,73 @@ class _AddNewProductState extends State<AddNewProduct> {
               ),
             ),
             const SizedBox(height: 10),
-            if (widget.actionType == 'sell')
-              TextFormField(
-                controller: soldController,
-                keyboardType: TextInputType.number,
-                enabled: false,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Required: Please enter the number of items sold';
-                  }
-                  return null;
-                },
-                decoration: InputDecoration(
-                  labelText: 'Sold',
-                  floatingLabelStyle: TextStyle(color: Color(0xFF416FDF)),
-                  hintStyle: const TextStyle(color: Colors.black26),
-                  fillColor: Colors.grey[200],
-                  filled: true,
-                  border: InputBorder.none,
-                ),
-              )
-            else
-              TextFormField(
-                controller: soldController,
-                enabled: false,
-                decoration: InputDecoration(
-                  labelText: 'Restock',
-                  floatingLabelStyle: TextStyle(color: Color(0xFF416FDF)),
-                  hintText: 'Auto-filled or locked field',
-                  hintStyle: const TextStyle(color: Colors.black26),
-                  fillColor: Colors.grey[200],
-                  filled: true,
-                  border: InputBorder.none,
-                  // prefixIcon: Icon(Icons.numbers),
-                ),
-              ),
+            widget.actionType == 'sell'
+                ? TextFormField(
+                    controller: soldController,
+                    keyboardType: TextInputType.number,
+                    enabled: false,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Required: Please enter the number of items sold';
+                      }
+                      return null;
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Sold',
+                      floatingLabelStyle: TextStyle(color: Color(0xFF416FDF)),
+                      hintStyle: const TextStyle(color: Colors.black26),
+                      fillColor: Colors.grey[200],
+                      filled: true,
+                      border: InputBorder.none,
+                    ),
+                  )
+                : ElevatedButton.icon(
+                    onPressed: () {
+                      if (nameController.text.trim().isNotEmpty) {
+                        _openRestockStockModal(
+                          context,
+                          LabelFormatter.titleCase(nameController.text.trim()),
+                        );
+                      }
+                    },
+                    icon: Icon(Icons.add),
+                    label: Text('Restock This Item'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange[700],
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
             const SizedBox(height: 10),
-            TextFormField(
-              controller: priceController,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-              validator: (value) {
-                // if (value == null || value.isEmpty) {
-                //   return 'Required: Please enter the price';
-                // }
-                return null;
-              },
-              decoration: InputDecoration(
-                labelText: 'Price',
-                labelStyle: TextStyle(
-                  color: Colors.grey[700], // default color
-                ),
-                floatingLabelStyle: TextStyle(
-                  color:
-                      Color(0xFF416FDF), // 👈 color when the field is focused
-                ),
-                hintText: 'Please enter the stock price',
-                hintStyle: const TextStyle(color: Colors.black26),
-                fillColor: Colors.grey[200],
-                filled: true,
-                border: InputBorder.none,
-                // prefixIcon: Icon(Icons.payments),
-              ),
-            ),
+            // TextFormField(
+            //   controller: priceController,
+            //   keyboardType: TextInputType.numberWithOptions(decimal: true),
+            //   validator: (value) {
+            //     // if (value == null || value.isEmpty) {
+            //     //   return 'Required: Please enter the price';
+            //     // }
+            //     return null;
+            //   },
+            //   decoration: InputDecoration(
+            //     labelText: 'Price',
+            //     labelStyle: TextStyle(
+            //       color: Colors.grey[700], // default color
+            //     ),
+            //     floatingLabelStyle: TextStyle(
+            //       color:
+            //           Color(0xFF416FDF), // 👈 color when the field is focused
+            //     ),
+            //     hintText: 'Please enter the stock price',
+            //     hintStyle: const TextStyle(color: Colors.black26),
+            //     fillColor: Colors.grey[200],
+            //     filled: true,
+            //     border: InputBorder.none,
+            //     // prefixIcon: Icon(Icons.payments),
+            //   ),
+            // ),
             const SizedBox(height: 10),
             SizedBox(
               width: double.infinity,

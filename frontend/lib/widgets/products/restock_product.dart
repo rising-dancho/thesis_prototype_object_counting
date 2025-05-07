@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 
 class RestockProduct extends StatefulWidget {
   final String itemName;
+  final int initialAmount;
   final void Function(int restockAmount) onRestock;
 
   const RestockProduct({
     super.key,
     required this.itemName,
+    required this.initialAmount,
     required this.onRestock,
   });
 
@@ -21,7 +23,9 @@ class _RestockProductState extends State<RestockProduct> {
   @override
   void initState() {
     super.initState();
-    _restockController = TextEditingController();
+    _restockController = TextEditingController(
+      text: widget.initialAmount > 0 ? widget.initialAmount.toString() : '',
+    );
   }
 
   @override
@@ -92,7 +96,7 @@ class _RestockProductState extends State<RestockProduct> {
               labelStyle: TextStyle(
                 color: Colors.grey[700], // default color
               ),
-              hintText: "e.g. 50",
+              hintText: "e.g. 100",
               hintStyle: const TextStyle(color: Colors.black26),
               filled: true,
               fillColor: Colors.grey[200],

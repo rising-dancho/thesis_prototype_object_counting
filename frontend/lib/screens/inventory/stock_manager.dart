@@ -85,6 +85,7 @@ class _StockManagerState extends State<StockManager> {
           child: SingleChildScrollView(
             child: RestockProduct(
               itemName: item,
+              initialAmount: 0,
               onRestock: (restockAmount) {
                 updateStock(item, restockAmount);
               },
