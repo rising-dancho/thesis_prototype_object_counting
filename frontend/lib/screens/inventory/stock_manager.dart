@@ -481,3 +481,9 @@ class _StockManagerState extends State<StockManager> {
     );
   }
 }
+
+// onSell spitting out the sellAmount to feed into the  updateStockForSale(item, sellAmount);
+//  onSell: (sellAmount) {
+              //   updateStockForSale(item, sellAmount);
+              // },
+// https://chatgpt.com/share/681b4066-452c-8000-b65c-d1e2a9477357

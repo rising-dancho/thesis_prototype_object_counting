@@ -5,12 +5,14 @@ class AddNewProduct extends StatefulWidget {
   final void Function(String name, int count, int sold) onAddStock;
   final String? initialName;
   final int? initialSold;
+  final String actionType; // "sell" or "restock"
 
   const AddNewProduct({
     super.key,
     required this.onAddStock,
     this.initialName,
     this.initialSold,
+    required this.actionType,
   });
 
   @override
@@ -76,7 +78,9 @@ class _AddNewProductState extends State<AddNewProduct> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Add New Stock",
+                  widget.actionType == 'sell'
+                      ? "Sell Product"
+                      : "Add New Stock",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 28,
@@ -122,7 +126,6 @@ class _AddNewProductState extends State<AddNewProduct> {
                 fillColor: Colors.grey[200],
                 filled: true,
                 border: InputBorder.none,
-                // prefixIcon: Icon(Icons.new_label),
               ),
             ),
             const SizedBox(height: 10),
@@ -149,39 +152,52 @@ class _AddNewProductState extends State<AddNewProduct> {
                 fillColor: Colors.grey[200],
                 filled: true,
                 border: InputBorder.none,
-                // prefixIcon: Icon(Icons.numbers),
               ),
             ),
             const SizedBox(height: 10),
-            TextFormField(
-              controller: soldController,
-              keyboardType: TextInputType.number,
-              enabled: false, // 🔒 This disables the field
-              validator: (value) {
-                return null;
-              },
-              decoration: InputDecoration(
-                labelText: 'Sold',
-                labelStyle: TextStyle(
-                  color: Colors.grey[700], // default color
+            if (widget.actionType == 'sell')
+              TextFormField(
+                controller: soldController,
+                keyboardType: TextInputType.number,
+                enabled: false,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Required: Please enter the number of items sold';
+                  }
+                  return null;
+                },
+                decoration: InputDecoration(
+                  labelText: 'Sold',
+                  floatingLabelStyle: TextStyle(color: Color(0xFF416FDF)),
+                  hintStyle: const TextStyle(color: Colors.black26),
+                  fillColor: Colors.grey[200],
+                  filled: true,
+                  border: InputBorder.none,
                 ),
-                floatingLabelStyle: TextStyle(
-                  color:
-                      Color(0xFF416FDF), // 👈 color when the field is focused
+              )
+            else
+              TextFormField(
+                controller: soldController,
+                enabled: false,
+                decoration: InputDecoration(
+                  labelText: 'Restock',
+                  floatingLabelStyle: TextStyle(color: Color(0xFF416FDF)),
+                  hintText: 'Auto-filled or locked field',
+                  hintStyle: const TextStyle(color: Colors.black26),
+                  fillColor: Colors.grey[200],
+                  filled: true,
+                  border: InputBorder.none,
+                  // prefixIcon: Icon(Icons.numbers),
                 ),
-                hintText: 'Please enter the number of items sold',
-                hintStyle: const TextStyle(color: Colors.black26),
-                fillColor: Colors.grey[200],
-                filled: true,
-                border: InputBorder.none,
-                // prefixIcon: Icon(Icons.numbers),
               ),
-            ),
             const SizedBox(height: 10),
             TextFormField(
               controller: priceController,
               keyboardType: TextInputType.numberWithOptions(decimal: true),
               validator: (value) {
+                // if (value == null || value.isEmpty) {
+                //   return 'Required: Please enter the price';
+                // }
                 return null;
               },
               decoration: InputDecoration(

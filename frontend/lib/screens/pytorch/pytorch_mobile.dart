@@ -95,9 +95,9 @@ class _PytorchMobileState extends State<PytorchMobile> {
       );
     } catch (e) {
       if (e is PlatformException) {
-        print("only supported for android, Error is $e");
+        debugPrint("only supported for android, Error is $e");
       } else {
-        print("Error is $e");
+        debugPrint("Error is $e");
       }
     }
   }
@@ -421,7 +421,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
         );
 
         // 🔥 Log detected object count to the backend
-        if (_selectedStock != null) {
+        if (_selectedStock == null) {
           debugPrint("⚠️ No stock selected, skipping log.");
           String? userId =
               await SharedPrefsService.getUserId(); // ✅ Directly get the userId
@@ -466,6 +466,27 @@ class _PytorchMobileState extends State<PytorchMobile> {
       {String? initialName, int? sold}) async {
     if (_isAddProductModalOpen) return; // Prevent multiple opens
 
+    // Step 1: Ask the user what the action is
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Counted for?"),
+        content: Text("Do you want to count this stock as sold or restocked?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, "restock"),
+            child: Text("Restock"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, "sell"),
+            child: Text("Sell"),
+          ),
+        ],
+      ),
+    );
+
+    if (result == null) return;
+
     _isAddProductModalOpen = true;
 
     await showModalBottomSheet(
@@ -479,6 +500,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
             child: AddNewProduct(
               initialName: initialName,
               initialSold: sold,
+              actionType: result, // 👈 Pass the choice to modal
               onAddStock: (String name, int count, int sold) async {
                 setState(() {
                   stockCounts[name] = {
@@ -499,7 +521,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
         );
       },
     ).whenComplete(() {
-      _isAddProductModalOpen = false; // Reset the flag when the modal closes
+      _isAddProductModalOpen = false;
     });
   }
 
