@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class SellProduct extends StatefulWidget {
   final String itemName;
   final bool isSelling;
+  final Function(int sellAmount) onSell;
 
   const SellProduct({
     super.key,
     required this.itemName,
     this.isSelling = false,
+    required this.onSell,
   });
 
   @override
@@ -31,11 +33,15 @@ class _RestockProductState extends State<SellProduct> {
   }
 
   void restockItem() {
-    int? restockAmount = int.tryParse(_restockController.text.trim());
-    if (restockAmount != null && restockAmount > 0) {
+    int? sellAmount = int.tryParse(_restockController.text.trim());
+    if (sellAmount != null && sellAmount > 0) {
       setState(() {
         isLoading = true;
       });
+
+      // Call the passed callback
+      widget.onSell(sellAmount);
+
       Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

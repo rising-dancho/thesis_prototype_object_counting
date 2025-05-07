@@ -62,7 +62,7 @@ class _StockManagerState extends State<StockManager> {
           child: SingleChildScrollView(
             child: SellProduct(
               itemName: item,
-              onRestock: (sellAmount) {
+              onSell: (sellAmount) {
                 updateStockForSale(item, sellAmount);
               },
               isSelling: true,
@@ -117,7 +117,7 @@ class _StockManagerState extends State<StockManager> {
 
       if (sellAmount > currentAvailableStock) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('❌ Not enough stock to sell')),
+          SnackBar(content: Text('Insufficient stocks to sell')),
         );
         return;
       }
