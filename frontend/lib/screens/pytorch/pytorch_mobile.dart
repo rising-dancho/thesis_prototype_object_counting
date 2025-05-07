@@ -68,6 +68,9 @@ class _PytorchMobileState extends State<PytorchMobile> {
   List<String> allStocks = []; // Merged unique values
   Map<String, Map<String, int>> stockCounts = {};
 
+  // PREVENT MULTIPLE REENTRY FOR OPENING ADD PRODUCT MODAL
+  bool _isAddProductModalOpen = false;
+
   @override
   void initState() {
     super.initState();
@@ -217,10 +220,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
         );
 
         overlay.insert(overlayEntry);
-
-        // Future.delayed(Duration(seconds: 10)).then((_) {
-        //   overlayEntry?.remove();
-        // });
       }
 
       if (hasMidConfidence && mounted) {
@@ -275,12 +274,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
           .toList();
 
       allStocks = {...stockList, ...detectedStockList}.toList();
-
-      // // ✅ Ensure _selectedStock is valid
-      // if (!allStocks.contains(_selectedStock)) {
-      //   _selectedStock = null;
-      //   titleController.clear(); // optional: also clear the text field
-      // }
 
       // Auto-select the most common label
       final labelCounts = <String, int>{};
@@ -471,6 +464,10 @@ class _PytorchMobileState extends State<PytorchMobile> {
 
   Future<void> _openAddProductModal(BuildContext context,
       {String? initialName, int? sold}) async {
+    if (_isAddProductModalOpen) return; // Prevent multiple opens
+
+    _isAddProductModalOpen = true;
+
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -496,46 +493,14 @@ class _PytorchMobileState extends State<PytorchMobile> {
                   SnackBar(
                       content: Text("Stock and Image saved successfully!")),
                 );
-
-                // 🔥 Log detected object count to the backend
-                // if (_selectedStock == null) {
-                //   debugPrint("⚠️ No stock selected, skipping log.");
-                // } else {
-                //   String? userId = await SharedPrefsService.getUserId();
-                //   debugPrint("User ID: $userId");
-
-                //   if (userId == null) {
-                //     debugPrint("❌ User ID not found, cannot log data.");
-                //     if (!modalContext.mounted) return;
-                //     ScaffoldMessenger.of(modalContext).showSnackBar(
-                //       const SnackBar(
-                //           content:
-                //               Text('User ID not found. Please log in again.')),
-                //     );
-                //     return;
-                //   }
-
-                //   debugPrint(
-                //       "📌 Updating Database: USER = $userId, ITEM = $_selectedStock, Count = ${editableBoundingBoxes.length}");
-                //   var response = await API.logStockCurrentCount(
-                //     userId,
-                //     _selectedStock!,
-                //     editableBoundingBoxes.length, // Detected count
-                //   );
-
-                //   if (response != null && !response.containsKey('error')) {
-                //     debugPrint("✅ Object count logged: $response");
-                //   } else {
-                //     debugPrint(
-                //         "❌ Failed to log object count: ${response?['error']}");
-                //   }
-                // }
               },
             ),
           ),
         );
       },
-    );
+    ).whenComplete(() {
+      _isAddProductModalOpen = false; // Reset the flag when the modal closes
+    });
   }
 
   Future<String> getModelPath(String asset) async {
@@ -867,3 +832,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
         ));
   }
 }
+
+// ABOUT FUTURES and .whenComplete()
+// https://chatgpt.com/share/681ade31-ff18-8000-8a3c-ed9e2bb781d0
