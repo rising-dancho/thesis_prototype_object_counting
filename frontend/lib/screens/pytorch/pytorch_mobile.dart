@@ -23,6 +23,7 @@ import 'package:intl/intl.dart';
 // PYTORCH
 import 'package:pytorch_lite/pytorch_lite.dart';
 import 'package:tectags/utils/label_formatter.dart';
+import 'package:tectags/utils/sell_restock_helper.dart';
 import 'package:tectags/widgets/products/add_new_product.dart';
 import 'package:tectags/widgets/products/restock_product.dart';
 
@@ -375,7 +376,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
   /// THIS WOULD ALSO SAVE COUNTED OBJECT TO THE DATABASE (WILL SHOW IN THE ACTIVITY LOGS)
   Future<void> saveImage(BuildContext context) async {
     try {
-      // ✅ PREVENT SAVING IF THE STOCK SELECTION DROPDOWN IS EMPTY
       if (_selectedStock == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -400,61 +400,82 @@ class _PytorchMobileState extends State<PytorchMobile> {
         screenShot,
         fileName: "screenshot_${DateTime.now().millisecondsSinceEpoch}.png",
         skipIfExists: false,
-      ); // [save your actual image] screenShot is my image
+      );
 
-      debugPrint("Result: $result"); // [check structure of: result]
-
-      if (result.isSuccess) {
-        // ✅ If selected stock is NOT in the cached stock list, open modal to add it
-        if (!stockList.contains(_selectedStock)) {
-          debugPrint(
-              "🆕 $_selectedStock not found in stock list. Opening modal to add.");
-          _openAddProductModal(
-            context,
-            initialName: _selectedStock,
-            sold: editableBoundingBoxes.length,
-            initialAmount: editableBoundingBoxes.length,
-          );
-          return; // Exit early — let the user add the product before logging
-        }
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Stock and Image saved successfully!")),
-        );
-
-        // 🔥 Log detected object count to the backend
-        if (_selectedStock == null) {
-          debugPrint("⚠️ No stock selected, skipping log.");
-          String? userId =
-              await SharedPrefsService.getUserId(); // ✅ Directly get the userId
-          if (userId == null) {
-            debugPrint("❌ User ID not found, cannot log data.");
-          }
-
-          if (userId != null) {
-            debugPrint(
-                "📌 Updating Database: USER = $userId, ITEM = $_selectedStock, Count = ${editableBoundingBoxes.length}");
-            var response = await API.logStockCurrentCount(
-              userId,
-              _selectedStock!,
-              editableBoundingBoxes.length, // Detected count
-            );
-
-            if (response != null) {
-              debugPrint("✅ Object count logged: $response");
-            } else {
-              debugPrint("❌ Failed to log object count.");
-            }
-          } else {
-            debugPrint("❌ User ID not found, cannot log data.");
-          }
-        } else {
-          debugPrint("⚠️ No stock selected, skipping log.");
-        }
-      } else {
+      if (!result.isSuccess) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Image not saved")),
         );
+        return;
+      }
+
+      // Ask user if they are restocking or selling
+      final action = await showDialog<String>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("What did we count for?"),
+          content:
+              Text("Do you want to count this stock as sold or restocked?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, "restock"),
+              child: Text("Restock"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, "sell"),
+              child: Text("Sell"),
+            ),
+          ],
+        ),
+      );
+
+      if (action == null) return;
+
+      final isNewStock = !stockList.contains(_selectedStock);
+
+      if (isNewStock) {
+        // Open modal to add new stock
+        await _openAddProductModal(
+          context,
+          actionType: action,
+          initialName: _selectedStock,
+          sold: editableBoundingBoxes.length,
+          initialAmount: editableBoundingBoxes.length,
+        );
+      } else {
+        final name = _selectedStock!;
+        final detectedCount = editableBoundingBoxes.length;
+
+        if (action == "restock") {
+          SellRestockHelper.updateStock(stockCounts, name, detectedCount);
+        } else if (action == "sell") {
+          final success = SellRestockHelper.updateStockForSale(
+              stockCounts, name, detectedCount);
+          if (!success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Insufficient stocks to sell')),
+            );
+            return; // Prevents logging and any further steps
+          }
+        }
+      }
+
+      // Log to backend
+      final userId = await SharedPrefsService.getUserId();
+      if (userId != null) {
+        var response = await API.logStockCurrentCount(
+          userId,
+          _selectedStock!,
+          editableBoundingBoxes.length,
+        );
+
+        if (response != null) {
+          debugPrint("✅ Object count logged: $response");
+        } else {
+          debugPrint("❌ Failed to log object count.");
+        }
+      } else {
+        debugPrint("❌ User ID not found, cannot log data.");
       }
     } catch (e) {
       debugPrint("Error saving image: $e");
@@ -466,94 +487,83 @@ class _PytorchMobileState extends State<PytorchMobile> {
 
   Future<void> _openAddProductModal(
     BuildContext context, {
+    required String actionType, // 👈 now passed in directly
     String? initialName,
     int? sold,
     int? initialAmount,
   }) async {
     if (_isAddProductModalOpen) return; // Prevent multiple opens
 
-    // Step 1: Ask the user what the action is
-    final result = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text("What did we count for?"),
-        content: Text("Do you want to count this stock as sold or restocked?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, "restock"),
-            child: Text("Restock"),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, "sell"),
-            child: Text("Sell"),
-          ),
-        ],
-      ),
-    );
+    // Check if the product exists in the stock map
+    final isNewStock = !stockCounts.containsKey(initialName);
 
-    if (result == null) return;
+    // If it's a new stock, handle the creation first
+    if (isNewStock) {
+      _isAddProductModalOpen = true;
 
-    if (result == "restock") {
       await showModalBottomSheet(
         context: context,
         isScrollControlled: true,
         builder: (modalContext) {
-          return RestockProduct(
-            itemName: initialName ?? "Unnamed",
-            initialAmount: initialAmount ?? 0,
-            onRestock: (restockAmount) async {
-              setState(() {
-                stockCounts[initialName!] = {
-                  "availableStock": restockAmount,
-                  "totalStock": restockAmount,
-                  "sold": 0,
-                };
-              });
-              await API.saveStockToMongoDB(stockCounts);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Stock restocked successfully!")),
-              );
-            },
+          return Padding(
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(modalContext).viewInsets.bottom),
+            child: SingleChildScrollView(
+              child: AddNewProduct(
+                initialName: initialName,
+                initialSold: sold,
+                actionType: actionType,
+                onAddStock: (String name, int count, int sold) async {
+                  // Add new product to stockCounts
+                  setState(() {
+                    stockCounts[name] = {
+                      "availableStock": count,
+                      "totalStock": count,
+                      "sold": sold,
+                    };
+                  });
+
+                  // Save to backend
+                  await API.saveStockToMongoDB(stockCounts);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text("Stock and Image saved successfully!")),
+                  );
+                },
+              ),
+            ),
           );
         },
-      );
-      return; // Exit early so we don't show AddNewProduct below
+      ).whenComplete(() {
+        _isAddProductModalOpen = false;
+      });
+
+      return; // Don't proceed further if it's a new stock
     }
 
-    _isAddProductModalOpen = true;
-    await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (modalContext) {
-        return Padding(
-          padding: EdgeInsets.only(
-              bottom: MediaQuery.of(modalContext).viewInsets.bottom),
-          child: SingleChildScrollView(
-            child: AddNewProduct(
-              initialName: initialName,
-              initialSold: sold,
-              actionType: result,
-              onAddStock: (String name, int count, int sold) async {
-                setState(() {
-                  stockCounts[name] = {
-                    "availableStock": count,
-                    "totalStock": count,
-                    "sold": sold,
-                  };
-                });
-                await API.saveStockToMongoDB(stockCounts);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content: Text("Stock and Image saved successfully!")),
-                );
-              },
-            ),
-          ),
+    // Otherwise, handle restocking or selling for existing stock
+    if (actionType == "restock") {
+      SellRestockHelper.updateStock(stockCounts, initialName!, initialAmount!);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Stock restocked successfully!")),
+      );
+    } else if (actionType == "sell") {
+      bool success = SellRestockHelper.updateStockForSale(
+        stockCounts,
+        initialName!,
+        initialAmount!,
+      );
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Stock sold successfully!")),
         );
-      },
-    ).whenComplete(() {
-      _isAddProductModalOpen = false;
-    });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Insufficient stock to sell!")),
+        );
+      }
+    }
   }
 
   Future<String> getModelPath(String asset) async {
