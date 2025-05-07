@@ -1,0 +1,132 @@
+import 'package:flutter/material.dart';
+
+class SellProduct extends StatefulWidget {
+  final String itemName;
+  final bool isSelling;
+
+  const SellProduct({
+    super.key,
+    required this.itemName,
+    this.isSelling = false,
+  });
+
+  @override
+  State<SellProduct> createState() => _RestockProductState();
+}
+
+class _RestockProductState extends State<SellProduct> {
+  late TextEditingController _restockController;
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _restockController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _restockController.dispose();
+    super.dispose();
+  }
+
+  void restockItem() {
+    int? restockAmount = int.tryParse(_restockController.text.trim());
+    if (restockAmount != null && restockAmount > 0) {
+      setState(() {
+        isLoading = true;
+      });
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please enter a valid positive number')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.only(
+        left: 20,
+        right: 20,
+        top: 20,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Sell ${widget.itemName}',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 28,
+                  color: Colors.grey[800],
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: IconButton(
+                  icon: Icon(Icons.close),
+                  color: Colors.grey[700],
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _restockController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: "Enter amount to sell",
+              labelStyle: TextStyle(
+                color: Colors.grey[700], // default color
+              ),
+              hintText: "e.g. 50",
+              hintStyle: const TextStyle(color: Colors.black26),
+              filled: true,
+              fillColor: Colors.grey[200],
+              border: InputBorder.none,
+            ),
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: isLoading ? null : restockItem,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 22, 165, 221),
+                foregroundColor: Colors.white,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: isLoading
+                  ? CircularProgressIndicator(color: Colors.white)
+                  : Text(
+                      'SELL',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Roboto',
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

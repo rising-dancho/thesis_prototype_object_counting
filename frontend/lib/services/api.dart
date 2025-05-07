@@ -18,51 +18,6 @@ class API {
       "https://thesis-prototype-object-counting.vercel.app/api/";
   // static const baseUrl = "https://fix-inventory.vercel.app/api/";
 
-  static Future<Map<String, dynamic>?> restockStock(
-      String stockName, int restockAmount) async {
-    final url = Uri.parse('${baseUrl}/api/update/restock');
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-
-    if (token == null) {
-      debugPrint("❌ No token found in SharedPreferences");
-      return null;
-    }
-
-    Map<String, dynamic> requestBody = {
-      "stockName": stockName,
-      "restockAmount": restockAmount,
-    };
-
-    debugPrint("🔄 Sending restock request to: $url");
-    debugPrint("📦 Request body: ${jsonEncode(requestBody)}");
-
-    try {
-      final response = await http.post(
-        url,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization":
-              "Bearer $token", // ✅ Send token if route is protected
-        },
-        body: jsonEncode(requestBody),
-      );
-
-      debugPrint("📝 Response Code: ${response.statusCode}");
-      debugPrint("📝 Response Body: ${response.body}");
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        debugPrint("❌ Failed to restock stock: ${response.body}");
-        return null;
-      }
-    } catch (error) {
-      debugPrint("⚠️ Error during restocking: $error");
-      return null;
-    }
-  }
-
   static Future<Map<String, dynamic>?> logStockCurrentCount(
       String userId, String stockItem, int sold) async {
     var url = Uri.parse("${baseUrl}count_objects");
@@ -139,6 +94,51 @@ class API {
       return SaveResult(isSuccess: true);
     } catch (e) {
       return SaveResult(isSuccess: false, errorMessage: e.toString());
+    }
+  }
+
+  static Future<Map<String, dynamic>?> restockStock(
+      String stockName, int restockAmount) async {
+    final url = Uri.parse('${baseUrl}/api/update/restock');
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      debugPrint("❌ No token found in SharedPreferences");
+      return null;
+    }
+
+    Map<String, dynamic> requestBody = {
+      "stockName": stockName,
+      "restockAmount": restockAmount,
+    };
+
+    debugPrint("🔄 Sending restock request to: $url");
+    debugPrint("📦 Request body: ${jsonEncode(requestBody)}");
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization":
+              "Bearer $token", // ✅ Send token if route is protected
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      debugPrint("📝 Response Code: ${response.statusCode}");
+      debugPrint("📝 Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        debugPrint("❌ Failed to restock stock: ${response.body}");
+        return null;
+      }
+    } catch (error) {
+      debugPrint("⚠️ Error during restocking: $error");
+      return null;
     }
   }
 

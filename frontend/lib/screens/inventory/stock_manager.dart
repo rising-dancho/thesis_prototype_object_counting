@@ -3,6 +3,7 @@ import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:tectags/services/api.dart';
 import 'package:tectags/widgets/products/add_product.dart';
 import 'package:tectags/widgets/products/restock_product.dart';
+import 'package:tectags/widgets/products/sell_product.dart';
 
 class StockManager extends StatefulWidget {
   const StockManager({super.key});
@@ -49,6 +50,29 @@ class _StockManagerState extends State<StockManager> {
     );
   }
 
+  void _openSellStockModal(BuildContext context, String item) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: SingleChildScrollView(
+            child: SellProduct(
+              itemName: item,
+              onRestock: (sellAmount) {
+                updateStockForSale(item, sellAmount);
+              },
+              isSelling: true,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void _openRestockStockModal(BuildContext context, String item) {
     showModalBottomSheet(
       context: context,
@@ -81,6 +105,29 @@ class _StockManagerState extends State<StockManager> {
         stockCounts[item]?["availableStock"] =
             currentAvailableStock + restockAmount;
         // 🔥 sold does NOT change
+      });
+
+      API.saveStockToMongoDB(stockCounts);
+    }
+  }
+
+  void updateStockForSale(String item, int sellAmount) {
+    if (stockCounts.containsKey(item)) {
+      int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
+
+      if (sellAmount > currentAvailableStock) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('❌ Not enough stock to sell')),
+        );
+        return;
+      }
+
+      setState(() {
+        stockCounts[item]?["availableStock"] =
+            currentAvailableStock - sellAmount;
+        stockCounts[item]?["sold"] =
+            (stockCounts[item]?["sold"] ?? 0) + sellAmount;
+        // totalStock stays the same
       });
 
       API.saveStockToMongoDB(stockCounts);
@@ -277,9 +324,10 @@ class _StockManagerState extends State<StockManager> {
                                   PopupMenuButton<String>(
                                     icon: Icon(Icons.more_horiz),
                                     onSelected: (value) {
-                                      if (value == 'edit') {
-                                        _openRestockStockModal(
-                                            context, item);
+                                      if (value == 'restock') {
+                                        _openRestockStockModal(context, item);
+                                      } else if (value == 'sell') {
+                                        _openSellStockModal(context, item);
                                       } else if (value == 'delete') {
                                         showDialog(
                                           context: context,
@@ -325,26 +373,47 @@ class _StockManagerState extends State<StockManager> {
                                     },
                                     itemBuilder: (context) => [
                                       PopupMenuItem(
-                                        value: 'edit',
+                                        value: 'restock',
                                         child: Container(
                                           decoration: BoxDecoration(
-                                            color: Colors.green[
-                                                50], // light blue background for edit
+                                            color: Colors.green[50],
                                             borderRadius:
                                                 BorderRadius.circular(5),
                                           ),
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 8, horizontal: 4),
                                           child: Row(
-                                            // crossAxisAlignment:
-                                            //     CrossAxisAlignment.center,
-                                            // mainAxisAlignment:
-                                            //     MainAxisAlignment.center,
                                             children: [
                                               Icon(Icons.add_box,
                                                   color: Colors.green[400]),
                                               SizedBox(width: 5),
                                               Text('Restock',
+                                                  style: TextStyle(
+                                                    fontFamily: 'Roboto',
+                                                    // fontSize: 15.0,
+                                                    fontWeight: FontWeight.w400,
+                                                  )),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      PopupMenuItem(
+                                        value: 'sell',
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.blue[50],
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 8, horizontal: 4),
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                  Icons.indeterminate_check_box,
+                                                  color: Colors.blue[400]),
+                                              SizedBox(width: 5),
+                                              Text('Sell',
                                                   style: TextStyle(
                                                     fontFamily: 'Roboto',
                                                     // fontSize: 15.0,
@@ -366,10 +435,6 @@ class _StockManagerState extends State<StockManager> {
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 8, horizontal: 4),
                                           child: Row(
-                                            // crossAxisAlignment:
-                                            //     CrossAxisAlignment.center,
-                                            // mainAxisAlignment:
-                                            //     MainAxisAlignment.center,
                                             children: [
                                               Icon(Icons.delete_rounded,
                                                   color: Colors.red[400]),

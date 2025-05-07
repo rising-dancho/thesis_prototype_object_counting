@@ -116,7 +116,8 @@ class _AddNewProductState extends State<AddNewProduct> {
                   color:
                       Color(0xFF416FDF), // 👈 color when the field is focused
                 ),
-                hintText: 'Please enter the stock name',
+                // hintText: 'Please enter the stock name',
+                enabled: false, // 🔒 This disables the field
                 hintStyle: const TextStyle(color: Colors.black26),
                 fillColor: Colors.grey[200],
                 filled: true,
