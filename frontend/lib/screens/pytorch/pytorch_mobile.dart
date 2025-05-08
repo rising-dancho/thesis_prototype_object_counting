@@ -632,27 +632,29 @@ class _PytorchMobileState extends State<PytorchMobile> {
   }
 
   Future<void> _openSellStockModal(BuildContext context, String item) {
-    return showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
+  return showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    builder: (_) {
+      return Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: SingleChildScrollView(
+          child: SellProduct(
+            itemName: item,
+            initialAmount: editableBoundingBoxes.length,
+            onSell: (sellAmount) {
+              updateStockForSale(item, sellAmount);
+            },
+            isSelling: true,
           ),
-          child: SingleChildScrollView(
-            child: SellProduct(
-              itemName: item,
-              onSell: (sellAmount) {
-                updateStockForSale(item, sellAmount);
-              },
-              isSelling: true,
-            ),
-          ),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
+
 
   void updateStockForSale(String item, int sellAmount) {
     if (stockCounts.containsKey(item)) {
@@ -689,7 +691,8 @@ class _PytorchMobileState extends State<PytorchMobile> {
           child: SingleChildScrollView(
             child: RestockProduct(
               itemName: item,
-              initialAmount: 0,
+              initialAmount:
+                  editableBoundingBoxes.length, // ✅ auto-populate here
               onRestock: (restockAmount) {
                 updateStock(item, restockAmount);
               },

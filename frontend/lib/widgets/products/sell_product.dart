@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 class SellProduct extends StatefulWidget {
   final String itemName;
   final bool isSelling;
+  final int initialAmount;
   final Function(int sellAmount) onSell;
 
   const SellProduct({
     super.key,
     required this.itemName,
     this.isSelling = false,
+    this.initialAmount = 0,
     required this.onSell,
   });
 
@@ -17,23 +19,25 @@ class SellProduct extends StatefulWidget {
 }
 
 class _RestockProductState extends State<SellProduct> {
-  late TextEditingController _restockController;
+  late TextEditingController _sellController;
   bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _restockController = TextEditingController();
+    _sellController = TextEditingController(
+      text: widget.initialAmount.toString(), // ✅ no need for null check
+    );
   }
 
   @override
   void dispose() {
-    _restockController.dispose();
+    _sellController.dispose();
     super.dispose();
   }
 
   void restockItem() {
-    int? sellAmount = int.tryParse(_restockController.text.trim());
+    int? sellAmount = int.tryParse(_sellController.text.trim());
     if (sellAmount != null && sellAmount > 0) {
       setState(() {
         isLoading = true;
@@ -90,7 +94,7 @@ class _RestockProductState extends State<SellProduct> {
           ),
           const SizedBox(height: 12),
           TextField(
-            controller: _restockController,
+            controller: _sellController,
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
               labelText: "Enter amount to sell",
@@ -136,4 +140,3 @@ class _RestockProductState extends State<SellProduct> {
     );
   }
 }
-
