@@ -81,22 +81,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
     loadModel();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  void reset() {
-    setState(() {
-      _selectedImage = null;
-      imageForDrawing = null; // Clear this to prevent null check errors
-      editableBoundingBoxes = []; // Also clear detected objects
-      isAddingBox = false;
-      titleController.clear();
-      timestamp = "";
-    });
-  }
-
   Future loadModel() async {
     String pathObjectDetectionModelYolov8 = "assets/models/best.torchscript";
     String pathCustomLabels = "assets/labels/custom_labels.txt";
@@ -421,39 +405,12 @@ class _PytorchMobileState extends State<PytorchMobile> {
       debugPrint("Result: $result"); // [check structure of: result]
 
       if (result.isSuccess) {
-        // Ask user if they are restocking or selling
-        final action = await showDialog<String>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text("What did we count for?"),
-            content:
-                Text("Do you want to count this stock as sold or restocked?"),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, "restock"),
-                child: Text("Restock"),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, "sell"),
-                child: Text("Sell"),
-              ),
-            ],
-          ),
-        );
-
-        // ✅ Safely check if user canceled the dialog
-        if (action == null) {
-          debugPrint("⚠️ Action was cancelled.");
-          return;
-        }
-
         // ✅ If selected stock is NOT in the cached stock list, open modal to add it
         if (!stockList.contains(_selectedStock)) {
           debugPrint(
               "🆕 $_selectedStock not found in stock list. Opening modal to add.");
           _openAddProductModal(
             context,
-            actionType: action,
             initialName: _selectedStock,
             sold: editableBoundingBoxes.length,
             initialAmount: editableBoundingBoxes.length,
@@ -509,15 +466,34 @@ class _PytorchMobileState extends State<PytorchMobile> {
 
   Future<void> _openAddProductModal(
     BuildContext context, {
-    required String actionType, // 👈 now passed in directly
     String? initialName,
     int? sold,
     int? initialAmount,
   }) async {
     if (_isAddProductModalOpen) return; // Prevent multiple opens
 
-    // Otherwise, handle restocking or selling for existing stock
-    if (actionType == "restock") {
+    // Step 1: Ask the user what the action is
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("What did we count for?"),
+        content: Text("Do you want to count this stock as sold or restocked?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, "restock"),
+            child: Text("Restock"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, "sell"),
+            child: Text("Sell"),
+          ),
+        ],
+      ),
+    );
+
+    if (result == null) return;
+
+    if (result == "restock") {
       await showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -545,41 +521,39 @@ class _PytorchMobileState extends State<PytorchMobile> {
     }
 
     _isAddProductModalOpen = true;
-    if (actionType == "sell") {
-      await showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        builder: (modalContext) {
-          return Padding(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(modalContext).viewInsets.bottom),
-            child: SingleChildScrollView(
-              child: AddNewProduct(
-                initialName: initialName,
-                initialSold: sold,
-                actionType: actionType,
-                onAddStock: (String name, int count, int sold) async {
-                  setState(() {
-                    stockCounts[name] = {
-                      "availableStock": count,
-                      "totalStock": count,
-                      "sold": sold,
-                    };
-                  });
-                  await API.saveStockToMongoDB(stockCounts);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text("Stock and Image saved successfully!")),
-                  );
-                },
-              ),
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (modalContext) {
+        return Padding(
+          padding: EdgeInsets.only(
+              bottom: MediaQuery.of(modalContext).viewInsets.bottom),
+          child: SingleChildScrollView(
+            child: AddNewProduct(
+              initialName: initialName,
+              initialSold: sold,
+              actionType: result,
+              onAddStock: (String name, int count, int sold) async {
+                setState(() {
+                  stockCounts[name] = {
+                    "availableStock": count,
+                    "totalStock": count,
+                    "sold": sold,
+                  };
+                });
+                await API.saveStockToMongoDB(stockCounts);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content: Text("Stock and Image saved successfully!")),
+                );
+              },
             ),
-          );
-        },
-      ).whenComplete(() {
-        _isAddProductModalOpen = false;
-      });
-    }
+          ),
+        );
+      },
+    ).whenComplete(() {
+      _isAddProductModalOpen = false;
+    });
   }
 
   Future<String> getModelPath(String asset) async {
@@ -595,6 +569,22 @@ class _PytorchMobileState extends State<PytorchMobile> {
   }
 
   // END
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  void reset() {
+    setState(() {
+      _selectedImage = null;
+      imageForDrawing = null; // Clear this to prevent null check errors
+      editableBoundingBoxes = []; // Also clear detected objects
+      isAddingBox = false;
+      titleController.clear();
+      timestamp = "";
+    });
+  }
 
   void toggleAddingMode() {
     setState(() {
