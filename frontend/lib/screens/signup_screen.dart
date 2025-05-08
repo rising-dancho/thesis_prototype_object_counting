@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:snippet_coder_utils/ProgressHUD.dart';
 import 'package:tectags/screens/login_screen.dart';
 import 'package:tectags/screens/navigation/navigation_menu.dart';
+import 'package:tectags/screens/otp/pages/otp_verify.dart';
+import 'package:tectags/screens/otp/services/api_service.dart';
 import 'package:tectags/services/api.dart';
 import 'package:tectags/services/shared_prefs_service.dart';
 import 'package:tectags/utils/label_formatter.dart';
@@ -17,6 +20,20 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  // OTP
+  bool isApiCallProcess = false;
+  GlobalKey<FormState> globalKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+
+  bool validateAndSave() {
+    final form = globalKey.currentState;
+    if (form!.validate()) {
+      form.save();
+      return true;
+    }
+    return false;
+  }
+
   final _formSignUpKey = GlobalKey<FormState>();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _middleInitialController =
@@ -25,7 +42,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _contactNumberController =
       TextEditingController();
   final TextEditingController _birthdayController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
@@ -45,12 +61,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   void dispose() {
+    _emailController.dispose();
     _firstNameController.dispose();
     _middleInitialController.dispose();
     _lastNameController.dispose();
     _contactNumberController.dispose();
     _birthdayController.dispose();
-    _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -58,22 +74,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // void _openDatePicker() {
-    //   showDatePicker(
-    //           context: context,
-    //           initialDate: DateTime.now().subtract(Duration(days: 365 * 20)),
-    //           firstDate: DateTime(1900),
-    //           lastDate: DateTime.now())
-    //       .then((pickedDate) {
-    //     if (pickedDate == null) {
-    //       return;
-    //     }
-    //     setState(() {
-    //       _birthdayController.text = DateFormat.yMd().format(pickedDate);
-    //     });
-    //   });
-    // }
+    return SafeArea(
+      child: Scaffold(
+        body: ProgressHUD(
+          key: UniqueKey(),
+          opacity: .3,
+          inAsyncCall: isApiCallProcess,
+          child: Form(key: globalKey, child: registerUI()),
+        ),
+      ),
+    );
+  }
 
+  registerUI() {
     return Container(
       decoration: const BoxDecoration(
         image: DecorationImage(
@@ -105,6 +118,35 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ),
                   const SizedBox(height: 40.0),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                    child: TextFormField(
+                      controller: _emailController,
+                      validator: (value) {
+                        final emailRegex = RegExp(
+                          r"^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@"
+                          r"(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$",
+                        );
+
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email';
+                        } else if (!emailRegex.hasMatch(value)) {
+                          return 'Invalid email address';
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Email',
+                        hintText: 'Enter your email',
+                        hintStyle: const TextStyle(color: Colors.black26),
+                        fillColor: Colors.white,
+                        filled: true,
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20.0),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 3.0),
                     child: TextFormField(
@@ -156,29 +198,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       decoration: InputDecoration(
                         labelText: 'Last Name',
                         hintText: 'Enter your last name',
-                        hintStyle: const TextStyle(color: Colors.black26),
-                        fillColor: Colors.white,
-                        filled: true,
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20.0),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 3.0),
-                    child: TextFormField(
-                      controller: _emailController,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
-                        } else if (!isValidEmail(value)) {
-                          return 'Please enter a valid email address';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        hintText: 'Enter your email',
                         hintStyle: const TextStyle(color: Colors.black26),
                         fillColor: Colors.white,
                         filled: true,
@@ -397,14 +416,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   _contactNumberController.text),
                               "birthday": _birthdayController.text,
                             };
+
                             Map<String, dynamic>? response;
                             try {
                               response = await API.registerUser(data);
-                              debugPrint(
-                                  "API Response: $response"); // Debug log
+                              debugPrint("API Response: $response");
                             } catch (e) {
-                              debugPrint(
-                                  "Error during registration: $e"); // Debug log
+                              debugPrint("Error during registration: $e");
                               if (!mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -414,7 +432,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               return;
                             }
 
-                            // Check for errors in the response
                             if (response != null &&
                                 response.containsKey('error') &&
                                 response['error'] != null) {
@@ -425,7 +442,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               return;
                             }
 
-                            // Check for token in the response
                             if (response != null &&
                                 response.containsKey('token')) {
                               await SharedPrefsService.saveTokenWithoutCheck(
@@ -443,14 +459,46 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               _firstNameController.clear();
                               _lastNameController.clear();
 
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const NavigationMenu()),
-                              );
+                              // OTP LOGIN after registration
+                              String email = data["email"] as String;
+                              setState(() {
+                                isApiCallProcess = true;
+                              });
+
+                              try {
+                                final otpResponse =
+                                    await APIService.otpLogin(email);
+                                setState(() {
+                                  isApiCallProcess = false;
+                                });
+
+                                if (otpResponse.data != null) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => OTPVerificationPage(
+                                        otpHash: otpResponse.data,
+                                        email: email,
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text("OTP request failed.")),
+                                  );
+                                }
+                              } catch (e) {
+                                setState(() {
+                                  isApiCallProcess = false;
+                                });
+                                debugPrint("OTP Error: $e");
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text("OTP login failed.")),
+                                );
+                              }
                             } else {
-                              // Handle case where token is missing
                               if (!mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -466,13 +514,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           foregroundColor: Colors.white,
                           shadowColor: Colors.grey,
                           elevation: 5,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 15,
-                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 15),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
+                              borderRadius: BorderRadius.circular(10)),
                         ),
                         child: const Text(
                           'Register',
@@ -485,6 +530,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 30.0),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

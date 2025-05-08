@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tectags/screens/navigation/side_menu.dart';
+import 'package:tectags/screens/navigation/navigation_menu.dart';
 import 'package:tectags/screens/otp/services/api_service.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
 import 'package:snippet_coder_utils/ProgressHUD.dart';
@@ -55,12 +55,18 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text('Verify OTP'),
-         backgroundColor: Colors.black,
+        backgroundColor: Colors.black,
         elevation: 0,
         foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context); // Pops back to the previous screen
+          },
+        ),
       ),
-      endDrawer: const SideMenu(),
+      // endDrawer: const SideMenu(),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -105,60 +111,98 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
               ),
             ),
             SizedBox(height: 10),
-            FormHelper.submitButton("Continue", () {
-              if (validateAndSave()) {
-                setState(() {
-                  isApiCallProcess = true;
-                });
-
-                debugPrint(otpCode);
-                APIService.verifyOTP(widget.email!, otpCode, widget.otpHash!)
-                    .then((response) {
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal, // Button background color
+                foregroundColor: Colors.white, // Text color
+                side: BorderSide(
+                    color: Colors.blue, width: 2.0), // Outline border
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                ),
+                padding: EdgeInsets.symmetric(
+                    horizontal: 24, vertical: 12), // Optional
+              ),
+              onPressed: () {
+                if (validateAndSave()) {
                   setState(() {
-                    isApiCallProcess = false;
+                    isApiCallProcess = true;
                   });
 
-                  print(
-                    "Sending OTP Verification with Email: ${widget.email}, OTP Code: $otpCode, OTP Hash: ${widget.otpHash}",
-                  );
+                  debugPrint(otpCode);
+                  APIService.verifyOTP(widget.email!, otpCode, widget.otpHash!)
+                      .then((response) {
+                    setState(() {
+                      isApiCallProcess = false;
+                    });
 
-                  if (response.data != null) {
-                    FormHelper.showSimpleAlertDialog(
-                      context,
-                      "Email Verification",
-                      response.message,
-                      "Ok",
-                      () {
-                        Navigator.pop(context);
-                      },
+                    print(
+                        "Sending OTP Verification with Email: ${widget.email}, OTP Code: $otpCode, OTP Hash: ${widget.otpHash}");
+
+                    showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: Text("Email Verification"),
+                        content: Text(response.message),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const NavigationMenu(),
+                                ),
+                              );
+                            },
+                            child: Text("Ok"),
+                          ),
+                        ],
+                      ),
                     );
-                  } else {
-                    FormHelper.showSimpleAlertDialog(
-                      context,
-                      "Email Verification",
-                      response.message,
-                      "Ok",
-                      () {
-                        Navigator.pop(context);
-                      },
+                  }).catchError((error) {
+                    setState(() {
+                      isApiCallProcess = false;
+                    });
+
+                    showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: Text("Error"),
+                        content: Text("Something went wrong: $error"),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text("Ok"),
+                          ),
+                        ],
+                      ),
                     );
-                  }
-                }).catchError((error) {
-                  setState(() {
-                    isApiCallProcess = false;
                   });
-                  FormHelper.showSimpleAlertDialog(
-                    context,
-                    "Error",
-                    "Something went wrong: $error",
-                    "Ok",
-                    () {
-                      Navigator.pop(context);
-                    },
-                  );
-                });
-              }
-            }),
+                }
+              },
+              child: Text("Continue"),
+            ),
+            SizedBox(height: 10),
+            // ElevatedButton(
+            //   style: ElevatedButton.styleFrom(
+            //     backgroundColor: Colors.teal, // Button background color
+            //     foregroundColor: Colors.white, // Text color
+            //     side: BorderSide(
+            //         color: Colors.blue, width: 2.0), // Outline border
+            //     shape: RoundedRectangleBorder(
+            //       borderRadius: BorderRadius.circular(8.0), // Rounded corners
+            //     ),
+            //     padding: EdgeInsets.symmetric(
+            //         horizontal: 24, vertical: 12), // Optional
+            //   ),
+            //   onPressed: () {
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(builder: (context) => WelcomeScreen()),
+            //     );
+            //   },
+            //   child: Text("Cancel"),
+            // ),
           ],
         ),
       ),

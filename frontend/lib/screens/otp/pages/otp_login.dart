@@ -2,7 +2,6 @@ import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:tectags/screens/otp/pages/otp_verify.dart';
 import 'package:tectags/screens/otp/services/api_service.dart';
 import 'package:flutter/material.dart';
-import 'package:snippet_coder_utils/FormHelper.dart';
 import 'package:snippet_coder_utils/ProgressHUD.dart';
 
 class LoginPage extends StatefulWidget {
@@ -13,7 +12,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String email = "";
+  final TextEditingController _emailController = TextEditingController(); // Use TextEditingController
   bool isApiCallProcess = false;
   GlobalKey<FormState> globalKey = GlobalKey<FormState>();
 
@@ -73,61 +72,89 @@ class _LoginPageState extends State<LoginPage> {
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 10),
-            FormHelper.inputFieldWidget(
-              context,
-              "email",
-              "",
-              (String? onValidateVal) {
-                final val = onValidateVal ?? '';
+            // Updated to use TextEditingController
+            TextFormField(
+              controller: _emailController,
+              decoration: InputDecoration(
+                labelText: "Email",
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.email),
+              ),
+              validator: (val) {
                 final emailRegex = RegExp(
                   r"^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@"
                   r"(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$",
                 );
 
-                if (val.isEmpty) {
+                if (val == null || val.isEmpty) {
                   return "Required";
                 } else if (!emailRegex.hasMatch(val)) {
                   return "Invalid email";
                 }
                 return null;
               },
-              (onSaved) {
-                email = onSaved;
-              },
-              borderRadius: 10,
-              borderColor: Colors.grey,
             ),
             SizedBox(height: 10),
-            FormHelper.submitButton("Continue", () {
-              if (validateAndSave()) {
-                setState(() {
-                  isApiCallProcess = true;
-                });
+            // Submit button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 3.0),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (validateAndSave()) {
+                      setState(() {
+                        isApiCallProcess = true;
+                      });
 
-                debugPrint(email);
-                APIService.otpLogin(email).then(
-                  (response) => {
-                    setState(() {
-                      isApiCallProcess = false;
-                    }),
-                    if (response.data != null)
-                      {
-                        // OTP verification page
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => OTPVerificationPage(
-                              otpHash: response.data,
-                              email: email,
-                            ),
-                          ),
-                          (route) => false,
-                        ),
-                      },
+                      String email = _emailController.text; // Get value from controller
+                      debugPrint(email);
+
+                      APIService.otpLogin(email).then(
+                        (response) {
+                          setState(() {
+                            isApiCallProcess = false;
+                          });
+
+                          if (response.data != null) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => OTPVerificationPage(
+                                  otpHash: response.data,
+                                  email: email,
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                      );
+                    }
                   },
-                );
-              }
-            }),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 22, 165, 221),
+                    foregroundColor: Colors.white,
+                    shadowColor: Colors.grey,
+                    elevation: 5,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 15,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    'Continue',
+                    style: TextStyle(
+                      fontFamily: 'Roboto',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20.0,
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
