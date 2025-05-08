@@ -493,14 +493,20 @@ class _PytorchMobileState extends State<PytorchMobile> {
           }
         }
 
-// Stock exists — normal flow
+        // Stock exists — normal flow
         if (action == "restock") {
-          _openRestockStockModal(context, _selectedStock!);
+          await _openRestockStockModal(context, _selectedStock!);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Stock restocked and image saved!")),
+          );
           return;
         }
 
         if (action == "sell") {
-          _openSellStockModal(context, _selectedStock!);
+          await _openSellStockModal(context, _selectedStock!);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Stock sold and image saved!")),
+          );
           return;
         }
 
@@ -625,8 +631,8 @@ class _PytorchMobileState extends State<PytorchMobile> {
     }
   }
 
-  void _openSellStockModal(BuildContext context, String item) {
-    showModalBottomSheet(
+  Future<void> _openSellStockModal(BuildContext context, String item) {
+    return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (_) {
@@ -671,8 +677,8 @@ class _PytorchMobileState extends State<PytorchMobile> {
     }
   }
 
-  void _openRestockStockModal(BuildContext context, String item) {
-    showModalBottomSheet(
+  Future<void> _openRestockStockModal(BuildContext context, String item) {
+    return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (_) {
