@@ -25,7 +25,7 @@ class _AddNewProductState extends State<AddNewProduct> {
   TextEditingController nameController = TextEditingController();
   TextEditingController countController = TextEditingController();
   TextEditingController soldController = TextEditingController();
-  TextEditingController priceController = TextEditingController();
+  // TextEditingController priceController = TextEditingController();
   // form validation
   final _formKey = GlobalKey<FormState>();
   // FOR RESTOCKING

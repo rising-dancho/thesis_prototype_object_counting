@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:tectags/services/api.dart';
 
 class SellRestockHelper {
@@ -12,9 +13,13 @@ class SellRestockHelper {
       int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
 
       stockCounts[item]?["totalStock"] = currentTotalStock + restockAmount;
-      stockCounts[item]?["availableStock"] = currentAvailableStock + restockAmount;
+      stockCounts[item]?["availableStock"] =
+          currentAvailableStock + restockAmount;
 
       // sold remains unchanged
+      debugPrint("🔁 Restocking $item: +$restockAmount");
+      debugPrint(
+          "➡️ New total: ${stockCounts[item]?["totalStock"]}, available: ${stockCounts[item]?["availableStock"]}");
       API.saveStockToMongoDB(stockCounts);
     }
   }
@@ -33,9 +38,13 @@ class SellRestockHelper {
       }
 
       stockCounts[item]?["availableStock"] = currentAvailableStock - sellAmount;
-      stockCounts[item]?["sold"] = (stockCounts[item]?["sold"] ?? 0) + sellAmount;
+      stockCounts[item]?["sold"] =
+          (stockCounts[item]?["sold"] ?? 0) + sellAmount;
 
       // totalStock remains unchanged
+      debugPrint("🔁 Selling $item: -$sellAmount");
+      debugPrint(
+          "➡️ Remaining: ${stockCounts[item]?["availableStock"]}, sold: ${stockCounts[item]?["sold"]}");
       API.saveStockToMongoDB(stockCounts);
       return true;
     }

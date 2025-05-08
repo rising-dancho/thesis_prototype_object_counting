@@ -23,8 +23,11 @@ import 'package:intl/intl.dart';
 // PYTORCH
 import 'package:pytorch_lite/pytorch_lite.dart';
 import 'package:tectags/utils/label_formatter.dart';
+import 'package:tectags/utils/sell_restock_helper.dart';
 import 'package:tectags/widgets/products/add_new_product.dart';
+import 'package:tectags/widgets/products/add_product.dart';
 import 'package:tectags/widgets/products/restock_product.dart';
+import 'package:tectags/widgets/products/sell_product.dart';
 
 class PytorchMobile extends StatefulWidget {
   const PytorchMobile({super.key});
@@ -79,6 +82,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
     imagePicker = ImagePicker();
     _requestPermission(); // [gain permission]
     loadModel();
+    fetchStockData();
   }
 
   @override
@@ -470,51 +474,69 @@ class _PytorchMobileState extends State<PytorchMobile> {
 
         // ✅ If selected stock is NOT in the cached stock list, open modal to add it
         if (!stockList.contains(_selectedStock)) {
-          debugPrint(
-              "🆕 $_selectedStock not found in stock list. Opening modal to add.");
-          _openAddProductModal(
-            context,
-            actionType: action,
-            initialName: _selectedStock,
-            sold: editableBoundingBoxes.length,
-            initialAmount: editableBoundingBoxes.length,
-          );
-          return; // Exit early — let the user add the product before logging
-        }
+          debugPrint("🆕 $_selectedStock not found in stock list.");
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Stock and Image saved successfully!")),
-        );
-
-        // 🔥 Log detected object count to the backend
-        if (_selectedStock == null) {
-          debugPrint("⚠️ No stock selected, skipping log.");
-          String? userId =
-              await SharedPrefsService.getUserId(); // ✅ Directly get the userId
-          if (userId == null) {
-            debugPrint("❌ User ID not found, cannot log data.");
+          if (action == "restock") {
+            _openRestockStockModal(context, _selectedStock!);
+            return;
           }
 
-          if (userId != null) {
-            debugPrint(
-                "📌 Updating Database: USER = $userId, ITEM = $_selectedStock, Count = ${editableBoundingBoxes.length}");
-            var response = await API.logStockCurrentCount(
-              userId,
-              _selectedStock!,
-              editableBoundingBoxes.length, // Detected count
+          if (action == "sell") {
+            _openAddProductModal(
+              context,
+              actionType: action,
+              initialName: _selectedStock,
+              sold: editableBoundingBoxes.length,
+              initialAmount: editableBoundingBoxes.length,
             );
-
-            if (response != null) {
-              debugPrint("✅ Object count logged: $response");
-            } else {
-              debugPrint("❌ Failed to log object count.");
-            }
-          } else {
-            debugPrint("❌ User ID not found, cannot log data.");
+            return;
           }
-        } else {
-          debugPrint("⚠️ No stock selected, skipping log.");
         }
+
+// Stock exists — normal flow
+        if (action == "restock") {
+          _openRestockStockModal(context, _selectedStock!);
+          return;
+        }
+
+        if (action == "sell") {
+          _openSellStockModal(context, _selectedStock!);
+          return;
+        }
+
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(content: Text("Stock and Image saved successfully!")),
+        // );
+
+        // // 🔥 Log detected object count to the backend
+        // if (_selectedStock == null) {
+        //   debugPrint("⚠️ No stock selected, skipping log.");
+        //   String? userId =
+        //       await SharedPrefsService.getUserId(); // ✅ Directly get the userId
+        //   if (userId == null) {
+        //     debugPrint("❌ User ID not found, cannot log data.");
+        //   }
+
+        //   if (userId != null) {
+        //     debugPrint(
+        //         "📌 Updating Database: USER = $userId, ITEM = $_selectedStock, Count = ${editableBoundingBoxes.length}");
+        //     var response = await API.logStockCurrentCount(
+        //       userId,
+        //       _selectedStock!,
+        //       editableBoundingBoxes.length, // Detected count
+        //     );
+
+        //     if (response != null) {
+        //       debugPrint("✅ Object count logged: $response");
+        //     } else {
+        //       debugPrint("❌ Failed to log object count.");
+        //     }
+        //   } else {
+        //     debugPrint("❌ User ID not found, cannot log data.");
+        //   }
+        // } else {
+        //   debugPrint("⚠️ No stock selected, skipping log.");
+        // }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Image not saved")),
@@ -600,6 +622,91 @@ class _PytorchMobileState extends State<PytorchMobile> {
       ).whenComplete(() {
         _isAddProductModalOpen = false;
       });
+    }
+  }
+
+  void _openSellStockModal(BuildContext context, String item) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: SingleChildScrollView(
+            child: SellProduct(
+              itemName: item,
+              onSell: (sellAmount) {
+                updateStockForSale(item, sellAmount);
+              },
+              isSelling: true,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void updateStockForSale(String item, int sellAmount) {
+    if (stockCounts.containsKey(item)) {
+      int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
+
+      if (sellAmount > currentAvailableStock) {
+        ScaffoldMessenger.of(this.context).showSnackBar(
+          SnackBar(content: Text('Insufficient stocks to sell')),
+        );
+        return;
+      }
+
+      setState(() {
+        stockCounts[item]?["availableStock"] =
+            currentAvailableStock - sellAmount;
+        stockCounts[item]?["sold"] =
+            (stockCounts[item]?["sold"] ?? 0) + sellAmount;
+        // totalStock stays the same
+      });
+
+      API.saveStockToMongoDB(stockCounts);
+    }
+  }
+
+  void _openRestockStockModal(BuildContext context, String item) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: SingleChildScrollView(
+            child: RestockProduct(
+              itemName: item,
+              initialAmount: 0,
+              onRestock: (restockAmount) {
+                updateStock(item, restockAmount);
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void updateStock(String item, int restockAmount) {
+    if (stockCounts.containsKey(item)) {
+      setState(() {
+        int currentTotalStock = stockCounts[item]?["totalStock"] ?? 0;
+        int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
+
+        stockCounts[item]?["totalStock"] = currentTotalStock + restockAmount;
+        stockCounts[item]?["availableStock"] =
+            currentAvailableStock + restockAmount;
+        // 🔥 sold does NOT change
+      });
+
+      API.saveStockToMongoDB(stockCounts);
     }
   }
 

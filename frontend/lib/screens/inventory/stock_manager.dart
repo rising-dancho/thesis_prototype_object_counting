@@ -73,6 +73,29 @@ class _StockManagerState extends State<StockManager> {
     );
   }
 
+  void updateStockForSale(String item, int sellAmount) {
+    if (stockCounts.containsKey(item)) {
+      int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
+
+      if (sellAmount > currentAvailableStock) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Insufficient stocks to sell')),
+        );
+        return;
+      }
+
+      setState(() {
+        stockCounts[item]?["availableStock"] =
+            currentAvailableStock - sellAmount;
+        stockCounts[item]?["sold"] =
+            (stockCounts[item]?["sold"] ?? 0) + sellAmount;
+        // totalStock stays the same
+      });
+
+      API.saveStockToMongoDB(stockCounts);
+    }
+  }
+
   void _openRestockStockModal(BuildContext context, String item) {
     showModalBottomSheet(
       context: context,
@@ -95,7 +118,6 @@ class _StockManagerState extends State<StockManager> {
       },
     );
   }
-
   void updateStock(String item, int restockAmount) {
     if (stockCounts.containsKey(item)) {
       setState(() {
@@ -106,29 +128,6 @@ class _StockManagerState extends State<StockManager> {
         stockCounts[item]?["availableStock"] =
             currentAvailableStock + restockAmount;
         // 🔥 sold does NOT change
-      });
-
-      API.saveStockToMongoDB(stockCounts);
-    }
-  }
-
-  void updateStockForSale(String item, int sellAmount) {
-    if (stockCounts.containsKey(item)) {
-      int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
-
-      if (sellAmount > currentAvailableStock) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Insufficient stocks to sell')),
-        );
-        return;
-      }
-
-      setState(() {
-        stockCounts[item]?["availableStock"] =
-            currentAvailableStock - sellAmount;
-        stockCounts[item]?["sold"] =
-            (stockCounts[item]?["sold"] ?? 0) + sellAmount;
-        // totalStock stays the same
       });
 
       API.saveStockToMongoDB(stockCounts);

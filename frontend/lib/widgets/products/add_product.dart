@@ -18,7 +18,7 @@ class AddProduct extends StatefulWidget {
 class _AddProductState extends State<AddProduct> {
   TextEditingController itemController = TextEditingController();
   TextEditingController countController = TextEditingController();
-  TextEditingController priceController = TextEditingController();
+  // TextEditingController priceController = TextEditingController();
   // form validation
   final _formKey = GlobalKey<FormState>();
 
@@ -215,29 +215,29 @@ class _AddProductState extends State<AddProduct> {
               ),
             ),
             const SizedBox(height: 10),
-            TextFormField(
-              controller: priceController,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-              validator: (value) {
-                return null;
-              },
-              decoration: InputDecoration(
-                labelText: 'Stock Price',
-                labelStyle: TextStyle(
-                  color: Colors.grey[700], // default color
-                ),
-                floatingLabelStyle: TextStyle(
-                  color:
-                      Color(0xFF416FDF), // 👈 color when the field is focused
-                ),
-                hintText: 'Please enter the stock price',
-                hintStyle: const TextStyle(color: Colors.black26),
-                fillColor: Colors.grey[200],
-                filled: true,
-                border: InputBorder.none,
-                // prefixIcon: Icon(Icons.payments),
-              ),
-            ),
+            // TextFormField(
+            //   controller: priceController,
+            //   keyboardType: TextInputType.numberWithOptions(decimal: true),
+            //   validator: (value) {
+            //     return null;
+            //   },
+            //   decoration: InputDecoration(
+            //     labelText: 'Stock Price',
+            //     labelStyle: TextStyle(
+            //       color: Colors.grey[700], // default color
+            //     ),
+            //     floatingLabelStyle: TextStyle(
+            //       color:
+            //           Color(0xFF416FDF), // 👈 color when the field is focused
+            //     ),
+            //     hintText: 'Please enter the stock price',
+            //     hintStyle: const TextStyle(color: Colors.black26),
+            //     fillColor: Colors.grey[200],
+            //     filled: true,
+            //     border: InputBorder.none,
+            //     // prefixIcon: Icon(Icons.payments),
+            //   ),
+            // ),
             const SizedBox(height: 10),
             SizedBox(
               width: double.infinity,
