@@ -180,94 +180,114 @@ class _PytorchMobileState extends State<PytorchMobile> {
       }
     }
 
-    // Show Snackbar warning for confidence scores between 50% and 70%
+    // Show Snackbar warning for confidence scores above 50%
+    // Check for mid confidence (between 0.4 and 0.49)
     bool hasMidConfidence = objDetect.any((element) {
       final score = element?.score ?? 0.0;
-
-      const upperLimit = 0.50;
-      return score >= 0.4 && score < upperLimit;
+      return score >= 0.4 && score < 0.5;
     });
 
-    if (hasMidConfidence && mounted) {
-      void showTopSnackBar(BuildContext context, Widget title, Widget message) {
-        final overlay = Overlay.of(context);
-        OverlayEntry? overlayEntry;
+// Check for very low confidence (0.39 or lower)
+    bool hasLowConfidence = objDetect.every((element) {
+      final score = element?.score ?? 0.0;
+      return score < 0.4;
+    });
 
-        overlayEntry = OverlayEntry(
-          builder: (context) => Positioned(
-            top: MediaQuery.of(context).padding.top + 10,
-            left: 12,
-            right: 12,
-            child: Material(
-              color: Colors.transparent,
-              child: Container(
-                padding: EdgeInsets.fromLTRB(20, 16, 20, 16),
-                decoration: BoxDecoration(
-                  // color: Color(0xFFF8D7DA),
-                  color: Colors.red[300],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          title,
-                          SizedBox(height: 4),
-                          message,
-                        ],
-                      ),
+// Define function to show the top snackbar
+    void showTopSnackBar(BuildContext context, Widget title, Widget message) {
+      final overlay = Overlay.of(context);
+      OverlayEntry? overlayEntry;
+
+      overlayEntry = OverlayEntry(
+        builder: (context) => Positioned(
+          top: MediaQuery.of(context).padding.top + 10,
+          left: 12,
+          right: 12,
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              padding: EdgeInsets.fromLTRB(20, 16, 20, 16),
+              decoration: BoxDecoration(
+                color: Colors.red[300],
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        title,
+                        SizedBox(height: 4),
+                        message,
+                      ],
                     ),
-                    IconButton(
-                      // icon: Icon(Icons.close, color: Colors.grey[800]),
-                      icon: Icon(
-                        Icons.close,
-                        color: Colors.grey[900],
-                      ),
-                      onPressed: () {
-                        overlayEntry?.remove();
-                      },
-                    )
-                  ],
-                ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.close, color: Colors.grey[900]),
+                    onPressed: () {
+                      overlayEntry?.remove();
+                    },
+                  )
+                ],
               ),
             ),
           ),
-        );
+        ),
+      );
 
-        overlay.insert(overlayEntry);
-      }
+      overlay.insert(overlayEntry);
+    }
 
-      if (hasMidConfidence && mounted) {
-        showTopSnackBar(
-          this.context,
-          Row(
-            children: [
-              Icon(
-                Icons.warning, // Or use your custom icon widget here
-                color: Colors.red[700],
-                size: 30,
+// Show warning for mid-confidence detections
+    if (hasMidConfidence && mounted) {
+      showTopSnackBar(
+        this.context,
+        Row(
+          children: [
+            Icon(Icons.warning, color: Colors.red[700], size: 30),
+            SizedBox(width: 10),
+            Text(
+              'WARNING:',
+              style: TextStyle(
+                color: Colors.grey[900],
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
               ),
-              SizedBox(width: 10),
-              Text(
-                'WARNING:',
-                style: TextStyle(
-                  // color: Color(0xFF6A1A21),
-                  color: Colors.grey[900],
-                  // color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
+            ),
+          ],
+        ),
+        Text(
+          'There may be objects detected that are not part of the scope!',
+          style: TextStyle(color: Colors.grey[900], fontSize: 18),
+        ),
+      );
+    }
+
+// Show warning for very low-confidence (≤ 0.39)
+    if (hasLowConfidence && mounted) {
+      showTopSnackBar(
+        this.context,
+        Row(
+          children: [
+            Icon(Icons.warning, color: Colors.red[700], size: 30),
+            SizedBox(width: 10),
+            Text(
+              'WARNING:',
+              style: TextStyle(
+                color: Colors.grey[900],
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
               ),
-            ],
-          ),
-          Text(
-            'There may be objects detected that are not part of the scope!',
-            style: TextStyle(color: Colors.grey[900], fontSize: 18),
-          ),
-        );
-      }
+            ),
+          ],
+        ),
+        Text(
+          'No detectable objects matched the expected categories.\n'
+          'Please ensure the object is clearly visible, well-lit, and within the camera frame. Try again!',
+          style: TextStyle(color: Colors.grey[900], fontSize: 18),
+        ),
+      );
     }
 
     setState(() {
@@ -899,3 +919,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
 
 // ABOUT FUTURES and .whenComplete()
 // https://chatgpt.com/share/681ade31-ff18-8000-8a3c-ed9e2bb781d0
+
+// FIX THE RESTOCK AND SELL WHEN SELECTED ITEM IS ALREADY IN THE LIST
+// https://chatgpt.com/share/681bf782-5edc-8000-a65f-da0de57fe2f3
