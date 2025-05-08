@@ -23,11 +23,14 @@ import 'package:intl/intl.dart';
 // PYTORCH
 import 'package:pytorch_lite/pytorch_lite.dart';
 import 'package:tectags/utils/label_formatter.dart';
-import 'package:tectags/utils/sell_restock_helper.dart';
+// import 'package:tectags/utils/sell_restock_helper.dart';
 import 'package:tectags/widgets/products/add_new_product.dart';
-import 'package:tectags/widgets/products/add_product.dart';
+// import 'package:tectags/widgets/products/add_product.dart';
 import 'package:tectags/widgets/products/restock_product.dart';
 import 'package:tectags/widgets/products/sell_product.dart';
+
+// TUTORIALS
+import 'package:tectags/widgets/tutorial_dialog.dart';
 
 class PytorchMobile extends StatefulWidget {
   const PytorchMobile({super.key});
@@ -632,29 +635,28 @@ class _PytorchMobileState extends State<PytorchMobile> {
   }
 
   Future<void> _openSellStockModal(BuildContext context, String item) {
-  return showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    builder: (_) {
-      return Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: SingleChildScrollView(
-          child: SellProduct(
-            itemName: item,
-            initialAmount: editableBoundingBoxes.length,
-            onSell: (sellAmount) {
-              updateStockForSale(item, sellAmount);
-            },
-            isSelling: true,
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-        ),
-      );
-    },
-  );
-}
-
+          child: SingleChildScrollView(
+            child: SellProduct(
+              itemName: item,
+              initialAmount: editableBoundingBoxes.length,
+              onSell: (sellAmount) {
+                updateStockForSale(item, sellAmount);
+              },
+              isSelling: true,
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   void updateStockForSale(String item, int sellAmount) {
     if (stockCounts.containsKey(item)) {
@@ -788,6 +790,15 @@ class _PytorchMobileState extends State<PytorchMobile> {
           foregroundColor: const Color.fromARGB(255, 255, 255, 255),
           automaticallyImplyLeading: false,
           actions: [
+            IconButton(
+              icon: Icon(Icons.help_outline),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => TutorialDialog(),
+                );
+              },
+            ),
             Builder(
               builder: (context) => IconButton(
                 icon: Icon(Icons.menu),

@@ -71,16 +71,16 @@ class SideMenu extends StatelessWidget {
               );
             },
           ),
-          // ListTile(
-          //   leading: const Icon(Icons.menu_book),
-          //   title: const Text('Onboarding'),
-          //   onTap: () {
-          //     Navigator.pushReplacement(
-          //       context,
-          //       MaterialPageRoute(builder: (context) => const OnboardingView()),
-          //     );
-          //   },
-          // ),
+          ListTile(
+            leading: const Icon(Icons.slideshow),
+            title: const Text('Onboarding'),
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const OnboardingView()),
+              );
+            },
+          ),
           // ListTile(
           //   leading: const Icon(Icons.lock),
           //   title: const Text('Email Verification'),
