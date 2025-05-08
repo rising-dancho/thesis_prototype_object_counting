@@ -431,11 +431,12 @@ class _PytorchMobileState extends State<PytorchMobile> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, "restock"),
-                child: Text("Restock"),
+                child:
+                    Text("Restock", style: TextStyle(color: Colors.blue[800])),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, "sell"),
-                child: Text("Sell"),
+                child: Text("Sell", style: TextStyle(color: Colors.red[800])),
               ),
             ],
           ),
