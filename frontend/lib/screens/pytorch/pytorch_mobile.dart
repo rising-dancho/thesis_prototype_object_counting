@@ -485,7 +485,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
               context,
               actionType: action,
               initialName: _selectedStock,
-              sold: editableBoundingBoxes.length,
+              itemCount: editableBoundingBoxes.length,
               initialAmount: editableBoundingBoxes.length,
             );
             return;
@@ -559,7 +559,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
     BuildContext context, {
     required String actionType, // 👈 now passed in directly
     String? initialName,
-    int? sold,
+    int? itemCount,
     int? initialAmount,
   }) async {
     if (_isAddProductModalOpen) return; // Prevent multiple opens
@@ -572,6 +572,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
         builder: (modalContext) {
           return AddProduct(
             initialName: initialName,
+            itemCount: itemCount,
             stockCounts: stockCounts,
             onAddStock: (itemName, count) async {
               setState(() {
@@ -606,7 +607,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
             child: SingleChildScrollView(
               child: AddNewProduct(
                 initialName: initialName,
-                initialSold: sold,
+                itemCount: itemCount,
                 actionType: actionType,
                 onAddStock: (String name, int count, int sold) async {
                   setState(() {

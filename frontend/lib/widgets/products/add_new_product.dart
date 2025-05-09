@@ -6,14 +6,14 @@ import 'package:tectags/widgets/products/restock_product.dart';
 class AddNewProduct extends StatefulWidget {
   final void Function(String name, int count, int sold) onAddStock;
   final String? initialName;
-  final int? initialSold;
+  final int? itemCount;
   final String actionType; // "sell" or "restock"
 
   const AddNewProduct({
     super.key,
     required this.onAddStock,
     this.initialName,
-    this.initialSold,
+    this.itemCount,
     required this.actionType,
   });
 
@@ -35,17 +35,17 @@ class _AddNewProductState extends State<AddNewProduct> {
   void initState() {
     super.initState();
     nameController = TextEditingController(text: widget.initialName ?? '');
-    debugPrint("🛠 Initializing AddNewProduct — Sold: ${widget.initialSold}");
+    debugPrint("🛠 Initializing AddNewProduct — Sold: ${widget.itemCount}");
     soldController =
-        TextEditingController(text: widget.initialSold?.toString() ?? '');
+        TextEditingController(text: widget.itemCount?.toString() ?? '');
   }
 
   // FIXES THE SOLD NOT UPDATING CORRECTLY FROM _openAddProductModal
   @override
   void didUpdateWidget(covariant AddNewProduct oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.initialSold != oldWidget.initialSold) {
-      soldController.text = widget.initialSold?.toString() ?? '';
+    if (widget.itemCount != oldWidget.itemCount) {
+      soldController.text = widget.itemCount?.toString() ?? '';
     }
   }
 
@@ -75,7 +75,7 @@ class _AddNewProductState extends State<AddNewProduct> {
           child: SingleChildScrollView(
             child: RestockProduct(
               itemName: item,
-              initialAmount: widget.initialSold ?? 0,
+              initialAmount: widget.itemCount ?? 0,
               onRestock: (restockAmount) {
                 updateStock(item, restockAmount);
               },

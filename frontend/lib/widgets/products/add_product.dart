@@ -3,12 +3,14 @@ import 'package:tectags/utils/label_formatter.dart';
 
 class AddProduct extends StatefulWidget {
   final String? initialName;
+  final int? itemCount;
   final Map<String, Map<String, int>> stockCounts;
   final void Function(String name, int count) onAddStock;
 
   const AddProduct({
     super.key,
     this.initialName,
+    this.itemCount,
     required this.stockCounts,
     required this.onAddStock,
   });
@@ -72,10 +74,19 @@ class _AddProductState extends State<AddProduct> {
     super.initState();
     // Initialize the selected product with the initial name
     selectedItem = widget.initialName ?? selectedItem;
-
-
+    // Initialize the count with the itemCount passed in
+    countController = TextEditingController(
+      text: widget.itemCount != null ? widget.itemCount.toString() : '',
+    );
     // Filter available items whenever the widget is built or stock is updated
     filterAvailableItems();
+  }
+
+  @override
+  void dispose() {
+    itemController.dispose();
+    countController.dispose();
+    super.dispose();
   }
 
   @override
