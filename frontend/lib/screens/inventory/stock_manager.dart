@@ -35,9 +35,9 @@ class _StockManagerState extends State<StockManager> {
             child: SingleChildScrollView(
                 child: AddProduct(
               stockCounts: stockCounts,
-              onAddStock: (String name, int count) {
+              onAddStock: (String initialName, int count) {
                 setState(() {
-                  stockCounts[name] = {
+                  stockCounts[initialName] = {
                     "availableStock": count,
                     "totalStock": count,
                     "sold": 0,
@@ -118,6 +118,7 @@ class _StockManagerState extends State<StockManager> {
       },
     );
   }
+
   void updateStock(String item, int restockAmount) {
     if (stockCounts.containsKey(item)) {
       setState(() {

@@ -25,6 +25,7 @@ import 'package:pytorch_lite/pytorch_lite.dart';
 import 'package:tectags/utils/label_formatter.dart';
 // import 'package:tectags/utils/sell_restock_helper.dart';
 import 'package:tectags/widgets/products/add_new_product.dart';
+import 'package:tectags/widgets/products/add_product.dart';
 // import 'package:tectags/widgets/products/add_product.dart';
 import 'package:tectags/widgets/products/restock_product.dart';
 import 'package:tectags/widgets/products/sell_product.dart';
@@ -479,13 +480,8 @@ class _PytorchMobileState extends State<PytorchMobile> {
         if (!stockList.contains(_selectedStock)) {
           debugPrint("🆕 $_selectedStock not found in stock list.");
 
-          if (action == "restock") {
-            _openRestockStockModal(context, _selectedStock!);
-            return;
-          }
-
-          if (action == "sell") {
-            _openAddProductModal(
+          if (action == "sell" || action == "restock") {
+            _openSellOrRestockProductModal(
               context,
               actionType: action,
               initialName: _selectedStock,
@@ -559,7 +555,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
     }
   }
 
-  Future<void> _openAddProductModal(
+  Future<void> _openSellOrRestockProductModal(
     BuildContext context, {
     required String actionType, // 👈 now passed in directly
     String? initialName,
@@ -574,26 +570,28 @@ class _PytorchMobileState extends State<PytorchMobile> {
         context: context,
         isScrollControlled: true,
         builder: (modalContext) {
-          return RestockProduct(
-            itemName: initialName ?? "Unnamed",
-            initialAmount: initialAmount ?? 0,
-            onRestock: (restockAmount) async {
+          return AddProduct(
+            initialName: initialName,
+            stockCounts: stockCounts,
+            onAddStock: (itemName, count) async {
               setState(() {
-                stockCounts[initialName!] = {
-                  "availableStock": restockAmount,
-                  "totalStock": restockAmount,
+                // Update stock with the new count for the item
+                stockCounts[itemName] = {
+                  "availableStock": count,
+                  "totalStock": count,
                   "sold": 0,
                 };
               });
+              // Save updated stock to the database
               await API.saveStockToMongoDB(stockCounts);
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Stock restocked successfully!")),
+                SnackBar(content: Text("Stock added successfully!")),
               );
             },
           );
         },
       );
-      return; // Exit early so we don't show AddNewProduct below
+      return; // Exit early so we don't show the AddNewProduct modal below
     }
 
     _isAddProductModalOpen = true;

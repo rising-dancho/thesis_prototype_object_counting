@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:tectags/utils/label_formatter.dart';
 
 class AddProduct extends StatefulWidget {
+  final String? initialName;
   final Map<String, Map<String, int>> stockCounts;
   final void Function(String name, int count) onAddStock;
 
   const AddProduct({
     super.key,
+    this.initialName,
     required this.stockCounts,
     required this.onAddStock,
   });
@@ -27,7 +29,7 @@ class _AddProductState extends State<AddProduct> {
     'Bistay Sand',
     'Cement',
     'Gravel',
-    'Hollow blocks',
+    'Hollow Blocks',
     'Nails',
     'Rebar',
     'Skim Coat',
@@ -68,6 +70,9 @@ class _AddProductState extends State<AddProduct> {
   @override
   void initState() {
     super.initState();
+    // Initialize the selected product with the initial name
+    selectedItem = widget.initialName ?? selectedItem;
+
 
     // Filter available items whenever the widget is built or stock is updated
     filterAvailableItems();
