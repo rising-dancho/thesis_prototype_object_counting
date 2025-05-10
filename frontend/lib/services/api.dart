@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tectags/services/notif_service.dart';
 import 'package:tectags/utils/label_formatter.dart';
+import 'package:tectags/utils/stock_notifier.dart';
 
 class SaveResult {
   final bool isSuccess;
@@ -18,34 +20,20 @@ class API {
       "https://thesis-prototype-object-counting.vercel.app/api/";
   // static const baseUrl = "https://fix-inventory.vercel.app/api/";
 
-  // Future<void> fetchStockAndCheck() async {
-  //   final response =
-  //       await http.get(Uri.parse('https://your-api.com/stock/123'), headers: {
-  //     'Authorization': 'Bearer your_token',
-  //   });
+  Future<void> fetchStockAndCheck(String id) async {
+    final response = await http.get(Uri.parse('${baseUrl}stock/$id'), headers: {
+      'Authorization': 'Bearer your_token',
+    });
 
-  //   if (response.statusCode == 200) {
-  //     final data = jsonDecode(response.body);
-  //     int stockAmount = data['stockAmount']; // or whatever field you use
-  //     checkStockAndNotify(stockAmount);
-  //   } else {
-  //     print("Failed to fetch stock data");
-  //   }
-  // }
-
-  // void checkStockAndNotify(int stockAmount) {
-  //   if (stockAmount == 0) {
-  //     notifService.showNotification(
-  //       title: "Out of Stock",
-  //       body: "One of your items is out of stock!",
-  //     );
-  //   } else if (stockAmount < 5) {
-  //     notifService.showNotification(
-  //       title: "Low Stock Warning",
-  //       body: "Stock is running low. Only $stockAmount left!",
-  //     );
-  //   }
-  // }
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      int stockAmount = data['availableStock'];
+      String stockName = data['stockName']; // ✅ Extract stock name
+      checkStockAndNotify(stockAmount, stockName);
+    } else {
+      print("Failed to fetch stock data");
+    }
+  }
 
   static Future<Map<String, dynamic>?> logStockCurrentCount(
       String userId, String stockItem, int sold) async {

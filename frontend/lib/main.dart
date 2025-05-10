@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:tectags/screens/splash_screen.dart';
+import 'package:tectags/services/notif_service.dart';
 import 'package:tectags/theme/theme.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // initialize notifications
+  NotifService().initNotification();
+  
   runApp(const MyApp());
 }
 
