@@ -17,7 +17,6 @@ import 'package:tectags/services/api.dart';
 import 'package:saver_gallery/saver_gallery.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:tectags/services/shared_prefs_service.dart';
 import 'package:intl/intl.dart';
 
 // PYTORCH

@@ -284,6 +284,28 @@ app.get('/api/user/:userId', requireAuth, async (req, res) => {
 
 // NUMBER OF STOCKS and DETECTIONS DATA -------------
 
+// FETCH INDIVIDUAL STOCK USING ID
+app.get('/api/stocks/:id', async (req, res) => {
+  try {
+    const stock = await Stock.findById(req.params.id);
+
+    if (!stock) {
+      return res.status(404).json({ message: 'Stock item not found' });
+    }
+
+    res.json({
+      _id: stock._id,
+      stockName: stock.stockName,
+      availableStock: stock.availableStock,
+      totalStock: stock.totalStock,
+      sold: stock.sold,
+      unitPrice: stock.unitPrice,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // SOLD CALCULATION DONE HERE
 app.get('/api/stocks', async (req, res) => {
   const stocks = await Stock.find();

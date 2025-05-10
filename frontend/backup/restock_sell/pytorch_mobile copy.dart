@@ -23,8 +23,15 @@ import 'package:intl/intl.dart';
 // PYTORCH
 import 'package:pytorch_lite/pytorch_lite.dart';
 import 'package:tectags/utils/label_formatter.dart';
+// import 'package:tectags/utils/sell_restock_helper.dart';
 import 'package:tectags/widgets/products/add_new_product.dart';
+import 'package:tectags/widgets/products/add_product.dart';
+// import 'package:tectags/widgets/products/add_product.dart';
 import 'package:tectags/widgets/products/restock_product.dart';
+import 'package:tectags/widgets/products/sell_product.dart';
+
+// TUTORIALS
+import 'package:tectags/widgets/tutorial_dialog.dart';
 
 class PytorchMobile extends StatefulWidget {
   const PytorchMobile({super.key});
@@ -79,6 +86,23 @@ class _PytorchMobileState extends State<PytorchMobile> {
     imagePicker = ImagePicker();
     _requestPermission(); // [gain permission]
     loadModel();
+    fetchStockData();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  void reset() {
+    setState(() {
+      _selectedImage = null;
+      imageForDrawing = null; // Clear this to prevent null check errors
+      editableBoundingBoxes = []; // Also clear detected objects
+      isAddingBox = false;
+      titleController.clear();
+      timestamp = "";
+    });
   }
 
   Future loadModel() async {
@@ -164,94 +188,114 @@ class _PytorchMobileState extends State<PytorchMobile> {
       }
     }
 
-    // Show Snackbar warning for confidence scores between 50% and 70%
+    // Show Snackbar warning for confidence scores above 50%
+    // Check for mid confidence (between 0.4 and 0.49)
     bool hasMidConfidence = objDetect.any((element) {
       final score = element?.score ?? 0.0;
-
-      const upperLimit = 0.50;
-      return score >= 0.4 && score < upperLimit;
+      return score >= 0.4 && score < 0.5;
     });
 
-    if (hasMidConfidence && mounted) {
-      void showTopSnackBar(BuildContext context, Widget title, Widget message) {
-        final overlay = Overlay.of(context);
-        OverlayEntry? overlayEntry;
+// Check for very low confidence (0.39 or lower)
+    bool hasLowConfidence = objDetect.every((element) {
+      final score = element?.score ?? 0.0;
+      return score < 0.4;
+    });
 
-        overlayEntry = OverlayEntry(
-          builder: (context) => Positioned(
-            top: MediaQuery.of(context).padding.top + 10,
-            left: 12,
-            right: 12,
-            child: Material(
-              color: Colors.transparent,
-              child: Container(
-                padding: EdgeInsets.fromLTRB(20, 16, 20, 16),
-                decoration: BoxDecoration(
-                  // color: Color(0xFFF8D7DA),
-                  color: Colors.red[300],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          title,
-                          SizedBox(height: 4),
-                          message,
-                        ],
-                      ),
+// Define function to show the top snackbar
+    void showTopSnackBar(BuildContext context, Widget title, Widget message) {
+      final overlay = Overlay.of(context);
+      OverlayEntry? overlayEntry;
+
+      overlayEntry = OverlayEntry(
+        builder: (context) => Positioned(
+          top: MediaQuery.of(context).padding.top + 10,
+          left: 12,
+          right: 12,
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              padding: EdgeInsets.fromLTRB(20, 16, 20, 16),
+              decoration: BoxDecoration(
+                color: Colors.red[300],
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        title,
+                        SizedBox(height: 4),
+                        message,
+                      ],
                     ),
-                    IconButton(
-                      // icon: Icon(Icons.close, color: Colors.grey[800]),
-                      icon: Icon(
-                        Icons.close,
-                        color: Colors.grey[900],
-                      ),
-                      onPressed: () {
-                        overlayEntry?.remove();
-                      },
-                    )
-                  ],
-                ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.close, color: Colors.grey[900]),
+                    onPressed: () {
+                      overlayEntry?.remove();
+                    },
+                  )
+                ],
               ),
             ),
           ),
-        );
+        ),
+      );
 
-        overlay.insert(overlayEntry);
-      }
+      overlay.insert(overlayEntry);
+    }
 
-      if (hasMidConfidence && mounted) {
-        showTopSnackBar(
-          this.context,
-          Row(
-            children: [
-              Icon(
-                Icons.warning, // Or use your custom icon widget here
-                color: Colors.red[700],
-                size: 30,
+// Show warning for mid-confidence detections
+    if (hasMidConfidence && mounted) {
+      showTopSnackBar(
+        this.context,
+        Row(
+          children: [
+            Icon(Icons.warning, color: Colors.red[700], size: 30),
+            SizedBox(width: 10),
+            Text(
+              'WARNING:',
+              style: TextStyle(
+                color: Colors.grey[900],
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
               ),
-              SizedBox(width: 10),
-              Text(
-                'WARNING:',
-                style: TextStyle(
-                  // color: Color(0xFF6A1A21),
-                  color: Colors.grey[900],
-                  // color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
+            ),
+          ],
+        ),
+        Text(
+          'There may be objects detected that are not part of the scope!',
+          style: TextStyle(color: Colors.grey[900], fontSize: 18),
+        ),
+      );
+    }
+
+// Show warning for very low-confidence (≤ 0.39)
+    if (hasLowConfidence && mounted) {
+      showTopSnackBar(
+        this.context,
+        Row(
+          children: [
+            Icon(Icons.warning, color: Colors.red[700], size: 30),
+            SizedBox(width: 10),
+            Text(
+              'WARNING:',
+              style: TextStyle(
+                color: Colors.grey[900],
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
               ),
-            ],
-          ),
-          Text(
-            'There may be objects detected that are not part of the scope!',
-            style: TextStyle(color: Colors.grey[900], fontSize: 18),
-          ),
-        );
-      }
+            ),
+          ],
+        ),
+        Text(
+          'No detectable objects matched the expected categories.\n'
+          'Please ensure the object is clearly visible, well-lit, and within the camera frame. Try again!',
+          style: TextStyle(color: Colors.grey[900], fontSize: 18),
+        ),
+      );
     }
 
     setState(() {
@@ -405,52 +449,99 @@ class _PytorchMobileState extends State<PytorchMobile> {
       debugPrint("Result: $result"); // [check structure of: result]
 
       if (result.isSuccess) {
-        // ✅ If selected stock is NOT in the cached stock list, open modal to add it
-        if (!stockList.contains(_selectedStock)) {
-          debugPrint(
-              "🆕 $_selectedStock not found in stock list. Opening modal to add.");
-          _openAddProductModal(
-            context,
-            initialName: _selectedStock,
-            sold: editableBoundingBoxes.length,
-            initialAmount: editableBoundingBoxes.length,
-          );
-          return; // Exit early — let the user add the product before logging
-        }
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Stock and Image saved successfully!")),
+        // Ask user if they are restocking or selling
+        final action = await showDialog<String>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text("What did we count for?"),
+            content:
+                Text("Do you want to count this stock as sold or restocked?"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, "restock"),
+                child:
+                    Text("Restock", style: TextStyle(color: Colors.blue[800])),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, "sell"),
+                child: Text("Sell", style: TextStyle(color: Colors.red[800])),
+              ),
+            ],
+          ),
         );
 
-        // 🔥 Log detected object count to the backend
-        if (_selectedStock == null) {
-          debugPrint("⚠️ No stock selected, skipping log.");
-          String? userId =
-              await SharedPrefsService.getUserId(); // ✅ Directly get the userId
-          if (userId == null) {
-            debugPrint("❌ User ID not found, cannot log data.");
-          }
-
-          if (userId != null) {
-            debugPrint(
-                "📌 Updating Database: USER = $userId, ITEM = $_selectedStock, Count = ${editableBoundingBoxes.length}");
-            var response = await API.logStockCurrentCount(
-              userId,
-              _selectedStock!,
-              editableBoundingBoxes.length, // Detected count
-            );
-
-            if (response != null) {
-              debugPrint("✅ Object count logged: $response");
-            } else {
-              debugPrint("❌ Failed to log object count.");
-            }
-          } else {
-            debugPrint("❌ User ID not found, cannot log data.");
-          }
-        } else {
-          debugPrint("⚠️ No stock selected, skipping log.");
+        // ✅ Safely check if user canceled the dialog
+        if (action == null) {
+          debugPrint("⚠️ Action was cancelled.");
+          return;
         }
+
+        // ✅ If selected stock is NOT in the cached stock list, open modal to add it
+        if (!stockList.contains(_selectedStock)) {
+          debugPrint("🆕 $_selectedStock not found in stock list.");
+
+          if (action == "sell" || action == "restock") {
+            _openSellOrRestockProductModal(
+              context,
+              actionType: action,
+              initialName: _selectedStock,
+              itemCount: editableBoundingBoxes.length,
+              initialAmount: editableBoundingBoxes.length,
+            );
+            return;
+          }
+        }
+
+        // Stock exists — normal flow
+        if (action == "restock") {
+          await _openRestockStockModal(context, _selectedStock!);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Stock restocked and image saved!")),
+          );
+          return;
+        }
+
+        if (action == "sell") {
+          await _openSellStockModal(context, _selectedStock!);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Stock sold and image saved!")),
+          );
+          return;
+        }
+
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(content: Text("Stock and Image saved successfully!")),
+        // );
+
+        // // 🔥 Log detected object count to the backend
+        // if (_selectedStock == null) {
+        //   debugPrint("⚠️ No stock selected, skipping log.");
+        //   String? userId =
+        //       await SharedPrefsService.getUserId(); // ✅ Directly get the userId
+        //   if (userId == null) {
+        //     debugPrint("❌ User ID not found, cannot log data.");
+        //   }
+
+        //   if (userId != null) {
+        //     debugPrint(
+        //         "📌 Updating Database: USER = $userId, ITEM = $_selectedStock, Count = ${editableBoundingBoxes.length}");
+        //     var response = await API.logStockCurrentCount(
+        //       userId,
+        //       _selectedStock!,
+        //       editableBoundingBoxes.length, // Detected count
+        //     );
+
+        //     if (response != null) {
+        //       debugPrint("✅ Object count logged: $response");
+        //     } else {
+        //       debugPrint("❌ Failed to log object count.");
+        //     }
+        //   } else {
+        //     debugPrint("❌ User ID not found, cannot log data.");
+        //   }
+        // } else {
+        //   debugPrint("⚠️ No stock selected, skipping log.");
+        // }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Image not saved")),
@@ -464,96 +555,169 @@ class _PytorchMobileState extends State<PytorchMobile> {
     }
   }
 
-  Future<void> _openAddProductModal(
+  Future<void> _openSellOrRestockProductModal(
     BuildContext context, {
+    required String actionType, // 👈 now passed in directly
     String? initialName,
-    int? sold,
+    int? itemCount,
     int? initialAmount,
   }) async {
     if (_isAddProductModalOpen) return; // Prevent multiple opens
 
-    // Step 1: Ask the user what the action is
-    final result = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text("What did we count for?"),
-        content: Text("Do you want to count this stock as sold or restocked?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, "restock"),
-            child: Text("Restock"),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, "sell"),
-            child: Text("Sell"),
-          ),
-        ],
-      ),
-    );
-
-    if (result == null) return;
-
-    if (result == "restock") {
+    // Otherwise, handle restocking or selling for existing stock
+    if (actionType == "restock") {
       await showModalBottomSheet(
         context: context,
         isScrollControlled: true,
         builder: (modalContext) {
-          return RestockProduct(
-            itemName: initialName ?? "Unnamed",
-            initialAmount: initialAmount ?? 0,
-            onRestock: (restockAmount) async {
+          return AddProduct(
+            initialName: initialName,
+            itemCount: itemCount,
+            stockCounts: stockCounts,
+            onAddStock: (itemName, count) async {
               setState(() {
-                stockCounts[initialName!] = {
-                  "availableStock": restockAmount,
-                  "totalStock": restockAmount,
+                // Update stock with the new count for the item
+                stockCounts[itemName] = {
+                  "availableStock": count,
+                  "totalStock": count,
                   "sold": 0,
                 };
               });
+              // Save updated stock to the database
               await API.saveStockToMongoDB(stockCounts);
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Stock restocked successfully!")),
+                SnackBar(content: Text("Stock added successfully!")),
               );
             },
           );
         },
       );
-      return; // Exit early so we don't show AddNewProduct below
+      return; // Exit early so we don't show the AddNewProduct modal below
     }
 
     _isAddProductModalOpen = true;
-    await showModalBottomSheet(
+    if (actionType == "sell") {
+      await showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (modalContext) {
+          return Padding(
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(modalContext).viewInsets.bottom),
+            child: SingleChildScrollView(
+              child: AddNewProduct(
+                initialName: initialName,
+                itemCount: itemCount,
+                actionType: actionType,
+                onAddStock: (String name, int count, int sold) async {
+                  setState(() {
+                    stockCounts[name] = {
+                      "availableStock": count,
+                      "totalStock": count,
+                      "sold": sold,
+                    };
+                  });
+                  await API.saveStockToMongoDB(stockCounts);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text("Stock and Image saved successfully!")),
+                  );
+                },
+              ),
+            ),
+          );
+        },
+      ).whenComplete(() {
+        _isAddProductModalOpen = false;
+      });
+    }
+  }
+
+  Future<void> _openSellStockModal(BuildContext context, String item) {
+    return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (modalContext) {
+      builder: (_) {
         return Padding(
           padding: EdgeInsets.only(
-              bottom: MediaQuery.of(modalContext).viewInsets.bottom),
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
           child: SingleChildScrollView(
-            child: AddNewProduct(
-              initialName: initialName,
-              initialSold: sold,
-              actionType: result,
-              onAddStock: (String name, int count, int sold) async {
-                setState(() {
-                  stockCounts[name] = {
-                    "availableStock": count,
-                    "totalStock": count,
-                    "sold": sold,
-                  };
-                });
-                await API.saveStockToMongoDB(stockCounts);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content: Text("Stock and Image saved successfully!")),
-                );
+            child: SellProduct(
+              itemName: item,
+              initialAmount: editableBoundingBoxes.length,
+              onSell: (sellAmount) {
+                updateStockForSale(item, sellAmount);
+              },
+              isSelling: true,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void updateStockForSale(String item, int sellAmount) {
+    if (stockCounts.containsKey(item)) {
+      int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
+
+      if (sellAmount > currentAvailableStock) {
+        ScaffoldMessenger.of(this.context).showSnackBar(
+          SnackBar(content: Text('Insufficient stocks to sell')),
+        );
+        return;
+      }
+
+      setState(() {
+        stockCounts[item]?["availableStock"] =
+            currentAvailableStock - sellAmount;
+        stockCounts[item]?["sold"] =
+            (stockCounts[item]?["sold"] ?? 0) + sellAmount;
+        // totalStock stays the same
+      });
+
+      API.saveStockToMongoDB(stockCounts);
+    }
+  }
+
+  Future<void> _openRestockStockModal(BuildContext context, String item) {
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: SingleChildScrollView(
+            child: RestockProduct(
+              itemName: item,
+              initialAmount:
+                  editableBoundingBoxes.length, // ✅ auto-populate here
+              onRestock: (restockAmount) {
+                updateStock(item, restockAmount);
               },
             ),
           ),
         );
       },
-    ).whenComplete(() {
-      _isAddProductModalOpen = false;
-    });
+    );
+  }
+
+  void updateStock(String item, int restockAmount) {
+    if (stockCounts.containsKey(item)) {
+      setState(() {
+        int currentTotalStock = stockCounts[item]?["totalStock"] ?? 0;
+        int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
+
+        stockCounts[item]?["totalStock"] = currentTotalStock + restockAmount;
+        stockCounts[item]?["availableStock"] =
+            currentAvailableStock + restockAmount;
+        // 🔥 sold does NOT change
+      });
+
+      API.saveStockToMongoDB(stockCounts);
+    }
   }
 
   Future<String> getModelPath(String asset) async {
@@ -569,22 +733,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
   }
 
   // END
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  void reset() {
-    setState(() {
-      _selectedImage = null;
-      imageForDrawing = null; // Clear this to prevent null check errors
-      editableBoundingBoxes = []; // Also clear detected objects
-      isAddingBox = false;
-      titleController.clear();
-      timestamp = "";
-    });
-  }
 
   void toggleAddingMode() {
     setState(() {
@@ -641,6 +789,15 @@ class _PytorchMobileState extends State<PytorchMobile> {
           foregroundColor: const Color.fromARGB(255, 255, 255, 255),
           automaticallyImplyLeading: false,
           actions: [
+            IconButton(
+              icon: Icon(Icons.help_outline),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => TutorialDialog(),
+                );
+              },
+            ),
             Builder(
               builder: (context) => IconButton(
                 icon: Icon(Icons.menu),
@@ -888,3 +1045,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
 
 // ABOUT FUTURES and .whenComplete()
 // https://chatgpt.com/share/681ade31-ff18-8000-8a3c-ed9e2bb781d0
+
+// FIX THE RESTOCK AND SELL WHEN SELECTED ITEM IS ALREADY IN THE LIST
+// https://chatgpt.com/share/681bf782-5edc-8000-a65f-da0de57fe2f3
