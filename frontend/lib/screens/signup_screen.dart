@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:snippet_coder_utils/ProgressHUD.dart';
 import 'package:tectags/screens/login_screen.dart';
-import 'package:tectags/screens/navigation/navigation_menu.dart';
 import 'package:tectags/screens/otp/pages/otp_verify.dart';
 import 'package:tectags/screens/otp/services/api_service.dart';
 import 'package:tectags/services/api.dart';

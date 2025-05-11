@@ -1,2 +1,0 @@
-C:/Users/adfinem/Desktop/thesis_prototype_object_counting/frontend/android/app/.cxx/Debug/1i38424n/armeabi-v7a/CMakeFiles/edit_cache.dir
-C:/Users/adfinem/Desktop/thesis_prototype_object_counting/frontend/android/app/.cxx/Debug/1i38424n/armeabi-v7a/CMakeFiles/rebuild_cache.dir

@@ -1,2 +1,0 @@
-C:/Users/adfinem/Documents/Github/thesis_prototype_object_counting/frontend/android/app/.cxx/RelWithDebInfo/134g5v2h/x86_64/CMakeFiles/edit_cache.dir
-C:/Users/adfinem/Documents/Github/thesis_prototype_object_counting/frontend/android/app/.cxx/RelWithDebInfo/134g5v2h/x86_64/CMakeFiles/rebuild_cache.dir

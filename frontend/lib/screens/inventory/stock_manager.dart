@@ -1,6 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:tectags/services/api.dart';
+import 'package:tectags/services/notif_service.dart';
+import 'package:tectags/services/shared_prefs_service.dart';
+import 'package:tectags/utils/stock_notifier.dart';
 import 'package:tectags/widgets/products/add_product.dart';
 import 'package:tectags/widgets/products/restock_product.dart';
 import 'package:tectags/widgets/products/sell_product.dart';
@@ -188,9 +194,45 @@ class _StockManagerState extends State<StockManager> {
         foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
         actions: [
+          IconButton(
+            icon: Icon(Icons.notifications),
+            onPressed: () async {
+              await NotifService().initNotification();
+
+              // Fetch stocks and check their levels when the user presses the notification button
+              final token = await SharedPrefsService.getToken();
+              if (token == null || token.isEmpty) {
+                debugPrint("Token not found.");
+                return;
+              }
+
+              final response = await http.get(
+                Uri.parse('${API.baseUrl}stocks'),
+                headers: {
+                  'Authorization': 'Bearer $token',
+                },
+              );
+
+              if (response.statusCode == 200) {
+                final List<dynamic> stocks = jsonDecode(response.body);
+
+                // Check stock level for each item
+                for (var stock in stocks) {
+                  final int stockAmount = stock['availableStock'];
+                  final String stockName = stock['stockName'];
+
+                  // Trigger stock notifications based on stock levels
+                  StockNotifier.checkStockAndNotify(stockAmount, stockName);
+                }
+              } else {
+                debugPrint(
+                    "Failed to fetch stock list: ${response.statusCode}");
+              }
+            },
+          ),
           Builder(
             builder: (context) => IconButton(
-              icon: const Icon(Icons.menu),
+              icon: Icon(Icons.menu),
               onPressed: () {
                 Scaffold.of(context).openEndDrawer();
               },

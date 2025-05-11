@@ -3,12 +3,12 @@ import 'package:tectags/screens/splash_screen.dart';
 import 'package:tectags/services/notif_service.dart';
 import 'package:tectags/theme/theme.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // initialize notifications
-  NotifService().initNotification();
-  
+  await NotifService().initNotification(); // NOTIFICATIONS
+
   runApp(const MyApp());
 }
 

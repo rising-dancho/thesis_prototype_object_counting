@@ -1,6 +1,6 @@
 {
-    "name": "image_picker_demo",
-    "short_name": "image_picker_demo",
+    "name": "tectags",
+    "short_name": "tectags",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

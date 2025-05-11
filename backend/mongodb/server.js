@@ -311,6 +311,7 @@ app.get('/api/stocks', async (req, res) => {
   const stocks = await Stock.find();
 
   const withSold = stocks.map((stock) => ({
+    _id: stock._id,
     stockName: stock.stockName,
     totalStock: stock.totalStock,
     availableStock: stock.availableStock,

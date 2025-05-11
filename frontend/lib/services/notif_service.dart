@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotifService {
@@ -5,24 +6,30 @@ class NotifService {
   static final NotifService _instance = NotifService._privateConstructor();
   factory NotifService() => _instance;
 
-  final notificationsPlugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin notificationsPlugin =
+      FlutterLocalNotificationsPlugin();
 
   bool _isInitialized = false;
-  bool get isInitialized => _isInitialized;
 
   Future<void> initNotification() async {
     if (_isInitialized) return;
 
-    const defaultIcon = "@mipmap/ic_launcher";
-    const initSettingsAndroid = AndroidInitializationSettings(defaultIcon);
+    const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const initSettings = InitializationSettings(android: androidInit);
 
-    const initSettings = InitializationSettings(android: initSettingsAndroid);
     await notificationsPlugin.initialize(initSettings);
+
+    // ✅ Correct and required for Android 13+
+    final androidImpl =
+        notificationsPlugin.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+    final granted = await androidImpl?.requestNotificationsPermission() ?? true;
+    debugPrint("Android notifications granted: $granted");
 
     _isInitialized = true;
   }
 
-  NotificationDetails notificationDetails() {
+  NotificationDetails _notificationDetails() {
     return const NotificationDetails(
       android: AndroidNotificationDetails(
         "daily_channel_id",
@@ -39,6 +46,6 @@ class NotifService {
     String? title,
     String? body,
   }) async {
-    return notificationsPlugin.show(id, title, body, notificationDetails());
+    await notificationsPlugin.show(id, title, body, _notificationDetails());
   }
 }

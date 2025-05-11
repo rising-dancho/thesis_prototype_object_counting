@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tectags/services/notif_service.dart';
+import 'package:tectags/services/shared_prefs_service.dart';
 import 'package:tectags/utils/label_formatter.dart';
 import 'package:tectags/utils/stock_notifier.dart';
 
@@ -20,16 +20,31 @@ class API {
       "https://thesis-prototype-object-counting.vercel.app/api/";
   // static const baseUrl = "https://fix-inventory.vercel.app/api/";
 
-  Future<void> fetchStockAndCheck(String id) async {
-    final response = await http.get(Uri.parse('${baseUrl}stock/$id'), headers: {
-      'Authorization': 'Bearer your_token',
-    });
+  static Future<void> fetchStockAndCheck(String id) async {
+    // Fetch token from Shared Preferences
+    final token = await SharedPrefsService.getToken();
+
+    // Check if token is valid
+    if (token == null || token.isEmpty) {
+      print("No valid token found");
+      return;
+    }
+
+    // Make API call with Authorization header
+    final response = await http.get(
+      Uri.parse('${API.baseUrl}stocks/$id'), // dynamic stock ID
+      headers: {
+        'Authorization': 'Bearer $token', // pass token in header
+      },
+    );
 
     if (response.statusCode == 200) {
+      // Parse response and extract necessary data
       final data = jsonDecode(response.body);
       int stockAmount = data['availableStock'];
-      String stockName = data['stockName']; // ✅ Extract stock name
-      checkStockAndNotify(stockAmount, stockName);
+      String stockName = data['stockName']; // Extract stock name
+      StockNotifier.checkStockAndNotify(
+          stockAmount, stockName); // Call notification method
     } else {
       print("Failed to fetch stock data");
     }
