@@ -39,7 +39,7 @@ class SplashScreenState extends State<SplashScreen>
     });
 
     // Fetch stock and check levels when the splash screen is loaded
-    _initializeApp();
+    _checkStockLevels();
   }
 
   @override
@@ -48,7 +48,7 @@ class SplashScreenState extends State<SplashScreen>
     super.dispose();
   }
 
-  Future<void> _initializeApp() async {
+  Future<void> _checkStockLevels() async {
     try {
       final token = await SharedPrefsService.getToken();
       if (token == null || token.isEmpty) {
