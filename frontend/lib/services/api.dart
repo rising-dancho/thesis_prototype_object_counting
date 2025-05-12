@@ -42,9 +42,10 @@ class API {
       // Parse response and extract necessary data
       final data = jsonDecode(response.body);
       int stockAmount = data['availableStock'];
+      int totalStock = data['totalStock']; // Extract stock name
       String stockName = data['stockName']; // Extract stock name
       StockNotifier.checkStockAndNotify(
-          stockAmount, stockName); // Call notification method
+          stockAmount, totalStock, stockName); // Call notification method
     } else {
       print("Failed to fetch stock data");
     }

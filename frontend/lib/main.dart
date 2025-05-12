@@ -29,21 +29,20 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    StockCheckService.checkStocks(); // Initial check when app opens
     startPeriodicStockCheck(); // Optional timer-based check
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      StockCheckService
-          .checkStocks(); // Check when app comes back from background
-    }
-  }
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) {
+  //   if (state == AppLifecycleState.resumed) {
+  //     StockCheckService
+  //         .checkStocks(); // Check when app comes back from background
+  //   }
+  // }
 
   void startPeriodicStockCheck() {
     _stockTimer?.cancel();
-    _stockTimer = Timer.periodic(Duration(minutes: 30), (_) {
+    _stockTimer = Timer.periodic(Duration(minutes: 60), (_) {
       StockCheckService.checkStocks();
     });
   }

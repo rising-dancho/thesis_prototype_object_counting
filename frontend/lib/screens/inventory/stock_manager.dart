@@ -1,13 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:tectags/services/api.dart';
-import 'package:tectags/services/notif_service.dart';
-import 'package:tectags/services/shared_prefs_service.dart';
 import 'package:tectags/services/stock_check_service.dart';
-import 'package:tectags/utils/stock_notifier.dart';
 import 'package:tectags/widgets/products/add_product.dart';
 import 'package:tectags/widgets/products/restock_product.dart';
 import 'package:tectags/widgets/products/sell_product.dart';
