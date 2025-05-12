@@ -50,6 +50,49 @@ class API {
     }
   }
 
+  static Future<Map<String, Map<String, int>>?> fetchStockFromMongoDB() async {
+    try {
+      var response = await http.get(Uri.parse("${baseUrl}stocks"));
+
+      debugPrint("Stock API Response: ${response.body}");
+
+      if (response.statusCode == 200) {
+        List<dynamic> jsonData = jsonDecode(response.body);
+
+        Map<String, Map<String, int>> stockData = {};
+        for (var item in jsonData) {
+          if (item.containsKey("stockName") &&
+              item.containsKey("availableStock") &&
+              item.containsKey("totalStock")) {
+            // ✅ No longer requiring "sold"
+
+            String itemName = item["stockName"];
+            int availableStock = item["availableStock"] ?? 0;
+            int totalStock = item["totalStock"] ?? 0;
+            int sold = item.containsKey("sold")
+                ? item["sold"] ?? 0
+                : 0; // ✅ Handle missing "sold"
+
+            stockData[itemName] = {
+              "availableStock": availableStock,
+              "totalStock": totalStock,
+              "sold": sold, // ✅ Ensures "sold" exists
+            };
+          }
+        }
+
+        debugPrint("Fetched Stock Data with Sold: $stockData");
+        return stockData;
+      } else {
+        debugPrint("Failed to fetch stock: ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      debugPrint("Error fetching stock: $e");
+      return null;
+    }
+  }
+
   static Future<Map<String, dynamic>?> logStockCurrentCount(
       String userId, String stockItem, int sold) async {
     var url = Uri.parse("${baseUrl}count_objects");
@@ -170,49 +213,6 @@ class API {
       }
     } catch (error) {
       debugPrint("⚠️ Error during restocking: $error");
-      return null;
-    }
-  }
-
-  static Future<Map<String, Map<String, int>>?> fetchStockFromMongoDB() async {
-    try {
-      var response = await http.get(Uri.parse("${baseUrl}stocks"));
-
-      debugPrint("Stock API Response: ${response.body}");
-
-      if (response.statusCode == 200) {
-        List<dynamic> jsonData = jsonDecode(response.body);
-
-        Map<String, Map<String, int>> stockData = {};
-        for (var item in jsonData) {
-          if (item.containsKey("stockName") &&
-              item.containsKey("availableStock") &&
-              item.containsKey("totalStock")) {
-            // ✅ No longer requiring "sold"
-
-            String itemName = item["stockName"];
-            int availableStock = item["availableStock"] ?? 0;
-            int totalStock = item["totalStock"] ?? 0;
-            int sold = item.containsKey("sold")
-                ? item["sold"] ?? 0
-                : 0; // ✅ Handle missing "sold"
-
-            stockData[itemName] = {
-              "availableStock": availableStock,
-              "totalStock": totalStock,
-              "sold": sold, // ✅ Ensures "sold" exists
-            };
-          }
-        }
-
-        debugPrint("Fetched Stock Data with Sold: $stockData");
-        return stockData;
-      } else {
-        debugPrint("Failed to fetch stock: ${response.body}");
-        return null;
-      }
-    } catch (e) {
-      debugPrint("Error fetching stock: $e");
       return null;
     }
   }

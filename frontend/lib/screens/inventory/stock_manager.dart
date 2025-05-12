@@ -27,6 +27,7 @@ class _StockManagerState extends State<StockManager> {
   void initState() {
     super.initState();
     fetchStockData();
+    // checkStocks(); // Trigger fresh stock check when inventory screen opens
   }
 
   void _openAddProductModal(BuildContext context) {

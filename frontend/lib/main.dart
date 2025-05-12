@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:tectags/screens/splash_screen.dart';
 import 'package:tectags/services/notif_service.dart';
@@ -12,8 +14,44 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  Timer? _stockTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    // checkStocks(); // Initial check when app opens
+    // startPeriodicStockCheck(); // Optional timer-based check
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // checkStocks(); // Check when app comes back from background
+    }
+  }
+
+  void startPeriodicStockCheck() {
+    _stockTimer?.cancel();
+    _stockTimer = Timer.periodic(Duration(minutes: 10), (_) {
+      // checkStocks();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _stockTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
