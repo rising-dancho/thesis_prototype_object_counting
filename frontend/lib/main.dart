@@ -42,7 +42,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   void startPeriodicStockCheck() {
     _stockTimer?.cancel();
-    _stockTimer = Timer.periodic(Duration(minutes: 60), (_) {
+    _stockTimer = Timer.periodic(Duration(minutes: (60*6)), (_) {
       StockCheckService.checkStocks();
     });
   }

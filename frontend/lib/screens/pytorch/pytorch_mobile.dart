@@ -22,6 +22,7 @@ import 'package:intl/intl.dart';
 // PYTORCH
 import 'package:pytorch_lite/pytorch_lite.dart';
 import 'package:tectags/utils/label_formatter.dart';
+import 'package:tectags/utils/stock_notifier.dart';
 // import 'package:tectags/utils/sell_restock_helper.dart';
 import 'package:tectags/widgets/products/add_new_product.dart';
 import 'package:tectags/widgets/products/add_product.dart';
@@ -659,6 +660,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
   void updateStockForSale(String item, int sellAmount) {
     if (stockCounts.containsKey(item)) {
       int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
+      int totalStock = stockCounts[item]?["totalStock"] ?? 0;
 
       if (sellAmount > currentAvailableStock) {
         ScaffoldMessenger.of(this.context).showSnackBar(
@@ -672,10 +674,26 @@ class _PytorchMobileState extends State<PytorchMobile> {
             currentAvailableStock - sellAmount;
         stockCounts[item]?["sold"] =
             (stockCounts[item]?["sold"] ?? 0) + sellAmount;
-        // totalStock stays the same
       });
 
+      int updatedStock = stockCounts[item]?["availableStock"] ?? 0;
+
+      ScaffoldMessenger.of(this.context).showSnackBar(
+        SnackBar(
+          content:
+              Text('Sold $sellAmount $item(s). Remaining stock: $updatedStock'),
+        ),
+      );
+
+      // 🔄 Save updated stock to DB
       API.saveStockToMongoDB(stockCounts);
+
+      // ✅ Call centralized stock checker
+      StockNotifier.checkStockAndNotify(
+        updatedStock,
+        totalStock,
+        item,
+      );
     }
   }
 

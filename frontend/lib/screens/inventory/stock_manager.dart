@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:tectags/services/api.dart';
 import 'package:tectags/services/stock_check_service.dart';
+import 'package:tectags/utils/stock_notifier.dart';
 import 'package:tectags/widgets/products/add_product.dart';
 import 'package:tectags/widgets/products/restock_product.dart';
 import 'package:tectags/widgets/products/sell_product.dart';
@@ -79,6 +80,7 @@ class _StockManagerState extends State<StockManager> {
   void updateStockForSale(String item, int sellAmount) {
     if (stockCounts.containsKey(item)) {
       int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
+      int totalStock = stockCounts[item]?["totalStock"] ?? 0;
 
       if (sellAmount > currentAvailableStock) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -92,10 +94,26 @@ class _StockManagerState extends State<StockManager> {
             currentAvailableStock - sellAmount;
         stockCounts[item]?["sold"] =
             (stockCounts[item]?["sold"] ?? 0) + sellAmount;
-        // totalStock stays the same
       });
 
+      int updatedStock = stockCounts[item]?["availableStock"] ?? 0;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content:
+              Text('Sold $sellAmount $item(s). Remaining stock: $updatedStock'),
+        ),
+      );
+
+      // 🔄 Save updated stock to DB
       API.saveStockToMongoDB(stockCounts);
+
+      // ✅ Call centralized stock checker
+      StockNotifier.checkStockAndNotify(
+        updatedStock,
+        totalStock,
+        item,
+      );
     }
   }
 

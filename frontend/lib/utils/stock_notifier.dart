@@ -52,7 +52,6 @@ class StockNotifier {
   }
 }
 
-
 // import 'package:tectags/services/notif_service.dart';
 
 // class StockNotifier {
