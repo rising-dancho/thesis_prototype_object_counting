@@ -601,31 +601,34 @@ class _PytorchMobileState extends State<PytorchMobile> {
         context: context,
         isScrollControlled: true,
         builder: (modalContext) {
-          return Padding(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(modalContext).viewInsets.bottom),
-            child: SingleChildScrollView(
-              child: AddNewProduct(
-                initialName: initialName,
-                itemCount: itemCount,
-                actionType: actionType,
-                onAddStock: (String name, int count, int sold) async {
-                  setState(() {
-                    stockCounts[name] = {
-                      "availableStock": count,
-                      "totalStock": count,
-                      "sold": sold,
-                    };
-                  });
-                  await API.saveStockToMongoDB(stockCounts);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text("Stock and Image saved successfully!")),
-                  );
-                },
-              ),
-            ),
+          return
+              // STRETCHES FULL SCREEN
+              // Padding(
+              //   padding: EdgeInsets.only(
+              //       bottom: MediaQuery.of(modalContext).viewInsets.bottom),
+              //   child: SingleChildScrollView(
+              //     child:
+
+              AddNewProduct(
+            initialName: initialName,
+            itemCount: itemCount,
+            actionType: actionType,
+            onAddStock: (String name, int count, int sold) async {
+              setState(() {
+                stockCounts[name] = {
+                  "availableStock": count,
+                  "totalStock": count,
+                  "sold": sold,
+                };
+              });
+              await API.saveStockToMongoDB(stockCounts);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Stock and Image saved successfully!")),
+              );
+            },
           );
+          //   ),
+          // );
         },
       ).whenComplete(() {
         _isAddProductModalOpen = false;
