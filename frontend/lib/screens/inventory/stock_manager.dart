@@ -166,9 +166,14 @@ class _StockManagerState extends State<StockManager> {
     debugPrint("STOCK COUNTS Data: $stockCounts");
 
     if (data == null) {
-      debugPrint("⚠️ No stock data fetshed.");
+      debugPrint("⚠️ No stock data fetched.");
       return; // Exit early if data is null
     }
+
+    // Optional: print each stock item
+    data.forEach((key, value) {
+      debugPrint("PRICE HERE!!: $key => $value");
+    });
 
     if (mounted) {
       setState(() {
@@ -176,6 +181,7 @@ class _StockManagerState extends State<StockManager> {
               "availableStock": value["availableStock"] ?? 0,
               "totalStock": value["totalStock"] ?? 0,
               "sold": value["sold"] ?? 0,
+              "price": value["unitPrice"] ?? 0.0, // PRICE
             }));
       });
       debugPrint("Updated StockCounts: $stockCounts");
@@ -376,12 +382,39 @@ class _StockManagerState extends State<StockManager> {
                                   ),
                                   Padding(
                                     padding: EdgeInsets.only(right: 15),
-                                    child: Text("Total: $totalStock",
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          // fontWeight: FontWeight.w500,
-                                          color: Colors.grey[700],
-                                        )),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "",
+                                              textAlign: TextAlign.start,
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.grey[800],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Text("Total: $totalStock",
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey[700],
+                                            )),
+                                        SizedBox(height: 4),
+                                        Text(
+                                            "₱${stockCounts[item]?["price"]?.toStringAsFixed(2) ?? '0.00'}",
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey[700],
+                                            )),
+                                      ],
+                                    ),
                                   ),
                                   PopupMenuButton<String>(
                                     icon: Icon(Icons.more_horiz),

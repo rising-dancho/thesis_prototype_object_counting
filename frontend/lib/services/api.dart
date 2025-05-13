@@ -93,12 +93,14 @@ class API {
             int sold = item.containsKey("sold")
                 ? item["sold"] ?? 0
                 : 0; // ✅ Handle missing "sold"
+            double price = (item["unitPrice"] ?? 0).toDouble();
 
             stockData[itemName] = {
               "_id": id, // ✅ Include ID
               "availableStock": availableStock,
               "totalStock": totalStock,
               "sold": sold, // ✅ Ensures "sold" exists
+              "unitPrice": price, // ✅ PRICE
             };
           }
         }
