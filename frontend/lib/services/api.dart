@@ -60,7 +60,23 @@ class API {
       debugPrint("Stock API Response: ${response.body}");
 
       if (response.statusCode == 200) {
-        List<dynamic> jsonData = jsonDecode(response.body);
+        final decoded = jsonDecode(response.body);
+
+        // RESPONSE SHAPE RIGHT NOW AFTER ADDING PRICE:
+        // {
+        //   "items": [ /* list of stocks */ ],
+        //   "summary": {
+        //     "totalSold": 100,
+        //     "totalEarnings": 5000
+        //   }
+        // }
+
+        // ✅ Extract the actual stock list from 'items'
+        List<dynamic> jsonData = decoded['items'];
+
+        // ACCESSING SUMMARY:
+        // int totalSold = decoded['summary']['totalSold'];
+        // double totalEarnings = decoded['summary']['totalEarnings'].toDouble();
 
         Map<String, Map<String, dynamic>> stockData = {};
         for (var item in jsonData) {
