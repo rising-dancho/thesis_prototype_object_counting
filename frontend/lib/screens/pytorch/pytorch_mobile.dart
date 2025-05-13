@@ -74,7 +74,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
   List<String> stockList = []; // Your fixed list
   List<String> detectedStockList = []; // Dynamic from detection
   List<String> allStocks = []; // Merged unique values
-  Map<String, Map<String, int>> stockCounts = {};
+  Map<String, Map<String, dynamic>> stockCounts = {};
 
   // PREVENT MULTIPLE REENTRY FOR OPENING ADD PRODUCT MODAL
   bool _isAddProductModalOpen = false;
@@ -613,12 +613,13 @@ class _PytorchMobileState extends State<PytorchMobile> {
             initialName: initialName,
             itemCount: itemCount,
             actionType: actionType,
-            onAddStock: (String name, int count, int sold) async {
+            onAddStock: (String name, int count, int sold, double price) async {
               setState(() {
                 stockCounts[name] = {
                   "availableStock": count,
                   "totalStock": count,
                   "sold": sold,
+                  "price": price,
                 };
               });
               await API.saveStockToMongoDB(stockCounts);
@@ -1070,3 +1071,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
 
 // FIX THE RESTOCK AND SELL WHEN SELECTED ITEM IS ALREADY IN THE LIST
 // https://chatgpt.com/share/681bf782-5edc-8000-a65f-da0de57fe2f3
+
+// (FIX THIS) UPDATE THE stockCount Maps to make use of the stockdata_model FOR LONG TERM TYPING FIX instead of setting the Map to dynamic: eg. like this: Map<String, Map<String, StockData>> stockCounts = {};
+// https://chatgpt.com/share/68238d44-4950-8000-8ef4-4e71aaec7f3a

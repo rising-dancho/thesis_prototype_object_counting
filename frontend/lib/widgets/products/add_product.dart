@@ -4,7 +4,7 @@ import 'package:tectags/utils/label_formatter.dart';
 class AddProduct extends StatefulWidget {
   final String? initialName;
   final int? itemCount;
-  final Map<String, Map<String, int>> stockCounts;
+  final Map<String, Map<String, dynamic>> stockCounts;
   final void Function(String name, int count) onAddStock;
 
   const AddProduct({

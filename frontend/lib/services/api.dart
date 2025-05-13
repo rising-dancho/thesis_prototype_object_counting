@@ -164,7 +164,7 @@ class API {
   }
 
   static Future<SaveResult> saveStockToMongoDB(
-      Map<String, Map<String, int>> stockCounts) async {
+      Map<String, Map<String, dynamic>> stockCounts) async {
     try {
       List<Map<String, dynamic>> formattedStocks =
           stockCounts.entries.map((entry) {
@@ -173,6 +173,7 @@ class API {
           "totalStock": entry.value["totalStock"] ?? 0,
           "sold": entry.value["sold"] ?? 0,
           "availableStock": entry.value["availableStock"] ?? 0,
+          "unitPrice": entry.value["price"] ?? 0.0, // PRICE
         };
       }).toList();
 

@@ -213,6 +213,7 @@ app.post('/api/update/sold', async (req, res) => {
           totalStock: stockItem.totalStock,
 
           availableStock: stockItem.totalStock - (stockItem.sold ?? 0), // Ensure availableStock updates
+          unitPrice: stockItem.unitPrice ?? 0, // PRICE
         },
         { upsert: true, new: true }
       );
