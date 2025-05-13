@@ -581,8 +581,7 @@ class _StockManagerState extends State<StockManager> {
                                         value: 'delete',
                                         child: Container(
                                           decoration: BoxDecoration(
-                                            color: Colors.red[
-                                                50], // light red background for delete
+                                            color: Colors.red[50],
                                             borderRadius:
                                                 BorderRadius.circular(5),
                                           ),
@@ -590,9 +589,18 @@ class _StockManagerState extends State<StockManager> {
                                               vertical: 8, horizontal: 4),
                                           child: Row(
                                             children: [
-                                              Icon(Icons.delete_rounded,
-                                                  color: Colors.red[400]),
-                                              SizedBox(width: 7),
+                                              SizedBox(width: 4),
+                                              SvgPicture.asset(
+                                                'assets/icons/trash.svg',
+                                                width: 20,
+                                                height: 20,
+                                                colorFilter: ColorFilter.mode(
+                                                  Colors.red[
+                                                      400]!, // Use bang operator (!) since deepOrange[400] returns a Color?
+                                                  BlendMode.srcIn,
+                                                ),
+                                              ),
+                                              SizedBox(width: 8),
                                               Text('Delete',
                                                   style: TextStyle(
                                                     fontFamily: 'Roboto',
