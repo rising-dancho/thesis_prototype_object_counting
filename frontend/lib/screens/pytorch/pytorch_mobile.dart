@@ -576,11 +576,11 @@ class _PytorchMobileState extends State<PytorchMobile> {
             stockCounts: stockCounts,
             onAddStock: (itemName, count, double price) async {
               setState(() {
-                // Update stock with the new count for the item
+                final existingStock = stockCounts[itemName] ?? {};
                 stockCounts[itemName] = {
                   "availableStock": count,
                   "totalStock": count,
-                  "sold": 0,
+                  "sold": existingStock["sold"] ?? 0,
                   "price": price,
                 };
               });
