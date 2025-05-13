@@ -32,9 +32,9 @@ class NotifService {
   NotificationDetails _notificationDetails() {
     return const NotificationDetails(
       android: AndroidNotificationDetails(
-        "daily_channel_id",
-        "Daily Notifications",
-        channelDescription: "Daily Notification Channel",
+        'stock_channel',
+        'Stock Alerts',
+        channelDescription: 'Notifications for stock thresholds',
         importance: Importance.max,
         priority: Priority.high,
       ),
@@ -42,9 +42,9 @@ class NotifService {
   }
 
   Future<void> showNotification({
-    int id = 0,
-    String? title,
-    String? body,
+    required int id,
+    required String title,
+    required String body,
   }) async {
     await notificationsPlugin.show(id, title, body, _notificationDetails());
   }

@@ -44,14 +44,16 @@ class API {
       int stockAmount = data['availableStock'];
       int totalStock = data['totalStock']; // Extract stock name
       String stockName = data['stockName']; // Extract stock name
-      StockNotifier.checkStockAndNotify(
-          stockAmount, totalStock, stockName); // Call notification method
+      String stockId = data['_id']; // Extract stock id
+      StockNotifier.checkStockAndNotify(stockAmount, totalStock, stockName,
+          stockId); // Call notification method
     } else {
       print("Failed to fetch stock data");
     }
   }
 
-  static Future<Map<String, Map<String, int>>?> fetchStockFromMongoDB() async {
+  static Future<Map<String, Map<String, dynamic>>?>
+      fetchStockFromMongoDB() async {
     try {
       var response = await http.get(Uri.parse("${baseUrl}stocks"));
 
@@ -60,14 +62,16 @@ class API {
       if (response.statusCode == 200) {
         List<dynamic> jsonData = jsonDecode(response.body);
 
-        Map<String, Map<String, int>> stockData = {};
+        Map<String, Map<String, dynamic>> stockData = {};
         for (var item in jsonData) {
           if (item.containsKey("stockName") &&
               item.containsKey("availableStock") &&
-              item.containsKey("totalStock")) {
+              item.containsKey("totalStock") &&
+              item.containsKey("_id")) {
             // ✅ No longer requiring "sold"
 
             String itemName = item["stockName"];
+            String id = item["_id"].toString(); // 🔹 Convert ObjectId to string
             int availableStock = item["availableStock"] ?? 0;
             int totalStock = item["totalStock"] ?? 0;
             int sold = item.containsKey("sold")
@@ -75,14 +79,14 @@ class API {
                 : 0; // ✅ Handle missing "sold"
 
             stockData[itemName] = {
+              "_id": id, // ✅ Include ID
               "availableStock": availableStock,
               "totalStock": totalStock,
               "sold": sold, // ✅ Ensures "sold" exists
             };
           }
         }
-
-        debugPrint("Fetched Stock Data with Sold: $stockData");
+        debugPrint("Fetched Stock Data with ID and Sold: $stockData");
         return stockData;
       } else {
         debugPrint("Failed to fetch stock: ${response.body}");

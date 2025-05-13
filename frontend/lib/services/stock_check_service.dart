@@ -11,9 +11,10 @@ class StockCheckService {
         String stockName = entry.key;
         int availableStock = entry.value["availableStock"] ?? 0;
         int totalStock = entry.value["totalStock"] ?? 0;
+        String stockId = entry.value["_id"].toString(); // 👈 Extract ID safely
 
         StockNotifier.checkStockAndNotify(
-            availableStock, totalStock, stockName);
+            availableStock, totalStock, stockName, stockId);
       }
     } else {
       debugPrint("Failed to fetch stock data.");
