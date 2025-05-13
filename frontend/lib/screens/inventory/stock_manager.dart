@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:tectags/services/api.dart';
 import 'package:tectags/services/stock_check_service.dart';
@@ -423,6 +424,8 @@ class _StockManagerState extends State<StockManager> {
                                         _openRestockStockModal(context, item);
                                       } else if (value == 'sell') {
                                         _openSellStockModal(context, item);
+                                      } else if (value == 'price') {
+                                        _openSellStockModal(context, item);
                                       } else if (value == 'delete') {
                                         showDialog(
                                           context: context,
@@ -519,6 +522,40 @@ class _StockManagerState extends State<StockManager> {
                                         ),
                                       ),
                                       PopupMenuItem(
+                                        value: 'price',
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.deepOrange[50],
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 8, horizontal: 4),
+                                          child: Row(
+                                            children: [
+                                              SizedBox(width: 4),
+                                              SvgPicture.asset(
+                                                'assets/icons/money.svg',
+                                                width: 18,
+                                                height: 18,
+                                                colorFilter: ColorFilter.mode(
+                                                  Colors.deepOrange[
+                                                      400]!, // Use bang operator (!) since deepOrange[400] returns a Color?
+                                                  BlendMode.srcIn,
+                                                ),
+                                              ),
+                                              SizedBox(width: 8),
+                                              Text('Price',
+                                                  style: TextStyle(
+                                                    fontFamily: 'Roboto',
+                                                    // fontSize: 15.0,
+                                                    fontWeight: FontWeight.w400,
+                                                  )),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      PopupMenuItem(
                                         value: 'delete',
                                         child: Container(
                                           decoration: BoxDecoration(
@@ -533,7 +570,7 @@ class _StockManagerState extends State<StockManager> {
                                             children: [
                                               Icon(Icons.delete_rounded,
                                                   color: Colors.red[400]),
-                                              SizedBox(width: 8),
+                                              SizedBox(width: 7),
                                               Text('Delete',
                                                   style: TextStyle(
                                                     fontFamily: 'Roboto',
