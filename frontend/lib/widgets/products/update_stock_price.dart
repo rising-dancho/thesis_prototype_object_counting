@@ -1,55 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:tectags/services/api.dart';
 
-class SellProduct extends StatefulWidget {
+class UpdateStockPriceDialog extends StatefulWidget {
   final String itemName;
-  final bool isSelling;
-  final int initialAmount;
-  final Function(int sellAmount) onSell;
+  final double initialPrice;
+  final Function(double newPrice) onPriceUpdated;
 
-  const SellProduct({
+  const UpdateStockPriceDialog({
     super.key,
     required this.itemName,
-    this.isSelling = false,
-    this.initialAmount = 0,
-    required this.onSell,
+    required this.initialPrice,
+    required this.onPriceUpdated,
   });
 
   @override
-  State<SellProduct> createState() => _SellProductState();
+  State<UpdateStockPriceDialog> createState() => _UpdateStockPriceDialogState();
 }
 
-class _SellProductState extends State<SellProduct> {
-  late TextEditingController _sellController;
+class _UpdateStockPriceDialogState extends State<UpdateStockPriceDialog> {
+  late TextEditingController _priceController;
   bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _sellController = TextEditingController(
-      text: widget.initialAmount.toString(), // ✅ no need for null check
+    _priceController = TextEditingController(
+      text: widget.initialPrice.toStringAsFixed(2),
     );
   }
 
   @override
   void dispose() {
-    _sellController.dispose();
+    _priceController.dispose();
     super.dispose();
   }
 
-  void restockItem() {
-    int? sellAmount = int.tryParse(_sellController.text.trim());
-    if (sellAmount != null && sellAmount > 0) {
-      setState(() {
-        isLoading = true;
-      });
+  void updatePrice() async {
+    double? newPrice = double.tryParse(_priceController.text.trim());
+    if (newPrice != null && newPrice >= 0) {
+      setState(() => isLoading = true);
 
-      // Call the passed callback
-      widget.onSell(sellAmount);
+      bool success = await API.updateStockPrice(widget.itemName, newPrice);
+      if (success) {
+        widget.onPriceUpdated(newPrice);
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update price')),
+        );
+      }
 
-      Navigator.pop(context);
+      setState(() => isLoading = false);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please enter a valid positive number')),
+        SnackBar(content: Text('Enter a valid price')),
       );
     }
   }
@@ -70,39 +74,26 @@ class _SellProductState extends State<SellProduct> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Sell ${widget.itemName}',
+                'Update Price for ${widget.itemName}',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 28,
+                  fontSize: 24,
                   color: Colors.grey[800],
                 ),
               ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: IconButton(
-                  icon: Icon(Icons.close),
-                  color: Colors.grey[700],
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
+              IconButton(
+                icon: Icon(Icons.close),
+                onPressed: () => Navigator.pop(context),
               ),
             ],
           ),
           const SizedBox(height: 12),
           TextField(
-            controller: _sellController,
-            keyboardType: TextInputType.number,
+            controller: _priceController,
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
-              labelText: "Enter amount to sell",
-              labelStyle: TextStyle(
-                color: Colors.grey[700], // default color
-              ),
-              hintText: "e.g. 50",
-              hintStyle: const TextStyle(color: Colors.black26),
+              labelText: "Enter new price",
+              hintText: "e.g. 120.50",
               filled: true,
               fillColor: Colors.grey[200],
               border: InputBorder.none,
@@ -112,7 +103,7 @@ class _SellProductState extends State<SellProduct> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: isLoading ? null : restockItem,
+              onPressed: isLoading ? null : updatePrice,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 22, 165, 221),
                 foregroundColor: Colors.white,

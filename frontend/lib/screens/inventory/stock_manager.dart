@@ -7,6 +7,7 @@ import 'package:tectags/utils/stock_notifier.dart';
 import 'package:tectags/widgets/products/add_product.dart';
 import 'package:tectags/widgets/products/restock_product.dart';
 import 'package:tectags/widgets/products/sell_product.dart';
+import 'package:tectags/widgets/products/update_stock_price.dart';
 
 class StockManager extends StatefulWidget {
   const StockManager({super.key});
@@ -119,6 +120,24 @@ class _StockManagerState extends State<StockManager> {
         stockId,
       );
     }
+  }
+
+  void _openUpdatePriceModal(
+      BuildContext context, String item, double currentPrice) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) {
+        return UpdateStockPriceDialog(
+          itemName: item,
+          initialPrice: currentPrice,
+          onPriceUpdated: (newPrice) {
+            // Handle any UI updates or state changes here if needed
+            debugPrint("Updated price for $item: ₱$newPrice");
+          },
+        );
+      },
+    );
   }
 
   void _openRestockStockModal(BuildContext context, String item) {
@@ -425,7 +444,10 @@ class _StockManagerState extends State<StockManager> {
                                       } else if (value == 'sell') {
                                         _openSellStockModal(context, item);
                                       } else if (value == 'price') {
-                                        _openSellStockModal(context, item);
+                                        double currentPrice =
+                                            stockCounts[item]?["price"] ?? 0.0;
+                                        _openUpdatePriceModal(
+                                            context, item, currentPrice);
                                       } else if (value == 'delete') {
                                         showDialog(
                                           context: context,

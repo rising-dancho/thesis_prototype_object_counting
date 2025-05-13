@@ -20,6 +20,31 @@ class API {
       "https://thesis-prototype-object-counting.vercel.app/api/";
   // static const baseUrl = "https://fix-inventory.vercel.app/api/";
 
+  static Future<bool> updateStockPrice(
+      String stockName, double unitPrice) async {
+    try {
+      final response = await http.post(
+        Uri.parse("${baseUrl}stocks/update-price"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "stockName": stockName,
+          "unitPrice": unitPrice,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        debugPrint("Price updated successfully: ${response.body}");
+        return true;
+      } else {
+        debugPrint("Failed to update price: ${response.body}");
+        return false;
+      }
+    } catch (e) {
+      debugPrint("Error updating price: $e");
+      return false;
+    }
+  }
+
   static Future<void> fetchStockAndCheck(String id) async {
     // Fetch token from Shared Preferences
     final token = await SharedPrefsService.getToken();
