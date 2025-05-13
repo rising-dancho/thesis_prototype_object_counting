@@ -132,7 +132,11 @@ class _StockManagerState extends State<StockManager> {
           itemName: item,
           initialPrice: currentPrice,
           onPriceUpdated: (newPrice) {
-            // Handle any UI updates or state changes here if needed
+            setState(() {
+              if (stockCounts.containsKey(item)) {
+                stockCounts[item]!["price"] = newPrice;
+              }
+            });
             debugPrint("Updated price for $item: ₱$newPrice");
           },
         );

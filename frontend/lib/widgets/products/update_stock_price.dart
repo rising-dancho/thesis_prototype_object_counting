@@ -116,7 +116,7 @@ class _UpdateStockPriceDialogState extends State<UpdateStockPriceDialog> {
               child: isLoading
                   ? CircularProgressIndicator(color: Colors.white)
                   : Text(
-                      'SELL',
+                      'UPDATE',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'Roboto',
