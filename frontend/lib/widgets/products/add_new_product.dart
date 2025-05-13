@@ -61,6 +61,8 @@ class _AddNewProductState extends State<AddNewProduct> {
     if (itemName.isNotEmpty && itemCount != null && price != null) {
       int itemSold = int.tryParse(soldController.text.trim()) ?? 0;
       widget.onAddStock(itemName, itemCount, itemSold, price); // Notify parent
+
+      // Clear fields after adding
       nameController.clear();
       countController.clear();
       priceController.clear();
@@ -254,7 +256,7 @@ class _AddNewProductState extends State<AddNewProduct> {
                 return null;
               },
               decoration: InputDecoration(
-                labelText: 'Price per Item',
+                labelText: 'Price per Unit',
                 labelStyle: TextStyle(
                   color: Colors.grey[700], // default color
                 ),

@@ -15,7 +15,7 @@ class StockManager extends StatefulWidget {
 }
 
 class _StockManagerState extends State<StockManager> {
-  Map<String, Map<String, int>> stockCounts = {};
+  Map<String, Map<String, dynamic>> stockCounts = {};
   TextEditingController searchController = TextEditingController();
   String searchQuery = '';
 
@@ -39,12 +39,13 @@ class _StockManagerState extends State<StockManager> {
             child: SingleChildScrollView(
                 child: AddProduct(
               stockCounts: stockCounts,
-              onAddStock: (String initialName, int count) {
+              onAddStock: (String initialName, int count, double price) {
                 setState(() {
                   stockCounts[initialName] = {
                     "availableStock": count,
                     "totalStock": count,
                     "sold": 0,
+                    "price": price,
                   };
                 });
                 API.saveStockToMongoDB(stockCounts);

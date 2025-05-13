@@ -574,13 +574,14 @@ class _PytorchMobileState extends State<PytorchMobile> {
             initialName: initialName,
             itemCount: itemCount,
             stockCounts: stockCounts,
-            onAddStock: (itemName, count) async {
+            onAddStock: (itemName, count, double price) async {
               setState(() {
                 // Update stock with the new count for the item
                 stockCounts[itemName] = {
                   "availableStock": count,
                   "totalStock": count,
                   "sold": 0,
+                  "price": price,
                 };
               });
               // Save updated stock to the database
