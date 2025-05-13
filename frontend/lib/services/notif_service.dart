@@ -18,7 +18,6 @@ class NotifService {
     const initSettings = InitializationSettings(android: androidInit);
 
     await notificationsPlugin.initialize(initSettings);
-
     // ✅ Correct and required for Android 13+
     final androidImpl =
         notificationsPlugin.resolvePlatformSpecificImplementation<
@@ -29,23 +28,60 @@ class NotifService {
     _isInitialized = true;
   }
 
-  NotificationDetails _notificationDetails() {
-    return const NotificationDetails(
+  // ✅ Stock notification details with grouping
+  NotificationDetails _stockNotificationDetails({required String groupKey}) {
+    return NotificationDetails(
       android: AndroidNotificationDetails(
-        'stock_channel',
-        'Stock Alerts',
-        channelDescription: 'Notifications for stock thresholds',
+        'stock_alerts_channel', // Channel ID
+        'Stock Alerts', // Channel name
+        channelDescription: 'Notifications about low or critical stock levels',
         importance: Importance.max,
         priority: Priority.high,
+        groupKey: groupKey, // 🔹 Used for grouping
       ),
     );
   }
 
+  /// ✅ Call this for individual notifications (e.g., one per item)
   Future<void> showNotification({
     required int id,
     required String title,
     required String body,
   }) async {
-    await notificationsPlugin.show(id, title, body, _notificationDetails());
+    const groupKey = 'com.yourapp.stock_alerts';
+
+    await notificationsPlugin.show(
+      id,
+      title,
+      body,
+      _stockNotificationDetails(groupKey: groupKey),
+    );
+  }
+
+  /// ✅ Optional: Summary notification that groups all individual ones
+  Future<void> showGroupedSummaryNotification() async {
+    const groupKey = 'com.yourapp.stock_alerts';
+
+    const androidDetails = AndroidNotificationDetails(
+      'stock_alerts_channel',
+      'Stock Alerts',
+      channelDescription: 'Summary of stock notifications',
+      styleInformation: InboxStyleInformation(
+        [],
+        contentTitle: 'Stock Alerts Summary',
+        summaryText: 'Multiple stock items are low or out of stock.',
+      ),
+      groupKey: groupKey,
+      setAsGroupSummary: true,
+    );
+
+    const NotificationDetails details = NotificationDetails(android: androidDetails);
+
+    await notificationsPlugin.show(
+      0, // Use a constant ID for summary
+      'Stock Alerts Summary',
+      'Multiple stock items need attention',
+      details,
+    );
   }
 }
