@@ -85,8 +85,8 @@ class _PdfPageState extends State<PdfPage> {
 
                       final invoice = Invoice(
                         supplier: Supplier(
-                          name: 'Your Company Name',
-                          address: 'Your Address Here',
+                          name: 'CGG Marketing',
+                          address: '96 V. Luna Ave, Diliman, Quezon City, 1100 Metro Manila',
                           paymentInfo: 'Your Payment Info',
                         ),
                         customer: Customer(

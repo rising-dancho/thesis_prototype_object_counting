@@ -152,9 +152,9 @@ class PdfInvoiceApi {
         item.description,
         Utils.formatDate(item.date),
         '${item.quantity}',
-        '\$ ${item.unitPrice}',
+        '\₱ ${item.unitPrice}',
         '${item.vat} %',
-        '\$ ${total.toStringAsFixed(2)}',
+        '\₱ ${total.toStringAsFixed(2)}',
       ];
     }).toList();
 
