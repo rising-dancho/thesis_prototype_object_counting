@@ -208,12 +208,13 @@ app.post('/api/update/sold', async (req, res) => {
   try {
     for (const stockItem of req.body) {
       await Stock.findOneAndUpdate(
-        { stockName: stockItem.stockName }, // Ensure correct search query
+        { stockName: stockItem.stockName },
         {
-          totalStock: stockItem.totalStock,
-
-          availableStock: stockItem.totalStock - (stockItem.sold ?? 0), // Ensure availableStock updates
-          unitPrice: stockItem.unitPrice ?? 0, // PRICE
+          $set: {
+            totalStock: stockItem.totalStock,
+            availableStock: stockItem.availableStock,
+            unitPrice: stockItem.unitPrice,
+          },
         },
         { upsert: true, new: true }
       );
