@@ -22,7 +22,7 @@ class _PdfPageState extends State<PdfPage> {
         extendBodyBehindAppBar: true,
         appBar: AppBar(
           title: const Text(
-            'Generate Reports',
+            'Reports',
           ),
           backgroundColor: Colors.black,
           elevation: 0,
@@ -47,7 +47,7 @@ class _PdfPageState extends State<PdfPage> {
               children: <Widget>[
                 TitleWidget(
                   icon: Icons.picture_as_pdf,
-                  text: 'Reports',
+                  text: 'Generate Reports',
                 ),
                 const SizedBox(height: 48),
                 Padding(

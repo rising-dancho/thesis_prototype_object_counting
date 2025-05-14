@@ -13,13 +13,22 @@ class ButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ElevatedButton(
         style: ElevatedButton.styleFrom(
-          minimumSize: Size.fromHeight(40),
+          backgroundColor: const Color.fromARGB(255, 22, 165, 221),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
         onPressed: onClicked,
         child: FittedBox(
           child: Text(
             text,
-            style: TextStyle(fontSize: 20, color: Colors.orange),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: 'Roboto',
+              fontSize: 20.0,
+            ),
           ),
         ),
       );
