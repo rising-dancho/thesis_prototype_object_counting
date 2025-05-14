@@ -218,37 +218,6 @@ class API {
     }
   }
 
-  static Future<SaveResult> saveStockToMongoDB(
-      Map<String, Map<String, dynamic>> stockCounts) async {
-    try {
-      List<Map<String, dynamic>> formattedStocks =
-          stockCounts.entries.map((entry) {
-        return {
-          "stockName": LabelFormatter.titleCase(entry.key),
-          "totalStock": entry.value["totalStock"] ?? 0,
-          "sold": entry.value["sold"] ?? 0,
-          "availableStock": entry.value["availableStock"] ?? 0,
-          "unitPrice": entry.value["price"] ?? 0.0, // PRICE
-        };
-      }).toList();
-
-      var response = await http.post(
-        Uri.parse("${baseUrl}update/sold"),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(formattedStocks),
-      );
-
-      if (response.statusCode == 200) {
-        debugPrint("Stock saved successfully: ${response.body}");
-      } else {
-        debugPrint("Failed to save stock: ${response.body}");
-      }
-      return SaveResult(isSuccess: true);
-    } catch (e) {
-      return SaveResult(isSuccess: false, errorMessage: e.toString());
-    }
-  }
-
   static Future<Map<String, dynamic>?> restockStock(
       String stockName, int restockAmount) async {
     final url = Uri.parse('${baseUrl}/api/update/restock');

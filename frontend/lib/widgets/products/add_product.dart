@@ -247,6 +247,7 @@ class _AddProductState extends State<AddProduct> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromARGB(255, 22, 165, 221),
+                  // backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
@@ -260,7 +261,7 @@ class _AddProductState extends State<AddProduct> {
                   }
                 },
                 child: const Text(
-                  'SAVE',
+                  'ADD',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'Roboto',

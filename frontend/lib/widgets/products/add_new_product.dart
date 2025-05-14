@@ -93,19 +93,21 @@ class _AddNewProductState extends State<AddNewProduct> {
     );
   }
 
-  void updateStock(String item, int restockAmount) {
-    if (stockCounts.containsKey(item)) {
+  void updateStock(String initialName, int restockAmount) {
+    if (stockCounts.containsKey(initialName)) {
       setState(() {
-        int currentTotalStock = stockCounts[item]?["totalStock"] ?? 0;
-        int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
+        int currentTotalStock = stockCounts[initialName]?["totalStock"] ?? 0;
+        int currentAvailableStock =
+            stockCounts[initialName]?["availableStock"] ?? 0;
 
-        stockCounts[item]?["totalStock"] = currentTotalStock + restockAmount;
-        stockCounts[item]?["availableStock"] =
+        stockCounts[initialName]?["totalStock"] =
+            currentTotalStock + restockAmount;
+        stockCounts[initialName]?["availableStock"] =
             currentAvailableStock + restockAmount;
         // 🔥 sold does NOT change
       });
 
-      API.saveStockToMongoDB(stockCounts);
+      API.saveSingleStockToMongoDB(initialName, stockCounts[initialName]!);
     }
   }
 
@@ -278,6 +280,7 @@ class _AddNewProductState extends State<AddNewProduct> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromARGB(255, 22, 165, 221),
+                  // backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
@@ -291,7 +294,7 @@ class _AddNewProductState extends State<AddNewProduct> {
                   }
                 },
                 child: const Text(
-                  'SAVE',
+                  'ADD',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'Roboto',

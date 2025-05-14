@@ -5,47 +5,51 @@ class SellRestockHelper {
   /// Handles restocking by updating the stockCounts map.
   static void updateStock(
     Map<String, Map<String, int>> stockCounts,
-    String item,
+    String initialName,
     int restockAmount,
   ) {
-    if (stockCounts.containsKey(item)) {
-      int currentTotalStock = stockCounts[item]?["totalStock"] ?? 0;
-      int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
+    if (stockCounts.containsKey(initialName)) {
+      int currentTotalStock = stockCounts[initialName]?["totalStock"] ?? 0;
+      int currentAvailableStock =
+          stockCounts[initialName]?["availableStock"] ?? 0;
 
-      stockCounts[item]?["totalStock"] = currentTotalStock + restockAmount;
-      stockCounts[item]?["availableStock"] =
+      stockCounts[initialName]?["totalStock"] =
+          currentTotalStock + restockAmount;
+      stockCounts[initialName]?["availableStock"] =
           currentAvailableStock + restockAmount;
 
       // sold remains unchanged
-      debugPrint("🔁 Restocking $item: +$restockAmount");
+      debugPrint("🔁 Restocking $initialName: +$restockAmount");
       debugPrint(
-          "➡️ New total: ${stockCounts[item]?["totalStock"]}, available: ${stockCounts[item]?["availableStock"]}");
-      API.saveStockToMongoDB(stockCounts);
+          "➡️ New total: ${stockCounts[initialName]?["totalStock"]}, available: ${stockCounts[initialName]?["availableStock"]}");
+      API.saveSingleStockToMongoDB(initialName, stockCounts[initialName]!);
     }
   }
 
   /// Handles selling and returns a boolean to indicate success or failure.
   static bool updateStockForSale(
     Map<String, Map<String, int>> stockCounts,
-    String item,
+    String initialName,
     int sellAmount,
   ) {
-    if (stockCounts.containsKey(item)) {
-      int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
+    if (stockCounts.containsKey(initialName)) {
+      int currentAvailableStock =
+          stockCounts[initialName]?["availableStock"] ?? 0;
 
       if (sellAmount > currentAvailableStock) {
         return false; // Not enough stock
       }
 
-      stockCounts[item]?["availableStock"] = currentAvailableStock - sellAmount;
-      stockCounts[item]?["sold"] =
-          (stockCounts[item]?["sold"] ?? 0) + sellAmount;
+      stockCounts[initialName]?["availableStock"] =
+          currentAvailableStock - sellAmount;
+      stockCounts[initialName]?["sold"] =
+          (stockCounts[initialName]?["sold"] ?? 0) + sellAmount;
 
       // totalStock remains unchanged
-      debugPrint("🔁 Selling $item: -$sellAmount");
+      debugPrint("🔁 Selling $initialName: -$sellAmount");
       debugPrint(
-          "➡️ Remaining: ${stockCounts[item]?["availableStock"]}, sold: ${stockCounts[item]?["sold"]}");
-      API.saveStockToMongoDB(stockCounts);
+          "➡️ Remaining: ${stockCounts[initialName]?["availableStock"]}, sold: ${stockCounts[initialName]?["sold"]}");
+      API.saveSingleStockToMongoDB(initialName, stockCounts[initialName]!);
       return true;
     }
     return false;

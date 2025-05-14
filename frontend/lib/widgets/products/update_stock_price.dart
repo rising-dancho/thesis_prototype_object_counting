@@ -132,6 +132,7 @@ class _UpdateStockPriceDialogState extends State<UpdateStockPriceDialog> {
               onPressed: isLoading ? null : updatePrice,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 22, 165, 221),
+                // backgroundColor: Colors.orange[500],
                 foregroundColor: Colors.white,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 100, vertical: 15),

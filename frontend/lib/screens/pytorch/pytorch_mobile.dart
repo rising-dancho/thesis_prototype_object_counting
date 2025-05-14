@@ -681,10 +681,10 @@ class _PytorchMobileState extends State<PytorchMobile> {
 
       int updatedStock = stockCounts[item]?["availableStock"] ?? 0;
 
-      // 🔄 Save updated stock to DB
-      API.saveStockToMongoDB(stockCounts);
+      // ✅ Save ONLY this updated item
+      API.saveSingleStockToMongoDB(item, stockCounts[item]!);
 
-      // ✅ Call centralized stock checker
+      // ✅ Trigger stock alert if needed
       StockNotifier.checkStockAndNotify(
         updatedStock,
         totalStock,

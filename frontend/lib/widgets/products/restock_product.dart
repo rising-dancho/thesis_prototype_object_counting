@@ -110,6 +110,7 @@ class _RestockProductState extends State<RestockProduct> {
               onPressed: isLoading ? null : restockItem,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 22, 165, 221),
+                // backgroundColor: Colors.green,
                 foregroundColor: Colors.white,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 100, vertical: 15),

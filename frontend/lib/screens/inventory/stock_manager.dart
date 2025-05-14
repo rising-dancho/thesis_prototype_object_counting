@@ -50,7 +50,8 @@ class _StockManagerState extends State<StockManager> {
                     "price": price,
                   };
                 });
-                API.saveStockToMongoDB(stockCounts);
+                API.saveSingleStockToMongoDB(
+                    initialName, stockCounts[initialName]!);
               },
             )));
       },
@@ -80,11 +81,11 @@ class _StockManagerState extends State<StockManager> {
     );
   }
 
-  void updateStockForSale(String item, int sellAmount) {
-    if (stockCounts.containsKey(item)) {
-      int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
-      int totalStock = stockCounts[item]?["totalStock"] ?? 0;
-      String stockId = stockCounts[item]?["_id"].toString() ?? "";
+  void updateStockForSale(String itemName, int sellAmount) {
+    if (stockCounts.containsKey(itemName)) {
+      int currentAvailableStock = stockCounts[itemName]?["availableStock"] ?? 0;
+      int totalStock = stockCounts[itemName]?["totalStock"] ?? 0;
+      String stockId = stockCounts[itemName]?["_id"].toString() ?? "";
 
       if (sellAmount > currentAvailableStock) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -94,29 +95,29 @@ class _StockManagerState extends State<StockManager> {
       }
 
       setState(() {
-        stockCounts[item]?["availableStock"] =
+        stockCounts[itemName]?["availableStock"] =
             currentAvailableStock - sellAmount;
-        stockCounts[item]?["sold"] =
-            (stockCounts[item]?["sold"] ?? 0) + sellAmount;
+        stockCounts[itemName]?["sold"] =
+            (stockCounts[itemName]?["sold"] ?? 0) + sellAmount;
       });
 
-      int updatedStock = stockCounts[item]?["availableStock"] ?? 0;
+      int updatedStock = stockCounts[itemName]?["availableStock"] ?? 0;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content:
-              Text('Sold $sellAmount $item(s). Remaining stock: $updatedStock'),
+              Text('Sold $sellAmount $itemName(s). Remaining stock: $updatedStock'),
         ),
       );
 
       // 🔄 Save updated stock to DB
-      API.saveStockToMongoDB(stockCounts);
+      API.saveSingleStockToMongoDB(itemName, stockCounts[itemName]!);
 
       // ✅ Call centralized stock checker
       StockNotifier.checkStockAndNotify(
         updatedStock,
         totalStock,
-        item,
+        itemName,
         stockId,
       );
     }
@@ -167,19 +168,19 @@ class _StockManagerState extends State<StockManager> {
     );
   }
 
-  void updateStock(String item, int restockAmount) {
-    if (stockCounts.containsKey(item)) {
+  void updateStock(String itemName, int restockAmount) {
+    if (stockCounts.containsKey(itemName)) {
       setState(() {
-        int currentTotalStock = stockCounts[item]?["totalStock"] ?? 0;
-        int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
+        int currentTotalStock = stockCounts[itemName]?["totalStock"] ?? 0;
+        int currentAvailableStock = stockCounts[itemName]?["availableStock"] ?? 0;
 
-        stockCounts[item]?["totalStock"] = currentTotalStock + restockAmount;
-        stockCounts[item]?["availableStock"] =
+        stockCounts[itemName]?["totalStock"] = currentTotalStock + restockAmount;
+        stockCounts[itemName]?["availableStock"] =
             currentAvailableStock + restockAmount;
         // 🔥 sold does NOT change
       });
 
-      API.saveStockToMongoDB(stockCounts);
+      API.saveSingleStockToMongoDB(itemName, stockCounts[itemName]!);
     }
   }
 

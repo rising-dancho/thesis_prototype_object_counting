@@ -207,18 +207,30 @@ app.post('/api/stocks/restock', async (req, res) => {
 app.post('/api/update/sold', async (req, res) => {
   try {
     for (const stockItem of req.body) {
+      const updateFields = {
+        totalStock: stockItem.totalStock,
+
+        availableStock: stockItem.availableStock,
+      };
+
+      // ✅ Only include unitPrice if it's a valid number and not zero
+      if (
+        typeof stockItem.unitPrice === 'number' &&
+        !isNaN(stockItem.unitPrice) &&
+        stockItem.unitPrice > 0
+      ) {
+        updateFields.unitPrice = stockItem.unitPrice;
+      }
+
+      console.log('Updating:', stockItem.stockName, updateFields);
+
       await Stock.findOneAndUpdate(
         { stockName: stockItem.stockName },
-        {
-          $set: {
-            totalStock: stockItem.totalStock,
-            availableStock: stockItem.availableStock,
-            unitPrice: stockItem.unitPrice,
-          },
-        },
+        { $set: updateFields },
         { upsert: true, new: true }
       );
     }
+
     res.json({ message: 'Stock updated successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
