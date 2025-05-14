@@ -192,13 +192,13 @@ class _PytorchMobileState extends State<PytorchMobile> {
     // Check for mid confidence (between 0.4 and 0.49)
     bool hasMidConfidence = objDetect.any((element) {
       final score = element?.score ?? 0.0;
-      return score >= 0.4 && score < 0.5;
+      return score >= 0.5 && score < 0.6;
     });
 
 // Check for very low confidence (0.39 or lower)
     bool hasLowConfidence = objDetect.every((element) {
       final score = element?.score ?? 0.0;
-      return score < 0.4;
+      return score < 0.5;
     });
 
 // Define function to show the top snackbar
@@ -291,8 +291,8 @@ class _PytorchMobileState extends State<PytorchMobile> {
           ],
         ),
         Text(
-          'No detectable objects matched the expected categories.\n'
-          'Please ensure the object is clearly visible, well-lit, and within the camera frame. Try again!',
+          'No relevant objects detected.\n'
+          'Please ensure the objects are clearly visible, well-lit, and within the camera frame. Try again!',
           style: TextStyle(color: Colors.grey[900], fontSize: 18),
         ),
       );
@@ -683,13 +683,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
       });
 
       int updatedStock = stockCounts[item]?["availableStock"] ?? 0;
-
-      ScaffoldMessenger.of(this.context).showSnackBar(
-        SnackBar(
-          content:
-              Text('Sold $sellAmount $item(s). Remaining stock: $updatedStock'),
-        ),
-      );
 
       // 🔄 Save updated stock to DB
       API.saveStockToMongoDB(stockCounts);

@@ -26,6 +26,13 @@ class _AddProductState extends State<AddProduct> {
   // form validation
   final _formKey = GlobalKey<FormState>();
 
+  // Hollow_blocks
+  // Rebar
+  // Sack_of_cement
+  // Sack_of_gravel
+  // Sack_of_sand
+  // Skim_coat
+
   // FOR DROP DOWN
   final List<String> allItems = [
     'Bistay Sand',
@@ -63,7 +70,7 @@ class _AddProductState extends State<AddProduct> {
 
     if (itemName.isNotEmpty && itemCount != null && price != null) {
       widget.onAddStock(itemName, itemCount, price); // Notify parent
-      
+
       // Clear fields after adding
       selectedItem = null; // Clear selected item
       countController.clear();

@@ -4,7 +4,6 @@ import 'package:tectags/screens/guide_screen.dart';
 import 'package:tectags/screens/login_screen.dart';
 import 'package:tectags/screens/navigation/navigation_menu.dart';
 import 'package:tectags/screens/onboarding/onboarding_view.dart';
-import 'package:tectags/screens/otp/pages/otp_login.dart';
 import 'package:tectags/screens/profile_screen.dart';
 import 'package:tectags/services/shared_prefs_service.dart';
 
