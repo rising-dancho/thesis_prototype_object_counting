@@ -10,14 +10,16 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/widgets.dart';
 
 class PdfInvoiceApi {
-   static Future<File> generate(Invoice invoice) async {
+  static Future<File> generate(Invoice invoice) async {
     final pdf = pw.Document();
 
     // Load the font from assets
     final fontData = await rootBundle.load('assets/fonts/Roboto-Regular.ttf');
     if (fontData.lengthInBytes == 0) {
+      // ignore: avoid_print
       print("Font loading failed!");
     } else {
+      // ignore: avoid_print
       print("Font loaded successfully!");
     }
     final font = pw.Font.ttf(fontData);
@@ -43,7 +45,8 @@ class PdfInvoiceApi {
 
     // Save the document after all pages are added
     final pdfBytes = await pdf.save();
-    final file = await PdfApi.saveFileToDownloads(pdfBytes, 'my_invoice.pdf');  // Save to Downloads
+    final file = await PdfApi.saveFileToDownloads(
+        pdfBytes, 'my_invoice.pdf'); // Save to Downloads
     await PdfApi.openFile(file);
     return file;
   }
@@ -152,12 +155,13 @@ class PdfInvoiceApi {
         item.description,
         Utils.formatDate(item.date),
         '${item.quantity}',
-        '\₱ ${item.unitPrice}',
+        '₱ ${item.unitPrice}',
         '${item.vat} %',
-        '\₱ ${total.toStringAsFixed(2)}',
+        '₱ ${total.toStringAsFixed(2)}',
       ];
     }).toList();
 
+    // ignore: deprecated_member_use
     return Table.fromTextArray(
       headers: headers,
       data: data,
