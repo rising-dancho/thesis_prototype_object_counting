@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:tectags/screens/navigation/navigation_menu.dart';
+import 'package:tectags/screens/login_screen.dart';
+// import 'package:tectags/screens/navigation/navigation_menu.dart';
 import 'package:tectags/screens/otp/services/api_service.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
 import 'package:snippet_coder_utils/ProgressHUD.dart';
@@ -150,7 +151,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const NavigationMenu(),
+                                  builder: (context) => const LoginScreen(),
                                 ),
                               );
                             },

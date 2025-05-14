@@ -101,7 +101,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final today = DateTime.now();
     final latestAllowedBirthday =
-        today.subtract(const Duration(days: 365 * 10)); // 10 years ago
+        today.subtract(const Duration(days: 365 * 18)); // 18 years ago
     void openDatePicker() {
       showDatePicker(
         context: context,
