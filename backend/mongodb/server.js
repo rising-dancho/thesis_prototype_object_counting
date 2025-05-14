@@ -147,30 +147,6 @@ app.post('/api/stocks/update-price', async (req, res) => {
   }
 });
 
-// Save stock for restock
-app.post('/api/update/restock', async (req, res) => {
-  try {
-    for (const stockItem of req.body) {
-      await Stock.findOneAndUpdate(
-        { stockName: stockItem.stockName },
-        {
-          $inc: {
-            totalStock: stockItem.totalStock,
-            availableStock: stockItem.availableStock,
-          },
-          $set: {
-            unitPrice: stockItem.unitPrice, // ✅ update price during restock
-          },
-        },
-        { upsert: true, new: true }
-      );
-    }
-    res.json({ message: 'Stock updated successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // RESTOCK endpoint
 app.post('/api/stocks/restock', async (req, res) => {
   try {
@@ -198,6 +174,41 @@ app.post('/api/stocks/restock', async (req, res) => {
     res.json({
       message: `Successfully restocked ${restockAmount} units of ${stockName}`,
     });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Save stock for restock
+app.post('/api/update/restock', async (req, res) => {
+  try {
+    for (const stockItem of req.body) {
+      // Base update operation with $inc
+      const updateOps = {
+        $inc: {
+          totalStock: stockItem.totalStock,
+          availableStock: stockItem.availableStock,
+        },
+      };
+      
+      // ✅ Conditionally add $set for unitPrice
+      if (
+        typeof stockItem.unitPrice === 'number' &&
+        !isNaN(stockItem.unitPrice) &&
+        stockItem.unitPrice > 0
+      ) {
+        updateOps.$set = {
+          unitPrice: stockItem.unitPrice,
+        };
+      }
+      await Stock.findOneAndUpdate(
+        { stockName: stockItem.stockName },
+        updateOps,
+        { upsert: true, new: true }
+      );
+    }
+
+    res.json({ message: 'Stock updated successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
