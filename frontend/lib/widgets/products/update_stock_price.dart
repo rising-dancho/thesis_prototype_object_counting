@@ -84,9 +84,9 @@ class _UpdateStockPriceDialogState extends State<UpdateStockPriceDialog> {
                       color: Colors.grey[800],
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 1),
                   Text(
-                    '${widget.itemName}',
+                    widget.itemName,
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.grey[700],

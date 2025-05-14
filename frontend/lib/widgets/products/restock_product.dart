@@ -64,13 +64,26 @@ class _RestockProductState extends State<RestockProduct> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "Restock ${widget.itemName}",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 28,
-                  color: Colors.grey[800],
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Restock',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 28,
+                      color: Colors.grey[800],
+                    ),
+                  ),
+                  const SizedBox(height: 1),
+                  Text(
+                    widget.itemName,
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                ],
               ),
               Container(
                 decoration: BoxDecoration(
@@ -87,7 +100,7 @@ class _RestockProductState extends State<RestockProduct> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
           TextField(
             controller: _restockController,
             keyboardType: TextInputType.number,
@@ -103,7 +116,7 @@ class _RestockProductState extends State<RestockProduct> {
               border: InputBorder.none,
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 22),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
