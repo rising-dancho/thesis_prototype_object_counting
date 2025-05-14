@@ -73,13 +73,26 @@ class _UpdateStockPriceDialogState extends State<UpdateStockPriceDialog> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Update Price for ${widget.itemName}',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24,
-                  color: Colors.grey[800],
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Update Price',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 28,
+                      color: Colors.grey[800],
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${widget.itemName}',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                ],
               ),
               Container(
                 decoration: BoxDecoration(
@@ -96,13 +109,17 @@ class _UpdateStockPriceDialogState extends State<UpdateStockPriceDialog> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
           TextField(
             controller: _priceController,
             keyboardType: TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
               labelText: "Enter new price",
+              labelStyle: TextStyle(
+                color: Colors.grey[700], // default color
+              ),
               hintText: "e.g. 120.50",
+              hintStyle: const TextStyle(color: Colors.black26),
               filled: true,
               fillColor: Colors.grey[200],
               border: InputBorder.none,
