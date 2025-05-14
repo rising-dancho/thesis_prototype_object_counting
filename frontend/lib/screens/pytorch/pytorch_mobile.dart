@@ -723,14 +723,16 @@ class _PytorchMobileState extends State<PytorchMobile> {
       setState(() {
         int currentTotalStock = stockCounts[item]?["totalStock"] ?? 0;
         int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
+        double currentPrice = stockCounts[item]?["price"] ?? 0.0;
 
         stockCounts[item]?["totalStock"] = currentTotalStock + restockAmount;
         stockCounts[item]?["availableStock"] =
             currentAvailableStock + restockAmount;
+        stockCounts[item]?["price"] = currentPrice; // Forcefully preserve price
         // 🔥 sold does NOT change
       });
 
-      API.saveStockToMongoDB(stockCounts);
+      API.saveSingleStockToMongoDB(item, stockCounts[item]!);
     }
   }
 
