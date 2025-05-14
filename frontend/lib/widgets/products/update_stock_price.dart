@@ -81,9 +81,18 @@ class _UpdateStockPriceDialogState extends State<UpdateStockPriceDialog> {
                   color: Colors.grey[800],
                 ),
               ),
-              IconButton(
-                icon: Icon(Icons.close),
-                onPressed: () => Navigator.pop(context),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: IconButton(
+                  icon: Icon(Icons.close),
+                  color: Colors.grey[700],
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
               ),
             ],
           ),
