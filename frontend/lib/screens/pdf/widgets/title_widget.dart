@@ -5,10 +5,10 @@ class TitleWidget extends StatelessWidget {
   final String text;
 
   const TitleWidget({
-    Key? key,
+    super.key,
     required this.icon,
     required this.text,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) => Column(

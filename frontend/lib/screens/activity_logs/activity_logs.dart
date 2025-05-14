@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tectags/page/pdf_page.dart';
+import 'package:tectags/screens/pdf/pdf_page.dart';
 import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:tectags/services/api.dart';
 
@@ -337,7 +337,7 @@ class _ActivityLogsState extends State<ActivityLogs> {
 
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Container(
+              child: SizedBox(
                   width: double
                       .infinity, // Makes the button take all horizontal space
                   child: ElevatedButton(

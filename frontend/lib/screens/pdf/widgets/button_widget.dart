@@ -5,22 +5,22 @@ class ButtonWidget extends StatelessWidget {
   final VoidCallback onClicked;
 
   const ButtonWidget({
-    Key? key,
+    super.key,
     required this.text,
     required this.onClicked,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) => ElevatedButton(
         style: ElevatedButton.styleFrom(
           minimumSize: Size.fromHeight(40),
         ),
+        onPressed: onClicked,
         child: FittedBox(
           child: Text(
             text,
             style: TextStyle(fontSize: 20, color: Colors.orange),
           ),
         ),
-        onPressed: onClicked,
       );
 }

@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
-import 'package:tectags/services/pdf/pdf_api.dart';
-import 'package:tectags/models/pdf/customer.dart';
-import 'package:tectags/models/pdf/invoice.dart';
-import 'package:tectags/models/pdf/supplier.dart';
-import 'package:tectags/utils/pdf/utils.dart';
+import 'package:tectags/screens/pdf/services/pdf_api.dart';
+import 'package:tectags/screens/pdf/models/customer.dart';
+import 'package:tectags/screens/pdf/models/invoice.dart';
+import 'package:tectags/screens/pdf/models/supplier.dart';
+import 'package:tectags/screens/pdf/utils/utils.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/widgets.dart';

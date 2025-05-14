@@ -1,5 +1,5 @@
-import 'package:tectags/models/pdf/customer.dart';
-import 'package:tectags/models/pdf/supplier.dart';
+import 'package:tectags/screens/pdf/models/customer.dart';
+import 'package:tectags/screens/pdf/models/supplier.dart';
 
 class Invoice {
   final InvoiceInfo info;

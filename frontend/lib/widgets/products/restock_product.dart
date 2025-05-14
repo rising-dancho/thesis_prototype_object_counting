@@ -107,13 +107,25 @@ class _RestockProductState extends State<RestockProduct> {
             decoration: InputDecoration(
               labelText: "Enter restock amount",
               labelStyle: TextStyle(
-                color: Colors.grey[700], // default color
+                color: Colors.grey[700], // Default (unfocused) label color
+              ),
+              floatingLabelStyle: TextStyle(
+                color: Color(0xFF416FDF), // Focused label color
+                // fontWeight: FontWeight.w600,
               ),
               hintText: "e.g. 100",
               hintStyle: const TextStyle(color: Colors.black26),
               filled: true,
               fillColor: Colors.grey[200],
               border: InputBorder.none,
+              // focusedBorder: OutlineInputBorder(
+              //   borderSide: BorderSide(color: Colors.blue, width: 2.0),
+              //   borderRadius: BorderRadius.circular(8.0),
+              // ),
+              // enabledBorder: OutlineInputBorder(
+              //   borderSide: BorderSide(color: Colors.transparent),
+              //   borderRadius: BorderRadius.circular(8.0),
+              // ),
             ),
           ),
           const SizedBox(height: 22),
