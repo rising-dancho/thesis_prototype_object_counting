@@ -557,85 +557,81 @@ class _PytorchMobileState extends State<PytorchMobile> {
 
   Future<void> _openSellOrRestockProductModal(
     BuildContext context, {
-    required String actionType, // 👈 now passed in directly
+    required String actionType,
     String? initialName,
     int? itemCount,
     int? initialAmount,
   }) async {
-    if (_isAddProductModalOpen) return; // Prevent multiple opens
-
-    // Otherwise, handle restocking or selling for existing stock
-    if (actionType == "restock") {
-      await showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        builder: (modalContext) {
-          return AddProduct(
-            initialName: initialName,
-            itemCount: itemCount,
-            stockCounts: stockCounts,
-            onAddStock: (itemName, count, double price) async {
-              setState(() {
-                final existingStock = stockCounts[itemName] ?? {};
-                stockCounts[itemName] = {
-                  "availableStock": count,
-                  "totalStock": count,
-                  "sold": existingStock["sold"] ?? 0,
-                  "price": price,
-                };
-              });
-              // Save updated stock to the database
-              await API.saveSingleStockToMongoDB(
-                  itemName, stockCounts[itemName]!);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Stock added successfully!")),
-              );
-            },
-          );
-        },
-      );
-      return; // Exit early so we don't show the AddNewProduct modal below
-    }
-
+    if (_isAddProductModalOpen) return;
     _isAddProductModalOpen = true;
-    if (actionType == "sell") {
-      await showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        builder: (modalContext) {
-          return
-              // STRETCHES FULL SCREEN
-              // Padding(
-              //   padding: EdgeInsets.only(
-              //       bottom: MediaQuery.of(modalContext).viewInsets.bottom),
-              //   child: SingleChildScrollView(
-              //     child:
 
-              AddNewProduct(
-            initialName: initialName,
-            itemCount: itemCount,
-            actionType: actionType,
-            onAddStock: (String name, int count, int sold, double price) async {
-              setState(() {
-                stockCounts[name] = {
-                  "availableStock": count,
-                  "totalStock": count,
-                  "sold": sold,
-                  "price": price,
-                };
-              });
-              await API.saveStockToMongoDB(stockCounts);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Stock and Image saved successfully!")),
-              );
-            },
-          );
-          //   ),
-          // );
-        },
-      ).whenComplete(() {
-        _isAddProductModalOpen = false;
-      });
+    try {
+      if (actionType == "restock") {
+        await showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          builder: (modalContext) {
+            return AddProduct(
+              initialName: initialName,
+              itemCount: itemCount,
+              stockCounts: stockCounts,
+              onAddStock: (itemName, count, double price) async {
+                setState(() {
+                  final existingStock = stockCounts[itemName] ?? {};
+                  stockCounts[itemName] = {
+                    "availableStock": count,
+                    "totalStock": count,
+                    "sold": existingStock["sold"] ?? 0,
+                    "price": price,
+                  };
+                });
+
+                await API.saveSingleStockToMongoDB(
+                    itemName, stockCounts[itemName]!);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Stock added successfully!")),
+                );
+              },
+            );
+          },
+        );
+      } else if (actionType == "sell") {
+        await showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          builder: (modalContext) {
+            return AddNewProduct(
+              initialName: initialName,
+              itemCount: itemCount,
+              actionType: actionType,
+              onAddStock:
+                  (String itemName, int count, int sold, double price) async {
+                setState(() {
+                  final existingStock = stockCounts[itemName] ?? {};
+                  stockCounts[itemName] = {
+                    "availableStock": count,
+                    "totalStock": count,
+                    "sold": sold,
+                    "price": price,
+                    ...existingStock,
+                  };
+                });
+
+                await API.saveSingleStockToMongoDB(
+                    itemName, stockCounts[itemName]!);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content: Text("Stock and Image saved successfully!")),
+                );
+              },
+            );
+          },
+        );
+      }
+    } finally {
+      _isAddProductModalOpen = false; // Always reset this
     }
   }
 
