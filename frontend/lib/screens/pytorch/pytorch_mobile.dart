@@ -585,7 +585,8 @@ class _PytorchMobileState extends State<PytorchMobile> {
                 };
               });
               // Save updated stock to the database
-              await API.saveStockToMongoDB(stockCounts);
+              await API.saveSingleStockToMongoDB(
+                  itemName, stockCounts[itemName]!);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text("Stock added successfully!")),
               );

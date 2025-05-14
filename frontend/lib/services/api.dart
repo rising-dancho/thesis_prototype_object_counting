@@ -190,6 +190,34 @@ class API {
     }
   }
 
+  static Future<SaveResult> saveSingleStockToMongoDB(
+      String name, Map<String, dynamic> stockData) async {
+    try {
+      final formattedStock = {
+        "stockName": LabelFormatter.titleCase(name),
+        "totalStock": stockData["totalStock"] ?? 0,
+        "sold": stockData["sold"] ?? 0,
+        "availableStock": stockData["availableStock"] ?? 0,
+        "unitPrice": stockData["price"] ?? 0.0,
+      };
+
+      final response = await http.post(
+        Uri.parse("${baseUrl}update/sold"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode([formattedStock]), // Wrap in list
+      );
+
+      if (response.statusCode == 200) {
+        debugPrint("Stock saved successfully: ${response.body}");
+      } else {
+        debugPrint("Failed to save stock: ${response.body}");
+      }
+      return SaveResult(isSuccess: true);
+    } catch (e) {
+      return SaveResult(isSuccess: false, errorMessage: e.toString());
+    }
+  }
+
   static Future<SaveResult> saveStockToMongoDB(
       Map<String, Map<String, dynamic>> stockCounts) async {
     try {
