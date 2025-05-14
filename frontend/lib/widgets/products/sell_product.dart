@@ -73,7 +73,7 @@ class _SellProductState extends State<SellProduct> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Update Price',
+                    'Sell',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 28,
