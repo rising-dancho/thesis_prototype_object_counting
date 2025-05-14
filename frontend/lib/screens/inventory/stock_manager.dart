@@ -570,7 +570,7 @@ class _StockManagerState extends State<StockManager> {
                                                   BlendMode.srcIn,
                                                 ),
                                               ),
-                                              SizedBox(width: 8),
+                                              SizedBox(width: 7),
                                               Text('Price',
                                                   style: TextStyle(
                                                     fontFamily: 'Roboto',
@@ -604,7 +604,7 @@ class _StockManagerState extends State<StockManager> {
                                                   BlendMode.srcIn,
                                                 ),
                                               ),
-                                              SizedBox(width: 8),
+                                              SizedBox(width: 7),
                                               Text('Delete',
                                                   style: TextStyle(
                                                     fontFamily: 'Roboto',
