@@ -9,5 +9,3 @@ const stockSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('Stock', stockSchema);
-
- stockName, totalStock, sold, unitPrice, availableStock
