@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  middleName: { type: String }, // 👈 optional
   lastName: {
     type: String,
     required: true,
@@ -24,6 +25,13 @@ const userSchema = new mongoose.Schema({
   birthday: {
     type: Date,
     required: true,
+  },
+
+  // ROLE BASED ACCESS CONTROL
+  role: {
+    type: String,
+    enum: ['employee', 'manager'],
+    default: 'employee',
   },
 });
 

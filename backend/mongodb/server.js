@@ -12,8 +12,8 @@ const Stock = require('./schema/stock');
 const User = require('./schema/user');
 const Activity = require('./schema/activity');
 
-const createToken = (id) => {
-  return jwt.sign({ _id: id }, process.env.SECRET, { expiresIn: '14d' });
+const createToken = (id, role) => {
+  return jwt.sign({ _id: id, role }, process.env.SECRET, { expiresIn: '14d' });
 };
 
 // Middleware TO PARSE JSON body
@@ -42,6 +42,52 @@ const requireAuth = (req, res, next) => {
   }
 };
 
+// ROLE BASED ACCESS CONTROL
+const authorizeRoles = (...allowedRoles) => {
+  return (req, res, next) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token)
+      return res.status(401).json({ message: 'Access denied. No token.' });
+
+    try {
+      const decoded = jwt.verify(token, 'your_secret_key');
+      if (!allowedRoles.includes(decoded.role)) {
+        return res
+          .status(403)
+          .json({ message: 'Forbidden: Insufficient privileges' });
+      }
+      req.user = decoded; // Save userId and role for later use
+      next();
+    } catch (err) {
+      res.status(401).json({ message: 'Invalid token' });
+    }
+  };
+};
+
+// CHECK IF USER IS A MANAGER
+const requireManager = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader?.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'Missing or invalid token.' });
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded.role !== 'manager') {
+      return res
+        .status(403)
+        .json({ message: 'Only managers can assign roles.' });
+    }
+    req.user = decoded; // attach user to request
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: 'Invalid token.' });
+  }
+};
+
 // 🛢️ Connect to MongoDB using Mongoose
 mongoose.set('strictQuery', true);
 mongoose
@@ -52,6 +98,228 @@ mongoose
 // WELCOME ROUTE "/"
 app.get('/', (req, res) => {
   res.send('FIXING BACKEND LOGIC! 🚀');
+});
+
+// LOGIN, REGISTRATION, UPDATE USER & CHANGE PASSWORD -------------
+
+// PUBLIC REGISTRATION (default role only)
+app.post('/api/register', async (req, res) => {
+  try {
+    const {
+      email,
+      password,
+      firstName,
+      middleName,
+      lastName,
+      contactNumber,
+      birthday,
+    } = req.body;
+
+    if (
+      !email ||
+      !password ||
+      !firstName ||
+      !lastName ||
+      !contactNumber ||
+      !birthday
+    ) {
+      return res.status(400).json({ message: 'All fields are required.' });
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email is already in use.' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    const newUser = new User({
+      email,
+      hashedPassword,
+      firstName,
+      middleName, // 👈 this can be undefined, which is okay in Mongoose
+      lastName,
+      contactNumber,
+      birthday: new Date(birthday),
+      role: 'employee', // 👈 Force default role
+    });
+
+    await newUser.save();
+
+    await Activity.create({ userId: newUser._id, action: 'Registered' });
+
+    const token = createToken(newUser._id, newUser.role);
+
+    res.status(201).json({
+      message: 'Registration successful!',
+      token,
+      userId: newUser._id.toString(),
+    });
+  } catch (error) {
+    console.error('❌ Registration Error:', error);
+    res
+      .status(500)
+      .json({ message: 'Something went wrong.', error: error.message });
+  }
+});
+
+// LOGIN + ACTIVITY LOGGING
+app.post('/api/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const existingUser = await User.findOne({ email: email });
+
+    // if user does not exist throw an error
+    if (!existingUser) {
+      return res.status(400).json({ message: 'Incorrect email or password.' });
+    }
+
+    // compare the incoming password against the password in the database
+    const validPassword = await bcrypt.compare(
+      password,
+      existingUser.hashedPassword
+    );
+
+    // if password does not match throw an error
+    if (!validPassword) {
+      return res.status(400).json({ message: 'Incorrect email or password.' });
+    }
+
+    // IF LOGIN IS SUCCESSFUL: CREATE A TOKEN
+    if (validPassword) {
+      const token = createToken(existingUser._id);
+
+      // Log the login activity
+      await Activity.create({
+        userId: existingUser._id,
+        action: 'Logged In',
+      });
+
+      return res.status(200).json({
+        message: 'Login Successful!',
+        token: token,
+        userId: existingUser._id,
+      });
+    }
+  } catch (error) {
+    console.error('❌ Login error:', error);
+    return res
+      .status(500)
+      .json({ message: 'Internal server error', error: error.message });
+  }
+});
+
+// CHANGE PASSWORD
+app.put('/api/change-password/:userId', async (req, res) => {
+  // app.put('/api/change-password/:userId', requireAuth, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    // JWT ROUTE PROTECTION
+    // if (userId !== req.userId) {
+    //   return res
+    //     .status(403)
+    //     .json({ message: "Unauthorized to change this user's password." });
+    // }
+    const { currentPassword, newPassword } = req.body;
+
+    // Validate inputs
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: 'Invalid user ID.' });
+    }
+    if (!currentPassword || !newPassword) {
+      return res
+        .status(400)
+        .json({ message: 'Current and new passwords are required.' });
+    }
+
+    // Find user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    // Verify current password
+    const isMatch = await bcrypt.compare(currentPassword, user.hashedPassword);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Incorrect current password.' });
+    }
+
+    // Hash new password
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update password
+    user.hashedPassword = hashedPassword;
+    await user.save();
+
+    res.json({ message: 'Password updated successfully.' });
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({ message: 'Server error.', error: error.message });
+  }
+});
+
+// UPDATE PROFILE
+app.put('/api/profile/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params; // Get userId from URL
+    const { firstName, lastName, contactNumber, birthday } = req.body;
+
+    // Validate inputs
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: 'Invalid user ID.' });
+    }
+    if (!firstName || !lastName || !contactNumber || !birthday) {
+      return res.status(400).json({ message: 'All fields are required.' });
+    }
+
+    // Update user
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        firstName,
+        lastName,
+        contactNumber,
+        birthday: new Date(birthday),
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    res.json({ message: 'Profile updated successfully.', user: updatedUser });
+  } catch (error) {
+    console.error('Update error:', error);
+    res.status(500).json({ message: 'Server error.', error: error.message });
+  }
+});
+
+// GET USER PROFILE
+app.get('/api/user/:userId', requireAuth, async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Fetch the user from the database using the userId
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    res.status(200).json({
+      _id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      contactNumber: user.contactNumber,
+      birthday: user.birthday,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error.', error: error.message });
+  }
 });
 
 // NUMBER OF STOCKS and DETECTIONS DATA -------------
@@ -309,234 +577,6 @@ app.delete('/api/stocks/:stockName', async (req, res) => {
     res.json({ message: `Deleted ${stockName} successfully` });
   } catch (error) {
     res.status(500).json({ error: error.message });
-  }
-});
-
-// LOGIN, REGISTRATION, UPDATE USER & CHANGE PASSWORD -------------
-
-// LOGIN + ACTIVITY LOGGING
-app.post('/api/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const existingUser = await User.findOne({ email: email });
-
-    // if user does not exist throw an error
-    if (!existingUser) {
-      return res.status(400).json({ message: 'Incorrect email or password.' });
-    }
-
-    // compare the incoming password against the password in the database
-    const validPassword = await bcrypt.compare(
-      password,
-      existingUser.hashedPassword
-    );
-
-    // if password does not match throw an error
-    if (!validPassword) {
-      return res.status(400).json({ message: 'Incorrect email or password.' });
-    }
-
-    // IF LOGIN IS SUCCESSFUL: CREATE A TOKEN
-    if (validPassword) {
-      const token = createToken(existingUser._id);
-
-      // Log the login activity
-      await Activity.create({
-        userId: existingUser._id,
-        action: 'Logged In',
-      });
-
-      return res.status(200).json({
-        message: 'Login Successful!',
-        token: token,
-        userId: existingUser._id,
-      });
-    }
-  } catch (error) {
-    console.error('❌ Login error:', error);
-    return res
-      .status(500)
-      .json({ message: 'Internal server error', error: error.message });
-  }
-});
-
-// REGISTRATION
-app.post('/api/register', async (req, res) => {
-  try {
-    const { email, password, firstName, lastName, contactNumber, birthday } =
-      req.body;
-
-    // Validate input
-    if (
-      !email ||
-      !password ||
-      !firstName ||
-      !lastName ||
-      !contactNumber ||
-      !birthday
-    ) {
-      return res.status(400).json({
-        message:
-          'All fields are required: email, password, firstName, lastName, contactNumber, birthday.',
-      });
-    }
-
-    // Check if email already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'Email is already in use.' });
-    }
-
-    // Hash password
-    const saltRounds = 12; // number of rounds for  randomization
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    // Create new user
-    const newUser = new User({
-      email,
-      hashedPassword,
-      firstName,
-      lastName,
-      contactNumber,
-      birthday: new Date(birthday), // ensure birthday is stored as Date
-    });
-
-    // SAVE THE USER TO THE DATABASE
-    await newUser.save();
-
-    // Log registration activity
-    await Activity.create({
-      userId: newUser._id,
-      action: 'Registered',
-    });
-
-    // AFTER SAVING: create JWT for remembering sessions
-    const token = createToken(newUser._id);
-
-    res.status(201).json({
-      message: 'Registration successful!',
-      token: token,
-      userId: newUser._id.toString(), // 👈 include userId
-    });
-  } catch (error) {
-    console.error('❌ Registration Error:', error); // log the full error to the console
-    res.status(500).json({
-      message: 'Something went wrong.',
-      error: error.message,
-    });
-  }
-});
-
-// CHANGE PASSWORD
-app.put('/api/change-password/:userId', async (req, res) => {
-  // app.put('/api/change-password/:userId', requireAuth, async (req, res) => {
-  try {
-    const { userId } = req.params;
-    // JWT ROUTE PROTECTION
-    // if (userId !== req.userId) {
-    //   return res
-    //     .status(403)
-    //     .json({ message: "Unauthorized to change this user's password." });
-    // }
-    const { currentPassword, newPassword } = req.body;
-
-    // Validate inputs
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ message: 'Invalid user ID.' });
-    }
-    if (!currentPassword || !newPassword) {
-      return res
-        .status(400)
-        .json({ message: 'Current and new passwords are required.' });
-    }
-
-    // Find user
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
-    }
-
-    // Verify current password
-    const isMatch = await bcrypt.compare(currentPassword, user.hashedPassword);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Incorrect current password.' });
-    }
-
-    // Hash new password
-    const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
-
-    // Update password
-    user.hashedPassword = hashedPassword;
-    await user.save();
-
-    res.json({ message: 'Password updated successfully.' });
-  } catch (error) {
-    console.error('Change password error:', error);
-    res.status(500).json({ message: 'Server error.', error: error.message });
-  }
-});
-
-// UPDATE PROFILE
-app.put('/api/profile/:userId', async (req, res) => {
-  try {
-    const { userId } = req.params; // Get userId from URL
-    const { firstName, lastName, contactNumber, birthday } = req.body;
-
-    // Validate inputs
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ message: 'Invalid user ID.' });
-    }
-    if (!firstName || !lastName || !contactNumber || !birthday) {
-      return res.status(400).json({ message: 'All fields are required.' });
-    }
-
-    // Update user
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      {
-        firstName,
-        lastName,
-        contactNumber,
-        birthday: new Date(birthday),
-      },
-      { new: true }
-    );
-
-    if (!updatedUser) {
-      return res.status(404).json({ message: 'User not found.' });
-    }
-
-    res.json({ message: 'Profile updated successfully.', user: updatedUser });
-  } catch (error) {
-    console.error('Update error:', error);
-    res.status(500).json({ message: 'Server error.', error: error.message });
-  }
-});
-
-// GET USER PROFILE
-app.get('/api/user/:userId', requireAuth, async (req, res) => {
-  try {
-    const { userId } = req.params;
-
-    // Fetch the user from the database using the userId
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
-    }
-
-    res.status(200).json({
-      _id: user._id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      contactNumber: user.contactNumber,
-      birthday: user.birthday,
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error.', error: error.message });
   }
 });
 
