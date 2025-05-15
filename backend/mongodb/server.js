@@ -43,7 +43,7 @@ const requireAuth = (req, res, next) => {
 };
 
 // ROLE BASED ACCESS CONTROL
-const requireManager = (...allowedRoles) => {
+const authorizeRoles = (...allowedRoles) => {
   return (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token)
@@ -79,25 +79,17 @@ app.get('/', (req, res) => {
 // LOGIN, REGISTRATION, ROLES, UPDATE USER & CHANGE PASSWORD -------------
 
 // GET all users (Manager only)
-app.get('/api/users', requireManager('manager'), async (req, res) => {
+app.get('/api/users', authorizeRoles('manager'), async (req, res) => {
   try {
-    const users = await User.find({}, '-hashedPassword'); // exclude password field
+    const users = await User.find({}, '-hashedPassword');
     res.status(200).json(users);
   } catch (error) {
-    console.error('Error fetching users:', error);
     res.status(500).json({ message: 'Server error.', error: error.message });
   }
 });
 
-// Route to promote a user to manager
-app.put('/api/users/:id/role', requireManager('manager'), async (req, res) => {
+app.put('/api/users/:id/role', authorizeRoles('manager'), async (req, res) => {
   try {
-    if (req.user.role !== 'manager') {
-      return res
-        .status(403)
-        .json({ message: 'Only managers can change roles.' });
-    }
-
     const { role } = req.body;
     if (!['employee', 'manager'].includes(role)) {
       return res.status(400).json({ message: 'Invalid role.' });

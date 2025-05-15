@@ -47,9 +47,13 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('User Management')),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
+      body: 
+      
+          // isLoading
+          // ? const Center(child: CircularProgressIndicator())
+          // : 
+          
+          ListView.builder(
               itemCount: users.length,
               itemBuilder: (context, index) {
                 final user = users[index];
