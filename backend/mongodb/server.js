@@ -102,6 +102,24 @@ app.get('/', (req, res) => {
 
 // LOGIN, REGISTRATION, UPDATE USER & CHANGE PASSWORD -------------
 
+// Route to promote a user to manager
+app.patch('/api/users/:id/promote', requireManager, async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found.' });
+
+    user.role = 'manager';
+    await user.save();
+
+    res.status(200).json({ message: 'User promoted to manager.' });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: 'Error promoting user.', error: err.message });
+  }
+});
+
 // PUBLIC REGISTRATION (default role only)
 app.post('/api/register', async (req, res) => {
   try {
