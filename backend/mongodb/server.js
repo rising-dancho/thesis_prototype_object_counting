@@ -118,26 +118,39 @@ app.get(
 
 app.put(
   '/api/users/:id/role',
-  requireAuth, // ✅ this sets req.user = decoded
-  authorizeRoles('manager'), // ✅ this checks if the user is a manager
+  requireAuth,
+  authorizeRoles('manager'),
   async (req, res) => {
     try {
       const { role } = req.body;
+      const userIdBeingUpdated = req.params.id;
+      const requestingUserId = req.user._id.toString();
 
       if (!['employee', 'manager'].includes(role)) {
         return res.status(400).json({ message: 'Invalid role.' });
       }
 
+      // Prevent self-demotion from manager to employee
+      if (
+        requestingUserId === userIdBeingUpdated && // It's the same user
+        role !== 'manager' // Trying to change role to non-manager
+      ) {
+        return res
+          .status(403)
+          .json({
+            message: "You can't change your own role to a lower permission.",
+          });
+      }
+
       const user = await User.findByIdAndUpdate(
-        req.params.id,
+        userIdBeingUpdated,
         { role },
         { new: true }
       );
 
-      // 🪪 Log action here if needed (optional)
       await Activity.create({
         userId: req.user._id,
-        action: `Updated role of user ${req.params.id} to ${role}`,
+        action: `Updated role of user ${userIdBeingUpdated} to ${role}`,
       });
 
       res.json({ message: 'User role updated.', user });
