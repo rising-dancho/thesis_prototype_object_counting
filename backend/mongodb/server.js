@@ -190,7 +190,7 @@ app.post('/api/update/restock', async (req, res) => {
           availableStock: stockItem.availableStock,
         },
       };
-      
+
       // ✅ Conditionally add $set for unitPrice
       if (
         typeof stockItem.unitPrice === 'number' &&
@@ -220,8 +220,8 @@ app.post('/api/update/sold', async (req, res) => {
     for (const stockItem of req.body) {
       const updateFields = {
         totalStock: stockItem.totalStock,
-
         availableStock: stockItem.availableStock,
+        sold: stockItem.sold,
       };
 
       // ✅ Only include unitPrice if it's a valid number and not zero
