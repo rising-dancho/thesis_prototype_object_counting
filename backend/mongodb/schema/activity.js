@@ -12,13 +12,14 @@ const activitySchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Stock',
       required: function () {
-        return ![
-          'Logged In',
-          'Registered',
-          'Updated User Role',
-          'Deleted User',
-        ].includes(this.action);
-      }, // ✅ Only require stockId for stock-related actions
+        const action = this.action || '';
+        return !(
+          action === 'Logged In' ||
+          action === 'Registered' ||
+          action.startsWith('Updated role of user') ||
+          action.startsWith('Deleted user')
+        );
+      },
     },
     countedAmount: { type: Number, default: 0 },
   },
