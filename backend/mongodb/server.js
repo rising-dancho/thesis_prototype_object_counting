@@ -52,7 +52,7 @@ const authorizeRoles = (...allowedRoles) => {
       return res.status(401).json({ message: 'Access denied. No token.' });
 
     try {
-      const decoded = jwt.verify(token, 'your_secret_key');
+      const decoded = jwt.verify(token, process.env.SECRET);
       if (!allowedRoles.includes(decoded.role)) {
         return res
           .status(403)
