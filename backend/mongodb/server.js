@@ -28,7 +28,6 @@ app.use(
 
 const requireAuth = (req, res, next) => {
   const authHeader = req.headers.authorization;
-
   if (!authHeader)
     return res.status(401).json({ message: 'Authorization header missing' });
 
@@ -36,8 +35,8 @@ const requireAuth = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.SECRET);
-    console.log('Decoded token payload:', decoded); // 🪪 Here you log the payload!
-    req.user = decoded; // Makes the user's _id available in the request
+    console.log('Decoded token payload:', decoded);
+    req.user = decoded; // Attach the user to the request
     next();
   } catch (err) {
     return res.status(401).json({ message: 'Invalid or expired token' });
@@ -45,24 +44,19 @@ const requireAuth = (req, res, next) => {
 };
 
 // ROLE BASED ACCESS CONTROL
+// ✅ Middleware: Role Authorization
 const authorizeRoles = (...allowedRoles) => {
   return (req, res, next) => {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token)
-      return res.status(401).json({ message: 'Access denied. No token.' });
+    if (!req.user)
+      return res.status(401).json({ message: 'No user in request context' });
 
-    try {
-      const decoded = jwt.verify(token, process.env.SECRET);
-      if (!allowedRoles.includes(decoded.role)) {
-        return res
-          .status(403)
-          .json({ message: 'Forbidden: Insufficient privileges' });
-      }
-      req.user = decoded; // Save userId and role for later use
-      next();
-    } catch (err) {
-      res.status(401).json({ message: 'Invalid token' });
+    if (!allowedRoles.includes(req.user.role)) {
+      return res
+        .status(403)
+        .json({ message: 'Forbidden: Insufficient privileges' });
     }
+
+    next();
   };
 };
 
@@ -81,14 +75,19 @@ app.get('/', (req, res) => {
 // LOGIN, REGISTRATION, ROLES, UPDATE USER & CHANGE PASSWORD -------------
 
 // GET all users (Manager only)
-app.get('/api/users', authorizeRoles('manager'), async (req, res) => {
-  try {
-    const users = await User.find({}, '-hashedPassword');
-    res.status(200).json(users);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error.', error: error.message });
+app.get(
+  '/api/users',
+  requireAuth,
+  authorizeRoles('manager'),
+  async (req, res) => {
+    try {
+      const users = await User.find({}, '-hashedPassword');
+      res.status(200).json(users);
+    } catch (error) {
+      res.status(500).json({ message: 'Server error.', error: error.message });
+    }
   }
-});
+);
 
 app.put('/api/users/:id/role', authorizeRoles('manager'), async (req, res) => {
   try {
