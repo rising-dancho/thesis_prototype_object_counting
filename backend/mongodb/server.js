@@ -43,7 +43,7 @@ const requireAuth = (req, res, next) => {
 };
 
 // ROLE BASED ACCESS CONTROL
-const authorizeRoles = (...allowedRoles) => {
+const requireManager = (...allowedRoles) => {
   return (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token)
@@ -64,30 +64,6 @@ const authorizeRoles = (...allowedRoles) => {
   };
 };
 
-// CHECK IF USER IS A MANAGER
-const requireManager = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader?.startsWith('Bearer')) {
-    return res.status(401).json({ message: 'Missing or invalid token.' });
-  }
-
-  const token = authHeader.split(' ')[1];
-
-  try {
-    const decoded = jwt.verify(token, process.env.SECRET);
-    if (decoded.role !== 'manager') {
-      return res
-        .status(403)
-        .json({ message: 'Only managers can assign roles.' });
-    }
-    req.user = decoded; // attach user to request
-    next();
-  } catch (err) {
-    return res.status(401).json({ message: 'Invalid token.' });
-  }
-};
-
 // 🛢️ Connect to MongoDB using Mongoose
 mongoose.set('strictQuery', true);
 mongoose
@@ -103,7 +79,7 @@ app.get('/', (req, res) => {
 // LOGIN, REGISTRATION, ROLES, UPDATE USER & CHANGE PASSWORD -------------
 
 // GET all users (Manager only)
-app.get('/api/users', requireManager, async (req, res) => {
+app.get('/api/users', requireManager('manager'), async (req, res) => {
   try {
     const users = await User.find({}, '-hashedPassword'); // exclude password field
     res.status(200).json(users);
@@ -114,7 +90,7 @@ app.get('/api/users', requireManager, async (req, res) => {
 });
 
 // Route to promote a user to manager
-app.put('/api/users/:id/role', requireManager, async (req, res) => {
+app.put('/api/users/:id/role', requireManager('manager'), async (req, res) => {
   try {
     if (req.user.role !== 'manager') {
       return res
@@ -209,6 +185,7 @@ app.post('/api/login', async (req, res) => {
 
     // if user does not exist throw an error
     if (!existingUser) {
+      console.warn('Login failed: user not found', email);
       return res.status(400).json({ message: 'Incorrect email or password.' });
     }
 

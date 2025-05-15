@@ -203,12 +203,19 @@ class _LoginScreenState extends State<LoginScreen> {
                           // Check for token in the response
                           if (response != null &&
                               response.containsKey('token')) {
+                            // await SharedPrefsService.saveToken(
+                            //     response['token'],
+                            //     rememberPassword); // Pass rememberPassword
+                            // FOR TESTING`
                             await SharedPrefsService.saveToken(
                                 response['token'],
-                                rememberPassword); // Pass rememberPassword
+                                true); // Pass rememberPassword
+
+                            String? savedToken =
+                                await SharedPrefsService.getToken();
+                            debugPrint("Saved token: $savedToken");
 
                             // Save userId in SharedPreferences
-
                             if (response.containsKey('userId')) {
                               await SharedPrefsService.saveUserId(
                                   response['userId']);
