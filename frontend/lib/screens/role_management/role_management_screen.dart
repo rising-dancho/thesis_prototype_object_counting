@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:tectags/services/api.dart';
 
 class UserManagementScreen extends StatefulWidget {
   const UserManagementScreen({super.key});
@@ -14,47 +13,34 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   bool isLoading = true;
   String token = ''; // 🔐 Your JWT token here
 
-  Future<void> fetchUsers() async {
-    final response = await http.get(
-      Uri.parse('https://your-api.com/api/users'),
-      headers: {'Authorization': 'Bearer $token'},
-    );
-
-    if (response.statusCode == 200) {
+  Future<void> loadUsers() async {
+    final result = await API.fetchUsers();
+    if (result != null) {
       setState(() {
-        users = jsonDecode(response.body);
+        users = result;
         isLoading = false;
       });
     } else {
-      // handle error
+      // Handle error (e.g., show dialog/snackbar)
     }
   }
 
-  Future<void> updateRole(String userId, String newRole) async {
-    final response = await http.put(
-      Uri.parse('https://your-api.com/api/users/$userId/role'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({'role': newRole}),
+  void handleRoleUpdate(String userId, String newRole) async {
+    final result = await API.updateUserRole(userId, newRole);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(result['message'])),
     );
 
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Role updated successfully!')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update role')),
-      );
+    if (result['success']) {
+      // Refresh user list or update UI
     }
   }
 
   @override
   void initState() {
     super.initState();
-    fetchUsers();
+    loadUsers();
   }
 
   @override
@@ -77,7 +63,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('${user['firstName']} ${user['lastName']}',
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
                         Text(user['email']),
                         const SizedBox(height: 10),
                         Row(
@@ -100,7 +87,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                             ),
                             ElevatedButton(
                               onPressed: () {
-                                updateRole(user['_id'], selectedRole);
+                                handleRoleUpdate(user['_id'], selectedRole);
                               },
                               child: const Text('Update Role'),
                             )

@@ -68,14 +68,14 @@ const authorizeRoles = (...allowedRoles) => {
 const requireManager = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader?.startsWith('Bearer ')) {
+  if (!authHeader?.startsWith('Bearer')) {
     return res.status(401).json({ message: 'Missing or invalid token.' });
   }
 
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.SECRET);
     if (decoded.role !== 'manager') {
       return res
         .status(403)
@@ -101,6 +101,17 @@ app.get('/', (req, res) => {
 });
 
 // LOGIN, REGISTRATION, ROLES, UPDATE USER & CHANGE PASSWORD -------------
+
+// GET all users (Manager only)
+app.get('/api/users', requireManager, async (req, res) => {
+  try {
+    const users = await User.find({}, '-hashedPassword'); // exclude password field
+    res.status(200).json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ message: 'Server error.', error: error.message });
+  }
+});
 
 // Route to promote a user to manager
 app.put('/api/users/:id/role', requireManager, async (req, res) => {

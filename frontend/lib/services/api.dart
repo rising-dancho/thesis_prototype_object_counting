@@ -20,6 +20,268 @@ class API {
       "https://thesis-prototype-object-counting.vercel.app/api/";
   // static const baseUrl = "https://fix-inventory.vercel.app/api/";
 
+  // LOGIN, REGISTRATION, ROLES, UPDATE USER & CHANGE PASSWORD -------------
+
+  static Future<List<dynamic>?> fetchUsers() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final url = Uri.parse('${baseUrl}users');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      debugPrint("Fetch Users Response Code: ${response.statusCode}");
+      debugPrint("Fetch Users Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as List<dynamic>;
+      } else {
+        return null; // or throw an error, or return a Map with 'error' key
+      }
+    } catch (e) {
+      debugPrint("Fetch Users Error: $e");
+      return null;
+    }
+  }
+
+  static Future<Map<String, dynamic>> updateUserRole(
+    String userId,
+    String newRole,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final url = Uri.parse('${baseUrl}users/$userId/role');
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'role': newRole}),
+      );
+
+      debugPrint("Update Role Response Code: ${response.statusCode}");
+      debugPrint("Update Role Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return {'success': true, 'message': 'Role updated successfully'};
+      } else {
+        return {
+          'success': false,
+          'message':
+              jsonDecode(response.body)['message'] ?? 'Failed to update role',
+        };
+      }
+    } catch (e) {
+      return {'success': false, 'message': e.toString()};
+    }
+  }
+
+  // CHANGE PASSWORD
+  static Future<Map<String, dynamic>?> changePassword(
+    String userId,
+    String currentPassword,
+    String newPassword,
+  ) async {
+    final url = Uri.parse('${baseUrl}change-password/$userId');
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'currentPassword': currentPassword,
+          'newPassword': newPassword,
+        }),
+      );
+
+      debugPrint("Change Password Response Code: ${response.statusCode}");
+      debugPrint("Change Password Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {'error': jsonDecode(response.body)['message']};
+      }
+    } catch (e) {
+      return {'error': e.toString()};
+    }
+  }
+
+// POST REQUEST: REGISTRATION
+  static Future<Map<String, dynamic>?> registerUser(
+      Map<String, dynamic> userData) async {
+    debugPrint("Sending request to: ${baseUrl}register");
+    debugPrint("Request body: ${jsonEncode(userData)}");
+
+    var url = Uri.parse("${baseUrl}register");
+
+    try {
+      final res = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(userData),
+      );
+
+      debugPrint("Response Code: ${res.statusCode}");
+      debugPrint("Response Body: ${res.body}");
+
+      var data = jsonDecode(res.body.toString());
+
+      if (res.statusCode == 201) {
+        debugPrint("SUCCESS: $data");
+
+        String userId = data['userId'];
+        String token = data['token'];
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('userId', userId);
+        await prefs.setString('token', token);
+
+        return data;
+      } else {
+        String errorMessage = data['message'] ?? "Unknown error";
+        return {"error": "Registration failed: $errorMessage"};
+      }
+    } on SocketException catch (_) {
+      return {"error": "No internet connection"};
+    } catch (error) {
+      debugPrint("⚠️ Exception: $error");
+      return {"error": "Network error: ${error.toString()}"};
+    }
+  }
+
+  // POST REQUEST: LOGIN
+  static Future<Map<String, dynamic>?> loginUser(
+      Map<String, dynamic> userData) async {
+    debugPrint("🚀 Sending request to: ${baseUrl}login");
+    debugPrint("📝 Request body: ${jsonEncode(userData)}");
+
+    var url = Uri.parse("${baseUrl}login");
+
+    try {
+      final res = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(userData),
+      );
+
+      debugPrint("Response Code: ${res.statusCode}");
+      debugPrint("Response Body: ${res.body}");
+
+      if (res.statusCode == 200) {
+        var data = jsonDecode(res.body.toString());
+        debugPrint("SUCCESS: $data");
+        // Save userId to local storage (SharedPreferences)
+        // EXTRACT TOKEN AND USER ID
+        String userId = data['userId'];
+        String token = data['token']; // ⬅️ Saving TOKEN
+
+        // THEN SAVE to SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('userId', userId);
+        await prefs.setString('token', token); // ⬅️ Save token too
+        return data; // Return the response data
+      } else {
+        debugPrint("Failed: ${res.body}");
+        // CONVERT THE RESPONSE FROM SERVER FIRST FROM JSON to STRING
+        var errorData = jsonDecode(res.body); // Convert response body to JSON
+        String errorMessage = errorData['message'];
+        return {
+          "error": "Login failed: $errorMessage"
+        }; // Return null if the request fails
+      }
+    } catch (error) {
+      debugPrint("⚠️ Exception: $error");
+      return {
+        "error": "Network error: $error"
+      }; // Return null if an exception occurs
+    }
+  }
+
+  // UPDATE for user profile
+  static Future<Map<String, dynamic>?> updateUserProfile(
+    String userId,
+    Map<String, dynamic> profileData,
+  ) async {
+    final url = Uri.parse('${baseUrl}profile/$userId');
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(profileData),
+      );
+
+      debugPrint("Response Code: ${response.statusCode}");
+      debugPrint("Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {'error': jsonDecode(response.body)['message']};
+      }
+    } catch (e) {
+      return {'error': e.toString()};
+    }
+  }
+
+  // Method to fetch the user profile
+  static Future<Map<String, dynamic>?> fetchUserProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId =
+        prefs.getString('userId'); // Get the userId from SharedPreferences
+    final token =
+        prefs.getString('token'); // Get the token from SharedPreferences
+
+    if (userId == null || token == null) {
+      debugPrint("❌ User ID or Token not found in SharedPreferences");
+      return null;
+    }
+
+    final url = Uri.parse(
+        "${baseUrl}user/$userId"); // Construct the URL with the userId
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token", // Add token for authentication
+        },
+      );
+
+      debugPrint("Response Code: ${response.statusCode}");
+      debugPrint("Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body); // Return the user data
+      } else {
+        debugPrint("❌ Failed to fetch user profile: ${response.body}");
+        return null;
+      }
+    } catch (error) {
+      debugPrint("⚠️ Error fetching user profile: $error");
+      return null;
+    }
+  }
+
+  // MANAGING STOCKS -------------
   static Future<bool> updateStockPrice(
       String stockName, double unitPrice) async {
     try {
@@ -278,202 +540,6 @@ class API {
       }
     } catch (e) {
       debugPrint("Error deleting stock: $e");
-    }
-  }
-
-  // CHANGE PASSWORD
-  static Future<Map<String, dynamic>?> changePassword(
-    String userId,
-    String currentPassword,
-    String newPassword,
-  ) async {
-    final url = Uri.parse('${baseUrl}change-password/$userId');
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-
-    try {
-      final response = await http.put(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode({
-          'currentPassword': currentPassword,
-          'newPassword': newPassword,
-        }),
-      );
-
-      debugPrint("Change Password Response Code: ${response.statusCode}");
-      debugPrint("Change Password Response Body: ${response.body}");
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        return {'error': jsonDecode(response.body)['message']};
-      }
-    } catch (e) {
-      return {'error': e.toString()};
-    }
-  }
-
-// POST REQUEST: REGISTRATION
-  static Future<Map<String, dynamic>?> registerUser(
-      Map<String, dynamic> userData) async {
-    debugPrint("Sending request to: ${baseUrl}register");
-    debugPrint("Request body: ${jsonEncode(userData)}");
-
-    var url = Uri.parse("${baseUrl}register");
-
-    try {
-      final res = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(userData),
-      );
-
-      debugPrint("Response Code: ${res.statusCode}");
-      debugPrint("Response Body: ${res.body}");
-
-      var data = jsonDecode(res.body.toString());
-
-      if (res.statusCode == 201) {
-        debugPrint("SUCCESS: $data");
-
-        String userId = data['userId'];
-        String token = data['token'];
-
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('userId', userId);
-        await prefs.setString('token', token);
-
-        return data;
-      } else {
-        String errorMessage = data['message'] ?? "Unknown error";
-        return {"error": "Registration failed: $errorMessage"};
-      }
-    } on SocketException catch (_) {
-      return {"error": "No internet connection"};
-    } catch (error) {
-      debugPrint("⚠️ Exception: $error");
-      return {"error": "Network error: ${error.toString()}"};
-    }
-  }
-
-  // POST REQUEST: LOGIN
-  static Future<Map<String, dynamic>?> loginUser(
-      Map<String, dynamic> userData) async {
-    debugPrint("🚀 Sending request to: ${baseUrl}login");
-    debugPrint("📝 Request body: ${jsonEncode(userData)}");
-
-    var url = Uri.parse("${baseUrl}login");
-
-    try {
-      final res = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(userData),
-      );
-
-      debugPrint("Response Code: ${res.statusCode}");
-      debugPrint("Response Body: ${res.body}");
-
-      if (res.statusCode == 200) {
-        var data = jsonDecode(res.body.toString());
-        debugPrint("SUCCESS: $data");
-        // Save userId to local storage (SharedPreferences)
-        // EXTRACT TOKEN AND USER ID
-        String userId = data['userId'];
-        String token = data['token']; // ⬅️ Saving TOKEN
-
-        // THEN SAVE to SharedPreferences
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('userId', userId);
-        await prefs.setString('token', token); // ⬅️ Save token too
-        return data; // Return the response data
-      } else {
-        debugPrint("Failed: ${res.body}");
-        // CONVERT THE RESPONSE FROM SERVER FIRST FROM JSON to STRING
-        var errorData = jsonDecode(res.body); // Convert response body to JSON
-        String errorMessage = errorData['message'];
-        return {
-          "error": "Login failed: $errorMessage"
-        }; // Return null if the request fails
-      }
-    } catch (error) {
-      debugPrint("⚠️ Exception: $error");
-      return {
-        "error": "Network error: $error"
-      }; // Return null if an exception occurs
-    }
-  }
-
-  // UPDATE for user profile
-  static Future<Map<String, dynamic>?> updateUserProfile(
-    String userId,
-    Map<String, dynamic> profileData,
-  ) async {
-    final url = Uri.parse('${baseUrl}profile/$userId');
-
-    try {
-      final response = await http.put(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(profileData),
-      );
-
-      debugPrint("Response Code: ${response.statusCode}");
-      debugPrint("Response Body: ${response.body}");
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        return {'error': jsonDecode(response.body)['message']};
-      }
-    } catch (e) {
-      return {'error': e.toString()};
-    }
-  }
-
-  // Method to fetch the user profile
-  static Future<Map<String, dynamic>?> fetchUserProfile() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userId =
-        prefs.getString('userId'); // Get the userId from SharedPreferences
-    final token =
-        prefs.getString('token'); // Get the token from SharedPreferences
-
-    if (userId == null || token == null) {
-      debugPrint("❌ User ID or Token not found in SharedPreferences");
-      return null;
-    }
-
-    final url = Uri.parse(
-        "${baseUrl}user/$userId"); // Construct the URL with the userId
-
-    try {
-      final response = await http.get(
-        url,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $token", // Add token for authentication
-        },
-      );
-
-      debugPrint("Response Code: ${response.statusCode}");
-      debugPrint("Response Body: ${response.body}");
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body); // Return the user data
-      } else {
-        debugPrint("❌ Failed to fetch user profile: ${response.body}");
-        return null;
-      }
-    } catch (error) {
-      debugPrint("⚠️ Error fetching user profile: $error");
-      return null;
     }
   }
 
