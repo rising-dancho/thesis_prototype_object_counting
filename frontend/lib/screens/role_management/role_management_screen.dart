@@ -49,9 +49,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       appBar: AppBar(title: const Text('User Management')),
       body: 
       
-          // isLoading
-          // ? const Center(child: CircularProgressIndicator())
-          // : 
+          isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : 
           
           ListView.builder(
               itemCount: users.length,

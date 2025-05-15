@@ -24,7 +24,10 @@ class API {
 
   static Future<List<dynamic>?> fetchUsers() async {
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    final token =
+        prefs.getString('auth_token'); // make sure this is the correct key
+
+    debugPrint("🔐 Token used in fetchUsers: $token");
 
     final url = Uri.parse('${baseUrl}users');
 
@@ -36,16 +39,16 @@ class API {
         },
       );
 
-      debugPrint("Fetch Users Response Code: ${response.statusCode}");
-      debugPrint("Fetch Users Response Body: ${response.body}");
+      debugPrint("📦 Fetch Users Response Code: ${response.statusCode}");
+      debugPrint("📦 Fetch Users Response Body: ${response.body}");
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as List<dynamic>;
       } else {
-        return null; // or throw an error, or return a Map with 'error' key
+        return null;
       }
     } catch (e) {
-      debugPrint("Fetch Users Error: $e");
+      debugPrint("❌ Fetch Users Error: $e");
       return null;
     }
   }
@@ -55,7 +58,7 @@ class API {
     String newRole,
   ) async {
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    final token = prefs.getString('auth_token');
     final url = Uri.parse('${baseUrl}users/$userId/role');
 
     try {
@@ -93,7 +96,7 @@ class API {
   ) async {
     final url = Uri.parse('${baseUrl}change-password/$userId');
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    final token = prefs.getString('auth_token');
 
     try {
       final response = await http.put(
@@ -484,7 +487,7 @@ class API {
       String stockName, int restockAmount) async {
     final url = Uri.parse('${baseUrl}/api/update/restock');
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    final token = prefs.getString('auth_token');
 
     if (token == null) {
       debugPrint("❌ No token found in SharedPreferences");
@@ -553,7 +556,7 @@ class API {
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token'); // Retrieve token
+      final token = prefs.getString('auth_token'); // Retrieve token
       final res = await http.get(
         url,
         headers: {
