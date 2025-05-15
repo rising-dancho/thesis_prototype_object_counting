@@ -72,7 +72,34 @@ app.get('/', (req, res) => {
   res.send('FIXING BACKEND LOGIC! 🚀');
 });
 
-// LOGIN, REGISTRATION, ROLES, UPDATE USER & CHANGE PASSWORD -------------
+// LOGIN, REGISTRATION, ROLES, DELETE, UPDATE USER & CHANGE PASSWORD -------------
+
+// DELETE a user
+app.delete(
+  '/api/users/:id',
+  requireAuth,
+  authorizeRoles('manager'),
+  async (req, res) => {
+    try {
+      const userId = req.params.id;
+      await User.findByIdAndDelete(userId);
+
+      // Log the action
+      await Activity.create({
+        userId: req.user._id,
+        action: `Deleted user with ID ${userId}`,
+      });
+
+      res
+        .status(200)
+        .json({ success: true, message: 'User deleted successfully.' });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: 'Failed to delete user', error: error.message });
+    }
+  }
+);
 
 // GET all users (Manager only)
 app.get(
@@ -115,9 +142,7 @@ app.put(
 
       res.json({ message: 'User role updated.', user });
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: 'Server error.', error: error.message });
+      res.status(500).json({ message: 'Server error.', error: error.message });
     }
   }
 );

@@ -12,7 +12,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   List<dynamic> users = [];
   bool isLoading = true;
   String token = ''; // 🔐 Your JWT token here
-  
 
   Future<void> loadUsers() async {
     final result = await API.fetchUsers();
@@ -48,7 +47,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       appBar: AppBar(title: const Text('User Management')),
       body: isLoading
@@ -89,13 +87,53 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                 });
                               },
                             ),
-                            
-                            ElevatedButton(
-                              onPressed: () {
-                                handleRoleUpdate(user['_id'], selectedRole);
-                              },
-                              child: const Text('Update Role'),
-                            )
+                            Row(
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    handleRoleUpdate(user['_id'], selectedRole);
+                                  },
+                                  child: const Text('Update Role'),
+                                ),
+                                // IconButton(
+                                //   icon: const Icon(Icons.delete,
+                                //       color: Colors.red),
+                                //   onPressed: () async {
+                                //     final confirm = await showDialog<bool>(
+                                //       context: context,
+                                //       builder: (context) => AlertDialog(
+                                //         title: const Text('Confirm Deletion'),
+                                //         content: Text(
+                                //             'Delete ${user['firstName']} ${user['lastName']}?'),
+                                //         actions: [
+                                //           TextButton(
+                                //               onPressed: () =>
+                                //                   Navigator.pop(context, false),
+                                //               child: const Text('Cancel')),
+                                //           TextButton(
+                                //               onPressed: () =>
+                                //                   Navigator.pop(context, true),
+                                //               child: const Text('Delete')),
+                                //         ],
+                                //       ),
+                                //     );
+
+                                //     if (confirm == true) {
+                                //       final result =
+                                //           await API.deleteUser(user['_id']);
+                                //       ScaffoldMessenger.of(context)
+                                //           .showSnackBar(
+                                //         SnackBar(
+                                //             content: Text(result['message'])),
+                                //       );
+                                //       if (result['success']) {
+                                //         loadUsers(); // Refresh list
+                                //       }
+                                //     }
+                                //   },
+                                // ),
+                              ],
+                            ),
                           ],
                         )
                       ],

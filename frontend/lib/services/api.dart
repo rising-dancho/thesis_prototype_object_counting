@@ -22,9 +22,23 @@ class API {
 
   // LOGIN, REGISTRATION, ROLES, UPDATE USER & CHANGE PASSWORD -------------
 
+  static Future<Map<String, dynamic>> deleteUser(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+    final response = await http.delete(
+      Uri.parse('$baseUrl/users/$userId'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    return jsonDecode(response.body);
+  }
+
   static Future<List<dynamic>?> fetchUsers() async {
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token'); // or however you store it
+    final token = prefs.getString('auth_token');
 
     print('🔐 Token used in fetchUsers: $token');
 
