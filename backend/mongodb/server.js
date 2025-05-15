@@ -36,6 +36,7 @@ const requireAuth = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.SECRET);
+    console.log('Decoded token payload:', decoded); // 🪪 Here you log the payload!
     req.user = decoded; // Makes the user's _id available in the request
     next();
   } catch (err) {
