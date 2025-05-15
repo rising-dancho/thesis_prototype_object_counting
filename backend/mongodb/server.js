@@ -138,7 +138,7 @@ app.put(
         return res
           .status(403)
           .json({
-            message: "You can't change your own role to a lower permission.",
+            message: "Modifying your own role to a lower privilege level is not permitted.",
           });
       }
 

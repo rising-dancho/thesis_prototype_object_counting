@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tectags/services/api.dart';
 
 class UserManagementScreen extends StatefulWidget {
@@ -12,6 +13,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   List<dynamic> users = [];
   bool isLoading = true;
   String token = ''; // 🔐 Your JWT token here
+  String loggedInUserId = ''; // Store logged-in user ID
 
   Future<void> loadUsers() async {
     final result = await API.fetchUsers();
@@ -35,7 +37,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     );
 
     if (result['success']) {
-      // Refresh user list or update UI
+      loadUsers(); // Refresh user list after update
     }
   }
 
@@ -43,6 +45,16 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   void initState() {
     super.initState();
     loadUsers();
+    _loadLoggedInUserId();
+  }
+
+  Future<void> _loadLoggedInUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final id = prefs.getString('user_id') ?? '';
+
+    setState(() {
+      loggedInUserId = id;
+    });
   }
 
   @override
@@ -56,6 +68,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               itemBuilder: (context, index) {
                 final user = users[index];
                 String selectedRole = user['role'];
+
+                bool isSelf = (user['_id'] == loggedInUserId);
+                bool isDemotingSelf = isSelf && selectedRole != 'manager';
 
                 return Card(
                   margin: const EdgeInsets.all(8),
@@ -90,9 +105,12 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                             Row(
                               children: [
                                 ElevatedButton(
-                                  onPressed: () {
-                                    handleRoleUpdate(user['_id'], selectedRole);
-                                  },
+                                  onPressed: isDemotingSelf
+                                      ? null // disable button if self demotion
+                                      : () {
+                                          handleRoleUpdate(
+                                              user['_id'], selectedRole);
+                                        },
                                   child: const Text('Update Role'),
                                 ),
                                 // IconButton(
