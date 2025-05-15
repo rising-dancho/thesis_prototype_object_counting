@@ -100,23 +100,31 @@ app.get('/', (req, res) => {
   res.send('FIXING BACKEND LOGIC! 🚀');
 });
 
-// LOGIN, REGISTRATION, UPDATE USER & CHANGE PASSWORD -------------
+// LOGIN, REGISTRATION, ROLES, UPDATE USER & CHANGE PASSWORD -------------
 
 // Route to promote a user to manager
-app.patch('/api/users/:id/promote', requireManager, async (req, res) => {
-  const userId = req.params.id;
+app.put('/api/users/:id/role', requireManager, async (req, res) => {
   try {
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: 'User not found.' });
+    if (req.user.role !== 'manager') {
+      return res
+        .status(403)
+        .json({ message: 'Only managers can change roles.' });
+    }
 
-    user.role = 'manager';
-    await user.save();
+    const { role } = req.body;
+    if (!['employee', 'manager'].includes(role)) {
+      return res.status(400).json({ message: 'Invalid role.' });
+    }
 
-    res.status(200).json({ message: 'User promoted to manager.' });
-  } catch (err) {
-    res
-      .status(500)
-      .json({ message: 'Error promoting user.', error: err.message });
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { role },
+      { new: true }
+    );
+
+    res.json({ message: 'User role updated.', user });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error.', error: error.message });
   }
 });
 

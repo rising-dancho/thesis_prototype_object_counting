@@ -5,6 +5,7 @@ import 'package:tectags/screens/login_screen.dart';
 import 'package:tectags/screens/navigation/navigation_menu.dart';
 import 'package:tectags/screens/onboarding/onboarding_view.dart';
 import 'package:tectags/screens/profile_screen.dart';
+import 'package:tectags/screens/role_management/role_management_screen.dart';
 import 'package:tectags/services/shared_prefs_service.dart';
 
 class SideMenu extends StatelessWidget {
@@ -90,6 +91,16 @@ class SideMenu extends StatelessWidget {
           //     );
           //   },
           // ),
+          ListTile(
+            leading: const Icon(Icons.lock),
+            title: const Text('Roles'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => UserManagementScreen()),
+              );
+            },
+          ),
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: const Text('About'),
