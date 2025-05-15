@@ -89,24 +89,36 @@ app.get(
   }
 );
 
-app.put('/api/users/:id/role', authorizeRoles('manager'), async (req, res) => {
-  try {
-    const { role } = req.body;
-    if (!['employee', 'manager'].includes(role)) {
-      return res.status(400).json({ message: 'Invalid role.' });
+app.put(
+  '/api/users/:id/role',
+  requireAuth, // ✅ this sets req.user = decoded
+  authorizeRoles('manager'), // ✅ this checks if the user is a manager
+  async (req, res) => {
+    try {
+      const { role } = req.body;
+
+      if (!['employee', 'manager'].includes(role)) {
+        return res.status(400).json({ message: 'Invalid role.' });
+      }
+
+      const user = await User.findByIdAndUpdate(
+        req.params.id,
+        { role },
+        { new: true }
+      );
+
+      // 🪪 Log action here if needed (optional)
+      await Activity.create({
+        userId: req.user._id,
+        action: `Updated role of user ${req.params.id} to ${role}`,
+      });
+
+      res.json({ message: 'User role updated.', user });
+    } catch (error) {
+      res.status(500).json({ message: 'Server error.', error: error.message });
     }
-
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { role },
-      { new: true }
-    );
-
-    res.json({ message: 'User role updated.', user });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error.', error: error.message });
   }
-});
+);
 
 // PUBLIC REGISTRATION (default role only)
 app.post('/api/register', async (req, res) => {

@@ -12,6 +12,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   List<dynamic> users = [];
   bool isLoading = true;
   String token = ''; // 🔐 Your JWT token here
+  
 
   Future<void> loadUsers() async {
     final result = await API.fetchUsers();
@@ -21,7 +22,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
         isLoading = false;
       });
     } else {
-      // Handle error (e.g., show dialog/snackbar)
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to load users')),
+      );
     }
   }
 
@@ -45,15 +48,12 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       appBar: AppBar(title: const Text('User Management')),
-      body: 
-      
-          isLoading
+      body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : 
-          
-          ListView.builder(
+          : ListView.builder(
               itemCount: users.length,
               itemBuilder: (context, index) {
                 final user = users[index];
@@ -89,6 +89,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                 });
                               },
                             ),
+                            
                             ElevatedButton(
                               onPressed: () {
                                 handleRoleUpdate(user['_id'], selectedRole);
