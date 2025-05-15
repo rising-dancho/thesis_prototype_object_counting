@@ -18,6 +18,7 @@ const createToken = (id, role) => {
 
 // Middleware TO PARSE JSON body
 app.use(express.json());
+
 // URLENCODED WOULD ALLOW US TO GET ACCESS TO : req.body
 app.use(
   express.urlencoded({
@@ -194,7 +195,9 @@ app.post('/api/login', async (req, res) => {
 
     // IF LOGIN IS SUCCESSFUL: CREATE A TOKEN
     if (validPassword) {
-      const token = createToken(existingUser._id);
+      const token = createToken(existingUser._id, existingUser.role);
+
+      console.log('🪪 Token payload:', jwt.decode(token));
 
       // Log the login activity
       await Activity.create({

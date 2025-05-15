@@ -24,31 +24,24 @@ class API {
 
   static Future<List<dynamic>?> fetchUsers() async {
     final prefs = await SharedPreferences.getInstance();
-    final token =
-        prefs.getString('auth_token'); // make sure this is the correct key
+    final token = prefs.getString('auth_token'); // or however you store it
 
-    debugPrint("🔐 Token used in fetchUsers: $token");
+    print('🔐 Token used in fetchUsers: $token');
 
-    final url = Uri.parse('${baseUrl}users');
+    final response = await http.get(
+      Uri.parse('${baseUrl}users'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
 
-    try {
-      final response = await http.get(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token',
-        },
-      );
+    print('📦 Fetch Users Response Code: ${response.statusCode}');
+    print('📦 Fetch Users Response Body: ${response.body}');
 
-      debugPrint("📦 Fetch Users Response Code: ${response.statusCode}");
-      debugPrint("📦 Fetch Users Response Body: ${response.body}");
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body) as List<dynamic>;
-      } else {
-        return null;
-      }
-    } catch (e) {
-      debugPrint("❌ Fetch Users Error: $e");
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
       return null;
     }
   }
