@@ -60,8 +60,13 @@ class NavigationController extends GetxController {
   }
 
   Future<void> _setupNavigation() async {
-    final role = await API.fetchUserRole();
-    // final role = 'employee'; // or 'manager' for testing
+    // final role = await API.fetchUserRole();
+    // FOR TESTING: final role = 'employee'; // or 'manager' for testing
+
+    // Read role from SharedPreferences instead of hardcoded value
+    final role = await SharedPrefsService.getRole() ?? 'employee';
+
+    debugPrint("ROLE fetched from SharedPrefs: $role");
 
     if (role.isEmpty) {
       debugPrint("⚠️ Role is empty! Cannot determine permissions.");

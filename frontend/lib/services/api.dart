@@ -27,29 +27,33 @@ class API {
     final token = prefs.getString('auth_token');
 
     if (token == null) {
-      debugPrint('❌ No auth token found in SharedPreferences');
+      debugPrint('❌ No token found in SharedPreferences');
       return '';
     }
 
-    final response = await http.get(
-      Uri.parse('${API.baseUrl}profile'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/profile'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final role = data['role'] ?? '';
-      debugPrint('✅ Role fetched from API: $role');
-      return role;
-    } else {
-      debugPrint('❌ Failed to fetch role: ${response.statusCode}');
+      debugPrint('🧾 Full profile ROLE RESPONSE: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final role = data['role'];
+        debugPrint('✅ Parsed role from response: $role');
+        return role ?? '';
+      } else {
+        debugPrint(
+            '❌ Role fetch failed with status code: ${response.statusCode}');
+        return '';
+      }
+    } catch (e) {
+      debugPrint('❌ Exception caught while fetching role: $e');
       return '';
     }
   }
-
 
   static Future<Map<String, dynamic>> deleteUser(String userId) async {
     final prefs = await SharedPreferences.getInstance();

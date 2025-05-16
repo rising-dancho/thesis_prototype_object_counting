@@ -27,6 +27,10 @@ class SideMenu extends StatelessWidget {
     }
   }
 
+  Future<String?> _getRole() async {
+    return await SharedPrefsService.getRole();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -97,14 +101,31 @@ class SideMenu extends StatelessWidget {
           //     );
           //   },
           // ),
-          ListTile(
-            leading: const Icon(Icons.lock),
-            title: const Text('Roles'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => UserManagementScreen()),
-              );
+          // Conditionally show Roles tile only for manager
+          FutureBuilder<String?>(
+            future: _getRole(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const SizedBox(); // or a small loader if you want
+              }
+
+              final role = snapshot.data ?? '';
+
+              if (role == 'manager') {
+                return ListTile(
+                  leading: const Icon(Icons.lock),
+                  title: const Text('Roles'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => UserManagementScreen()),
+                    );
+                  },
+                );
+              } else {
+                return const SizedBox.shrink(); // Hide for others
+              }
             },
           ),
           ListTile(
