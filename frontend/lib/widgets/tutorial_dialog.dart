@@ -14,7 +14,7 @@ class TutorialDialog extends StatelessWidget {
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
         decoration: BoxDecoration(
-          color: const Color(0xFFF5F9FF),
+          color: const Color(0xFFF8F6F2),
           borderRadius: BorderRadius.circular(20),
         ),
         padding: const EdgeInsets.all(20),

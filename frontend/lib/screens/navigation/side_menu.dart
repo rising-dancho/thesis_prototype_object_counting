@@ -7,6 +7,7 @@ import 'package:tectags/screens/onboarding/onboarding_view.dart';
 import 'package:tectags/screens/profile_screen.dart';
 import 'package:tectags/screens/role_management/role_management_screen.dart';
 import 'package:tectags/services/shared_prefs_service.dart';
+import 'package:tectags/screens/dashboard_screen.dart';
 
 class SideMenu extends StatelessWidget {
   const SideMenu({super.key});
@@ -58,6 +59,16 @@ class SideMenu extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const NavigationMenu()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.dashboard),
+            title: const Text('Dashboard'),
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => DashboardScreen()),
               );
             },
           ),
