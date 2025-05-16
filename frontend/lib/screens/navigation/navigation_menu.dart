@@ -56,6 +56,9 @@ class NavigationController extends GetxController {
 
   Future<void> _setupNavigation() async {
     final role = await SharedPrefsService.getRole() ?? '';
+    if (role.isEmpty) {
+      debugPrint("⚠️ Role is empty! Cannot determine permissions.");
+    }
     debugPrint("ROLE IN SHAREDPREFS! $role");
     debugPrint("Fetched role using SharedPrefsService: $role");
 
@@ -100,6 +103,7 @@ class NavigationController extends GetxController {
     ];
 
     if (role == 'manager') {
+      debugPrint("🔐 Adding Activity Logs for MANAGER role");
       tempScreens.add(ActivityLogs());
       tempDestinations.add(
         const NavigationDestination(

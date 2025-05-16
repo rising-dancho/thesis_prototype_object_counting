@@ -17,6 +17,11 @@ class SharedPrefsService {
     return prefs.getString('role');
   }
 
+  static Future<void> clearRole() async {
+    final prefs = await _getPrefs();
+    await prefs.remove('role');
+  }
+
   // ----------------- TOKEN MANAGEMENT -----------------
   static Future<bool> hasValidToken() async {
     final prefs = await _getPrefs();

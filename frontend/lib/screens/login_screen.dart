@@ -177,7 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           Map<String, dynamic>? response;
                           try {
                             response = await API.loginUser(data);
-                            debugPrint("API Response: $response"); // Debug log
+                            debugPrint("API LOGIN Response: $response"); // Debug log
                           } catch (e) {
                             debugPrint("Error during login: $e"); // Debug log
                             if (!mounted) return;

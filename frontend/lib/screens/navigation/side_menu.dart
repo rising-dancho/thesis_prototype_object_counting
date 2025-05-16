@@ -12,13 +12,19 @@ class SideMenu extends StatelessWidget {
   const SideMenu({super.key});
 
   Future<void> logout(BuildContext context) async {
-    await SharedPrefsService.clearUserId(); // Clear user ID
-    await SharedPrefsService
-        .clearToken(); // Clear token for remembering login state
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-    );
+    // Clear all relevant shared preferences first
+    await SharedPrefsService.clearUserId();
+    await SharedPrefsService.clearToken();
+    await SharedPrefsService.clearRole();
+
+    // Ensure we're on the UI thread after async ops, then navigate
+    if (context.mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        (route) => false,
+      );
+    }
   }
 
   @override
