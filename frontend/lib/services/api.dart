@@ -195,30 +195,27 @@ class API {
       if (res.statusCode == 200) {
         var data = jsonDecode(res.body.toString());
         debugPrint("SUCCESS: $data");
-        // Save userId to local storage (SharedPreferences)
-        // EXTRACT TOKEN AND USER ID
-        String userId = data['userId'];
-        String token = data['token']; // ⬅️ Saving TOKEN
 
-        // THEN SAVE to SharedPreferences
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('userId', userId);
-        await prefs.setString('token', token); // ⬅️ Save token too
-        return data; // Return the response data
+        // Extract necessary fields
+        String userId = data['userId'];
+        String token = data['token'];
+        String role = data['role'];
+
+        // Save to SharedPreferences
+        await SharedPrefsService.saveUserId(userId);
+        await SharedPrefsService.saveTokenWithoutCheck(token);
+        await SharedPrefsService.saveRole(role);
+        return data;
       } else {
         debugPrint("Failed: ${res.body}");
-        // CONVERT THE RESPONSE FROM SERVER FIRST FROM JSON to STRING
-        var errorData = jsonDecode(res.body); // Convert response body to JSON
+
+        var errorData = jsonDecode(res.body);
         String errorMessage = errorData['message'];
-        return {
-          "error": "Login failed: $errorMessage"
-        }; // Return null if the request fails
+        return {"error": "Login failed: $errorMessage"};
       }
     } catch (error) {
       debugPrint("⚠️ Exception: $error");
-      return {
-        "error": "Network error: $error"
-      }; // Return null if an exception occurs
+      return {"error": "Network error: $error"};
     }
   }
 

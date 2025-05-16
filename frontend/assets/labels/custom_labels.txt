@@ -1,7 +1,6 @@
-Bistay_sand
-Cement
-Gravel
 Hollow_blocks
-Nails
 Rebar
-Skim_coat
+Sack_Of_Bistay_Sand
+Sack_Of_Cement
+Sack_Of_Gravel
+Sack_Of_Skim_Coat

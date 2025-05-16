@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tectags/screens/activity_logs/activity_logs.dart';
 import 'package:tectags/screens/inventory/stock_manager.dart';
 import 'package:tectags/screens/pytorch/pytorch_mobile.dart';
@@ -56,12 +55,10 @@ class NavigationController extends GetxController {
   }
 
   Future<void> _setupNavigation() async {
-    final prefs = await SharedPreferences.getInstance();
-    final role = prefs.getString('role') ?? '';
-    // final role = await SharedPrefsService.getRole();
+    final role = await SharedPrefsService.getRole() ?? '';
     debugPrint("ROLE IN SHAREDPREFS! $role");
+    debugPrint("Fetched role using SharedPrefsService: $role");
 
-    // Always show Count and Inventory
     final tempScreens = [
       PytorchMobile(),
       StockManager(),
@@ -102,7 +99,6 @@ class NavigationController extends GetxController {
       ),
     ];
 
-    // Add Activity Logs only if manager
     if (role == 'manager') {
       tempScreens.add(ActivityLogs());
       tempDestinations.add(
@@ -114,11 +110,9 @@ class NavigationController extends GetxController {
       );
     }
 
-    // Update observable lists
     screens.value = tempScreens;
     destinations.value = tempDestinations;
 
-    // Reset selected index if out of range
     if (selectedIndex.value >= screens.length) {
       selectedIndex.value = 0;
     }
