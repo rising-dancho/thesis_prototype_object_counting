@@ -60,7 +60,8 @@ class NavigationController extends GetxController {
   }
 
   Future<void> _setupNavigation() async {
-    final role = await API.fetchUserRole();
+    // final role = await API.fetchUserRole();
+    final role = 'employee'; // or 'manager' for testing
 
     if (role.isEmpty) {
       debugPrint("⚠️ Role is empty! Cannot determine permissions.");
