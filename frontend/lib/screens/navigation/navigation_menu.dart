@@ -1,9 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tectags/screens/activity_logs/activity_logs.dart';
 import 'package:tectags/screens/inventory/stock_manager.dart';
 import 'package:tectags/screens/pytorch/pytorch_mobile.dart';
+import 'package:tectags/services/api.dart';
 import 'package:tectags/services/shared_prefs_service.dart';
 
 class NavigationMenu extends StatelessWidget {
@@ -55,12 +60,16 @@ class NavigationController extends GetxController {
   }
 
   Future<void> _setupNavigation() async {
-    final role = await SharedPrefsService.getRole() ?? '';
+    final role = await API.fetchUserRole();
+
     if (role.isEmpty) {
       debugPrint("⚠️ Role is empty! Cannot determine permissions.");
     }
-    debugPrint("ROLE IN SHAREDPREFS! $role");
-    debugPrint("Fetched role using SharedPrefsService: $role");
+
+    debugPrint("ROLE fetched from API: $role");
+
+    // ✅ Save the role in SharedPreferences
+    await SharedPrefsService.setRole(role);
 
     final tempScreens = [
       PytorchMobile(),

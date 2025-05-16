@@ -223,7 +223,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                             // ✅ Save user role
                             if (response.containsKey('role')) {
-                              await SharedPrefsService.saveRole(
+                              await SharedPrefsService.setRole(
                                   response['role']);
                               debugPrint("Saved role: ${response['role']}");
                             }
