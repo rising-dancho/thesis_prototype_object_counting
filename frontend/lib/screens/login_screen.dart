@@ -221,6 +221,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                   response['userId']);
                             }
 
+                            // ✅ Save user role
+                            if (response.containsKey('role')) {
+                              await SharedPrefsService.saveRole(
+                                  response['role']);
+                              debugPrint("Saved role: ${response['role']}");
+                            }
+
                             if (!mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(

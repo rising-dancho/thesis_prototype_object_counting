@@ -135,11 +135,10 @@ app.put(
         requestingUserId === userIdBeingUpdated && // It's the same user
         role !== 'manager' // Trying to change role to non-manager
       ) {
-        return res
-          .status(403)
-          .json({
-            message: "Modifying your own role to a lower privilege level is not permitted.",
-          });
+        return res.status(403).json({
+          message:
+            'Modifying your own role to a lower privilege level is not permitted.',
+        });
       }
 
       const user = await User.findByIdAndUpdate(
@@ -261,6 +260,7 @@ app.post('/api/login', async (req, res) => {
         message: 'Login Successful!',
         token: token,
         userId: existingUser._id,
+        role: existingUser.role, // include ADD ROLE WHEN LOGGED IN
       });
     }
   } catch (error) {
