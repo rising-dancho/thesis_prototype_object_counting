@@ -27,6 +27,32 @@ class AboutScreen extends StatelessWidget {
     }
   ];
 
+  final List<Map<String, String>> advisers = const [
+    {
+      "name": "Dr. Risty M. Acerado",
+      "role": "Capstone Project Adviser",
+      "affiliation": "Technological Institute of the Philippines"
+    },
+  ];
+
+  final List<Map<String, String>> panels = const [
+    {
+      "name": "Dr. Gerald T. Cayabyab",
+      "role": "Dean and Program Chair",
+      "affiliation": "Technological Institute of the Philippines"
+    },
+    {
+      "name": "Ms. Roxanne Pagaduan",
+      "role": "Defense Panel",
+      "affiliation": "Technological Institute of the Philippines"
+    },
+    {
+      "name": "Ms. Arceli Salo",
+      "role": "Defense Panel",
+      "affiliation": "Technological Institute of the Philippines"
+    },
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,6 +117,91 @@ class AboutScreen extends StatelessWidget {
                 const SizedBox(height: 30),
                 const Center(
                   child: Text(
+                    "Meet Our Adviser",
+                    style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Roboto',
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ...advisers.map((adviser) {
+                  return Card(
+                    elevation: 6,
+                    color: Colors.white.withOpacity(0.9),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    margin: const EdgeInsets.symmetric(vertical: 10),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 28,
+                            backgroundColor: const Color(0xFF0D47A1),
+                            child: Text(
+                              adviser['name']![0],
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  adviser['name']!,
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  adviser['role']!,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.school,
+                                        size: 16, color: Colors.black45),
+                                    const SizedBox(width: 6),
+                                    Flexible(
+                                      child: Text(
+                                        adviser['affiliation']!,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.black45,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+                const SizedBox(height: 30),
+                const Center(
+                  child: Text(
                     "Meet Our Developers",
                     style: TextStyle(
                       fontSize: 26,
@@ -149,7 +260,8 @@ class AboutScreen extends StatelessWidget {
                                 const SizedBox(height: 6),
                                 Row(
                                   children: [
-                                    const Icon(Icons.email, size: 16, color: Colors.black45),
+                                    const Icon(Icons.email,
+                                        size: 16, color: Colors.black45),
                                     const SizedBox(width: 6),
                                     Flexible(
                                       child: Text(
@@ -173,6 +285,91 @@ class AboutScreen extends StatelessWidget {
                   );
                 }),
                 const SizedBox(height: 20),
+                const Center(
+                  child: Text(
+                    "Defense Panel Members",
+                    style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Roboto',
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ...panels.map((panel) {
+                  return Card(
+                    elevation: 6,
+                    color: Colors.white.withOpacity(0.9),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    margin: const EdgeInsets.symmetric(vertical: 10),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 28,
+                            backgroundColor: const Color(0xFF0D47A1),
+                            child: Text(
+                              panel['name']![0],
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  panel['name']!,
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  panel['role']!,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.email,
+                                        size: 16, color: Colors.black45),
+                                    const SizedBox(width: 6),
+                                    Flexible(
+                                      child: Text(
+                                        panel['affiliation']!,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.black45,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
               ],
             ),
           ),
