@@ -60,7 +60,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       String? userId = await SharedPrefsService.getUserId();
       debugPrint("User ID: $userId"); // Log the user ID
     } else {
-      debugPrint("Failed to fetch user profile.");
+      // Show a Snackbar if fetching fails
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('❌ Failed to fetch user profile. Please try again.'),
+          ),
+        );
+      }
     }
   }
 
