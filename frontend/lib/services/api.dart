@@ -288,26 +288,22 @@ class API {
 
   // Method to fetch the user profile
   static Future<Map<String, dynamic>?> fetchUserProfile() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userId =
-        prefs.getString('userId'); // Get the userId from SharedPreferences
-    final token =
-        prefs.getString('token'); // Get the token from SharedPreferences
+    final userId = await SharedPrefsService.getUserId();
+    final token = await SharedPrefsService.getToken();
 
     if (userId == null || token == null) {
       debugPrint("❌ User ID or Token not found in SharedPreferences");
       return null;
     }
 
-    final url = Uri.parse(
-        "${baseUrl}user/$userId"); // Construct the URL with the userId
+    final url = Uri.parse("${baseUrl}user/$userId");
 
     try {
       final response = await http.get(
         url,
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "Bearer $token", // Add token for authentication
+          "Authorization": "Bearer $token",
         },
       );
 
@@ -315,7 +311,7 @@ class API {
       debugPrint("Response Body: ${response.body}");
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body); // Return the user data
+        return jsonDecode(response.body);
       } else {
         debugPrint("❌ Failed to fetch user profile: ${response.body}");
         return null;

@@ -512,40 +512,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
           );
           return;
         }
-
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   SnackBar(content: Text("Stock and Image saved successfully!")),
-        // );
-
-        // // 🔥 Log detected object count to the backend
-        // if (_selectedStock == null) {
-        //   debugPrint("⚠️ No stock selected, skipping log.");
-        //   String? userId =
-        //       await SharedPrefsService.getUserId(); // ✅ Directly get the userId
-        //   if (userId == null) {
-        //     debugPrint("❌ User ID not found, cannot log data.");
-        //   }
-
-        //   if (userId != null) {
-        //     debugPrint(
-        //         "📌 Updating Database: USER = $userId, ITEM = $_selectedStock, Count = ${editableBoundingBoxes.length}");
-        //     var response = await API.logStockCurrentCount(
-        //       userId,
-        //       _selectedStock!,
-        //       editableBoundingBoxes.length, // Detected count
-        //     );
-
-        //     if (response != null) {
-        //       debugPrint("✅ Object count logged: $response");
-        //     } else {
-        //       debugPrint("❌ Failed to log object count.");
-        //     }
-        //   } else {
-        //     debugPrint("❌ User ID not found, cannot log data.");
-        //   }
-        // } else {
-        //   debugPrint("⚠️ No stock selected, skipping log.");
-        // }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Image not saved")),
