@@ -622,24 +622,29 @@ class _PytorchMobileState extends State<PytorchMobile> {
                     };
                   });
 
-                  final stockData = stockCounts[itemName];
+                  var stockData = stockCounts[itemName];
 
-                  // ✅ Get the actual stock ID from stored data
-                  final stockId = stockData?['_id'];
+                  // ✅ Ensure new stock is saved first
+                  if (stockData?['_id'] == null) {
+                    final savedData = await API.saveSingleStockToMongoDB(
+                        itemName, stockData!);
+                    if (savedData == null || savedData['_id'] == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content:
+                                Text("Failed to save new stock to MongoDB")),
+                      );
+                      return;
+                    }
 
-                  // 🛑 Fallback if stockId is missing
-                  if (stockId == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content:
-                              Text("Error: Stock ID not found for $itemName.")),
-                    );
-                    return;
+                    // ✅ Update local stockData with the new _id
+                    stockCounts[itemName]!['_id'] = savedData['_id'];
+                    stockData = stockCounts[itemName];
                   }
 
-                  // ✅ Get userId from your auth service
-                  final userId = await SharedPrefsService.getUserId();
+                  final stockId = stockData?['_id'];
 
+                  final userId = await SharedPrefsService.getUserId();
                   if (userId == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(

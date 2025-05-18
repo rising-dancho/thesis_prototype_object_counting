@@ -10,8 +10,13 @@ import 'package:tectags/utils/stock_notifier.dart';
 class SaveResult {
   final bool isSuccess;
   final String? errorMessage;
+  final String? id;
 
-  SaveResult({required this.isSuccess, this.errorMessage});
+  SaveResult({
+    required this.isSuccess,
+    this.errorMessage,
+    this.id,
+  });
 }
 
 class API {
@@ -492,7 +497,7 @@ class API {
     }
   }
 
-  static Future<SaveResult> saveSingleStockToMongoDB(
+  static Future<Map<String, dynamic>?> saveSingleStockToMongoDB(
       String name, Map<String, dynamic> stockData) async {
     try {
       final formattedStock = {
@@ -506,17 +511,28 @@ class API {
       final response = await http.post(
         Uri.parse("${baseUrl}update/sold"),
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode([formattedStock]), // Wrap in list
+        body: jsonEncode([formattedStock]), // Wrap in list as backend expects
       );
 
       if (response.statusCode == 200) {
         debugPrint("Stock saved successfully: ${response.body}");
+
+        // Backend returns an array of updated stocks, so decode accordingly
+        final List<dynamic> decoded = jsonDecode(response.body);
+        if (decoded.isNotEmpty) {
+          // Return the first updated stock as a Map
+          return Map<String, dynamic>.from(decoded[0]);
+        } else {
+          debugPrint("Warning: Empty response array from backend.");
+          return null;
+        }
       } else {
         debugPrint("Failed to save stock: ${response.body}");
+        return null;
       }
-      return SaveResult(isSuccess: true);
     } catch (e) {
-      return SaveResult(isSuccess: false, errorMessage: e.toString());
+      debugPrint("Error saving stock: $e");
+      return null;
     }
   }
 

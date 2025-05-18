@@ -596,6 +596,8 @@ app.post('/api/update/sold-with-price', async (req, res) => {
 // Save stock for sold
 app.post('/api/update/sold', async (req, res) => {
   try {
+    const updatedStocks = [];
+
     for (const stockItem of req.body) {
       const updateFields = {
         totalStock: stockItem.totalStock,
@@ -603,7 +605,6 @@ app.post('/api/update/sold', async (req, res) => {
         sold: stockItem.sold,
       };
 
-      // ✅ Only include unitPrice if it's a valid number and not zero
       if (
         typeof stockItem.unitPrice === 'number' &&
         !isNaN(stockItem.unitPrice) &&
@@ -614,14 +615,17 @@ app.post('/api/update/sold', async (req, res) => {
 
       console.log('Updating:', stockItem.stockName, updateFields);
 
-      await Stock.findOneAndUpdate(
+      const updatedStock = await Stock.findOneAndUpdate(
         { stockName: stockItem.stockName },
         { $set: updateFields },
         { upsert: true, new: true }
       );
+
+      updatedStocks.push(updatedStock);
     }
 
-    res.json({ message: 'Stock updated successfully' });
+    // Send all updated stock documents in the response
+    res.json(updatedStocks);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
