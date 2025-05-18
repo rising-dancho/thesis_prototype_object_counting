@@ -64,7 +64,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('❌ Failed to fetch user profile. Please try again.'),
+            content: Text(
+                'Failed to fetch user profile. Try to logout and log back in.'),
           ),
         );
       }
@@ -217,6 +218,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 3.0),
                                       child: TextFormField(
+                                        controller: _emailController,
+                                        enabled:
+                                            false, // <-- Disable editing here
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'Please enter your email';
+                                          }
+                                          return null;
+                                        },
+                                        decoration: InputDecoration(
+                                          labelText: 'Email',
+                                          hintText: 'Enter your email',
+                                          hintStyle: const TextStyle(
+                                              color: Colors.black26),
+                                          fillColor: Colors.white,
+                                          filled: true,
+                                          prefixIcon: const Icon(Icons.email,
+                                              color: Color.fromRGBO(
+                                                  70, 70, 70, 1)),
+                                          border: InputBorder.none,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 20),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 3.0),
+                                      child: TextFormField(
                                         controller: _firstNameController,
                                         validator: (value) {
                                           if (value == null || value.isEmpty) {
@@ -260,32 +289,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           filled: true,
                                           prefixIcon: const Icon(
                                               Icons.person_2_rounded,
-                                              color: Color.fromRGBO(
-                                                  70, 70, 70, 1)),
-                                          border: InputBorder.none,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 20.0),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 3.0),
-                                      child: TextFormField(
-                                        controller: _emailController,
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please enter your email';
-                                          }
-                                          return null;
-                                        },
-                                        decoration: InputDecoration(
-                                          labelText: 'Email',
-                                          hintText: 'Enter your email',
-                                          hintStyle: const TextStyle(
-                                              color: Colors.black26),
-                                          fillColor: Colors.white,
-                                          filled: true,
-                                          prefixIcon: const Icon(Icons.email,
                                               color: Color.fromRGBO(
                                                   70, 70, 70, 1)),
                                           border: InputBorder.none,
