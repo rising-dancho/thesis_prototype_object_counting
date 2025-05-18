@@ -105,6 +105,14 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                             Row(
                               children: [
                                 ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        const Color.fromARGB(255, 22, 165, 221),
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
                                   onPressed: isDemotingSelf
                                       ? null // disable button if self demotion
                                       : () {
