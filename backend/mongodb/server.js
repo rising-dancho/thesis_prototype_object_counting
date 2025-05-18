@@ -554,7 +554,6 @@ app.post('/api/update/restock', async (req, res) => {
   }
 });
 
-// Save stock for sold, do the calculation, and assign the price
 app.post('/api/update/sold-with-price', async (req, res) => {
   const { stockId, soldAmount, price, userId } = req.body;
 
@@ -572,13 +571,25 @@ app.post('/api/update/sold-with-price', async (req, res) => {
   }
 
   try {
-    // Update the sold count and unitPrice in the Stock document
-    await Stock.findByIdAndUpdate(stockId, {
-      $inc: { sold: soldAmount },
-      $set: { unitPrice: price },
-    });
+    const stock = await Stock.findById(stockId);
+    if (!stock) {
+      return res.status(404).json({ error: 'Stock not found' });
+    }
 
-    // Log the activity (price is NOT included here, as intended)
+    const updatedStock = await Stock.findByIdAndUpdate(
+      stockId,
+      {
+        $inc: {
+          sold: soldAmount,
+        },
+        $set: {
+          unitPrice: price,
+          availableStock: Math.max(0, stock.availableStock - soldAmount), // 🚨 Subtract sold from availableStock
+        },
+      },
+      { new: true }
+    );
+
     await Activity.create({
       userId,
       stockId,
@@ -586,7 +597,9 @@ app.post('/api/update/sold-with-price', async (req, res) => {
       countedAmount: soldAmount,
     });
 
-    res.status(200).json({ message: 'Stock updated and activity logged.' });
+    res
+      .status(200)
+      .json({ message: 'Stock updated and activity logged.', updatedStock });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
