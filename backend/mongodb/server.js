@@ -558,14 +558,27 @@ app.post('/api/update/restock', async (req, res) => {
 router.post('/api/update/sold-with-price', async (req, res) => {
   const { stockId, soldAmount, price, userId } = req.body;
 
+  if (
+    !stockId ||
+    !userId ||
+    typeof soldAmount !== 'number' ||
+    typeof price !== 'number'
+  ) {
+    return res.status(400).json({ error: 'Invalid input data' });
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(stockId)) {
+    return res.status(400).json({ error: 'Invalid stock ID' });
+  }
+
   try {
-    // 1. Update the sold count and unitPrice in the Stock document
+    // Update the sold count and unitPrice in the Stock document
     await Stock.findByIdAndUpdate(stockId, {
       $inc: { sold: soldAmount },
-      $set: { unitPrice: price }, // ⬅️ Update unit price here
+      $set: { unitPrice: price },
     });
 
-    // 2. Log the activity (price is NOT included here, as intended)
+    // Log the activity (price is NOT included here, as intended)
     await Activity.create({
       userId,
       stockId,
