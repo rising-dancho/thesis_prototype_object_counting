@@ -21,6 +21,7 @@ import 'package:intl/intl.dart';
 
 // PYTORCH
 import 'package:pytorch_lite/pytorch_lite.dart';
+import 'package:tectags/services/shared_prefs_service.dart';
 import 'package:tectags/utils/label_formatter.dart';
 import 'package:tectags/utils/stock_notifier.dart';
 // import 'package:tectags/utils/sell_restock_helper.dart';
@@ -141,9 +142,12 @@ class _PytorchMobileState extends State<PytorchMobile> {
     if (mounted) {
       setState(() {
         stockCounts = data.map((key, value) => MapEntry(key, {
+              "_id": value["_id"], // ✅ Keep the stock ID
               "availableStock": value["availableStock"] ?? 0,
               "totalStock": value["totalStock"] ?? 0,
               "sold": value["sold"] ?? 0,
+              "price":
+                  value["unitPrice"] ?? 0.0, // optional: also store unitPrice
             }));
       });
       debugPrint("Updated StockCounts: $stockCounts");
@@ -602,31 +606,70 @@ class _PytorchMobileState extends State<PytorchMobile> {
           isScrollControlled: true,
           builder: (modalContext) {
             return AddNewProduct(
-              initialName: initialName,
-              itemCount: itemCount,
-              actionType: actionType,
-              onAddStock:
-                  (String itemName, int count, int sold, double price) async {
-                setState(() {
-                  final existingStock = stockCounts[itemName] ?? {};
-                  stockCounts[itemName] = {
-                    "availableStock": count,
-                    "totalStock": count,
-                    "sold": sold,
-                    "price": price,
-                    ...existingStock,
-                  };
+                initialName: initialName,
+                itemCount: itemCount,
+                actionType: actionType,
+                onAddStock:
+                    (String itemName, int count, int sold, double price) async {
+                  setState(() {
+                    final existingStock = stockCounts[itemName] ?? {};
+                    stockCounts[itemName] = {
+                      "availableStock": count,
+                      "totalStock": count,
+                      "sold": sold,
+                      "price": price,
+                      ...existingStock,
+                    };
+                  });
+
+                  final stockData = stockCounts[itemName];
+
+                  // ✅ Get the actual stock ID from stored data
+                  final stockId = stockData?['_id'];
+
+                  // 🛑 Fallback if stockId is missing
+                  if (stockId == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content:
+                              Text("Error: Stock ID not found for $itemName.")),
+                    );
+                    return;
+                  }
+
+                  // ✅ Get userId from your auth service
+                  final userId = await SharedPrefsService.getUserId();
+
+                  if (userId == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text(
+                              "Error: User ID is missing. Please log in again.")),
+                    );
+                    return;
+                  }
+
+                  final result = await API.saveSoldStockWithPrice(
+                    stockId,
+                    sold,
+                    price,
+                    userId,
+                  );
+
+                  if (result.isSuccess) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content:
+                              Text("Stock and price updated successfully!")),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text(
+                              "Failed to update stock: ${result.errorMessage ?? 'Unknown error'}")),
+                    );
+                  }
                 });
-
-                await API.saveSingleStockToMongoDB(
-                    itemName, stockCounts[itemName]!);
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content: Text("Stock and Image saved successfully!")),
-                );
-              },
-            );
           },
         );
       }

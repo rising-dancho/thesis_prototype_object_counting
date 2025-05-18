@@ -520,6 +520,39 @@ class API {
     }
   }
 
+  // THIS FIXES THE SELLING A STOCK NOT IN THE INVENTORY
+  static Future<SaveResult> saveSoldStockWithPrice(
+    String stockId,
+    int soldAmount,
+    double price,
+    String userId,
+  ) async {
+    try {
+      final body = {
+        "stockId": stockId,
+        "soldAmount": soldAmount,
+        "price": price,
+        "userId": userId,
+      };
+
+      final response = await http.post(
+        Uri.parse("${baseUrl}update/sold-with-price"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        debugPrint("Sold stock and price updated.");
+        return SaveResult(isSuccess: true);
+      } else {
+        debugPrint("Error: ${response.body}");
+        return SaveResult(isSuccess: false);
+      }
+    } catch (e) {
+      return SaveResult(isSuccess: false, errorMessage: e.toString());
+    }
+  }
+
   static Future<Map<String, dynamic>?> restockStock(
       String stockName, int restockAmount) async {
     final url = Uri.parse('${baseUrl}/api/update/restock');

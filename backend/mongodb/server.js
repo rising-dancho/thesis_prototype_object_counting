@@ -554,6 +554,32 @@ app.post('/api/update/restock', async (req, res) => {
   }
 });
 
+// Save stock for sold, do the calculation, and assign the price
+router.post('/update/sold-with-price', async (req, res) => {
+  const { stockId, soldAmount, price, userId } = req.body;
+
+  try {
+    // 1. Update the sold count and unitPrice in the Stock document
+    await Stock.findByIdAndUpdate(stockId, {
+      $inc: { sold: soldAmount },
+      $set: { unitPrice: price }, // ⬅️ Update unit price here
+    });
+
+    // 2. Log the activity (price is NOT included here, as intended)
+    await Activity.create({
+      userId,
+      stockId,
+      action: 'Updated sold count',
+      countedAmount: soldAmount,
+    });
+
+    res.status(200).json({ message: 'Stock updated and activity logged.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Save stock for sold
 app.post('/api/update/sold', async (req, res) => {
   try {
