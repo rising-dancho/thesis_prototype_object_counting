@@ -423,7 +423,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
   /// THIS WOULD ALSO SAVE COUNTED OBJECT TO THE DATABASE (WILL SHOW IN THE ACTIVITY LOGS)
   Future<void> saveImage(BuildContext context) async {
     try {
-      // ✅ PREVENT SAVING IF THE STOCK SELECTION DROPDOWN IS EMPTY
       if (_selectedStock == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -444,78 +443,102 @@ class _PytorchMobileState extends State<PytorchMobile> {
         return;
       }
 
-      final result = await SaverGallery.saveImage(
-        screenShot,
-        fileName: "screenshot_${DateTime.now().millisecondsSinceEpoch}.png",
-        skipIfExists: false,
-      ); // [save your actual image] screenShot is my image
+      final action = await showDialog<String>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("What did we count for?"),
+          content:
+              Text("Do you want to count this stock as sold or restocked?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, "restock"),
+              child: Text("Restock", style: TextStyle(color: Colors.blue[800])),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, "sell"),
+              child: Text("Sell", style: TextStyle(color: Colors.red[800])),
+            ),
+          ],
+        ),
+      );
 
-      debugPrint("Result: $result"); // [check structure of: result]
+      if (action == null) {
+        debugPrint("⚠️ Action was cancelled.");
+        return;
+      }
 
-      if (result.isSuccess) {
-        // Ask user if they are restocking or selling
-        final action = await showDialog<String>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text("What did we count for?"),
-            content:
-                Text("Do you want to count this stock as sold or restocked?"),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, "restock"),
-                child:
-                    Text("Restock", style: TextStyle(color: Colors.blue[800])),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, "sell"),
-                child: Text("Sell", style: TextStyle(color: Colors.red[800])),
-              ),
-            ],
-          ),
-        );
+      if (!stockList.contains(_selectedStock)) {
+        debugPrint("🆕 $_selectedStock not found in stock list.");
 
-        // ✅ Safely check if user canceled the dialog
-        if (action == null) {
-          debugPrint("⚠️ Action was cancelled.");
+        if (action == "sell" || action == "restock") {
+          await _openSellOrRestockProductModal(
+            context,
+            actionType: action,
+            initialName: _selectedStock,
+            itemCount: editableBoundingBoxes.length,
+            initialAmount: editableBoundingBoxes.length,
+          );
+          // Save image only after modal closes:
+          final result = await SaverGallery.saveImage(
+            screenShot,
+            fileName: "screenshot_${DateTime.now().millisecondsSinceEpoch}.png",
+            skipIfExists: false,
+          );
+
+          if (result.isSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Image saved and stock added!")),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Failed to save image")),
+            );
+          }
           return;
         }
+      }
 
-        // ✅ If selected stock is NOT in the cached stock list, open modal to add it
-        if (!stockList.contains(_selectedStock)) {
-          debugPrint("🆕 $_selectedStock not found in stock list.");
+      // Stock exists — normal flow
+      if (action == "restock") {
+        await _openRestockStockModal(context, _selectedStock!);
 
-          if (action == "sell" || action == "restock") {
-            _openSellOrRestockProductModal(
-              context,
-              actionType: action,
-              initialName: _selectedStock,
-              itemCount: editableBoundingBoxes.length,
-              initialAmount: editableBoundingBoxes.length,
-            );
-            return;
-          }
-        }
+        final result = await SaverGallery.saveImage(
+          screenShot,
+          fileName: "screenshot_${DateTime.now().millisecondsSinceEpoch}.png",
+          skipIfExists: false,
+        );
 
-        // Stock exists — normal flow
-        if (action == "restock") {
-          await _openRestockStockModal(context, _selectedStock!);
+        if (result.isSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("Stock restocked and image saved!")),
           );
-          return;
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Failed to save image")),
+          );
         }
+        return;
+      }
 
-        if (action == "sell") {
-          await _openSellStockModal(context, _selectedStock!);
+      if (action == "sell") {
+        await _openSellStockModal(context, _selectedStock!);
+
+        final result = await SaverGallery.saveImage(
+          screenShot,
+          fileName: "screenshot_${DateTime.now().millisecondsSinceEpoch}.png",
+          skipIfExists: false,
+        );
+
+        if (result.isSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("Stock sold and image saved!")),
           );
-          return;
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Failed to save image")),
+          );
         }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Image not saved")),
-        );
+        return;
       }
     } catch (e) {
       debugPrint("Error saving image: $e");
