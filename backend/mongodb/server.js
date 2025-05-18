@@ -555,7 +555,7 @@ app.post('/api/update/restock', async (req, res) => {
 });
 
 // Save stock for sold, do the calculation, and assign the price
-router.post('/api/update/sold-with-price', async (req, res) => {
+app.post('/api/update/sold-with-price', async (req, res) => {
   const { stockId, soldAmount, price, userId } = req.body;
 
   if (
