@@ -17,7 +17,18 @@ async function sendOTP(params) {
   const hash = crypto.createHmac('sha256', key).update(data).digest('hex');
   const fullHash = `${hash}.${expires}`;
 
-  const otpMessage = `Hi! Welcome to TecTags! ${otp} is your one-time password (OTP) to verify your email.`;
+  const otpMessage = `
+  Dear ${params.email},
+
+  Your verification code is: ${otp}
+
+  Use this code to complete your registration with TecTags. This code is valid for 5 minutes.
+
+  If you did not request this code, please ignore this message.
+
+  Best regards,  
+  The TecTags Team
+  `;
   const model = {
     email: params.email,
     subject: 'TecTags: Registration OTP',
