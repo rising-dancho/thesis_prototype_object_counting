@@ -29,12 +29,25 @@ class TutorialDialog extends StatelessWidget {
                 child: SingleChildScrollView(
                   child: Column(
                     children: const [
-                      _StepTile(icon: Icons.camera_alt, text: 'Tap "Capture Photo" to take a new picture.'),
-                      _StepTile(icon: Icons.image, text: 'Or tap "Choose an Image" to select from gallery.'),
-                      _StepTile(icon: Icons.add_box_outlined, text: 'Use the "+" icon to add bounding boxes.'),
-                      _StepTile(icon: Icons.close, text: 'Use the "×" icon to remove boxes.'),
-                      _StepTile(icon: Icons.visibility, text: 'Toggle "Bounding Boxes" to show/hide labels.'),
-                      _StepTile(icon: Icons.save, text: 'Tap "Save" to export the annotated image.'),
+                      _StepTile(
+                          icon: Icons.camera_alt,
+                          text: 'Tap "Capture Photo" to take a new picture.'),
+                      _StepTile(
+                          icon: Icons.image,
+                          text:
+                              'Or tap "Choose an Image" to select from gallery.'),
+                      _StepTile(
+                          icon: Icons.add_box_outlined,
+                          text: 'Use the "+" icon to add bounding boxes.'),
+                      _StepTile(
+                          icon: Icons.close,
+                          text: 'Use the "×" icon to remove boxes.'),
+                      _StepTile(
+                          icon: Icons.visibility,
+                          text: 'Toggle "Bounding Boxes" to show/hide labels.'),
+                      _StepTile(
+                          icon: Icons.save,
+                          text: 'Tap "Save" to export the annotated image.'),
                     ],
                   ),
                 ),
@@ -55,7 +68,8 @@ class TutorialDialog extends StatelessWidget {
                       style: TextButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor: Colors.grey[600],
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -69,7 +83,8 @@ class TutorialDialog extends StatelessWidget {
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.white,
                       backgroundColor: const Color.fromARGB(255, 22, 165, 221),
-                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 18, vertical: 10),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -88,13 +103,14 @@ class TutorialDialog extends StatelessWidget {
   Widget _buildHeader(BuildContext context) {
     return Row(
       children: [
-        const Icon(Icons.info, size: 28, color: Color.fromARGB(255, 22, 165, 221)),
+        // const Icon(Icons.info, size: 28, color: Color.fromARGB(255, 22, 165, 221)),
         const SizedBox(width: 12),
         Expanded(
           child: Text(
             'How to Use TecTags',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
+                  fontSize: 24,
                   color: const Color.fromARGB(255, 22, 165, 221),
                 ),
           ),
@@ -122,7 +138,8 @@ class _StepTile extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            Icon(icon, size: 24, color: const Color.fromARGB(255, 22, 165, 221)),
+            Icon(icon,
+                size: 24, color: const Color.fromARGB(255, 22, 165, 221)),
             const SizedBox(width: 12),
             Expanded(
               child: Text(

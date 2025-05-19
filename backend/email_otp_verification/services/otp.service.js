@@ -27,8 +27,8 @@ async function sendOTP(params) {
   If you did not request this code, please ignore this message.
 
   Best regards,  
-  The TecTags Team
-  `;
+  The TecTags Team`;
+
   const model = {
     email: params.email,
     subject: 'TecTags: Registration OTP',

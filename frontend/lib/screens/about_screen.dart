@@ -345,7 +345,7 @@ class AboutScreen extends StatelessWidget {
                                 const SizedBox(height: 6),
                                 Row(
                                   children: [
-                                    const Icon(Icons.email,
+                                    const Icon(Icons.school,
                                         size: 16, color: Colors.black45),
                                     const SizedBox(width: 6),
                                     Flexible(
