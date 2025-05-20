@@ -458,13 +458,23 @@ class _PytorchMobileState extends State<PytorchMobile> {
       }
 
       if (action == "restock") {
-        await _openRestockStockModal(context, _selectedStock!);
-        await _saveScreenshot(
-            screenShot, context, "Stock restocked and image saved!");
+        final bool? didRestock =
+            await _openRestockStockModal(context, _selectedStock!);
+        if (didRestock == true) {
+          await _saveScreenshot(
+              screenShot, context, "Stock restocked and image saved!");
+        } else {
+          debugPrint("❌ Restock was cancelled.");
+        }
       } else if (action == "sell") {
-        await _openSellStockModal(context, _selectedStock!);
-        await _saveScreenshot(
-            screenShot, context, "Stock sold and image saved!");
+        final bool? didSell =
+            await _openSellStockModal(context, _selectedStock!);
+        if (didSell == true) {
+          await _saveScreenshot(
+              screenShot, context, "Stock sold and image saved!");
+        } else {
+          debugPrint("❌ Sale was cancelled.");
+        }
       }
     } catch (e) {
       debugPrint("❌ Error saving image: $e");
@@ -507,42 +517,117 @@ class _PytorchMobileState extends State<PytorchMobile> {
     );
   }
 
-  //  PUT THIS BACK
-  // if (action == null) {
-  //     debugPrint("⚠️ Action was cancelled.");
-  //     return;
-  //   }
+  Future<bool?> _openSellStockModal(BuildContext context, String item) async {
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: SingleChildScrollView(
+            child: SellProduct(
+              itemName: item,
+              initialAmount: editableBoundingBoxes.length,
+              onSell: (sellAmount) {
+                final success = _updateStockForSale(item, sellAmount);
+                Navigator.of(context).pop(success);
+              },
+              isSelling: true,
+            ),
+          ),
+        );
+      },
+    );
 
-  // if (!stockList.contains(_selectedStock)) {
-  //   debugPrint("🆕 $_selectedStock not found in stock list.");
+    return result;
+  }
 
-  //   if (action == "sell" || action == "restock") {
-  //     final confirmed = await _openSellOrRestockProductModal(
-  //       context,
-  //       actionType: action,
-  //       initialName: _selectedStock,
-  //       itemCount: editableBoundingBoxes.length,
-  //       initialAmount: editableBoundingBoxes.length,
-  //     );
-  //     if (!confirmed || !mounted) return;
+  bool _updateStockForSale(String item, int sellAmount) {
+    if (stockCounts.containsKey(item)) {
+      int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
+      int totalStock = stockCounts[item]?["totalStock"] ?? 0;
+      String stockId = stockCounts[item]?["_id"].toString() ?? "";
 
-  //     final result = await SaverGallery.saveImage(
-  //       screenShot,
-  //       fileName: "screenshot_${DateTime.now().millisecondsSinceEpoch}.png",
-  //       skipIfExists: false,
-  //     );
-  //     if (!mounted) return;
+      if (sellAmount > currentAvailableStock) {
+        ScaffoldMessenger.of(this.context).showSnackBar(
+          SnackBar(content: Text('Insufficient stocks to sell')),
+        );
+        return false;
+      }
 
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         content: Text(result.isSuccess
-  //             ? "Stock added and image saved!"
-  //             : "Failed to save image"),
-  //       ),
-  //     );
-  //     return;
-  //   }
-  // }
+      setState(() {
+        stockCounts[item]?["availableStock"] =
+            currentAvailableStock - sellAmount;
+        stockCounts[item]?["sold"] =
+            (stockCounts[item]?["sold"] ?? 0) + sellAmount;
+      });
+
+      int updatedStock = stockCounts[item]?["availableStock"] ?? 0;
+
+      API.saveSingleStockToMongoDB(item, stockCounts[item]!);
+      StockNotifier.checkStockAndNotify(
+        updatedStock,
+        totalStock,
+        item,
+        stockId,
+      );
+
+      return true;
+    }
+
+    return false;
+  }
+
+  Future<bool?> _openRestockStockModal(
+      BuildContext context, String item) async {
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: SingleChildScrollView(
+            child: RestockProduct(
+              itemName: item,
+              initialAmount: editableBoundingBoxes.length,
+              onRestock: (restockAmount) {
+                final success = _updateStock(item, restockAmount);
+                Navigator.of(context).pop(success); // ✅ true or false
+              },
+            ),
+          ),
+        );
+      },
+    );
+
+    return result; // ⚠️ return null so that the image dont get saved if the user just closed the modal
+  }
+
+  bool _updateStock(String item, int restockAmount) {
+    if (stockCounts.containsKey(item)) {
+      setState(() {
+        int currentTotalStock = stockCounts[item]?["totalStock"] ?? 0;
+        int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
+        double currentPrice = stockCounts[item]?["price"] ?? 0.0;
+
+        stockCounts[item]?["totalStock"] = currentTotalStock + restockAmount;
+        stockCounts[item]?["availableStock"] =
+            currentAvailableStock + restockAmount;
+        stockCounts[item]?["price"] = currentPrice; // preserve price
+        // sold does NOT change
+      });
+
+      API.saveSingleStockToMongoDB(item, stockCounts[item]!);
+
+      return true;
+    }
+
+    return false;
+  }
 
   Future<void> _openSellOrRestockProductModal(
     BuildContext context, {
@@ -666,118 +751,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
     } finally {
       _isAddProductModalOpen = false; // Always reset this
     }
-  }
-
-  Future<bool?> _openSellStockModal(BuildContext context, String item) async {
-    final result = await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: SingleChildScrollView(
-            child: SellProduct(
-              itemName: item,
-              initialAmount: editableBoundingBoxes.length,
-              onSell: (sellAmount) {
-                final success = _updateStockForSale(item, sellAmount);
-                Navigator.of(context).pop(success);
-              },
-              isSelling: true,
-            ),
-          ),
-        );
-      },
-    );
-
-    return result;
-  }
-
-  bool _updateStockForSale(String item, int sellAmount) {
-    if (stockCounts.containsKey(item)) {
-      int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
-      int totalStock = stockCounts[item]?["totalStock"] ?? 0;
-      String stockId = stockCounts[item]?["_id"].toString() ?? "";
-
-      if (sellAmount > currentAvailableStock) {
-        ScaffoldMessenger.of(this.context).showSnackBar(
-          SnackBar(content: Text('Insufficient stocks to sell')),
-        );
-        return false;
-      }
-
-      setState(() {
-        stockCounts[item]?["availableStock"] =
-            currentAvailableStock - sellAmount;
-        stockCounts[item]?["sold"] =
-            (stockCounts[item]?["sold"] ?? 0) + sellAmount;
-      });
-
-      int updatedStock = stockCounts[item]?["availableStock"] ?? 0;
-
-      API.saveSingleStockToMongoDB(item, stockCounts[item]!);
-      StockNotifier.checkStockAndNotify(
-        updatedStock,
-        totalStock,
-        item,
-        stockId,
-      );
-
-      return true;
-    }
-
-    return false;
-  }
-
-  Future<bool?> _openRestockStockModal(
-      BuildContext context, String item) async {
-    final result = await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: SingleChildScrollView(
-            child: RestockProduct(
-              itemName: item,
-              initialAmount: editableBoundingBoxes.length,
-              onRestock: (restockAmount) {
-                final success = _updateStock(item, restockAmount);
-                Navigator.of(context).pop(success); // ✅ true or false
-              },
-            ),
-          ),
-        );
-      },
-    );
-
-    return result; // ⚠️ return null so that the image dont get saved if the user just closed the modal
-  }
-
-  bool _updateStock(String item, int restockAmount) {
-    if (stockCounts.containsKey(item)) {
-      setState(() {
-        int currentTotalStock = stockCounts[item]?["totalStock"] ?? 0;
-        int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
-        double currentPrice = stockCounts[item]?["price"] ?? 0.0;
-
-        stockCounts[item]?["totalStock"] = currentTotalStock + restockAmount;
-        stockCounts[item]?["availableStock"] =
-            currentAvailableStock + restockAmount;
-        stockCounts[item]?["price"] = currentPrice; // preserve price
-        // sold does NOT change
-      });
-
-      API.saveSingleStockToMongoDB(item, stockCounts[item]!);
-
-      return true;
-    }
-
-    return false;
   }
 
   Future<String> getModelPath(String asset) async {

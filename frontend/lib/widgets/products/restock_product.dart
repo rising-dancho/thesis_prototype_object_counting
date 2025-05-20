@@ -41,7 +41,6 @@ class _RestockProductState extends State<RestockProduct> {
         isLoading = true;
       });
       widget.onRestock(restockAmount);
-      Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please enter a valid positive number')),

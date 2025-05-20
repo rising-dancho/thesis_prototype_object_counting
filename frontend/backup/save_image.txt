@@ -1,0 +1,170 @@
+ /// **Save Screenshot to Gallery**
+  /// THIS WOULD ALSO SAVE COUNTED OBJECT TO THE DATABASE (WILL SHOW IN THE ACTIVITY LOGS)
+  Future<void> saveImage2(BuildContext context) async {
+    try {
+      if (_selectedStock == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Please select a stock before saving"),
+            duration: Duration(milliseconds: 1000),
+          ),
+        );
+        return;
+      }
+
+      final Uint8List? screenShot = await screenshotController.capture();
+      if (!mounted) return;
+
+      if (screenShot == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to capture screenshot")),
+        );
+        return;
+      }
+
+      final action = await showDialog<String>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("What did we count for?"),
+          content:
+              Text("Do you want to count this stock as sold or restocked?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, "restock"),
+              child: Text("Restock", style: TextStyle(color: Colors.blue[800])),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, "sell"),
+              child: Text("Sell", style: TextStyle(color: Colors.red[800])),
+            ),
+          ],
+        ),
+      );
+
+      if (action == null) {
+        debugPrint("⚠️ Action was cancelled.");
+        return;
+      }
+
+      if (!stockList.contains(_selectedStock)) {
+        debugPrint("🆕 $_selectedStock not found in stock list.");
+
+        if (action == "sell" || action == "restock") {
+          await _openSellOrRestockProductModal(
+            context,
+            actionType: action,
+            initialName: _selectedStock,
+            itemCount: editableBoundingBoxes.length,
+            initialAmount: editableBoundingBoxes.length,
+          );
+          // Save image only after modal closes:
+          final result = await SaverGallery.saveImage(
+            screenShot,
+            fileName: "screenshot_${DateTime.now().millisecondsSinceEpoch}.png",
+            skipIfExists: false,
+          );
+
+          if (result.isSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Image saved and stock added!")),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Failed to save image")),
+            );
+          }
+          return;
+        }
+      }
+
+      // Stock exists — normal flow
+      if (action == "restock") {
+        await _openRestockStockModal2(context, _selectedStock!);
+
+        final result = await SaverGallery.saveImage(
+          screenShot,
+          fileName: "screenshot_${DateTime.now().millisecondsSinceEpoch}.png",
+          skipIfExists: false,
+        );
+
+        if (result.isSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Stock restocked and image saved!")),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Failed to save image")),
+          );
+        }
+        return;
+      }
+
+      if (action == "sell") {
+        await _openSellStockModal(context, _selectedStock!);
+
+        final result = await SaverGallery.saveImage(
+          screenShot,
+          fileName: "screenshot_${DateTime.now().millisecondsSinceEpoch}.png",
+          skipIfExists: false,
+        );
+
+        if (result.isSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Stock sold and image saved!")),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Failed to save image")),
+          );
+        }
+        return;
+      }
+    } catch (e) {
+      debugPrint("Error saving image: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("An error occurred while saving")),
+      );
+    }
+  }
+
+  Future<void> _openRestockStockModal2(BuildContext context, String item) {
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: SingleChildScrollView(
+            child: RestockProduct(
+              itemName: item,
+              initialAmount:
+                  editableBoundingBoxes.length, // ✅ auto-populate here
+              onRestock: (restockAmount) {
+                updateStock2(item, restockAmount);
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void updateStock2(String item, int restockAmount) {
+    if (stockCounts.containsKey(item)) {
+      setState(() {
+        int currentTotalStock = stockCounts[item]?["totalStock"] ?? 0;
+        int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
+        double currentPrice = stockCounts[item]?["price"] ?? 0.0;
+
+        stockCounts[item]?["totalStock"] = currentTotalStock + restockAmount;
+        stockCounts[item]?["availableStock"] =
+            currentAvailableStock + restockAmount;
+        stockCounts[item]?["price"] = currentPrice; // Forcefully preserve price
+        // 🔥 sold does NOT change
+      });
+
+      API.saveSingleStockToMongoDB(item, stockCounts[item]!);
+    }
+  }
