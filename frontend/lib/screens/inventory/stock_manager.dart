@@ -246,9 +246,9 @@ class _StockManagerState extends State<StockManager> {
           "Inventory Management",
           style: TextStyle(
             fontFamily: 'Rajdhani',
-            fontSize: 24,
+            fontSize: 22,
+            letterSpacing: 1.2,
             fontWeight: FontWeight.bold,
-            letterSpacing: 1.5,
             // color: Color.fromARGB(255, 27, 211, 224),
           ),
         ),

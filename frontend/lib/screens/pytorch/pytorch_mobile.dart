@@ -788,45 +788,49 @@ class _PytorchMobileState extends State<PytorchMobile> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Row(mainAxisSize: MainAxisSize.min, children: [
-            // RichText(
-            //   text: TextSpan(
-            //     children: [
-            //       TextSpan(
-            //         text: 'Tec',
-            //         style: TextStyle(
-            //           color: const Color.fromARGB(255, 27, 211, 224),
-            //           fontSize: 25.0,
-            //           fontWeight: FontWeight.bold,
-            //         ),
-            //       ),
-            //       TextSpan(
-            //         text: 'Tags',
-            //         style: TextStyle(
-            //           color: const Color.fromARGB(255, 29, 118, 235),
-            //           fontSize: 25.0,
-            //           fontWeight: FontWeight.bold,
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // ),
-            Image.asset(
-              'assets/images/tectags_icon.png',
-              height: 38.0,
-            ),
-            SizedBox(width: 2),
-            const Text(
-              "TECTAGS",
-              style: TextStyle(
-                fontFamily: 'Rajdhani',
-                fontSize: 30,
-                letterSpacing: 3.5,
-                fontWeight: FontWeight.bold,
-                // color: Color.fromARGB(255, 27, 211, 224),
-              ),
-            ),
-          ]),
+          title: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // RichText(
+                //   text: TextSpan(
+                //     children: [
+                //       TextSpan(
+                //         text: 'Tec',
+                //         style: TextStyle(
+                //           color: const Color.fromARGB(255, 27, 211, 224),
+                //           fontSize: 25.0,
+                //           fontWeight: FontWeight.bold,
+                //         ),
+                //       ),
+                //       TextSpan(
+                //         text: 'Tags',
+                //         style: TextStyle(
+                //           color: const Color.fromARGB(255, 29, 118, 235),
+                //           fontSize: 25.0,
+                //           fontWeight: FontWeight.bold,
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
+                Image.asset(
+                  'assets/images/tectags_icon.png',
+                  height: 35.0,
+                ),
+                SizedBox(width: 2),
+                const Text(
+                  "TECTAGS",
+                  style: TextStyle(
+                    fontFamily: 'Rajdhani',
+                    fontSize: 26,
+                    letterSpacing: 2.5,
+                    fontWeight: FontWeight.bold,
+                    // color: Color.fromARGB(255, 27, 211, 224),
+                  ),
+                ),
+              ]),
           backgroundColor: const Color.fromARGB(255, 5, 45, 90),
           foregroundColor: const Color.fromARGB(255, 255, 255, 255),
           automaticallyImplyLeading: false,

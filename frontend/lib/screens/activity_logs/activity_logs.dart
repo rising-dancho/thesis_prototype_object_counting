@@ -152,8 +152,8 @@ class _ActivityLogsState extends State<ActivityLogs> {
           "Activity Logs",
           style: TextStyle(
             fontFamily: 'Rajdhani',
-            fontSize: 24,
-            letterSpacing: 1.5,
+            fontSize: 22,
+            letterSpacing: 1.2,
             fontWeight: FontWeight.bold,
             // color: Color.fromARGB(255, 27, 211, 224),
           ),
