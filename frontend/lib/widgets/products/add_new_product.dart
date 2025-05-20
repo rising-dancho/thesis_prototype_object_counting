@@ -43,7 +43,6 @@ class _AddNewProductState extends State<AddNewProduct> {
         TextEditingController(text: widget.itemCount?.toString() ?? '');
   }
 
-  // FIXES THE SOLD NOT UPDATING CORRECTLY FROM _openAddProductModal
   @override
   void didUpdateWidget(covariant AddNewProduct oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -61,6 +60,9 @@ class _AddNewProductState extends State<AddNewProduct> {
     if (itemName.isNotEmpty && itemCount != null && price != null) {
       int itemSold = int.tryParse(soldController.text.trim()) ?? 0;
       widget.onAddStock(itemName, itemCount, itemSold, price); // Notify parent
+
+      // Close the modal after adding
+      Navigator.of(context).pop();
 
       // Clear fields after adding
       nameController.clear();
@@ -103,7 +105,6 @@ class _AddNewProductState extends State<AddNewProduct> {
             currentTotalStock + restockAmount;
         stockCounts[initialName]?["availableStock"] =
             currentAvailableStock + restockAmount;
-        // 🔥 sold does NOT change
       });
 
       API.saveSingleStockToMongoDB(initialName, stockCounts[initialName]!);
