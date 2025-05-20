@@ -105,8 +105,8 @@ class _StockManagerState extends State<StockManager> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content:
-              Text('Sold $sellAmount $itemName(s). Remaining stock: $updatedStock'),
+          content: Text(
+              'Sold $sellAmount $itemName(s). Remaining stock: $updatedStock'),
         ),
       );
 
@@ -172,9 +172,11 @@ class _StockManagerState extends State<StockManager> {
     if (stockCounts.containsKey(itemName)) {
       setState(() {
         int currentTotalStock = stockCounts[itemName]?["totalStock"] ?? 0;
-        int currentAvailableStock = stockCounts[itemName]?["availableStock"] ?? 0;
+        int currentAvailableStock =
+            stockCounts[itemName]?["availableStock"] ?? 0;
 
-        stockCounts[itemName]?["totalStock"] = currentTotalStock + restockAmount;
+        stockCounts[itemName]?["totalStock"] =
+            currentTotalStock + restockAmount;
         stockCounts[itemName]?["availableStock"] =
             currentAvailableStock + restockAmount;
         // 🔥 sold does NOT change
@@ -229,14 +231,25 @@ class _StockManagerState extends State<StockManager> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title:
+            // const Text(
+            //   "Inventory Management",
+            //   style: TextStyle(
+            //     fontFamily: 'Roboto',
+            //     fontSize: 22,
+            //     // fontWeight: FontWeight.bold,
+            //     letterSpacing: 1.2,
+            //     color: Color.fromARGB(255, 27, 211, 224),
+            //   ),
+            // ),
+            const Text(
           "Inventory Management",
           style: TextStyle(
-            fontFamily: 'Roboto',
-            fontSize: 22,
+            fontFamily: 'Rajdhani',
+            fontSize: 24,
             fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-            color: Color.fromARGB(255, 27, 211, 224),
+            letterSpacing: 3.5,
+            // color: Color.fromARGB(255, 27, 211, 224),
           ),
         ),
         backgroundColor: const Color.fromARGB(255, 5, 45, 90),

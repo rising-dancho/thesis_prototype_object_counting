@@ -62,3 +62,7 @@ flutter:
     # PDF
     - assets/fonts/Roboto-Regular.ttf
 
+  fonts:
+      - family: Rajdhani
+        fonts:
+          - asset: assets/fonts/Rajdhani-Regular.ttf

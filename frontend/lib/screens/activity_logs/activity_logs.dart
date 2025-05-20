@@ -137,14 +137,25 @@ class _ActivityLogsState extends State<ActivityLogs> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title:
+            // const Text(
+            //   "Activity Logs",
+            //   style: TextStyle(
+            //     fontFamily: 'Roboto',
+            //     fontSize: 22,
+            //     fontWeight: FontWeight.bold,
+            //     letterSpacing: 1.2,
+            //     color: Color.fromARGB(255, 27, 211, 224),
+            //   ),
+            // ),
+            const Text(
           "Activity Logs",
           style: TextStyle(
-            fontFamily: 'Roboto',
-            fontSize: 22,
+            fontFamily: 'Rajdhani',
+            fontSize: 24,
+            letterSpacing: 3.5,
             fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-            color: Color.fromARGB(255, 27, 211, 224),
+            // color: Color.fromARGB(255, 27, 211, 224),
           ),
         ),
         backgroundColor: const Color.fromARGB(255, 5, 45, 90),
