@@ -74,7 +74,6 @@ class _AddProductState extends State<AddProduct> {
       selectedItem = null; // Clear selected item
       countController.clear();
       priceController.clear();
-      Navigator.pop(context);
     }
   }
 

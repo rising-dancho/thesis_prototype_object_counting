@@ -66,7 +66,6 @@ class _AddNewProductState extends State<AddNewProduct> {
       nameController.clear();
       countController.clear();
       priceController.clear();
-      Navigator.pop(context); // Dismiss modal after adding
     }
   }
 

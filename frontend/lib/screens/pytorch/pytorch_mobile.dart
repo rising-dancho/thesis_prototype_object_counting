@@ -445,15 +445,20 @@ class _PytorchMobileState extends State<PytorchMobile> {
 
       if (!stockExists) {
         debugPrint("🆕 $_selectedStock not found in stock list.");
-        await _openSellOrRestockProductModal(
+        final bool? success = await _openSellOrRestockProductModal(
           context,
           actionType: action,
           initialName: _selectedStock,
           itemCount: editableBoundingBoxes.length,
           initialAmount: editableBoundingBoxes.length,
         );
-        await _saveScreenshot(
-            screenShot, context, "Image saved and stock added!");
+
+        if (success == true) {
+          await _saveScreenshot(
+              screenShot, context, "Image saved and stock added!");
+        } else {
+          debugPrint("❌ Modal closed or failed, image not saved.");
+        }
         return;
       }
 
@@ -480,6 +485,124 @@ class _PytorchMobileState extends State<PytorchMobile> {
       debugPrint("❌ Error saving image: $e");
       showGlobalSnackbar("An error occurred while saving");
     }
+  }
+
+  Future<bool?> _openSellOrRestockProductModal(
+    BuildContext context, {
+    required String actionType,
+    String? initialName,
+    int? itemCount,
+    int? initialAmount,
+  }) async {
+    if (_isAddProductModalOpen) return false;
+    _isAddProductModalOpen = true;
+
+    bool? result;
+
+    try {
+      result = await showModalBottomSheet<bool>(
+        context: context,
+        isScrollControlled: true,
+        builder: (modalContext) {
+          if (actionType == "restock") {
+            return AddProduct(
+              initialName: initialName,
+              itemCount: itemCount,
+              stockCounts: stockCounts,
+              onAddStock: (itemName, count, double price) async {
+                setState(() {
+                  final existingStock = stockCounts[itemName] ?? {};
+                  stockCounts[itemName] = {
+                    "availableStock": count,
+                    "totalStock": count,
+                    "sold": existingStock["sold"] ?? 0,
+                    "price": price,
+                  };
+                });
+
+                await API.saveSingleStockToMongoDB(
+                    itemName, stockCounts[itemName]!);
+
+                Navigator.pop(modalContext, true); // ✅ return true on success
+              },
+            );
+          } else {
+            return AddNewProduct(
+              initialName: initialName,
+              itemCount: itemCount,
+              actionType: actionType,
+              onAddStock:
+                  (String itemName, int count, int sold, double price) async {
+                setState(() {
+                  final existingStock = stockCounts[itemName] ?? {};
+                  stockCounts[itemName] = {
+                    "availableStock": count,
+                    "totalStock": count,
+                    "sold": sold,
+                    "price": price,
+                    ...existingStock,
+                  };
+                });
+
+                var stockData = stockCounts[itemName];
+
+                if (stockData?['_id'] == null) {
+                  final savedData =
+                      await API.saveSingleStockToMongoDB(itemName, stockData!);
+                  if (savedData == null || savedData['_id'] == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text("Failed to save new stock to MongoDB")),
+                    );
+                    return;
+                  }
+
+                  stockCounts[itemName]!['_id'] = savedData['_id'];
+                  stockData = stockCounts[itemName];
+                }
+
+                final stockId = stockData?['_id'];
+
+                final userId = await SharedPrefsService.getUserId();
+                if (userId == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text(
+                            "Error: User ID is missing. Please log in again.")),
+                  );
+                  return;
+                }
+
+                final result = await API.saveSoldStockWithPrice(
+                  stockId,
+                  sold,
+                  price,
+                  userId,
+                );
+
+                if (result.isSuccess) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text("Stock and price updated successfully!")),
+                  );
+                  Navigator.pop(modalContext, true); // ✅ return true on success
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text(
+                            "Failed to update stock: ${result.errorMessage ?? 'Unknown error'}")),
+                  );
+                }
+              },
+            );
+          }
+        },
+      );
+    } finally {
+      _isAddProductModalOpen = false;
+    }
+
+    return result; // return whether the modal succeeded
   }
 
   Future<void> _saveScreenshot(
@@ -627,130 +750,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
     }
 
     return false;
-  }
-
-  Future<void> _openSellOrRestockProductModal(
-    BuildContext context, {
-    required String actionType,
-    String? initialName,
-    int? itemCount,
-    int? initialAmount,
-  }) async {
-    if (_isAddProductModalOpen) return;
-    _isAddProductModalOpen = true;
-
-    try {
-      if (actionType == "restock") {
-        await showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          builder: (modalContext) {
-            return AddProduct(
-              initialName: initialName,
-              itemCount: itemCount,
-              stockCounts: stockCounts,
-              onAddStock: (itemName, count, double price) async {
-                setState(() {
-                  final existingStock = stockCounts[itemName] ?? {};
-                  stockCounts[itemName] = {
-                    "availableStock": count,
-                    "totalStock": count,
-                    "sold": existingStock["sold"] ?? 0,
-                    "price": price,
-                  };
-                });
-
-                await API.saveSingleStockToMongoDB(
-                    itemName, stockCounts[itemName]!);
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Stock added successfully!")),
-                );
-              },
-            );
-          },
-        );
-      } else if (actionType == "sell") {
-        await showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          builder: (modalContext) {
-            return AddNewProduct(
-                initialName: initialName,
-                itemCount: itemCount,
-                actionType: actionType,
-                onAddStock:
-                    (String itemName, int count, int sold, double price) async {
-                  setState(() {
-                    final existingStock = stockCounts[itemName] ?? {};
-                    stockCounts[itemName] = {
-                      "availableStock": count,
-                      "totalStock": count,
-                      "sold": sold,
-                      "price": price,
-                      ...existingStock,
-                    };
-                  });
-
-                  var stockData = stockCounts[itemName];
-
-                  // ✅ Ensure new stock is saved first
-                  if (stockData?['_id'] == null) {
-                    final savedData = await API.saveSingleStockToMongoDB(
-                        itemName, stockData!);
-                    if (savedData == null || savedData['_id'] == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content:
-                                Text("Failed to save new stock to MongoDB")),
-                      );
-                      return;
-                    }
-
-                    // ✅ Update local stockData with the new _id
-                    stockCounts[itemName]!['_id'] = savedData['_id'];
-                    stockData = stockCounts[itemName];
-                  }
-
-                  final stockId = stockData?['_id'];
-
-                  final userId = await SharedPrefsService.getUserId();
-                  if (userId == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content: Text(
-                              "Error: User ID is missing. Please log in again.")),
-                    );
-                    return;
-                  }
-
-                  final result = await API.saveSoldStockWithPrice(
-                    stockId,
-                    sold,
-                    price,
-                    userId,
-                  );
-
-                  if (result.isSuccess) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content:
-                              Text("Stock and price updated successfully!")),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content: Text(
-                              "Failed to update stock: ${result.errorMessage ?? 'Unknown error'}")),
-                    );
-                  }
-                });
-          },
-        );
-      }
-    } finally {
-      _isAddProductModalOpen = false; // Always reset this
-    }
   }
 
   Future<String> getModelPath(String asset) async {
