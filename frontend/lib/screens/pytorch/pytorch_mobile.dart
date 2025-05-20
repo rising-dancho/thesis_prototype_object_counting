@@ -550,10 +550,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                   final savedData =
                       await API.saveSingleStockToMongoDB(itemName, stockData!);
                   if (savedData == null || savedData['_id'] == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content: Text("Failed to save new stock to MongoDB")),
-                    );
+                    showGlobalSnackbar("Failed to save new stock to MongoDB");
                     return;
                   }
 
@@ -565,11 +562,8 @@ class _PytorchMobileState extends State<PytorchMobile> {
 
                 final userId = await SharedPrefsService.getUserId();
                 if (userId == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text(
-                            "Error: User ID is missing. Please log in again.")),
-                  );
+                  showGlobalSnackbar(
+                      "Error: User ID is missing. Please log in again.");
                   return;
                 }
 
@@ -581,17 +575,11 @@ class _PytorchMobileState extends State<PytorchMobile> {
                 );
 
                 if (result.isSuccess) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text("Stock and price updated successfully!")),
-                  );
+                  showGlobalSnackbar("Stock and price updated successfully!");
                   Navigator.pop(modalContext, true); // ✅ return true on success
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text(
-                            "Failed to update stock: ${result.errorMessage ?? 'Unknown error'}")),
-                  );
+                  showGlobalSnackbar(
+                      "Failed to update stock: ${result.errorMessage ?? 'Unknown error'}");
                 }
               },
             );
