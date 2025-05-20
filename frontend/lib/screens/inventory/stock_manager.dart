@@ -248,7 +248,7 @@ class _StockManagerState extends State<StockManager> {
             fontFamily: 'Rajdhani',
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            letterSpacing: 3.5,
+            letterSpacing: 2.5,
             // color: Color.fromARGB(255, 27, 211, 224),
           ),
         ),
