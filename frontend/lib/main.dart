@@ -14,6 +14,9 @@ void main() async {
   runApp(const MyApp());
 }
 
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
+
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -33,7 +36,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   void startPeriodicStockCheck() {
     _stockTimer?.cancel();
-    _stockTimer = Timer.periodic(Duration(minutes: (60*6)), (_) {
+    _stockTimer = Timer.periodic(Duration(minutes: (60 * 6)), (_) {
       StockCheckService.checkStocks();
     });
   }
@@ -48,6 +51,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      scaffoldMessengerKey: scaffoldMessengerKey,
       debugShowCheckedModeBanner: false,
       title: 'TecTags App',
       theme: lightMode,

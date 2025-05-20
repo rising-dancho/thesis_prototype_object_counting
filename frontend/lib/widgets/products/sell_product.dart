@@ -45,8 +45,6 @@ class _SellProductState extends State<SellProduct> {
 
       // Call the passed callback
       widget.onSell(sellAmount);
-
-      Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please enter a valid positive number')),
