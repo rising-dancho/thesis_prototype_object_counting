@@ -495,6 +495,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
     int? initialAmount,
   }) async {
     if (_isAddProductModalOpen) return false;
+
     _isAddProductModalOpen = true;
 
     bool? result;
@@ -512,6 +513,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
               onAddStock: (itemName, count, double price) async {
                 setState(() {
                   final existingStock = stockCounts[itemName] ?? {};
+
                   stockCounts[itemName] = {
                     "availableStock": count,
                     "totalStock": count,
@@ -535,6 +537,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                   (String itemName, int count, int sold, double price) async {
                 setState(() {
                   final existingStock = stockCounts[itemName] ?? {};
+
                   stockCounts[itemName] = {
                     "availableStock": count,
                     "totalStock": count,
@@ -549,21 +552,32 @@ class _PytorchMobileState extends State<PytorchMobile> {
                 if (stockData?['_id'] == null) {
                   final savedData =
                       await API.saveSingleStockToMongoDB(itemName, stockData!);
+
                   if (savedData == null || savedData['_id'] == null) {
-                    showGlobalSnackbar("Failed to save new stock to MongoDB");
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text("Failed to save new stock to MongoDB")),
+                    );
+
                     return;
                   }
 
                   stockCounts[itemName]!['_id'] = savedData['_id'];
+
                   stockData = stockCounts[itemName];
                 }
 
                 final stockId = stockData?['_id'];
 
                 final userId = await SharedPrefsService.getUserId();
+
                 if (userId == null) {
-                  showGlobalSnackbar(
-                      "Error: User ID is missing. Please log in again.");
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text(
+                            "Error: User ID is missing. Please log in again.")),
+                  );
+
                   return;
                 }
 
@@ -575,11 +589,18 @@ class _PytorchMobileState extends State<PytorchMobile> {
                 );
 
                 if (result.isSuccess) {
-                  showGlobalSnackbar("Stock and price updated successfully!");
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text("Stock and price updated successfully!")),
+                  );
+
                   Navigator.pop(modalContext, true); // ✅ return true on success
                 } else {
-                  showGlobalSnackbar(
-                      "Failed to update stock: ${result.errorMessage ?? 'Unknown error'}");
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text(
+                            "Failed to update stock: ${result.errorMessage ?? 'Unknown error'}")),
+                  );
                 }
               },
             );
