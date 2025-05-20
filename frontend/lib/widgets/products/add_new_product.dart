@@ -61,10 +61,7 @@ class _AddNewProductState extends State<AddNewProduct> {
       int itemSold = int.tryParse(soldController.text.trim()) ?? 0;
       widget.onAddStock(itemName, itemCount, itemSold, price); // Notify parent
 
-      // Close the modal after adding
-      Navigator.of(context).pop();
-
-      // Clear fields after adding
+      // Optionally clear fields (if reused elsewhere)
       nameController.clear();
       countController.clear();
       priceController.clear();
