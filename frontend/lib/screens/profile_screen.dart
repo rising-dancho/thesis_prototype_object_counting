@@ -129,7 +129,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('My Profile'),
+        title:
+            // const Text('My Profile'),
+            const Text(
+          "My Profile",
+          style: TextStyle(
+            fontFamily: 'Rajdhani',
+            fontSize: 22,
+            letterSpacing: 1.2,
+            fontWeight: FontWeight.bold,
+            // color: Color.fromARGB(255, 27, 211, 224),
+          ),
+        ),
         backgroundColor: Colors.black,
         elevation: 0,
         foregroundColor: Colors.white,

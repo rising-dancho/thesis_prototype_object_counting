@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:tectags/screens/navigation/side_menu.dart';
+import 'package:tectags/screens/guide_screen.dart';
 import 'package:tectags/screens/dashboard/supplies_screen.dart';
+import 'package:tectags/screens/navigation/navigation_menu.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -10,7 +13,18 @@ class DashboardScreen extends StatelessWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Dashboard'),
+        title:
+            // const Text('Home'),
+            const Text(
+          "Home",
+          style: TextStyle(
+            fontFamily: 'Rajdhani',
+            fontSize: 22,
+            letterSpacing: 1.2,
+            fontWeight: FontWeight.bold,
+            // color: Color.fromARGB(255, 27, 211, 224),
+          ),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.white,
@@ -28,12 +42,6 @@ class DashboardScreen extends StatelessWidget {
               ),
             ),
           ),
-
-          // Dim layer
-          Container(
-            color: Colors.black.withOpacity(0.5),
-          ),
-
           // Foreground content
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -42,21 +50,66 @@ class DashboardScreen extends StatelessWidget {
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
               children: [
-                // DashboardCard(
-                //  icon: Icons.analytics,
-                //  label: 'Analytics',
-                //  accentColor: Colors.purple,
-                //  onTap: () {
-                //    Navigator.push(
-                //      context,
-                //      MaterialPageRoute(
-                //          builder: (context) => AnalyticsScreen()),
-                //    );
-                //  },
-                //),
                 DashboardCard(
-                  icon: Icons.inventory,
-                  label: 'Supplies',
+                  icon: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 32),
+                      SizedBox(
+                        width: 70,
+                        height: 70,
+                        child: SvgPicture.asset(
+                          'assets/icons/tectags_svg_icon.svg',
+                          colorFilter: const ColorFilter.mode(
+                            Colors.blue,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                          height: 3), // Reduce this value to bring them closer
+                      const Text(
+                        'TECTAGS',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black87,
+                              offset: Offset(1, 1),
+                              blurRadius: 3,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  label: '',
+                  accentColor: Colors.blue,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => NavigationMenu()),
+                    );
+                  },
+                ),
+                DashboardCard(
+                  icon: const Icon(Icons.library_books,
+                      size: 48, color: Colors.purple),
+                  label: 'GUIDE',
+                  accentColor: Colors.purple,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => GuideScreen()),
+                    );
+                  },
+                ),
+                DashboardCard(
+                  icon:
+                      const Icon(Icons.inventory, size: 48, color: Colors.teal),
+                  label: 'SUPPLIES',
                   accentColor: Colors.teal,
                   onTap: () {
                     Navigator.push(
@@ -75,7 +128,7 @@ class DashboardScreen extends StatelessWidget {
 }
 
 class DashboardCard extends StatelessWidget {
-  final IconData icon;
+  final Widget icon;
   final String label;
   final VoidCallback onTap;
   final Color accentColor;
@@ -105,7 +158,7 @@ class DashboardCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 48, color: accentColor),
+            icon,
             const SizedBox(height: 12),
             Text(
               label,
@@ -128,5 +181,3 @@ class DashboardCard extends StatelessWidget {
     );
   }
 }
-
-

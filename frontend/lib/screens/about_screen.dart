@@ -58,7 +58,18 @@ class AboutScreen extends StatelessWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('About the App'),
+        title:
+            // const Text('About the App'),
+            const Text(
+          "About the App",
+          style: TextStyle(
+            fontFamily: 'Rajdhani',
+            fontSize: 22,
+            letterSpacing: 1.2,
+            fontWeight: FontWeight.bold,
+            // color: Color.fromARGB(255, 27, 211, 224),
+          ),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.white,

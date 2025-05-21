@@ -9,7 +9,18 @@ class GuideScreen extends StatelessWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('App Guide'),
+        title:
+            // const Text('App Overview'),
+            const Text(
+          "App Overview",
+          style: TextStyle(
+            fontFamily: 'Rajdhani',
+            fontSize: 22,
+            letterSpacing: 1.2,
+            fontWeight: FontWeight.bold,
+            // color: Color.fromARGB(255, 27, 211, 224),
+          ),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.white,

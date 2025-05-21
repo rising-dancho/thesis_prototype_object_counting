@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:tectags/screens/about_screen.dart';
 import 'package:tectags/screens/guide_screen.dart';
 import 'package:tectags/screens/login_screen.dart';
@@ -52,23 +53,39 @@ class SideMenu extends StatelessWidget {
               ),
             ),
           ),
+
           ListTile(
             leading: const Icon(Icons.home),
             title: const Text('Home'),
             onTap: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const NavigationMenu()),
+                MaterialPageRoute(builder: (context) => DashboardScreen()),
               );
             },
           ),
           ListTile(
-            leading: const Icon(Icons.dashboard),
-            title: const Text('Dashboard'),
+            leading: SizedBox(
+              // width: 24, // Slightly larger container for alignment
+              // height: 24,
+              child: Transform.scale(
+                scale: 1.9, // Adjust scale as needed
+                child: SvgPicture.asset(
+                  'assets/icons/count_icon.svg',
+                  width: 24,
+                  height: 24,
+                  colorFilter: const ColorFilter.mode(
+                    Colors.black, // or any color you want
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
+            ),
+            title: const Text('Tectags'),
             onTap: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => DashboardScreen()),
+                MaterialPageRoute(builder: (context) => const NavigationMenu()),
               );
             },
           ),
@@ -92,16 +109,16 @@ class SideMenu extends StatelessWidget {
               );
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.slideshow),
-            title: const Text('Onboarding'),
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const OnboardingView()),
-              );
-            },
-          ),
+          // ListTile(
+          //   leading: const Icon(Icons.slideshow),
+          //   title: const Text('Onboarding'),
+          //   onTap: () {
+          //     Navigator.pushReplacement(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => const OnboardingView()),
+          //     );
+          //   },
+          // ),
           // ListTile(
           //   leading: const Icon(Icons.lock),
           //   title: const Text('Email Verification'),
