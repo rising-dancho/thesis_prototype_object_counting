@@ -108,8 +108,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final today = DateTime.now();
-    final latestAllowedBirthday =
-        today.subtract(const Duration(days: 365 * 18)); // 18 years ago
+    final latestAllowedBirthday = DateTime(
+      today.year - 18,
+      today.month,
+      today.day,
+    ); // precisely 18 years ago including month and day
+
     void openDatePicker() {
       showDatePicker(
         context: context,
@@ -117,9 +121,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         firstDate: DateTime(1900),
         lastDate: latestAllowedBirthday,
       ).then((pickedDate) {
-        if (pickedDate == null) {
-          return;
-        }
+        if (pickedDate == null) return;
         setState(() {
           _birthdayController.text = DateFormat.yMd().format(pickedDate);
         });

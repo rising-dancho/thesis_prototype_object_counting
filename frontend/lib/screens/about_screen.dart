@@ -47,7 +47,7 @@ class AboutScreen extends StatelessWidget {
       "affiliation": "Technological Institute of the Philippines"
     },
     {
-      "name": "Ms. Arceli Salo",
+      "name": "Ms. Arcelli Salo",
       "role": "Defense Panel",
       "affiliation": "Technological Institute of the Philippines"
     },

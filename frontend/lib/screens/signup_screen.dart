@@ -218,9 +218,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               readOnly: true,
                               onTap: () async {
                                 final today = DateTime.now();
-                                final latestAllowedBirthday = today.subtract(
-                                    const Duration(
-                                        days: 365 * 18)); // 18 years ago
+                                final latestAllowedBirthday = DateTime(
+                                  today.year - 18,
+                                  today.month,
+                                  today.day,
+                                ); // precisely 18 years ago including month and day
 
                                 DateTime? pickedDate = await showDatePicker(
                                   context: context,

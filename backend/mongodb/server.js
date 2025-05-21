@@ -812,7 +812,7 @@ app.get('/api/activity_logs/:userId', requireAuth, async (req, res) => {
     const formattedActivities = activities.map((activity) => ({
       _id: activity._id,
       userId: activity.userId?._id,
-      fullName: `${activity.userId?.firstName ?? 'Unknown'} ${
+      fullName: `${activity.userId?.firstName ?? 'Deactivated'} ${
         activity.userId?.lastName ?? ''
       }`, // Combine first and last name
       action: activity.action,
@@ -845,7 +845,7 @@ app.get('/api/activity_logs/', async (req, res) => {
     const formattedActivities = activities.map((activity) => ({
       _id: activity._id,
       userId: activity.userId?._id,
-      fullName: `${activity.userId?.firstName ?? 'Unknown'} ${
+      fullName: `${activity.userId?.firstName ?? 'Deactivated'} ${
         activity.userId?.lastName ?? ''
       }`, // Combine first and last name
       action: activity.action,
