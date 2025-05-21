@@ -52,6 +52,7 @@ class _StockManagerState extends State<StockManager> {
                 });
                 API.saveSingleStockToMongoDB(
                     initialName, stockCounts[initialName]!);
+                Navigator.pop(context);
               },
             )));
       },
