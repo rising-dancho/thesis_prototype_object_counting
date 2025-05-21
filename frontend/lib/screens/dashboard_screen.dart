@@ -55,8 +55,8 @@ class DashboardScreen extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       SizedBox(
-                        width: 70,
-                        height: 70,
+                        width: 63,
+                        height: 63,
                         child: SvgPicture.asset(
                           'assets/icons/tectags_svg_icon.svg',
                           colorFilter: const ColorFilter.mode(
@@ -65,7 +65,7 @@ class DashboardScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      // const SizedBox(height: 6),
                       const Text(
                         'TECTAGS',
                         style: TextStyle(
