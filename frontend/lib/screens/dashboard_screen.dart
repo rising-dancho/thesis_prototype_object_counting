@@ -54,7 +54,6 @@ class DashboardScreen extends StatelessWidget {
                   icon: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const SizedBox(height: 32),
                       SizedBox(
                         width: 70,
                         height: 70,
@@ -66,8 +65,7 @@ class DashboardScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(
-                          height: 3), // Reduce this value to bring them closer
+                      const SizedBox(height: 6),
                       const Text(
                         'TECTAGS',
                         style: TextStyle(
@@ -85,7 +83,8 @@ class DashboardScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  label: '',
+                  label:
+                      '', // Set this to '' to skip the second label rendering
                   accentColor: Colors.blue,
                   onTap: () {
                     Navigator.push(
@@ -155,27 +154,30 @@ class DashboardCard extends StatelessWidget {
           ],
         ),
         padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            icon,
-            const SizedBox(height: 12),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 18,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                shadows: [
-                  Shadow(
-                    color: Colors.black87,
-                    offset: Offset(1, 1),
-                    blurRadius: 3,
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              icon,
+              if (label.isNotEmpty) const SizedBox(height: 12),
+              if (label.isNotEmpty)
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black87,
+                        offset: Offset(1, 1),
+                        blurRadius: 3,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-          ],
+                ),
+            ],
+          ),
         ),
       ),
     );
