@@ -69,9 +69,9 @@ class SideMenu extends StatelessWidget {
               // width: 24, // Slightly larger container for alignment
               // height: 24,
               child: Transform.scale(
-                scale: 1.9, // Adjust scale as needed
+                scale: 1.18, // Adjust scale as needed
                 child: SvgPicture.asset(
-                  'assets/icons/count_icon.svg',
+                  'assets/icons/tectags_svg_icon.svg',
                   width: 24,
                   height: 24,
                   colorFilter: const ColorFilter.mode(
