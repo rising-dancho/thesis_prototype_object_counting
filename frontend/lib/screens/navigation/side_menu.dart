@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tectags/screens/about_screen.dart';
+import 'package:tectags/screens/charts/stock_dashboard.dart';
 import 'package:tectags/screens/guide_screen.dart';
 import 'package:tectags/screens/login_screen.dart';
 import 'package:tectags/screens/navigation/navigation_menu.dart';
@@ -129,6 +130,16 @@ class SideMenu extends StatelessWidget {
           //     );
           //   },
           // ),
+          ListTile(
+            leading: const Icon(Icons.bar_chart),
+            title: const Text('Charts'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => StockDashboard()),
+              );
+            },
+          ),
           // Conditionally show Roles tile only for manager
           FutureBuilder<String?>(
             future: _getRole(),
