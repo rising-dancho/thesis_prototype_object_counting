@@ -51,7 +51,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
   Future<void> _loadLoggedInUserId() async {
     final prefs = await SharedPreferences.getInstance();
-    final id = prefs.getString('user_id') ?? '';
+    final id = prefs.getString('userId') ?? '';
 
     setState(() {
       loggedInUserId = id;
@@ -80,10 +80,21 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     if (confirm != true) return;
 
     final result = await API.deleteUser(userId);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(result['message'] ?? 'Error deleting user')),
-    );
-
+    if (result['success'] == true) {
+      loadUsers();
+    } else {
+      final errorMessage = result['message'] ?? 'Error deleting user';
+      if (errorMessage.contains('Invalid or expired token')) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Session expired. Please log in again.')),
+        );
+        // Optional: Redirect to login
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      }
+    }
     if (result['success']) {
       loadUsers(); // Refresh user list
     }
@@ -135,6 +146,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                     String selectedRole = user['role'];
 
                     bool isSelf = (user['_id'] == loggedInUserId);
+                    debugPrint('USER ID IS IT RIGHT?? ${user['_id']}');
                     bool isDemotingSelf = isSelf && selectedRole != 'manager';
 
                     return Card(

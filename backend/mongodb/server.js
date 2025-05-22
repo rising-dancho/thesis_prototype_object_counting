@@ -90,9 +90,7 @@ app.delete(
         action: `Deleted user with ID ${userId}`,
       });
 
-      res
-        .status(200)
-        .json({ success: true, message: 'User deleted successfully.' });
+      res.status(200).json({ success: true, message: 'User deleted' });
     } catch (error) {
       res
         .status(500)

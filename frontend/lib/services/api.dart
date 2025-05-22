@@ -26,10 +26,34 @@ class API {
   // static const baseUrl = "https://fix-inventory.vercel.app/api/";
 
   // LOGIN, REGISTRATION, ROLES, UPDATE USER & CHANGE PASSWORD -------------
+  static Future<Map<String, dynamic>> deleteUser(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token') ?? '';
+
+    final response = await http.delete(
+      Uri.parse('$baseUrl/users/$userId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    print('DELETE USER RESPONSE STATUS: ${response.statusCode}');
+    print('DELETE USER RAW BODY: ${response.body}');
+
+    try {
+      return jsonDecode(response.body);
+    } catch (e) {
+      print('JSON decode error: $e');
+      return {
+        'success': false,
+        'message': 'Failed to parse response',
+      };
+    }
+  }
 
   static Future<String> fetchUserRole() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
+    final token = await SharedPrefsService.getToken();
 
     if (token == null) {
       debugPrint('❌ No token found in SharedPreferences');
@@ -60,23 +84,8 @@ class API {
     }
   }
 
-  static Future<Map<String, dynamic>> deleteUser(String userId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
-    final response = await http.delete(
-      Uri.parse('$baseUrl/users/$userId'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-
-    return jsonDecode(response.body);
-  }
-
   static Future<List<dynamic>?> fetchUsers() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
+    final token = await SharedPrefsService.getToken();
 
     print('🔐 Token used in fetchUsers: $token');
 
