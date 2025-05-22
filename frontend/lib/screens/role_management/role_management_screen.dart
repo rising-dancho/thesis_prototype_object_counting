@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tectags/services/api.dart';
 import 'package:tectags/screens/navigation/side_menu.dart';
+import 'package:tectags/services/shared_prefs_service.dart';
 
 class UserManagementScreen extends StatefulWidget {
   const UserManagementScreen({super.key});
@@ -78,8 +79,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     );
 
     if (confirm != true) return;
+    final token = await SharedPrefsService.getToken();
 
-    final result = await API.deleteUser(userId);
+    final result = await API.deleteUser(userId, token!);
     if (result['success'] == true) {
       loadUsers();
     } else {

@@ -26,7 +26,7 @@ class API {
   // static const baseUrl = "https://fix-inventory.vercel.app/api/";
 
   // LOGIN, REGISTRATION, ROLES, UPDATE USER & CHANGE PASSWORD -------------
-  Future<Map<String, dynamic>> deleteUser(String userId, String token) async {
+  static Future<Map<String, dynamic>> deleteUser(String userId, String token) async {
     try {
       final url = Uri.parse('$baseUrl/users/$userId');
       final response = await http.delete(
