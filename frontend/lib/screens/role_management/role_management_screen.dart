@@ -58,6 +58,37 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     });
   }
 
+  void handleUserDelete(String userId) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete User'),
+        content: const Text('Are you sure you want to delete this user?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    final result = await API.deleteUser(userId);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(result['message'] ?? 'Error deleting user')),
+    );
+
+    if (result['success']) {
+      loadUsers(); // Refresh user list
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -156,6 +187,21 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                             },
                                       child: const Text('Update Role'),
                                     ),
+                                    const SizedBox(width: 8),
+                                    if (!isSelf)
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.red,
+                                          foregroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                        ),
+                                        onPressed: () =>
+                                            handleUserDelete(user['_id']),
+                                        child: const Text('Delete'),
+                                      ),
                                   ],
                                 ),
                               ],
