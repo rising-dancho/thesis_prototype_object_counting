@@ -10,7 +10,7 @@ class RestockProduct extends StatefulWidget {
   const RestockProduct({
     super.key,
     required this.itemName,
-    required this.initialAmount,
+    this.initialAmount = 0,
     required this.onRestock,
   });
 
