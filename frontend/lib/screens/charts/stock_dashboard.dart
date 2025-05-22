@@ -293,7 +293,13 @@ class _StockDashboardState extends State<StockDashboard> {
                           ))
                     ] else ...[
                       SizedBox(height: 40),
-                      Text('No stock selected'),
+                      Text(
+                        "No stock selected",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 16,
+                            color: Colors.white),
+                      )
                     ]
                   ],
                 ),
