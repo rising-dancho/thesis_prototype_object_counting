@@ -67,11 +67,11 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text('Cancel', style: TextStyle(color: Colors.grey[800])),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: Text('Delete', style: TextStyle(color: Colors.red[400])),
           ),
         ],
       ),
@@ -169,6 +169,27 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                 ),
                                 Row(
                                   children: [
+                                    if (!isSelf)
+                                      Card(
+                                        color: Colors
+                                            .white70, // Optional: subtle red background
+                                        elevation: 2,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(3.5),
+                                          child: IconButton(
+                                            icon: const Icon(Icons.delete),
+                                            color: Colors.black54,
+                                            tooltip: 'Delete User',
+                                            onPressed: () =>
+                                                handleUserDelete(user['_id']),
+                                          ),
+                                        ),
+                                      ),
+                                    const SizedBox(width: 8),
                                     ElevatedButton(
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: const Color.fromARGB(
@@ -187,21 +208,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                             },
                                       child: const Text('Update Role'),
                                     ),
-                                    const SizedBox(width: 8),
-                                    if (!isSelf)
-                                      ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.red,
-                                          foregroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                        ),
-                                        onPressed: () =>
-                                            handleUserDelete(user['_id']),
-                                        child: const Text('Delete'),
-                                      ),
                                   ],
                                 ),
                               ],
