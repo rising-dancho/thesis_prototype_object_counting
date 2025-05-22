@@ -168,20 +168,26 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                   },
                                 ),
                                 Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     if (!isSelf)
-                                      Card(
-                                        color: Colors
-                                            .white70, // Optional: subtle red background
-                                        elevation: 2,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(3.5),
+                                      SizedBox(
+                                        height:
+                                            62, // Match height with the ElevatedButton
+                                        width:
+                                            62, // Make it square for consistency
+                                        child: Card(
+                                          color: Colors.white70,
+                                          elevation: 2,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
                                           child: IconButton(
-                                            icon: const Icon(Icons.delete),
+                                            padding: EdgeInsets.zero,
+                                            icon: const Icon(Icons.delete,
+                                                size: 20),
                                             color: Colors.black54,
                                             tooltip: 'Delete User',
                                             onPressed: () =>
@@ -190,23 +196,27 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                         ),
                                       ),
                                     const SizedBox(width: 8),
-                                    ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color.fromARGB(
-                                            255, 22, 165, 221),
-                                        foregroundColor: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
+                                    SizedBox(
+                                      height:
+                                          55, // Match height with delete button
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color.fromARGB(
+                                              255, 22, 165, 221),
+                                          foregroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
                                         ),
+                                        onPressed: isDemotingSelf
+                                            ? null
+                                            : () {
+                                                handleRoleUpdate(
+                                                    user['_id'], selectedRole);
+                                              },
+                                        child: const Text('Update Role'),
                                       ),
-                                      onPressed: isDemotingSelf
-                                          ? null
-                                          : () {
-                                              handleRoleUpdate(
-                                                  user['_id'], selectedRole);
-                                            },
-                                      child: const Text('Update Role'),
                                     ),
                                   ],
                                 ),
