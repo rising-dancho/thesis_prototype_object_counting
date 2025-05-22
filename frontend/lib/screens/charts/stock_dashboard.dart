@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:tectags/services/api.dart';
 
 class StockDashboard extends StatefulWidget {
@@ -83,167 +84,204 @@ class _StockDashboardState extends State<StockDashboard> {
     final double totalStock = (stock?['totalStock'] ?? 0).toDouble();
 
     return Scaffold(
-      appBar: AppBar(title: Text('Stock Overview')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          title: const Text(
+            "Stock Overview",
+            style: TextStyle(
+              fontFamily: 'Rajdhani',
+              fontSize: 22,
+              letterSpacing: 1.2,
+              fontWeight: FontWeight.bold,
+              // color: Color.fromARGB(255, 27, 211, 224),
+            ),
+          ),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          foregroundColor: Colors.white,
+          automaticallyImplyLeading: false,
+        ),
+        endDrawer: const SideMenu(),
+        body: Stack(
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: DropdownButtonFormField<String>(
-                value: selectedItem,
-                icon: Icon(
-                  Icons.arrow_drop_down,
-                  color: Colors.grey[700], // 👈 Arrow color to match textfields
-                ),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding: EdgeInsets.zero,
-                ),
-                hint: Text(
-                  'Select an item',
-                  style: TextStyle(
-                      color: Colors.grey[700], fontWeight: FontWeight.w600),
-                ),
-                items: stockCounts.keys.map((item) {
-                  return DropdownMenuItem(
-                    value: item,
-                    child: Text(item,
-                        style: TextStyle(
-                            color: Colors.grey[700],
-                            fontWeight: FontWeight.w600)),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedItem = value;
-                  });
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select an item';
-                  }
-                  return null;
-                },
-                dropdownColor:
-                    Colors.grey[100], // Optional: Dropdown popup background
+            SizedBox.expand(
+              child: Image.asset(
+                "assets/images/tectags_bg.png",
+                fit: BoxFit.cover,
               ),
             ),
-            if (stock != null) ...[
-              Text(
-                selectedItem ?? '',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 20),
-              Text('Pie Chart: Available vs Sold'),
-              SizedBox(height: 10),
-              SizedBox(
-                height: 200,
-                child: PieChart(
-                  PieChartData(
-                    sectionsSpace: 2,
-                    centerSpaceRadius: 40,
-                    sections: [
-                      PieChartSectionData(
-                        color: Colors.green[500],
-                        value: availableStock,
-                        title: 'Available',
-                        radius: 50,
-                        titleStyle: TextStyle(color: Colors.white),
+            Container(
+              color: Colors.black.withOpacity(0.6),
+            ),
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 18),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(4),
                       ),
-                      PieChartSectionData(
-                        color: Colors.red[300],
-                        value: sold,
-                        title: 'Sold',
-                        radius: 50,
-                        titleStyle: TextStyle(color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(height: 40),
-              Text('Bar Chart: Stock Breakdown'),
-              SizedBox(height: 50),
-              SizedBox(
-                height: 200,
-                child: BarChart(
-                  BarChartData(
-                    maxY: totalStock + 100,
-                    groupsSpace: 100,
-                    barGroups: [
-                      BarChartGroupData(
-                        x: 0,
-                        barRods: [
-                          BarChartRodData(
-                              toY: totalStock, color: Colors.blue[500]),
-                        ],
-                        showingTooltipIndicators: [0],
-                      ),
-                      BarChartGroupData(
-                        x: 1,
-                        barRods: [
-                          BarChartRodData(
-                              toY: availableStock, color: Colors.green[500]),
-                        ],
-                        showingTooltipIndicators: [0],
-                      ),
-                      BarChartGroupData(
-                        x: 2,
-                        barRods: [
-                          BarChartRodData(toY: sold, color: Colors.red[300]),
-                        ],
-                        showingTooltipIndicators: [0],
-                      ),
-                    ],
-                    titlesData: FlTitlesData(
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          getTitlesWidget: (value, _) {
-                            switch (value.toInt()) {
-                              case 0:
-                                return Text('Total');
-                              case 1:
-                                return Text('Available');
-                              case 2:
-                                return Text('Sold');
-                              default:
-                                return Text('');
-                            }
-                          },
+                      child: DropdownButtonFormField<String>(
+                        value: selectedItem,
+                        icon: Icon(
+                          Icons.arrow_drop_down,
+                          color: Colors
+                              .grey[700], // 👈 Arrow color to match textfields
                         ),
-                      ),
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 40,
-                          getTitlesWidget: (value, meta) {
-                            return Text(
-                              value.toInt().toString(),
-                              style: TextStyle(fontSize: 15),
-                            );
-                          },
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero,
                         ),
+                        hint: Text(
+                          'Select an item',
+                          style: TextStyle(
+                              color: Colors.grey[700],
+                              fontWeight: FontWeight.w600),
+                        ),
+                        items: stockCounts.keys.map((item) {
+                          return DropdownMenuItem(
+                            value: item,
+                            child: Text(item,
+                                style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontWeight: FontWeight.w600)),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedItem = value;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please select an item';
+                          }
+                          return null;
+                        },
+                        dropdownColor: Colors
+                            .grey[100], // Optional: Dropdown popup background
                       ),
                     ),
-                    borderData: FlBorderData(show: false),
-                    gridData: FlGridData(show: true),
-                  ),
+                    if (stock != null) ...[
+                      Text(
+                        selectedItem ?? '',
+                        style:
+                            TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 20),
+                      Text('Pie Chart: Available vs Sold'),
+                      SizedBox(height: 10),
+                      SizedBox(
+                        height: 200,
+                        child: PieChart(
+                          PieChartData(
+                            sectionsSpace: 2,
+                            centerSpaceRadius: 40,
+                            sections: [
+                              PieChartSectionData(
+                                color: Colors.green[500],
+                                value: availableStock,
+                                title: 'Available',
+                                radius: 50,
+                                titleStyle: TextStyle(color: Colors.white),
+                              ),
+                              PieChartSectionData(
+                                color: Colors.red[300],
+                                value: sold,
+                                title: 'Sold',
+                                radius: 50,
+                                titleStyle: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 40),
+                      Text('Bar Chart: Stock Breakdown'),
+                      SizedBox(height: 50),
+                      SizedBox(
+                        height: 200,
+                        child: BarChart(
+                          BarChartData(
+                            maxY: totalStock + 100,
+                            groupsSpace: 100,
+                            barGroups: [
+                              BarChartGroupData(
+                                x: 0,
+                                barRods: [
+                                  BarChartRodData(
+                                      toY: totalStock, color: Colors.blue[500]),
+                                ],
+                                showingTooltipIndicators: [0],
+                              ),
+                              BarChartGroupData(
+                                x: 1,
+                                barRods: [
+                                  BarChartRodData(
+                                      toY: availableStock,
+                                      color: Colors.green[500]),
+                                ],
+                                showingTooltipIndicators: [0],
+                              ),
+                              BarChartGroupData(
+                                x: 2,
+                                barRods: [
+                                  BarChartRodData(
+                                      toY: sold, color: Colors.red[300]),
+                                ],
+                                showingTooltipIndicators: [0],
+                              ),
+                            ],
+                            titlesData: FlTitlesData(
+                              bottomTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  getTitlesWidget: (value, _) {
+                                    switch (value.toInt()) {
+                                      case 0:
+                                        return Text('Total');
+                                      case 1:
+                                        return Text('Available');
+                                      case 2:
+                                        return Text('Sold');
+                                      default:
+                                        return Text('');
+                                    }
+                                  },
+                                ),
+                              ),
+                              leftTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: 40,
+                                  getTitlesWidget: (value, meta) {
+                                    return Text(
+                                      value.toInt().toString(),
+                                      style: TextStyle(fontSize: 15),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                            borderData: FlBorderData(show: false),
+                            gridData: FlGridData(show: true),
+                          ),
+                        ),
+                      ),
+                    ] else ...[
+                      SizedBox(height: 40),
+                      Text('No stock selected'),
+                    ]
+                  ],
                 ),
               ),
-            ] else ...[
-              SizedBox(height: 40),
-              Text('No stock selected'),
-            ]
+            ),
           ],
-        ),
-      ),
-    );
+        ));
   }
 }
