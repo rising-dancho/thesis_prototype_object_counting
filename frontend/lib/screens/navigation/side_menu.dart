@@ -130,16 +130,32 @@ class SideMenu extends StatelessWidget {
           //     );
           //   },
           // ),
-          ListTile(
-            leading: const Icon(Icons.bar_chart),
-            title: const Text('Charts'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => StockDashboard()),
-              );
+          FutureBuilder<String?>(
+            future: _getRole(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const SizedBox(); // or a small loader if you want
+              }
+
+              final role = snapshot.data ?? '';
+
+              if (role == 'manager') {
+                return ListTile(
+                  leading: const Icon(Icons.bar_chart),
+                  title: const Text('Charts'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => StockDashboard()),
+                    );
+                  },
+                );
+              } else {
+                return const SizedBox.shrink(); // Hide for others
+              }
             },
           ),
+
           // Conditionally show Roles tile only for manager
           FutureBuilder<String?>(
             future: _getRole(),

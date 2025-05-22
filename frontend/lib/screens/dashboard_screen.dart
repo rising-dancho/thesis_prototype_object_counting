@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:tectags/screens/charts/stock_dashboard.dart';
 import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:tectags/screens/guide_screen.dart';
+import 'package:tectags/screens/profile_screen.dart';
+import 'package:tectags/screens/role_management/role_management_screen.dart';
 import 'package:tectags/screens/dashboard/supplies_screen.dart';
 import 'package:tectags/screens/navigation/navigation_menu.dart';
+import 'package:tectags/services/shared_prefs_service.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
+
+  Future<String?> _getRole() async {
+    return await SharedPrefsService.getRole();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +49,10 @@ class DashboardScreen extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
             ),
+          ),
+          // Background dim layer
+          Container(
+            color: Colors.black.withOpacity(0.6),
           ),
           // Foreground content
           Padding(
@@ -94,6 +106,18 @@ class DashboardScreen extends StatelessWidget {
                   },
                 ),
                 DashboardCard(
+                  icon:
+                      const Icon(Icons.inventory, size: 48, color: Colors.teal),
+                  label: 'SUPPLIES',
+                  accentColor: Colors.teal,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SuppliesScreen()),
+                    );
+                  },
+                ),
+                DashboardCard(
                   icon: const Icon(Icons.library_books,
                       size: 48, color: Colors.purple),
                   label: 'GUIDE',
@@ -106,15 +130,71 @@ class DashboardScreen extends StatelessWidget {
                   },
                 ),
                 DashboardCard(
-                  icon:
-                      const Icon(Icons.inventory, size: 48, color: Colors.teal),
-                  label: 'SUPPLIES',
-                  accentColor: Colors.teal,
+                  icon: const Icon(Icons.account_circle,
+                      size: 48, color: Colors.indigo),
+                  label: 'PROFILE',
+                  accentColor: Colors.indigo,
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => SuppliesScreen()),
+                      MaterialPageRoute(builder: (context) => ProfileScreen()),
                     );
+                  },
+                ),
+                FutureBuilder<String?>(
+                  future: _getRole(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const SizedBox(); // or a small loader if you want
+                    }
+
+                    final role = snapshot.data ?? '';
+
+                    if (role == 'manager') {
+                      return DashboardCard(
+                        icon: const Icon(Icons.bar_chart,
+                            size: 48, color: Colors.deepOrange),
+                        label: 'CHARTS',
+                        accentColor: Colors.deepOrange,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => StockDashboard()),
+                          );
+                        },
+                      );
+                    } else {
+                      return const SizedBox.shrink(); // Hide for others
+                    }
+                  },
+                ),
+                FutureBuilder<String?>(
+                  future: _getRole(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const SizedBox(); // or a small loader if you want
+                    }
+
+                    final role = snapshot.data ?? '';
+
+                    if (role == 'manager') {
+                      return DashboardCard(
+                        icon: const Icon(Icons.group,
+                            size: 48, color: Colors.green),
+                        label: 'ROLES',
+                        accentColor: Colors.green,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => UserManagementScreen()),
+                          );
+                        },
+                      );
+                    } else {
+                      return const SizedBox.shrink(); // Hide for others
+                    }
                   },
                 ),
               ],
