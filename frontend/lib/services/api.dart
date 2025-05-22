@@ -26,25 +26,29 @@ class API {
   // static const baseUrl = "https://fix-inventory.vercel.app/api/";
 
   // LOGIN, REGISTRATION, ROLES, UPDATE USER & CHANGE PASSWORD -------------
-  static Future<Map<String, dynamic>> deleteUser(String userId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token') ?? '';
-
-    final response = await http.delete(
-      Uri.parse('$baseUrl/users/$userId'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
-
-    print('DELETE USER RESPONSE STATUS: ${response.statusCode}');
-    print('DELETE USER RAW BODY: ${response.body}');
-
+  Future<Map<String, dynamic>> deleteUser(String userId, String token) async {
     try {
-      return jsonDecode(response.body);
+      final url = Uri.parse('$baseUrl/users/$userId');
+      final response = await http.delete(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print('🔍 Status code: ${response.statusCode}');
+      print('🔍 Raw response body: ${response.body}');
+
+      final decoded = jsonDecode(response.body);
+      return decoded is Map<String, dynamic>
+          ? decoded
+          : {
+              'success': false,
+              'message': 'Unexpected response format',
+            };
     } catch (e) {
-      print('JSON decode error: $e');
+      print('❌ Exception: $e');
       return {
         'success': false,
         'message': 'Failed to parse response',
