@@ -26,16 +26,6 @@ class _StockDashboardState extends State<StockDashboard> {
   // For DropDown, filter out items already in stock
   late List<String> availableItems;
 
-  // Method to filter items not yet in stock
-
-  // void filterAvailableItems() {
-  //   // Get the keys (names) of the items already in stock
-  //   final stockedItems = stockCounts.keys.toList();
-  //   // Filter the original items list to exclude stocked items
-  //   availableItems =
-  //       allItems.where((item) => !stockedItems.contains(item)).toList();
-  // }
-
   void filterAvailableItems() {
     availableItems = allItems;
   }
