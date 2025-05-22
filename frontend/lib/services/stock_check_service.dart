@@ -22,7 +22,7 @@ class StockCheckService {
       String stockName = entry.key;
       int availableStock = entry.value["availableStock"] ?? 0;
       int totalStock = entry.value["totalStock"] ?? 0;
-      String stockId = entry.value["_id"].toString(); // 👈 Ensure this is included in your API
+      String stockId = entry.value["_id"].toString();
 
       bool shouldNotify = await StockNotifier.checkStockAndNotify(
         availableStock,

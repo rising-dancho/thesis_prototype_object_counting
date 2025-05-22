@@ -1,16 +1,61 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:tectags/services/api.dart';
 
-class StockDashboard extends StatelessWidget {
-  final int availableStock = 4980;
-  final int sold = 420;
-  final int totalStock = 5000;
-  final int unitPrice = 96;
-
+class StockDashboard extends StatefulWidget {
   const StockDashboard({super.key});
 
   @override
+  State<StockDashboard> createState() => _StockDashboardState();
+}
+
+class _StockDashboardState extends State<StockDashboard> {
+  Map<String, Map<String, dynamic>> stockCounts = {};
+
+  @override
+  void initState() {
+    super.initState();
+    fetchStockData();
+  }
+
+  // INFO DISPLAYED IN THE CARDS PULLED FROM THE STOCKS COLLECTION
+  Future<void> fetchStockData() async {
+    Map<String, Map<String, dynamic>>? data = await API.fetchStockFromMongoDB();
+    debugPrint("Fetched Stock Data: $data");
+    debugPrint("STOCK COUNTS Data: $stockCounts");
+
+    if (data == null) {
+      debugPrint("⚠️ No stock data fetched.");
+      return; // Exit early if data is null
+    }
+
+    // Optional: print each stock item
+    data.forEach((key, value) {
+      debugPrint("PRICE HERE!!: $key => $value");
+    });
+
+    if (mounted) {
+      setState(() {
+        stockCounts = data.map((key, value) => MapEntry(key, {
+              "availableStock": value["availableStock"] ?? 0,
+              "totalStock": value["totalStock"] ?? 0,
+              "sold": value["sold"] ?? 0,
+              "price": value["unitPrice"] ?? 0.0, // PRICE
+            }));
+      });
+      debugPrint("Updated StockCounts: $stockCounts");
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final String selectedStock = 'Sack Of Bistay Sand';
+    final stock = stockCounts[selectedStock];
+
+    final double availableStock = (stock?['availableStock'] ?? 0).toDouble();
+    final double sold = (stock?['sold'] ?? 0).toDouble();
+    final double totalStock = (stock?['totalStock'] ?? 0).toDouble();
+
     return Scaffold(
       appBar: AppBar(title: Text('Stock Overview')),
       body: Padding(
@@ -112,9 +157,13 @@ class StockDashboard extends StatelessWidget {
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
-                        reservedSize: 40, // default is too small
+                        reservedSize: 40,
                         getTitlesWidget: (value, meta) {
-                          return Text(value.toInt().toString());
+                          return Text(
+                            value.toInt().toString(),
+                            style: TextStyle(fontSize: 15),
+                            textAlign: TextAlign.left,
+                          );
                         },
                       ),
                     ),
