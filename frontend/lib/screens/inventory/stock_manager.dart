@@ -29,35 +29,35 @@ class _StockManagerState extends State<StockManager> {
         .checkStocks(); // Trigger fresh stock check when inventory screen opens
   }
 
-  void _openAddProductModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) {
-        return Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child: SingleChildScrollView(
-                child: AddProduct(
-              stockCounts: stockCounts,
-              onAddStock: (String initialName, int count, double price) {
-                setState(() {
-                  stockCounts[initialName] = {
-                    "availableStock": count,
-                    "totalStock": count,
-                    "sold": 0,
-                    "price": price,
-                  };
-                });
-                API.saveSingleStockToMongoDB(
-                    initialName, stockCounts[initialName]!);
-                Navigator.pop(context);
-              },
-            )));
-      },
-    );
-  }
+  // void _openAddProductModal(BuildContext context) {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     isScrollControlled: true,
+  //     builder: (_) {
+  //       return Padding(
+  //           padding: EdgeInsets.only(
+  //             bottom: MediaQuery.of(context).viewInsets.bottom,
+  //           ),
+  //           child: SingleChildScrollView(
+  //               child: AddProduct(
+  //             stockCounts: stockCounts,
+  //             onAddStock: (String initialName, int count, double price) {
+  //               setState(() {
+  //                 stockCounts[initialName] = {
+  //                   "availableStock": count,
+  //                   "totalStock": count,
+  //                   "sold": 0,
+  //                   "price": price,
+  //                 };
+  //               });
+  //               API.saveSingleStockToMongoDB(
+  //                   initialName, stockCounts[initialName]!);
+  //               Navigator.pop(context);
+  //             },
+  //           )));
+  //     },
+  //   );
+  // }
 
   void _openSellStockModal(BuildContext context, String item) {
     showModalBottomSheet(
@@ -644,21 +644,21 @@ class _StockManagerState extends State<StockManager> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _openAddProductModal(context),
-        tooltip: 'Add Product',
-        backgroundColor:
-            Color.fromARGB(255, 22, 165, 221), // Change background color
-        foregroundColor: Colors.white, // Change icon/text color
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-          size: 24.0,
-        ),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () => _openAddProductModal(context),
+      //   tooltip: 'Add Product',
+      //   backgroundColor:
+      //       Color.fromARGB(255, 22, 165, 221), // Change background color
+      //   foregroundColor: Colors.white, // Change icon/text color
+      //   shape: RoundedRectangleBorder(
+      //     borderRadius: BorderRadius.circular(10.0),
+      //   ),
+      //   child: const Icon(
+      //     Icons.add,
+      //     color: Colors.white,
+      //     size: 24.0,
+      //   ),
+      // ),
     );
   }
 }

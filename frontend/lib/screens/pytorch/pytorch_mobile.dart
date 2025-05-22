@@ -525,7 +525,10 @@ class _PytorchMobileState extends State<PytorchMobile> {
                 await API.saveSingleStockToMongoDB(
                     itemName, stockCounts[itemName]!);
 
-                Navigator.pop(modalContext, true); // ✅ return true on success
+                if (modalContext.mounted) {
+                  Navigator.pop(
+                      modalContext, true); // ✅ only pop after save completes
+                }
               },
             );
           } else {
@@ -1104,5 +1107,5 @@ class _PytorchMobileState extends State<PytorchMobile> {
 // FIX THE RESTOCK AND SELL WHEN SELECTED ITEM IS ALREADY IN THE LIST
 // https://chatgpt.com/share/681bf782-5edc-8000-a65f-da0de57fe2f3
 
-// (FIX THIS) UPDATE THE stockCount Maps to make use of the stockdata_model FOR LONG TERM TYPING FIX instead of setting the Map to dynamic: eg. like this: Map<String, Map<String, StockData>> stockCounts = {};
+// (FIX THIS) UPDATE THE stockCount Maps to make use of the stockdata_model FOR LONG TERM "DATA TYPING" FIX instead of setting the Map to dynamic: eg. like this: Map<String, Map<String, StockData>> stockCounts = {};
 // https://chatgpt.com/share/68238d44-4950-8000-8ef4-4e71aaec7f3a

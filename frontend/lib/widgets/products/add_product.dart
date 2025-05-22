@@ -5,7 +5,10 @@ class AddProduct extends StatefulWidget {
   final String? initialName;
   final int? itemCount;
   final Map<String, Map<String, dynamic>> stockCounts;
-  final void Function(String name, int count, double price) onAddStock;
+
+  // ✅ Make sure this is marked as returning Future<void>
+  final Future<void> Function(String itemName, int count, double price)
+      onAddStock;
 
   const AddProduct({
     super.key,
@@ -25,6 +28,8 @@ class _AddProductState extends State<AddProduct> {
   TextEditingController priceController = TextEditingController();
   // form validation
   final _formKey = GlobalKey<FormState>();
+  // loading
+  bool isLoading = false;
 
   // Hollow_blocks
   // Rebar
@@ -57,23 +62,33 @@ class _AddProductState extends State<AddProduct> {
         allItems.where((item) => !stockedItems.contains(item)).toList();
   }
 
-  void addStockItem() {
+  void addStockItem() async {
     String? rawItemName = selectedItem; // 👈 now using selectedItem
-    if (rawItemName == null) {
-      // Handle if nothing selected
-      return;
-    }
+    if (rawItemName == null) return;
+
     String itemName = LabelFormatter.titleCase(rawItemName);
     int? itemCount = int.tryParse(countController.text.trim());
     double? price = double.tryParse(priceController.text.trim());
 
     if (itemName.isNotEmpty && itemCount != null && price != null) {
-      widget.onAddStock(itemName, itemCount, price); // Notify parent
+      setState(() {
+        isLoading = true;
+      });
 
+      try {
+        await widget.onAddStock(
+            itemName, itemCount, price); // ✅ properly awaited
+      } catch (e) {
+        debugPrint("❌ Error while adding stock: $e");
+      }
+      
       // Clear fields after adding
-      selectedItem = null; // Clear selected item
-      countController.clear();
-      priceController.clear();
+      setState(() {
+        isLoading = false;
+        selectedItem = null;
+        countController.clear();
+        priceController.clear();
+      });
     }
   }
 
@@ -94,6 +109,7 @@ class _AddProductState extends State<AddProduct> {
   void dispose() {
     itemController.dispose();
     countController.dispose();
+    priceController.dispose();
     super.dispose();
   }
 
@@ -253,20 +269,24 @@ class _AddProductState extends State<AddProduct> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    addStockItem();
-                  }
-                },
-                child: const Text(
-                  'ADD',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'Roboto',
-                    fontSize: 15.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                onPressed: isLoading
+                    ? null
+                    : () {
+                        if (_formKey.currentState!.validate()) {
+                          addStockItem();
+                        }
+                      },
+                child: isLoading
+                    ? CircularProgressIndicator(color: Colors.white)
+                    : Text(
+                        'ADD',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'Roboto',
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
             ),
           ],
