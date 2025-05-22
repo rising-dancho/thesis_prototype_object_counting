@@ -42,7 +42,7 @@ class ActivityLog {
     return ActivityLog(
       id: json['_id'] ?? 'Unknown ID', // ✅ Fix: Use _id instead of id
       userId: json['userId'] ?? 'Unknown ID',
-      fullName: json['fullName'] ?? 'Unknown User',
+      fullName: json['fullName'] ?? 'Deactivated',
       action: json['action'] ?? 'Unknown Action',
       countedAmount: json['countedAmount'] ?? 0, // ✅ Fallback to 0 if null
       timestamp: formattedTimestamp,
@@ -277,7 +277,7 @@ class _ActivityLogsState extends State<ActivityLogs> {
                           ),
                           DataColumn(
                             label: Text(
-                              'Total Sold',
+                              'Total Count',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black,

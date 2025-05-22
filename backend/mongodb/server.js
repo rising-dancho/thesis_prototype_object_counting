@@ -593,7 +593,7 @@ app.post('/api/update/sold-with-price', async (req, res) => {
     await Activity.create({
       userId,
       stockId,
-      action: 'Updated sold count',
+      action: `Updated count for ${stock.stockName}`,
       countedAmount: soldAmount,
     });
 
