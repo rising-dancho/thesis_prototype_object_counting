@@ -597,7 +597,11 @@ class _PytorchMobileState extends State<PytorchMobile> {
                         content: Text("Stock and price updated successfully!")),
                   );
 
-                  Navigator.pop(modalContext, true); // ✅ return true on success
+                  // remove the loading when the modal is done awaiting
+                  if (modalContext.mounted) {
+                    Navigator.pop(
+                        modalContext, true); // ✅ only pop after save completes
+                  }
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

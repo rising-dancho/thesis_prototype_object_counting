@@ -5,11 +5,13 @@ import 'package:tectags/utils/label_formatter.dart';
 import 'package:tectags/widgets/products/restock_product.dart';
 
 class AddNewProduct extends StatefulWidget {
-  final void Function(String name, int count, int sold, double price)
-      onAddStock;
   final String? initialName;
   final int? itemCount;
   final String actionType; // "sell" or "restock"
+
+  // ✅ Make sure this is marked as returning Future<void>
+  final Future<void> Function(String name, int count, int sold, double price)
+      onAddStock;
 
   const AddNewProduct({
     super.key,
@@ -34,6 +36,9 @@ class _AddNewProductState extends State<AddNewProduct> {
   // FOR RESTOCKING
   Map<String, Map<String, dynamic>> stockCounts = {};
 
+  // loading
+  bool isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +49,15 @@ class _AddNewProductState extends State<AddNewProduct> {
   }
 
   @override
+  void dispose() {
+    nameController.dispose();
+    countController.dispose();
+    soldController.dispose();
+    priceController.dispose();
+    super.dispose();
+  }
+
+  @override
   void didUpdateWidget(covariant AddNewProduct oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.itemCount != oldWidget.itemCount) {
@@ -51,20 +65,33 @@ class _AddNewProductState extends State<AddNewProduct> {
     }
   }
 
-  void addStockItem() {
+  void addStockItem() async {
     String rawItemName = nameController.text.trim();
     String itemName = LabelFormatter.titleCase(rawItemName);
     int? itemCount = int.tryParse(countController.text.trim());
     double? price = double.tryParse(priceController.text.trim());
 
     if (itemName.isNotEmpty && itemCount != null && price != null) {
-      int itemSold = int.tryParse(soldController.text.trim()) ?? 0;
-      widget.onAddStock(itemName, itemCount, itemSold, price); // Notify parent
+      // initiate loading
+      setState(() {
+        isLoading = true;
+      });
 
-      // Optionally clear fields (if reused elsewhere)
-      nameController.clear();
-      countController.clear();
-      priceController.clear();
+      int itemSold = int.tryParse(soldController.text.trim()) ?? 0;
+      try {
+        await widget.onAddStock(
+            itemName, itemCount, itemSold, price); // Notify parent
+      } catch (e) {
+        debugPrint("❌ Error while adding stock: $e");
+      }
+
+      /// Clear fields after adding
+      setState(() {
+        isLoading = false;
+        nameController.clear();
+        countController.clear();
+        priceController.clear();
+      });
     }
   }
 
@@ -275,31 +302,36 @@ class _AddNewProductState extends State<AddNewProduct> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 22, 165, 221),
-                  // backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 22, 165, 221),
+                    // backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 100, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
-                ),
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    addStockItem();
-                  }
-                },
-                child: const Text(
-                  'ADD',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'Roboto',
-                    fontSize: 15.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+                  onPressed: isLoading
+                      ? null
+                      : () {
+                          if (_formKey.currentState!.validate()) {
+                            addStockItem();
+                          }
+                        },
+                  child: isLoading
+                      ? CircularProgressIndicator(
+                          color: Colors.white,
+                        )
+                      : Text(
+                          'ADD',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: 'Roboto',
+                            fontSize: 15.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )),
             ),
           ],
         ),
