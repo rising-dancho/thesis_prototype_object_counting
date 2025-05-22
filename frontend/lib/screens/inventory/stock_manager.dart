@@ -52,7 +52,7 @@ class _StockManagerState extends State<StockManager> {
                 });
                 API.saveSingleStockToMongoDB(
                     initialName, stockCounts[initialName]!);
-                
+
                 if (modalContext.mounted) {
                   Navigator.pop(
                       modalContext, true); // ✅ only pop after save completes
@@ -63,8 +63,8 @@ class _StockManagerState extends State<StockManager> {
     );
   }
 
-  void _openSellStockModal(BuildContext context, String item) {
-    showModalBottomSheet(
+  Future<bool?> _openSellStockModal(BuildContext context, String item) async {
+    final result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       builder: (_) {
@@ -76,7 +76,8 @@ class _StockManagerState extends State<StockManager> {
             child: SellProduct(
               itemName: item,
               onSell: (sellAmount) {
-                updateStockForSale(item, sellAmount);
+                final success = _updateStockForSale(item, sellAmount);
+                Navigator.of(context).pop(success);
               },
               isSelling: true,
             ),
@@ -84,48 +85,50 @@ class _StockManagerState extends State<StockManager> {
         );
       },
     );
+
+    return result;
   }
 
-  void updateStockForSale(String itemName, int sellAmount) {
-    if (stockCounts.containsKey(itemName)) {
-      int currentAvailableStock = stockCounts[itemName]?["availableStock"] ?? 0;
-      int totalStock = stockCounts[itemName]?["totalStock"] ?? 0;
-      String stockId = stockCounts[itemName]?["_id"].toString() ?? "";
+  bool _updateStockForSale(String item, int sellAmount) {
+    if (stockCounts.containsKey(item)) {
+      int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
+      int totalStock = stockCounts[item]?["totalStock"] ?? 0;
+      String stockId = stockCounts[item]?["_id"].toString() ?? "";
 
       if (sellAmount > currentAvailableStock) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(this.context).showSnackBar(
           SnackBar(content: Text('Insufficient stocks to sell')),
         );
-        return;
+        return false;
       }
 
       setState(() {
-        stockCounts[itemName]?["availableStock"] =
+        stockCounts[item]?["availableStock"] =
             currentAvailableStock - sellAmount;
-        stockCounts[itemName]?["sold"] =
-            (stockCounts[itemName]?["sold"] ?? 0) + sellAmount;
+        stockCounts[item]?["sold"] =
+            (stockCounts[item]?["sold"] ?? 0) + sellAmount;
       });
 
-      int updatedStock = stockCounts[itemName]?["availableStock"] ?? 0;
+      int updatedStock = stockCounts[item]?["availableStock"] ?? 0;
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(this.context).showSnackBar(
         SnackBar(
-          content: Text(
-              'Sold $sellAmount $itemName(s). Remaining stock: $updatedStock'),
+          content:
+              Text('Sold $sellAmount $item(s). Remaining stock: $updatedStock'),
         ),
       );
 
-      // 🔄 Save updated stock to DB
-      API.saveSingleStockToMongoDB(itemName, stockCounts[itemName]!);
-
-      // ✅ Call centralized stock checker
+      API.saveSingleStockToMongoDB(item, stockCounts[item]!);
       StockNotifier.checkStockAndNotify(
         updatedStock,
         totalStock,
-        itemName,
+        item,
         stockId,
       );
+
+      return true;
     }
+    return false;
   }
 
   void _openUpdatePriceModal(
@@ -150,8 +153,9 @@ class _StockManagerState extends State<StockManager> {
     );
   }
 
-  void _openRestockStockModal(BuildContext context, String item) {
-    showModalBottomSheet(
+  Future<bool?> _openRestockStockModal(
+      BuildContext context, String item) async {
+    final result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       builder: (_) {
@@ -163,32 +167,39 @@ class _StockManagerState extends State<StockManager> {
             child: RestockProduct(
               itemName: item,
               initialAmount: 0,
-              onRestock: (restockAmount) async {
-                updateStock(item, restockAmount);
+              onRestock: (restockAmount) {
+                final success = _updateStock(item, restockAmount);
+                Navigator.of(context).pop(success); // ✅ true or false
               },
             ),
           ),
         );
       },
     );
+
+    return result;
   }
 
-  void updateStock(String itemName, int restockAmount) {
-    if (stockCounts.containsKey(itemName)) {
+  bool _updateStock(String item, int restockAmount) {
+    if (stockCounts.containsKey(item)) {
       setState(() {
-        int currentTotalStock = stockCounts[itemName]?["totalStock"] ?? 0;
-        int currentAvailableStock =
-            stockCounts[itemName]?["availableStock"] ?? 0;
+        int currentTotalStock = stockCounts[item]?["totalStock"] ?? 0;
+        int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
+        double currentPrice = stockCounts[item]?["price"] ?? 0.0;
 
-        stockCounts[itemName]?["totalStock"] =
-            currentTotalStock + restockAmount;
-        stockCounts[itemName]?["availableStock"] =
+        stockCounts[item]?["totalStock"] = currentTotalStock + restockAmount;
+        stockCounts[item]?["availableStock"] =
             currentAvailableStock + restockAmount;
-        // 🔥 sold does NOT change
+        stockCounts[item]?["price"] = currentPrice; // preserve price
+        // sold does NOT change
       });
 
-      API.saveSingleStockToMongoDB(itemName, stockCounts[itemName]!);
+      API.saveSingleStockToMongoDB(item, stockCounts[item]!);
+
+      return true;
     }
+
+    return false;
   }
 
   // INFO DISPLAYED IN THE CARDS PULLED FROM THE STOCKS COLLECTION
@@ -461,9 +472,10 @@ class _StockManagerState extends State<StockManager> {
                                   ),
                                   PopupMenuButton<String>(
                                     icon: Icon(Icons.more_horiz),
-                                    onSelected: (value) {
+                                    onSelected: (value) async {
                                       if (value == 'restock') {
-                                        _openRestockStockModal(context, item);
+                                        await _openRestockStockModal(
+                                            context, item);
                                       } else if (value == 'sell') {
                                         _openSellStockModal(context, item);
                                       } else if (value == 'price') {

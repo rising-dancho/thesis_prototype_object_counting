@@ -108,7 +108,7 @@ class _AddNewProductState extends State<AddNewProduct> {
             child: RestockProduct(
               itemName: item,
               initialAmount: widget.itemCount ?? 0,
-              onRestock: (restockAmount) async {
+              onRestock: (restockAmount) {
                 updateStock(item, restockAmount);
               },
             ),

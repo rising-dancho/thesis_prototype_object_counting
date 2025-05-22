@@ -10,7 +10,6 @@ void main() async {
 
   // initialize notifications
   await NotifService().initNotification(); // NOTIFICATIONS
-
   runApp(const MyApp());
 }
 

@@ -705,6 +705,13 @@ class _PytorchMobileState extends State<PytorchMobile> {
 
       int updatedStock = stockCounts[item]?["availableStock"] ?? 0;
 
+      ScaffoldMessenger.of(this.context).showSnackBar(
+        SnackBar(
+          content:
+              Text('Sold $sellAmount $item(s). Remaining stock: $updatedStock'),
+        ),
+      );
+
       API.saveSingleStockToMongoDB(item, stockCounts[item]!);
       StockNotifier.checkStockAndNotify(
         updatedStock,
@@ -715,7 +722,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
 
       return true;
     }
-
     return false;
   }
 
@@ -724,7 +730,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
     final result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      builder: (modalContext) {
+      builder: (_) {
         return Padding(
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -733,13 +739,9 @@ class _PytorchMobileState extends State<PytorchMobile> {
             child: RestockProduct(
               itemName: item,
               initialAmount: editableBoundingBoxes.length,
-              onRestock: (restockAmount) async {
+              onRestock: (restockAmount) {
                 final success = _updateStock(item, restockAmount);
-
-                // remove the loading when the modal is done awaiting
-                if (modalContext.mounted) {
-                  Navigator.of(modalContext).pop(success); // ✅ true or false
-                }
+                Navigator.of(context).pop(success); // ✅ true or false
               },
             ),
           ),
