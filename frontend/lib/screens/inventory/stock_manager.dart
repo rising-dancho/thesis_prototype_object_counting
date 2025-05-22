@@ -163,7 +163,7 @@ class _StockManagerState extends State<StockManager> {
             child: RestockProduct(
               itemName: item,
               initialAmount: 0,
-              onRestock: (restockAmount) {
+              onRestock: (restockAmount) async {
                 updateStock(item, restockAmount);
               },
             ),

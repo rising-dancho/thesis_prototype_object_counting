@@ -724,7 +724,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
     final result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      builder: (_) {
+      builder: (modalContext) {
         return Padding(
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -733,9 +733,13 @@ class _PytorchMobileState extends State<PytorchMobile> {
             child: RestockProduct(
               itemName: item,
               initialAmount: editableBoundingBoxes.length,
-              onRestock: (restockAmount) {
+              onRestock: (restockAmount) async {
                 final success = _updateStock(item, restockAmount);
-                Navigator.of(context).pop(success); // ✅ true or false
+
+                // remove the loading when the modal is done awaiting
+                if (modalContext.mounted) {
+                  Navigator.of(modalContext).pop(success); // ✅ true or false
+                }
               },
             ),
           ),

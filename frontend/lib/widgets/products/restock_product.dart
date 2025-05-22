@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 class RestockProduct extends StatefulWidget {
   final String itemName;
   final int initialAmount;
-  final void Function(int restockAmount) onRestock;
+
+  // ✅ Make sure this is marked as returning Future<void>
+  final Future<void> Function(int restockAmount) onRestock;
 
   const RestockProduct({
     super.key,
@@ -34,13 +36,27 @@ class _RestockProductState extends State<RestockProduct> {
     super.dispose();
   }
 
-  void restockItem() {
+  void restockItem() async {
     int? restockAmount = int.tryParse(_restockController.text.trim());
     if (restockAmount != null && restockAmount > 0) {
       setState(() {
         isLoading = true;
       });
-      widget.onRestock(restockAmount);
+
+      try {
+        await widget.onRestock(restockAmount);
+      } catch (e) {
+        debugPrint("❌ Error while adding stock: $e");
+      }
+
+      // ❗ After awaiting, always check if the widget is still mounted
+      if (!mounted) return;
+
+      // Clear fields after adding
+      setState(() {
+        isLoading = false;
+        _restockController.clear();
+      });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please enter a valid positive number')),
