@@ -122,7 +122,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.white,
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: true,
       ),
       endDrawer: const SideMenu(),
       body: Stack(

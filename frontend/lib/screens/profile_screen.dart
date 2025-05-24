@@ -150,7 +150,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         // backgroundColor: const Color.fromARGB(255, 5, 45, 90),
         // elevation: 0,
         // foregroundColor: Colors.white,
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: true,
       ),
       endDrawer: const SideMenu(),
       body: SafeArea(

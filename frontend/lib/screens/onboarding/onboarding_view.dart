@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tectags/screens/dashboard_screen.dart';
+import 'package:tectags/screens/navigation/navigation_menu.dart';
 import 'package:tectags/screens/onboarding/onboarding_items.dart';
 // import 'package:tectags/screens/navigation/navigation_menu.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
@@ -140,7 +141,7 @@ class _OnboardingViewState extends State<OnboardingView> {
             if (!mounted) return;
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const DashboardScreen()),
+              MaterialPageRoute(builder: (context) => const NavigationMenu()),
             );
           },
           child: const Text(

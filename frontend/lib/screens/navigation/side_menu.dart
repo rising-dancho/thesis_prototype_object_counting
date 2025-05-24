@@ -90,26 +90,26 @@ class SideMenu extends StatelessWidget {
               );
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.person_2),
-            title: const Text('Profile'),
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.menu_book),
-            title: const Text('Guide'),
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const GuideScreen()),
-              );
-            },
-          ),
+          // ListTile(
+          //   leading: const Icon(Icons.person_2),
+          //   title: const Text('Profile'),
+          //   onTap: () {
+          //     Navigator.pushReplacement(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => const ProfileScreen()),
+          //     );
+          //   },
+          // ),
+          // ListTile(
+          //   leading: const Icon(Icons.menu_book),
+          //   title: const Text('Guide'),
+          //   onTap: () {
+          //     Navigator.pushReplacement(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => const GuideScreen()),
+          //     );
+          //   },
+          // ),
           ListTile(
             leading: const Icon(Icons.slideshow),
             title: const Text('Onboarding'),
@@ -130,59 +130,59 @@ class SideMenu extends StatelessWidget {
           //     );
           //   },
           // ),
-          FutureBuilder<String?>(
-            future: _getRole(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const SizedBox(); // or a small loader if you want
-              }
+          // FutureBuilder<String?>(
+          //   future: _getRole(),
+          //   builder: (context, snapshot) {
+          //     if (snapshot.connectionState == ConnectionState.waiting) {
+          //       return const SizedBox(); // or a small loader if you want
+          //     }
 
-              final role = snapshot.data ?? '';
+          //     final role = snapshot.data ?? '';
 
-              if (role == 'manager') {
-                return ListTile(
-                  leading: const Icon(Icons.bar_chart),
-                  title: const Text('Charts'),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => StockDashboard()),
-                    );
-                  },
-                );
-              } else {
-                return const SizedBox.shrink(); // Hide for others
-              }
-            },
-          ),
+          //     if (role == 'manager') {
+          //       return ListTile(
+          //         leading: const Icon(Icons.bar_chart),
+          //         title: const Text('Charts'),
+          //         onTap: () {
+          //           Navigator.push(
+          //             context,
+          //             MaterialPageRoute(builder: (context) => StockDashboard()),
+          //           );
+          //         },
+          //       );
+          //     } else {
+          //       return const SizedBox.shrink(); // Hide for others
+          //     }
+          //   },
+          // ),
 
-          // Conditionally show Roles tile only for manager
-          FutureBuilder<String?>(
-            future: _getRole(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const SizedBox(); // or a small loader if you want
-              }
+          // // Conditionally show Roles tile only for manager
+          // FutureBuilder<String?>(
+          //   future: _getRole(),
+          //   builder: (context, snapshot) {
+          //     if (snapshot.connectionState == ConnectionState.waiting) {
+          //       return const SizedBox(); // or a small loader if you want
+          //     }
 
-              final role = snapshot.data ?? '';
+          //     final role = snapshot.data ?? '';
 
-              if (role == 'manager') {
-                return ListTile(
-                  leading: const Icon(Icons.lock),
-                  title: const Text('Roles'),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => UserManagementScreen()),
-                    );
-                  },
-                );
-              } else {
-                return const SizedBox.shrink(); // Hide for others
-              }
-            },
-          ),
+          //     if (role == 'manager') {
+          //       return ListTile(
+          //         leading: const Icon(Icons.lock),
+          //         title: const Text('Roles'),
+          //         onTap: () {
+          //           Navigator.push(
+          //             context,
+          //             MaterialPageRoute(
+          //                 builder: (context) => UserManagementScreen()),
+          //           );
+          //         },
+          //       );
+          //     } else {
+          //       return const SizedBox.shrink(); // Hide for others
+          //     }
+          //   },
+          // ),
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: const Text('About'),
