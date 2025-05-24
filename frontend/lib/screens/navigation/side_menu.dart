@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tectags/screens/about_screen.dart';
-import 'package:tectags/screens/charts/stock_dashboard.dart';
-import 'package:tectags/screens/guide_screen.dart';
+// import 'package:tectags/screens/charts/stock_dashboard.dart';
+// import 'package:tectags/screens/guide_screen.dart';
 import 'package:tectags/screens/login_screen.dart';
 import 'package:tectags/screens/navigation/navigation_menu.dart';
 import 'package:tectags/screens/onboarding/onboarding_view.dart';
-import 'package:tectags/screens/profile_screen.dart';
-import 'package:tectags/screens/role_management/role_management_screen.dart';
+// import 'package:tectags/screens/profile_screen.dart';
+// import 'package:tectags/screens/role_management/role_management_screen.dart';
 import 'package:tectags/services/shared_prefs_service.dart';
 import 'package:tectags/screens/dashboard_screen.dart';
 
@@ -30,9 +30,9 @@ class SideMenu extends StatelessWidget {
     }
   }
 
-  Future<String?> _getRole() async {
-    return await SharedPrefsService.getRole();
-  }
+  // Future<String?> _getRole() async {
+  //   return await SharedPrefsService.getRole();
+  // }
 
   @override
   Widget build(BuildContext context) {
