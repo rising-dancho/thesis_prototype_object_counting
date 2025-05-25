@@ -21,10 +21,10 @@ class SaveResult {
 
 class API {
   // static const baseUrl = "http://192.168.1.10:2000/api/"; // FOR TESTING
-  // static const baseUrl =
-  //     "https://thesis-prototype-object-counting.vercel.app/api/";
   static const baseUrl =
-      "https://thesis-prototype-object-counting-delta.vercel.app/api/";
+      "https://thesis-prototype-object-counting.vercel.app/api/";
+  // static const baseUrl =
+  //     "https://thesis-prototype-object-counting-delta.vercel.app/api/";
   // static const baseUrl = "https://fix-inventory.vercel.app/api/";
 
   // LOGIN, REGISTRATION, ROLES, UPDATE USER & CHANGE PASSWORD -------------
