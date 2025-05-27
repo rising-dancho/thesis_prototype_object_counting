@@ -130,6 +130,72 @@ app.post('/api/update/sold', async (req, res) => {
   }
 });
 
+app.post('/api/update/sold', async (req, res) => {
+  try {
+    const { userId, items } = req.body;
+
+    const updatedStocks = [];
+
+    for (const stockItem of items) {
+      // Get the previous stock from the database
+      const prevStock = await Stock.findOne({ stockName: stockItem.stockName });
+
+      const updateFields = {
+        totalStock: stockItem.totalStock,
+        availableStock: stockItem.availableStock,
+      };
+
+      if (
+        typeof stockItem.unitPrice === 'number' &&
+        !isNaN(stockItem.unitPrice) &&
+        stockItem.unitPrice > 0
+      ) {
+        updateFields.unitPrice = stockItem.unitPrice;
+      }
+
+      // Recalculate 'sold' from totalStock - availableStock
+      updateFields.sold =
+        (stockItem.totalStock ?? 0) - (stockItem.availableStock ?? 0);
+
+      const updatedStock = await Stock.findOneAndUpdate(
+        { stockName: stockItem.stockName },
+        { $set: updateFields },
+        { upsert: true, new: true }
+      );
+
+      updatedStocks.push(updatedStock);
+
+      const prevAvailable = prevStock?.availableStock ?? 0;
+      const newAvailable = stockItem.availableStock ?? 0;
+      const availableDelta = newAvailable - prevAvailable;
+
+      if (userId) {
+        if (availableDelta < 0) {
+          // Stock sold (availableStock decreased)
+          await Activity.create({
+            userId,
+            stockId: updatedStock._id,
+            action: `Updated sold count for ${stockItem.stockName}`,
+            countedAmount: Math.abs(availableDelta),
+          });
+        } else if (availableDelta > 0) {
+          // Stock restocked (availableStock increased)
+          await Activity.create({
+            userId,
+            stockId: updatedStock._id,
+            action: `Updated restock count for ${stockItem.stockName}`,
+            countedAmount: availableDelta,
+          });
+        }
+      }
+    }
+
+    res.json(updatedStocks);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.delete('/api/stocks/:stockName', async (req, res) => {
   try {
     const stockName = req.params.stockName;
