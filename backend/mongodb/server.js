@@ -108,10 +108,10 @@ app.post('/api/update/sold', async (req, res) => {
       updatedStocks.push(updatedStock);
 
       // Now compute soldDelta using old and new sold values
-      const soldDelta =
-        typeof stockItem.soldDelta === 'number'
-          ? stockItem.soldDelta
-          : Math.max((stockItem.sold ?? 0) - (prevStock?.sold ?? 0), 0);
+      const soldDelta = Math.max(
+        (stockItem.sold ?? 0) - (prevStock?.sold ?? 0),
+        0
+      );
 
       // Log only the change/difference that happened between the old and new sold count
       if (userId && soldDelta > 0) {
