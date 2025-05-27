@@ -212,7 +212,12 @@ class API {
 
       final body = {
         "userId": userId,
-        "items": [formattedStock], // Backend expects "items" to be a list
+        "items": [
+          {
+            ...formattedStock,
+            "soldDelta": stockData["soldDelta"] ?? 0, // custom field
+          }
+        ], // Backend expects "items" to be a list
       };
 
       final response = await http.post(

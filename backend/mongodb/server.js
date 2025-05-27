@@ -82,6 +82,9 @@ app.post('/api/update/sold', async (req, res) => {
     const updatedStocks = [];
 
     for (const stockItem of items) {
+      // Get the previous state of the stock BEFORE updating
+      const prevStock = await Stock.findOne({ stockName: stockItem.stockName });
+
       const updateFields = {
         totalStock: stockItem.totalStock,
         availableStock: stockItem.availableStock,
@@ -104,12 +107,19 @@ app.post('/api/update/sold', async (req, res) => {
 
       updatedStocks.push(updatedStock);
 
-      if (userId) {
+      // Now compute soldDelta using old and new sold values
+      const soldDelta =
+        typeof stockItem.soldDelta === 'number'
+          ? stockItem.soldDelta
+          : Math.max((stockItem.sold ?? 0) - (prevStock?.sold ?? 0), 0);
+
+      // Log only the change/difference that happened between the old and new sold count
+      if (userId && soldDelta > 0) {
         await Activity.create({
           userId,
           stockId: updatedStock._id,
-          action: `Updated sold count for ${stockItem.stockName}`,
-          countedAmount: stockItem.sold,
+          action: `Sold ${soldDelta} of ${stockItem.stockName}`,
+          countedAmount: soldDelta,
         });
       }
     }
@@ -119,7 +129,6 @@ app.post('/api/update/sold', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
 
 app.delete('/api/stocks/:stockName', async (req, res) => {
   try {
