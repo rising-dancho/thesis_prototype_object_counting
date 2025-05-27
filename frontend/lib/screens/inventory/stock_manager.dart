@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tectags/screens/navigation/side_menu.dart';
 import 'package:tectags/services/api.dart';
+import 'package:tectags/services/shared_prefs_service.dart';
 import 'package:tectags/services/stock_check_service.dart';
 import 'package:tectags/utils/stock_notifier.dart';
 import 'package:tectags/widgets/products/add_product.dart';
@@ -21,15 +22,32 @@ class _StockManagerState extends State<StockManager> {
   TextEditingController searchController = TextEditingController();
   String searchQuery = '';
 
+  // GETTING USER ID FROM SHAREDPREFS
+  String? _userId;
+
   @override
   void initState() {
     super.initState();
     fetchStockData();
-    StockCheckService
-        .checkStocks(); // Trigger fresh stock check when inventory screen opens
+    StockCheckService.checkStocks();
+    _loadUserId(); // GET USER ID // Trigger fresh stock check when inventory screen opens
   }
 
-  void _openAddProductModal(BuildContext context) {
+  Future<void> _loadUserId() async {
+    final id = await SharedPrefsService.getUserId();
+    if (id == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("User not found. Please log in again.")),
+      );
+      return;
+    }
+    setState(() {
+      _userId = id;
+    });
+  }
+
+  void _openAddProductModal(BuildContext context) async {
+    if (_userId == null) return;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -51,7 +69,7 @@ class _StockManagerState extends State<StockManager> {
                   };
                 });
                 API.saveSingleStockToMongoDB(
-                    initialName, stockCounts[initialName]!);
+                    initialName, stockCounts[initialName]!, _userId!);
 
                 if (modalContext.mounted) {
                   Navigator.pop(
@@ -90,6 +108,7 @@ class _StockManagerState extends State<StockManager> {
   }
 
   bool _updateStockForSale(String item, int sellAmount) {
+    if (_userId == null) return false;
     if (stockCounts.containsKey(item)) {
       int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
       int totalStock = stockCounts[item]?["totalStock"] ?? 0;
@@ -118,7 +137,7 @@ class _StockManagerState extends State<StockManager> {
         ),
       );
 
-      API.saveSingleStockToMongoDB(item, stockCounts[item]!);
+      API.saveSingleStockToMongoDB(item, stockCounts[item]!, _userId!);
       StockNotifier.checkStockAndNotify(
         updatedStock,
         totalStock,
@@ -181,6 +200,7 @@ class _StockManagerState extends State<StockManager> {
   }
 
   bool _updateStock(String item, int restockAmount) {
+    if (_userId == null) return false;
     if (stockCounts.containsKey(item)) {
       setState(() {
         int currentTotalStock = stockCounts[item]?["totalStock"] ?? 0;
@@ -194,7 +214,7 @@ class _StockManagerState extends State<StockManager> {
         // sold does NOT change
       });
 
-      API.saveSingleStockToMongoDB(item, stockCounts[item]!);
+      API.saveSingleStockToMongoDB(item, stockCounts[item]!, _userId!);
 
       return true;
     }

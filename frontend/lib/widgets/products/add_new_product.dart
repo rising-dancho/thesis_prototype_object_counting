@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 // import 'package:tectags/models/stockdata_model.dart';
 import 'package:tectags/services/api.dart';
+import 'package:tectags/services/shared_prefs_service.dart';
 import 'package:tectags/utils/label_formatter.dart';
 import 'package:tectags/widgets/products/restock_product.dart';
 
@@ -39,6 +40,9 @@ class _AddNewProductState extends State<AddNewProduct> {
   // loading
   bool isLoading = false;
 
+  // GETTING USER ID FROM SHAREDPREFS
+  String? _userId;
+
   @override
   void initState() {
     super.initState();
@@ -46,6 +50,20 @@ class _AddNewProductState extends State<AddNewProduct> {
     debugPrint("🛠 Initializing AddNewProduct — Sold: ${widget.itemCount}");
     soldController =
         TextEditingController(text: widget.itemCount?.toString() ?? '');
+    _loadUserId();
+  }
+
+  Future<void> _loadUserId() async {
+    final id = await SharedPrefsService.getUserId();
+    if (id == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("User not found. Please log in again.")),
+      );
+      return;
+    }
+    setState(() {
+      _userId = id;
+    });
   }
 
   @override
@@ -119,6 +137,7 @@ class _AddNewProductState extends State<AddNewProduct> {
   }
 
   void updateStock(String initialName, int restockAmount) {
+    if (_userId == null) return;
     if (stockCounts.containsKey(initialName)) {
       setState(() {
         int currentTotalStock = stockCounts[initialName]?["totalStock"] ?? 0;
@@ -131,7 +150,8 @@ class _AddNewProductState extends State<AddNewProduct> {
             currentAvailableStock + restockAmount;
       });
 
-      API.saveSingleStockToMongoDB(initialName, stockCounts[initialName]!);
+      API.saveSingleStockToMongoDB(
+          initialName, stockCounts[initialName]!, _userId!);
     }
   }
 

@@ -72,6 +72,282 @@ app.get('/', (req, res) => {
   res.send('FIXING BACKEND LOGIC! 🚀');
 });
 
+// NUMBER OF STOCKS and DETECTIONS DATA -------------
+
+// Save stock for sold
+app.post('/api/update/sold', async (req, res) => {
+  try {
+    const { userId, items } = req.body;
+
+    const updatedStocks = [];
+
+    for (const stockItem of items) {
+      const updateFields = {
+        totalStock: stockItem.totalStock,
+        availableStock: stockItem.availableStock,
+        sold: stockItem.sold,
+      };
+
+      if (
+        typeof stockItem.unitPrice === 'number' &&
+        !isNaN(stockItem.unitPrice) &&
+        stockItem.unitPrice > 0
+      ) {
+        updateFields.unitPrice = stockItem.unitPrice;
+      }
+
+      const updatedStock = await Stock.findOneAndUpdate(
+        { stockName: stockItem.stockName },
+        { $set: updateFields },
+        { upsert: true, new: true }
+      );
+
+      updatedStocks.push(updatedStock);
+
+      if (userId) {
+        await Activity.create({
+          userId,
+          stockId: updatedStock._id,
+          action: `Updated sold count for ${stockItem.stockName}`,
+          countedAmount: stockItem.sold,
+        });
+      }
+    }
+
+    res.json(updatedStocks);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+app.delete('/api/stocks/:stockName', async (req, res) => {
+  try {
+    const stockName = req.params.stockName;
+    await Stock.deleteOne({ stockName: stockName }); // ✅ Fix field name
+    res.json({ message: `Deleted ${stockName} successfully` });
+
+    // await Activity.create({
+    //   userId,
+    //   stockId,
+    //   action: `Deleted ${stockName}`,
+    //   countedAmount: soldAmount,
+    // });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// FETCH INDIVIDUAL STOCK USING ID
+app.get('/api/stocks/:id', async (req, res) => {
+  try {
+    const stock = await Stock.findById(req.params.id);
+
+    if (!stock) {
+      return res.status(404).json({ message: 'Stock item not found' });
+    }
+
+    res.json({
+      _id: stock._id,
+      stockName: stock.stockName,
+      availableStock: stock.availableStock,
+      totalStock: stock.totalStock,
+      sold: stock.sold,
+      unitPrice: stock.unitPrice,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// SOLD CALCULATION DONE HERE
+// GET ALL STOCKS WITH SOLD COUNT AND TOTAL SALES
+app.get('/api/stocks', async (req, res) => {
+  try {
+    const stocks = await Stock.find();
+
+    let grandTotalSold = 0;
+    let grandTotalSales = 0;
+
+    const withSold = stocks.map((stock) => {
+      const soldCount = stock.totalStock - stock.availableStock;
+      const totalSales = soldCount * (stock.unitPrice ?? 0);
+
+      grandTotalSold += soldCount;
+      grandTotalSales += totalSales;
+
+      return {
+        _id: stock._id,
+        stockName: stock.stockName,
+        totalStock: stock.totalStock,
+        availableStock: stock.availableStock,
+        sold: soldCount,
+        unitPrice: stock.unitPrice,
+        totalSales,
+      };
+    });
+
+    res.json({
+      items: withSold,
+      summary: {
+        totalSold: grandTotalSold,
+        totalEarnings: grandTotalSales,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// UPDATE UNIT PRICE OF A STOCK
+app.post('/api/stocks/update-price', async (req, res) => {
+  try {
+    const { stockName, unitPrice } = req.body;
+
+    if (!stockName || unitPrice === undefined) {
+      return res
+        .status(400)
+        .json({ message: 'Stock name and unit price are required' });
+    }
+
+    const stock = await Stock.findOne({ stockName });
+
+    if (!stock) {
+      return res
+        .status(404)
+        .json({ message: `Stock item '${stockName}' not found` });
+    }
+
+    stock.unitPrice = unitPrice;
+    await stock.save();
+
+    res.json({
+      message: `Successfully updated unit price of ${stockName} to ₱${unitPrice}`,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// RESTOCK endpoint
+app.post('/api/stocks/restock', async (req, res) => {
+  try {
+    const { stockName, restockAmount } = req.body;
+
+    if (!stockName || restockAmount === undefined) {
+      return res
+        .status(400)
+        .json({ message: 'Stock name and restock amount are required' });
+    }
+
+    const stock = await Stock.findOne({ stockName });
+
+    if (!stock) {
+      return res
+        .status(404)
+        .json({ message: `Stock item '${stockName}' not found` });
+    }
+
+    stock.totalStock += restockAmount;
+    stock.availableStock += restockAmount;
+
+    await stock.save();
+
+    res.json({
+      message: `Successfully restocked ${restockAmount} units of ${stockName}`,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Save stock for restock
+app.post('/api/update/restock', async (req, res) => {
+  try {
+    for (const stockItem of req.body) {
+      // Base update operation with $inc
+      const updateOps = {
+        $inc: {
+          totalStock: stockItem.totalStock,
+          availableStock: stockItem.availableStock,
+        },
+      };
+
+      // ✅ Conditionally add $set for unitPrice
+      if (
+        typeof stockItem.unitPrice === 'number' &&
+        !isNaN(stockItem.unitPrice) &&
+        stockItem.unitPrice > 0
+      ) {
+        updateOps.$set = {
+          unitPrice: stockItem.unitPrice,
+        };
+      }
+      await Stock.findOneAndUpdate(
+        { stockName: stockItem.stockName },
+        updateOps,
+        { upsert: true, new: true }
+      );
+    }
+
+    res.json({ message: 'Stock updated successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/update/sold-with-price', async (req, res) => {
+  const { stockId, soldAmount, price, userId } = req.body;
+
+  if (
+    !stockId ||
+    !userId ||
+    typeof soldAmount !== 'number' ||
+    typeof price !== 'number'
+  ) {
+    return res.status(400).json({ error: 'Invalid input data' });
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(stockId)) {
+    return res.status(400).json({ error: 'Invalid stock ID' });
+  }
+
+  try {
+    const stock = await Stock.findById(stockId);
+    if (!stock) {
+      return res.status(404).json({ error: 'Stock not found' });
+    }
+
+    const updatedStock = await Stock.findByIdAndUpdate(
+      stockId,
+      {
+        $inc: {
+          sold: soldAmount,
+        },
+        $set: {
+          unitPrice: price,
+          availableStock: Math.max(0, stock.availableStock - soldAmount), // 🚨 Subtract sold from availableStock
+        },
+      },
+      { new: true }
+    );
+
+    await Activity.create({
+      userId,
+      stockId,
+      action: `Updated sold count for ${stock.stockName}`,
+      countedAmount: soldAmount,
+    });
+
+    res
+      .status(200)
+      .json({ message: 'Stock updated and activity logged.', updatedStock });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // LOGIN, REGISTRATION, ROLES, DELETE, UPDATE USER & CHANGE PASSWORD -------------
 
 // DELETE a user
@@ -389,280 +665,6 @@ app.get('/api/user/:userId', requireAuth, async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error.', error: error.message });
-  }
-});
-
-// NUMBER OF STOCKS and DETECTIONS DATA -------------
-
-// FETCH INDIVIDUAL STOCK USING ID
-app.get('/api/stocks/:id', async (req, res) => {
-  try {
-    const stock = await Stock.findById(req.params.id);
-
-    if (!stock) {
-      return res.status(404).json({ message: 'Stock item not found' });
-    }
-
-    res.json({
-      _id: stock._id,
-      stockName: stock.stockName,
-      availableStock: stock.availableStock,
-      totalStock: stock.totalStock,
-      sold: stock.sold,
-      unitPrice: stock.unitPrice,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// SOLD CALCULATION DONE HERE
-// GET ALL STOCKS WITH SOLD COUNT AND TOTAL SALES
-app.get('/api/stocks', async (req, res) => {
-  try {
-    const stocks = await Stock.find();
-
-    let grandTotalSold = 0;
-    let grandTotalSales = 0;
-
-    const withSold = stocks.map((stock) => {
-      const soldCount = stock.totalStock - stock.availableStock;
-      const totalSales = soldCount * (stock.unitPrice ?? 0);
-
-      grandTotalSold += soldCount;
-      grandTotalSales += totalSales;
-
-      return {
-        _id: stock._id,
-        stockName: stock.stockName,
-        totalStock: stock.totalStock,
-        availableStock: stock.availableStock,
-        sold: soldCount,
-        unitPrice: stock.unitPrice,
-        totalSales,
-      };
-    });
-
-    res.json({
-      items: withSold,
-      summary: {
-        totalSold: grandTotalSold,
-        totalEarnings: grandTotalSales,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// UPDATE UNIT PRICE OF A STOCK
-app.post('/api/stocks/update-price', async (req, res) => {
-  try {
-    const { stockName, unitPrice } = req.body;
-
-    if (!stockName || unitPrice === undefined) {
-      return res
-        .status(400)
-        .json({ message: 'Stock name and unit price are required' });
-    }
-
-    const stock = await Stock.findOne({ stockName });
-
-    if (!stock) {
-      return res
-        .status(404)
-        .json({ message: `Stock item '${stockName}' not found` });
-    }
-
-    stock.unitPrice = unitPrice;
-    await stock.save();
-
-    res.json({
-      message: `Successfully updated unit price of ${stockName} to ₱${unitPrice}`,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// RESTOCK endpoint
-app.post('/api/stocks/restock', async (req, res) => {
-  try {
-    const { stockName, restockAmount } = req.body;
-
-    if (!stockName || restockAmount === undefined) {
-      return res
-        .status(400)
-        .json({ message: 'Stock name and restock amount are required' });
-    }
-
-    const stock = await Stock.findOne({ stockName });
-
-    if (!stock) {
-      return res
-        .status(404)
-        .json({ message: `Stock item '${stockName}' not found` });
-    }
-
-    stock.totalStock += restockAmount;
-    stock.availableStock += restockAmount;
-
-    await stock.save();
-
-    res.json({
-      message: `Successfully restocked ${restockAmount} units of ${stockName}`,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Save stock for restock
-app.post('/api/update/restock', async (req, res) => {
-  try {
-    for (const stockItem of req.body) {
-      // Base update operation with $inc
-      const updateOps = {
-        $inc: {
-          totalStock: stockItem.totalStock,
-          availableStock: stockItem.availableStock,
-        },
-      };
-
-      // ✅ Conditionally add $set for unitPrice
-      if (
-        typeof stockItem.unitPrice === 'number' &&
-        !isNaN(stockItem.unitPrice) &&
-        stockItem.unitPrice > 0
-      ) {
-        updateOps.$set = {
-          unitPrice: stockItem.unitPrice,
-        };
-      }
-      await Stock.findOneAndUpdate(
-        { stockName: stockItem.stockName },
-        updateOps,
-        { upsert: true, new: true }
-      );
-    }
-
-    res.json({ message: 'Stock updated successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.post('/api/update/sold-with-price', async (req, res) => {
-  const { stockId, soldAmount, price, userId } = req.body;
-
-  if (
-    !stockId ||
-    !userId ||
-    typeof soldAmount !== 'number' ||
-    typeof price !== 'number'
-  ) {
-    return res.status(400).json({ error: 'Invalid input data' });
-  }
-
-  if (!mongoose.Types.ObjectId.isValid(stockId)) {
-    return res.status(400).json({ error: 'Invalid stock ID' });
-  }
-
-  try {
-    const stock = await Stock.findById(stockId);
-    if (!stock) {
-      return res.status(404).json({ error: 'Stock not found' });
-    }
-
-    const updatedStock = await Stock.findByIdAndUpdate(
-      stockId,
-      {
-        $inc: {
-          sold: soldAmount,
-        },
-        $set: {
-          unitPrice: price,
-          availableStock: Math.max(0, stock.availableStock - soldAmount), // 🚨 Subtract sold from availableStock
-        },
-      },
-      { new: true }
-    );
-
-    await Activity.create({
-      userId,
-      stockId,
-      action: `Updated sold count for ${stock.stockName}`,
-      countedAmount: soldAmount,
-    });
-
-    res
-      .status(200)
-      .json({ message: 'Stock updated and activity logged.', updatedStock });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-// Save stock for sold
-app.post('/api/update/sold', async (req, res) => {
-  try {
-    const updatedStocks = [];
-
-    for (const stockItem of req.body) {
-      const updateFields = {
-        totalStock: stockItem.totalStock,
-        availableStock: stockItem.availableStock,
-        sold: stockItem.sold,
-      };
-
-      if (
-        typeof stockItem.unitPrice === 'number' &&
-        !isNaN(stockItem.unitPrice) &&
-        stockItem.unitPrice > 0
-      ) {
-        updateFields.unitPrice = stockItem.unitPrice;
-      }
-
-      console.log('Updating:', stockItem.stockName, updateFields);
-
-      const updatedStock = await Stock.findOneAndUpdate(
-        { stockName: stockItem.stockName },
-        { $set: updateFields },
-        { upsert: true, new: true }
-      );
-
-      updatedStocks.push(updatedStock);
-    }
-
-    // await Activity.create({
-    //   userId,
-    //   stockId,
-    //   action: `Updated sold count for ${stock.stockName}`,
-    //   countedAmount: soldAmount,
-    // });
-
-    // Send all updated stock documents in the response
-    res.json(updatedStocks);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.delete('/api/stocks/:stockName', async (req, res) => {
-  try {
-    const stockName = req.params.stockName;
-    await Stock.deleteOne({ stockName: stockName }); // ✅ Fix field name
-    res.json({ message: `Deleted ${stockName} successfully` });
-
-    // await Activity.create({
-    //   userId,
-    //   stockId,
-    //   action: `Deleted ${stockName}`,
-    //   countedAmount: soldAmount,
-    // });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
   }
 });
 

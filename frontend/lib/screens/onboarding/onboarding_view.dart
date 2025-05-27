@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tectags/screens/dashboard_screen.dart';
+// import 'package:tectags/screens/dashboard_screen.dart';
 import 'package:tectags/screens/navigation/navigation_menu.dart';
 import 'package:tectags/screens/onboarding/onboarding_items.dart';
 // import 'package:tectags/screens/navigation/navigation_menu.dart';

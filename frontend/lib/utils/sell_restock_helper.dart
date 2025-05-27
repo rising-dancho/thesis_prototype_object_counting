@@ -7,6 +7,7 @@ class SellRestockHelper {
     Map<String, Map<String, int>> stockCounts,
     String initialName,
     int restockAmount,
+    String userId,
   ) {
     if (stockCounts.containsKey(initialName)) {
       int currentTotalStock = stockCounts[initialName]?["totalStock"] ?? 0;
@@ -22,7 +23,8 @@ class SellRestockHelper {
       debugPrint("🔁 Restocking $initialName: +$restockAmount");
       debugPrint(
           "➡️ New total: ${stockCounts[initialName]?["totalStock"]}, available: ${stockCounts[initialName]?["availableStock"]}");
-      API.saveSingleStockToMongoDB(initialName, stockCounts[initialName]!);
+      API.saveSingleStockToMongoDB(
+          initialName, stockCounts[initialName]!, userId);
     }
   }
 
@@ -31,6 +33,7 @@ class SellRestockHelper {
     Map<String, Map<String, int>> stockCounts,
     String initialName,
     int sellAmount,
+    String userId,
   ) {
     if (stockCounts.containsKey(initialName)) {
       int currentAvailableStock =
@@ -49,7 +52,8 @@ class SellRestockHelper {
       debugPrint("🔁 Selling $initialName: -$sellAmount");
       debugPrint(
           "➡️ Remaining: ${stockCounts[initialName]?["availableStock"]}, sold: ${stockCounts[initialName]?["sold"]}");
-      API.saveSingleStockToMongoDB(initialName, stockCounts[initialName]!);
+      API.saveSingleStockToMongoDB(
+          initialName, stockCounts[initialName]!, userId);
       return true;
     }
     return false;

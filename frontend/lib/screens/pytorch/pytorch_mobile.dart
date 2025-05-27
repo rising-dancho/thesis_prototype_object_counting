@@ -81,6 +81,9 @@ class _PytorchMobileState extends State<PytorchMobile> {
   // PREVENT MULTIPLE REENTRY FOR OPENING ADD PRODUCT MODAL
   bool _isAddProductModalOpen = false;
 
+  // GETTING USER ID FROM SHAREDPREFS
+  String? _userId;
+
   @override
   void initState() {
     super.initState();
@@ -89,6 +92,20 @@ class _PytorchMobileState extends State<PytorchMobile> {
     _requestPermission(); // [gain permission]
     loadModel();
     fetchStockData();
+    _loadUserId(); // GET USER ID
+  }
+
+  Future<void> _loadUserId() async {
+    final id = await SharedPrefsService.getUserId();
+    if (id == null) {
+      ScaffoldMessenger.of(this.context).showSnackBar(
+        const SnackBar(content: Text("User not found. Please log in again.")),
+      );
+      return;
+    }
+    setState(() {
+      _userId = id;
+    });
   }
 
   @override
@@ -494,6 +511,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
     int? itemCount,
     int? initialAmount,
   }) async {
+    if (_userId == null) return false;
     if (_isAddProductModalOpen) return false;
 
     _isAddProductModalOpen = true;
@@ -523,7 +541,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
                 });
 
                 await API.saveSingleStockToMongoDB(
-                    itemName, stockCounts[itemName]!);
+                    itemName, stockCounts[itemName]!, _userId!);
 
                 if (modalContext.mounted) {
                   Navigator.pop(
@@ -553,8 +571,8 @@ class _PytorchMobileState extends State<PytorchMobile> {
                 var stockData = stockCounts[itemName];
 
                 if (stockData?['_id'] == null) {
-                  final savedData =
-                      await API.saveSingleStockToMongoDB(itemName, stockData!);
+                  final savedData = await API.saveSingleStockToMongoDB(
+                      itemName, stockData!, _userId!);
 
                   if (savedData == null || savedData['_id'] == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -684,6 +702,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
   }
 
   bool _updateStockForSale(String item, int sellAmount) {
+    if (_userId == null) return false;
     if (stockCounts.containsKey(item)) {
       int currentAvailableStock = stockCounts[item]?["availableStock"] ?? 0;
       int totalStock = stockCounts[item]?["totalStock"] ?? 0;
@@ -712,7 +731,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
         ),
       );
 
-      API.saveSingleStockToMongoDB(item, stockCounts[item]!);
+      API.saveSingleStockToMongoDB(item, stockCounts[item]!, _userId!);
       StockNotifier.checkStockAndNotify(
         updatedStock,
         totalStock,
@@ -753,6 +772,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
   }
 
   bool _updateStock(String item, int restockAmount) {
+    if (_userId == null) return false;
     if (stockCounts.containsKey(item)) {
       setState(() {
         int currentTotalStock = stockCounts[item]?["totalStock"] ?? 0;
@@ -766,7 +786,7 @@ class _PytorchMobileState extends State<PytorchMobile> {
         // sold does NOT change
       });
 
-      API.saveSingleStockToMongoDB(item, stockCounts[item]!);
+      API.saveSingleStockToMongoDB(item, stockCounts[item]!, _userId!);
 
       return true;
     }
