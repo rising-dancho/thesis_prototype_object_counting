@@ -118,7 +118,7 @@ app.post('/api/update/sold', async (req, res) => {
         await Activity.create({
           userId,
           stockId: updatedStock._id,
-          action: `Sold ${soldDelta} of ${stockItem.stockName}`,
+          action: `Updated sold count for ${stockItem.stockName}`,
           countedAmount: soldDelta,
         });
       }
