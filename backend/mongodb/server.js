@@ -407,12 +407,12 @@ app.post('/api/update/sold-with-price', async (req, res) => {
       { new: true }
     );
 
-    await Activity.create({
-      userId,
-      stockId,
-      action: `Updated sold count for ${stock.stockName}`,
-      countedAmount: soldAmount,
-    });
+    // await Activity.create({
+    //   userId,
+    //   stockId,
+    //   action: `Updated sold count for ${stock.stockName}`,
+    //   countedAmount: soldAmount,
+    // });
 
     res
       .status(200)

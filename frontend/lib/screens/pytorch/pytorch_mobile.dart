@@ -542,7 +542,6 @@ class _PytorchMobileState extends State<PytorchMobile> {
 
                 await API.saveSingleStockToMongoDB(
                     itemName, stockCounts[itemName]!, _userId!);
-
                 if (modalContext.mounted) {
                   Navigator.pop(
                       modalContext, true); // ✅ only pop after save completes
@@ -569,36 +568,28 @@ class _PytorchMobileState extends State<PytorchMobile> {
                 });
 
                 var stockData = stockCounts[itemName];
-
                 if (stockData?['_id'] == null) {
                   final savedData = await API.saveSingleStockToMongoDB(
                       itemName, stockData!, _userId!);
-
                   if (savedData == null || savedData['_id'] == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                           content: Text("Failed to save new stock to MongoDB")),
                     );
-
                     return;
                   }
-
                   stockCounts[itemName]!['_id'] = savedData['_id'];
-
                   stockData = stockCounts[itemName];
                 }
 
                 final stockId = stockData?['_id'];
-
                 final userId = await SharedPrefsService.getUserId();
-
                 if (userId == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                         content: Text(
                             "Error: User ID is missing. Please log in again.")),
                   );
-
                   return;
                 }
 
