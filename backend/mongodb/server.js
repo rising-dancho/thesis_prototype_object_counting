@@ -122,6 +122,7 @@ app.post('/api/update/sold', async (req, res) => {
             stockId: updatedStock._id,
             action: `Updated sold count for ${stockItem.stockName}`,
             countedAmount: Math.abs(availableDelta),
+            type: 'sold',
           });
         } else if (availableDelta > 0) {
           // Stock restocked (availableStock increased)
@@ -130,6 +131,7 @@ app.post('/api/update/sold', async (req, res) => {
             stockId: updatedStock._id,
             action: `Updated restock count for ${stockItem.stockName}`,
             countedAmount: availableDelta,
+            type: 'restock',
           });
         }
       }
