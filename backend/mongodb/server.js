@@ -82,61 +82,6 @@ app.post('/api/update/sold', async (req, res) => {
     const updatedStocks = [];
 
     for (const stockItem of items) {
-      // Get the previous state of the stock BEFORE updating
-      const prevStock = await Stock.findOne({ stockName: stockItem.stockName });
-
-      const updateFields = {
-        totalStock: stockItem.totalStock,
-        availableStock: stockItem.availableStock,
-        sold: stockItem.sold,
-      };
-
-      if (
-        typeof stockItem.unitPrice === 'number' &&
-        !isNaN(stockItem.unitPrice) &&
-        stockItem.unitPrice > 0
-      ) {
-        updateFields.unitPrice = stockItem.unitPrice;
-      }
-
-      const updatedStock = await Stock.findOneAndUpdate(
-        { stockName: stockItem.stockName },
-        { $set: updateFields },
-        { upsert: true, new: true }
-      );
-
-      updatedStocks.push(updatedStock);
-
-      // Now compute soldDelta using old and new sold values
-      const soldDelta = Math.max(
-        (stockItem.sold ?? 0) - (prevStock?.sold ?? 0),
-        0
-      );
-
-      // Log only the change/difference that happened between the old and new sold count
-      if (userId && soldDelta > 0) {
-        await Activity.create({
-          userId,
-          stockId: updatedStock._id,
-          action: `Updated sold count for ${stockItem.stockName}`,
-          countedAmount: soldDelta,
-        });
-      }
-    }
-
-    res.json(updatedStocks);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.post('/api/update/sold', async (req, res) => {
-  try {
-    const { userId, items } = req.body;
-
-    const updatedStocks = [];
-
-    for (const stockItem of items) {
       // Get the previous stock from the database
       const prevStock = await Stock.findOne({ stockName: stockItem.stockName });
 

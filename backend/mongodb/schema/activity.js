@@ -21,6 +21,19 @@ const activitySchema = new mongoose.Schema(
         );
       },
     },
+    // Distinguish action types
+    type: {
+      type: String,
+      enum: [
+        'restock',
+        'sold',
+        'login',
+        'register',
+        'role-update',
+        'user-delete',
+      ],
+      required: false,
+    },
     countedAmount: { type: Number, default: 0 },
   },
   { timestamps: true }
