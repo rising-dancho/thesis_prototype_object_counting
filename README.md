@@ -108,5 +108,8 @@ pip freeze > requirements.txt
 ```
 
 
-
+### Initial Prototype
 https://github.com/user-attachments/assets/456a4556-a73a-41df-ace6-baad09fa48f3
+
+### Current Version
+https://github.com/user-attachments/assets/63562c27-35ff-4418-b669-4bf012a4f14e
