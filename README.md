@@ -1,6 +1,6 @@
 # ObjectCounting-Prototype 🧪
 
-[download latest version for android](https://github.com/rising-dancho/thesis_prototype_object_counting/releases/tag/v0.9.4)
+download latest version for android [download here](https://github.com/rising-dancho/thesis_prototype_object_counting/releases/tag/v0.9.4)
 
 ## Getting Started
 
